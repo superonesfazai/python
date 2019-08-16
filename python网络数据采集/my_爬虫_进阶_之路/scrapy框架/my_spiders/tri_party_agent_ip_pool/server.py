@@ -36,11 +36,14 @@ from settings import (
 from json import dumps
 from pprint import pprint
 from fzutils.sql_utils import BaseSqlite3Cli
+from fzutils.gevent_utils import gevent_monkey
 
 try:
     from gevent.wsgi import WSGIServer      # 高并发部署
 except Exception as e:
     from gevent.pywsgi import WSGIServer
+
+gevent_monkey.patch_all()
 
 app = Flask(__name__, root_path=getcwd())
 sqlite3_cli = BaseSqlite3Cli(db_path='proxy.db')

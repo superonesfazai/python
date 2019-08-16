@@ -60,6 +60,9 @@ def total():
     pprint(ordered_dict)
 
     total = 0.
+    # 是否进入if total >= xxx and sign_value 的信号值
+    sign_value = True
+    rest_hours = 0.
     for key, value in ordered_dict.items():
         # print(key, value)
         if value == .5:
@@ -67,13 +70,22 @@ def total():
             continue
 
         total += value
-        if total >= 184:
+        if total >= 200 and sign_value:
             # 160h是2018.12->2019.5月total调休时长, 2019.5 用到2019.4.30号
             # 184h是2018.12->2019.6月total调休时长, 2019.6 用到2019.5.24号
+            # 200h是2018.12->2019.7月total调休时长, 2019.7 用到2019.6.13号
             print('当前total: {}, 当前调休到day: {}'.format(total, key))
-            break
+            # break
+            sign_value = False
+        else:
+            if not sign_value:
+                # print(key, value)
+                rest_hours += value
+            else:
+                pass
 
-    print('总计hours: {}h\n能调days: {}day'.format(total, total/8))
+    print('rest_time: {}h, can used days: {}'.format(rest_hours, rest_hours/8))
+    print('\n总计hours: {}h, 能调days: {}'.format(total, total/8))
 
     return
 

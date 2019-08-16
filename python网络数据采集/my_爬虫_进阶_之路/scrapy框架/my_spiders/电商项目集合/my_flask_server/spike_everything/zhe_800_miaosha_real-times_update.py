@@ -13,7 +13,6 @@ sys.path.append('..')
 from zhe_800_parse import Zhe800Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 import json
-from pprint import pprint
 import time
 from settings import (
     IS_BACKGROUND_RUNNING,

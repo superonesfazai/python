@@ -23,14 +23,14 @@ from multiplex_code import (
     _get_spec_trans_record,
     _get_stock_trans_record,
     _block_print_db_old_data,
-    _block_get_new_db_conn,)
+    _block_get_new_db_conn,
+    _get_price_change_info,)
 
 from fzutils.time_utils import (
     get_shanghai_time,
 )
 from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import (
-    _get_price_change_info,
     get_shelf_time_and_delete_time,
     format_price_info_list,
 )

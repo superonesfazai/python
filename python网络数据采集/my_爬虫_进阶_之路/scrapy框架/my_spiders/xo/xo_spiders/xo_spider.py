@@ -20,6 +20,8 @@ from fzutils.spider.selector import parse_field
 from fzutils.spider.fz_requests import PROXY_TYPE_HTTPS
 from fzutils.spider.async_always import *
 
+nest_asyncio_apply()
+
 class XOSpider(AsyncCrawler):
     def __init__(self):
         AsyncCrawler.__init__(
@@ -28,12 +30,14 @@ class XOSpider(AsyncCrawler):
             log_print=True,
             log_save_path='/Users/afa/myFiles/my_spider_logs/xo/',
         )
-        self.concurrency = 20
+        self.concurrency = 50
         self.req_num_retries = 5
         self.max_s63_chinese_captions_page_num = 10                     # total 210
         self.max_n15_japan_page_num = 3
         self.max_n15_all_page_num = 25
         self.max_8xs_dalu_all_page_num = 20
+        self.max_8xs_usa_all_page_num = 20
+        self.max_8xs_blue_all_page_num = 20
 
     async def _fck_run(self):
         # await self.s69zy3_spider()
@@ -42,12 +46,16 @@ class XOSpider(AsyncCrawler):
 
     async def _8xs_spider(self):
         """
-        target_url: https://8xsan.com/
+        target_url: https://8xsao.com/
         :return:
         """
+        self.basic_domain_name = '8xsao.com'
         self.parser_obj = self.get_parser_obj()['8xs']
+        # label_name = '大陆'
+        # label_name = '欧美'
+        label_name = '三级'
         all_video_list = await self.get_8xs_some_label_all_video_list_by_label_name(
-            label_name='大陆', )
+            label_name=label_name, )
         await self.get_8xs_all_video_info_by_video_list(
             video_list=all_video_list, )
 
@@ -119,6 +127,16 @@ class XOSpider(AsyncCrawler):
                 'max_page_num': self.max_8xs_dalu_all_page_num,
                 'sort_type': 'video1',
             },
+            '欧美': {
+                'label_name': '欧美',
+                'max_page_num': self.max_8xs_usa_all_page_num,
+                'sort_type': 'video3',
+            },
+            '三级': {
+                'label_name': '三级',
+                'max_page_num': self.max_8xs_blue_all_page_num,
+                'sort_type': 'video5',
+            },
         }
         if sort_name not in sort_info_dict.keys():
             raise ValueError('sort_name value 异常!'.format(sort_name))
@@ -126,10 +144,14 @@ class XOSpider(AsyncCrawler):
         return sort_info_dict.get(sort_name, {})
 
     @catch_exceptions_with_class_logger(default_res=[])
-    def get_8xs_video_list_by_label_name_and_page_num(self, label_name, sort_name, page_num: int) -> list:
+    def get_8xs_video_list_by_label_name_and_page_num(self,
+                                                      label_name,
+                                                      sort_name,
+                                                      page_num: int) -> list:
         """
         根据label_name, page_num获取指定页面的video info
         :param label_name:
+        :param sort_name:
         :param page_num:
         :return:
         """
@@ -139,9 +161,10 @@ class XOSpider(AsyncCrawler):
         headers.update({
             'Sec-Fetch-Mode': 'navigate',
             'Sec-Fetch-User': '?1',
-            # 'Referer': 'https://8xsan.com/html/category/video/video1/',
+            'Referer': 'https://{}/html/category/video/video1/'.format(self.basic_domain_name),
         })
-        url = 'https://8xsan.com/html/category/video/{}/page_{}.html'.format(
+        url = 'https://{}/html/category/video/{}/page_{}.html'.format(
+            self.basic_domain_name,
             sort_name,
             page_num,)
         body = Requests.get_url_body(
@@ -218,11 +241,10 @@ class XOSpider(AsyncCrawler):
         """
         headers = get_random_headers(connection_status_keep_alive=False)
         headers.update({
-            'authority': '8xsan.com',
+            'authority': '{}'.format(self.basic_domain_name),
             'sec-fetch-mode': 'navigate',
             'sec-fetch-user': '?1',
             'sec-fetch-site': 'none',
-            # 'cookie': '_ym_uid=156584726460845301; _ym_d=1565847264; _ga=GA1.2.2016683436.1565847265; _gid=GA1.2.1698900139.1565847265; _ym_isad=2; _ym_wasSynced=%7B%22time%22%3A1565847265927%2C%22params%22%3A%7B%22eu%22%3A0%7D%2C%22bkParams%22%3A%7B%7D%7D; _ym_visorc_54691198=w; _ym_hostIndex=0-2%2C1-0; _gat_gtag_UA_140380073_1=1',
             # 'if-none-match': 'W/"5d52a7ae-5e59"',
             # 'if-modified-since': 'Tue, 13 Aug 2019 12:06:06 GMT',
         })
@@ -384,7 +406,7 @@ class XOSpider(AsyncCrawler):
     def get_n15_some_video_info_by_video_url(self, video_url, base_video_info: dict) -> dict:
         """
         根据video_url获取video info
-        :param url:
+        :param video_url:
         :param base_video_info: 原先的video基础信息
         :return:
         """
@@ -395,7 +417,6 @@ class XOSpider(AsyncCrawler):
             'sec-fetch-mode': 'navigate',
             'sec-fetch-user': '?1',
             'sec-fetch-site': 'none',
-            # 'cookie': '_ga=GA1.2.458296239.1565329933; _gid=GA1.2.679615192.1565329933; XSRF-TOKEN=eyJpdiI6IjNtUkRiTVZqN09pTGVKS200c25Canc9PSIsInZhbHVlIjoibFJUeFdVU3g0KzhQcThtRlVuUE9zMXZoQVpsM28yUXh3aDN2UUZvR0VRc05EVHJncFA3QzBNNEN0UkNIUm1BUSIsIm1hYyI6ImZjMmE2NGY1N2E4NmQ5NDRhMTU1YTA1ZGFjOTM5ZDEyMWU5OGYwNjRkM2I5M2I4Y2ZmYmViYzljZThhOGI2MGQifQ%3D%3D; july_session=eyJpdiI6InZmRVVzWnpJTlowMDVNWnNMQys1OHc9PSIsInZhbHVlIjoidTZmRDBHQUI3TDZ2bUlRNkdRUW1pWmZ0bFE5Tmxrb0pPR2RHdzU4NFl0dWk4YTBJMWw4VnNsMWNBMmtYSUNMUSIsIm1hYyI6ImJiZTY2NTNkNzZhMGM3ZjA1ZmM0MjIzZDUwYmE5NzhjMjAwYTgwZWZiMjgyNTBmMGEwY2YzOGFkNDE4MTEyMDcifQ%3D%3D',
         })
         body = Requests.get_url_body(
             url=video_url,
@@ -420,9 +441,14 @@ class XOSpider(AsyncCrawler):
         return res
 
     @catch_exceptions_with_class_logger(default_res=[])
-    def get_n15_video_list_by_label_name_and_page_num(self, label_name: str, sort_type: str, page_num: int) -> list:
+    def get_n15_video_list_by_label_name_and_page_num(self,
+                                                      label_name: str,
+                                                      sort_type: str,
+                                                      page_num: int) -> list:
         """
         根据page_num获取单页中日本video信息
+        :param label_name:
+        :param sort_type:
         :param page_num:
         :return:
         """
@@ -584,10 +610,10 @@ class XOSpider(AsyncCrawler):
 
             elif short_name == '8xs':
                 if static_img_url != '':
-                    # eg: 'db9b743f134910dbc697fc9f1513428c/index.m3u8'
+                    # eg: 'db9b743f134910dbc697fc9f1513428c/index.m3u8' or '8e774a4bf7a697dd00935023a401eec8/v.m3u8'
                     video_id_sel = {
                         'method': 're',
-                        'selector': '(\w+)/index\.m3u8',
+                        'selector': '(\w+)/\w+\.m3u8',
                     }
                     # 从m3u8地址中生成静态图
                     video_id = parse_field(
@@ -769,7 +795,7 @@ class XOSpider(AsyncCrawler):
             _ = list(zip(video_name_list, url_list))
             for item in _:
                 try:
-                    url = 'https://8xsan.com' + item[1] if item[1] != '' else ''
+                    url = 'https://{}'.format(self.basic_domain_name) + item[1] if item[1] != '' else ''
                     assert url != ''
                     video_list_item = VideoListItem()
                     video_list_item['video_name'] = item[0]
@@ -880,6 +906,32 @@ class XOSpider(AsyncCrawler):
                     },
                     'create_time': None,
                 },
+                '欧美': {
+                    'video_name': {
+                        'method': 'css',
+                        'selector': 'div.container.sy_tc ul li div.w_z h3 a ::text',
+                    },
+                    'video_region': None,
+                    'video_type': None,
+                    'url': {
+                        'method': 'css',
+                        'selector': 'div.container.sy_tc ul li div.w_z h3 a ::attr("href")',
+                    },
+                    'create_time': None,
+                },
+                '三级': {
+                    'video_name': {
+                        'method': 'css',
+                        'selector': 'div.container.sy_tc ul li div.w_z h3 a ::text',
+                    },
+                    'video_region': None,
+                    'video_type': None,
+                    'url': {
+                        'method': 'css',
+                        'selector': 'div.container.sy_tc ul li div.w_z h3 a ::attr("href")',
+                    },
+                    'create_time': None,
+                },
                 'video_info': {
                     'video_name': {
                         'method': 'css',
@@ -904,6 +956,7 @@ class XOSpider(AsyncCrawler):
         try:
             del self.lg
             del self.loop
+            del self.parser_obj
         except:
             pass
         collect()

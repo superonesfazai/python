@@ -59,7 +59,9 @@ class Zhe800Parse(Crawler):
             url=tmp_url,
             headers=self.headers,
             ip_pool_type=self.ip_pool_type)
-        data = json_2_dict(json_str=body, default_res={})
+        data = json_2_dict(
+            json_str=body,
+            default_res={},)
         if body == '' \
                 or data == {}:
             return self._data_error()
@@ -101,6 +103,18 @@ class Zhe800Parse(Crawler):
             # 得到手机版地址
             phone_url = 'http://th5.m.zhe800.com/h5/shopdeal?id=' + str(base.get('dealId', ''))
         except AttributeError:
+            # None表示获取失败, False表示已下架, True正常
+            can_join_cart = sku.get('canJoinCart')
+            if can_join_cart is not None:
+                if isinstance(can_join_cart, bool) \
+                        and not can_join_cart:
+                    # todo 已下架!
+                    _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id,)
+                    return self._data_error()
+
+                else:
+                    pass
+
             print('获取手机版地址失败，此处跳过')
             return self._data_error()
 

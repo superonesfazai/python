@@ -43,9 +43,7 @@ from fzutils.common_utils import (
     _print,)
 from fzutils.spider.selector import parse_field
 from fzutils.celery_utils import _get_celery_async_results
-from fzutils.cp_utils import (
-    _get_right_model_data,
-    _get_price_change_info,)
+from fzutils.cp_utils import _get_right_model_data
 from fzutils.exceptions import ResponseBodyIsNullStrException
 from fzutils.spider.async_always import *
 
@@ -471,6 +469,32 @@ def _get_stock_trans_record(old_sku_info:list, new_sku_info:list, is_stock_chang
     new_stock_trans_time = now_time if is_stock_change == 1 else old_stock_trans_time
 
     return is_stock_change, new_stock_trans_time, _
+
+def _get_price_change_info(old_price, old_taobao_price, new_price, new_taobao_price, is_price_change, price_change_info):
+    '''
+    公司用来记录价格改变信息
+    :param old_price: 原始最高价 type Decimal
+    :param old_taobao_price: 原始最低价 type Decimal
+    :param new_price: 新的最高价
+    :param new_taobao_price: 新的最低价
+    :return: is_price_change 0 or 1 | _
+    '''
+    # print(old_price)
+    # print(type(old_price))
+    # print(new_price)
+    # print(type(new_price))
+    if is_price_change == 0:
+        # 处理单规格的情况, 价格变动置1, price, taobao_price每次更新都是更新的
+        if float(old_price) != float(new_price) \
+                or float(old_taobao_price) != float(new_taobao_price):
+            is_price_change = 1
+        else:
+            pass
+
+    else:
+        pass
+
+    return is_price_change, price_change_info
 
 def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) -> dict:
     """
