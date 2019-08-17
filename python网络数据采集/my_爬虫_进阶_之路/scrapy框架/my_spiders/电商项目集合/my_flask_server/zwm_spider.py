@@ -44,7 +44,7 @@ class ZWMSpider(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/zwm/_/',
         )
         self.init_zwm_pwd()
-        self.concurrency = 10
+        self.concurrency = 20
         self.num_retries = 6
         self.max_transaction_details_page_num = 20              # 交易截止抓取页
         self.max_business_settlement_records_page_num = 20      # 商户结算记录截止抓取页

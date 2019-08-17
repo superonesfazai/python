@@ -30,7 +30,7 @@ class XOSpider(AsyncCrawler):
             log_print=True,
             log_save_path='/Users/afa/myFiles/my_spider_logs/xo/',
         )
-        self.concurrency = 50
+        self.concurrency = 100
         self.req_num_retries = 5
         self.max_s63_chinese_captions_page_num = 10                     # total 210
         self.max_n15_japan_page_num = 3
