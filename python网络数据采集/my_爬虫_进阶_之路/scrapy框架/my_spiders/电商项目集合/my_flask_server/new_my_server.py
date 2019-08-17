@@ -120,6 +120,7 @@ from multiprocessing import Pool as MultiprocessingPool
 from fzutils.log_utils import set_logger
 from fzutils.exceptions import catch_exceptions
 from fzutils.data.json_utils import get_new_list_by_handle_list_2_json_error
+from fzutils.gevent_utils import gevent_monkey
 from fzutils.spider.async_always import *
 
 try:
@@ -1912,10 +1913,7 @@ def article_spiders_intro() -> str:
     获取article spiders intro
     :return:
     """
-    from gevent import monkey
-    monkey.patch_all()
-
-    nest_asyncio.apply()
+    gevent_monkey.patch_all()
 
     article_parser = ArticleParser(logger=my_lg)
     loop = get_event_loop()
@@ -1948,8 +1946,7 @@ def _article():
     # todo 确实可以变成非阻塞
     #  但是: 不可这样, 由于一个loop已在执行的同时, 其他请求到来, 会抛出(RuntimeError: Cannot run the event loop while another loop is running)异常
     #  导致其他的同时的请求全部失败!
-    from gevent import monkey
-    monkey.patch_all()
+    gevent_monkey.patch_all()
 
     # 正常执行
     article_res = get_article_res(
@@ -2107,6 +2104,8 @@ def fortune_telling():
         :param req_args_dict:
         :return:
         """
+        nest_asyncio.apply()
+
         fortune_telling_type = int(req_args_dict.get('type', '0'))
         byj_spider = BuYiJuSpider(logger=my_lg)
         loop = get_event_loop()
@@ -2279,8 +2278,6 @@ def spider_dcs():
                         tm_real_time_update_queue,
                         tm_real_time_update_lock,
                     ),)
-                t1.start()
-                t1.join(timeout=20)
                 target_queue = tm_real_time_update_queue
             else:
                 raise ValueError('dcs_child_type: {} 值异常!'.format(dcs_child_type))
@@ -2298,8 +2295,6 @@ def spider_dcs():
                         tb_real_time_update_queue,
                         tb_real_time_update_lock,
                     ),)
-                t1.start()
-                t1.join(timeout=20)
                 target_queue = tb_real_time_update_queue
             else:
                 raise ValueError('dcs_child_type: {} 值异常!'.format(dcs_child_type))
@@ -2307,6 +2302,9 @@ def spider_dcs():
         else:
             raise ValueError('dcs_type: {} 值异常!'.format(dcs_type))
 
+        t1.start()
+        # timeout 不可过大, 会导致other接口阻塞过久
+        t1.join(timeout=2.)
         try:
             del t1
         except:
@@ -2319,6 +2317,8 @@ def spider_dcs():
         return res
 
     global tm_real_time_update_queue, tb_real_time_update_queue
+
+    gevent_monkey.patch_all()
 
     req_args_dict = request.args
     my_lg.info(str(req_args_dict))
