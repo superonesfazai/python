@@ -40,7 +40,11 @@ from fzutils.spider.fz_requests import (
 from fzutils.spider.async_always import *
 
 class TmallParse(Crawler):
-    def __init__(self, logger=None):
+    def __init__(self, logger=None, is_real_times_update_call=False):
+        """
+        :param logger:
+        :param is_real_times_update_call: 是否是实时更新调用该类
+        """
         super(TmallParse, self).__init__(
             ip_pool_type=IP_POOL_TYPE,
             log_print=True,
@@ -50,8 +54,14 @@ class TmallParse(Crawler):
         self._set_headers()
         self.result_data = {}
         self.msg = ''
-        self.proxy_type = PROXY_TYPE_HTTP
-        self.req_num_retries = 3
+        self.is_real_times_update_call = is_real_times_update_call
+        if self.is_real_times_update_call:
+            self.proxy_type = PROXY_TYPE_HTTPS
+            # 不可太大，否则server采集时慢
+            self.req_num_retries = 6
+        else:
+            self.proxy_type = PROXY_TYPE_HTTP
+            self.req_num_retries = 3
 
     def _set_headers(self):
         self.headers = get_random_headers(
@@ -104,7 +114,7 @@ class TmallParse(Crawler):
 
         except GoodsShelvesException:
             ## 表示该商品已经下架, 原地址被重定向到新页面
-            self.lg.info('@@@@@@ 该商品已经下架...')
+            # self.lg.info('@@@@@@ 该商品已经下架...')
             _handle_goods_shelves_in_auto_goods_table(
                 goods_id=goods_id,
                 logger=self.lg)
@@ -177,7 +187,9 @@ class TmallParse(Crawler):
         data = self.result_data
         # pprint(data)
         if data != {}:
-            taobao = TaoBaoLoginAndParse(logger=self.lg)
+            taobao = TaoBaoLoginAndParse(
+                logger=self.lg,
+                is_real_times_update_call=self.is_real_times_update_call)
             goods_id = data['goods_id']
             # 天猫类型
             tmall_type = data.get('type', 33)  # 33用于表示无法正确获取
@@ -266,7 +278,8 @@ class TmallParse(Crawler):
             is_delete = self._get_is_delete(data=data, title=title)
             # self.lg.info('is_delete = %s' % str(is_delete))
             if is_delete == 1:
-                self.lg.info('@@@ 该商品已下架...')
+                # self.lg.info('@@@ 该商品{}已下架...'.format(goods_id))
+                pass
 
             # 月销量
             try:

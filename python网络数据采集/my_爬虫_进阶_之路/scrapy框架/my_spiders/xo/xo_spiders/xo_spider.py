@@ -30,7 +30,7 @@ class XOSpider(AsyncCrawler):
             log_print=True,
             log_save_path='/Users/afa/myFiles/my_spider_logs/xo/',
         )
-        self.concurrency = 100
+        self.concurrency = 200
         self.req_num_retries = 5
         self.max_s63_chinese_captions_page_num = 10                     # total 210
         self.max_n15_japan_page_num = 3
@@ -52,8 +52,8 @@ class XOSpider(AsyncCrawler):
         self.basic_domain_name = '8xsao.com'
         self.parser_obj = self.get_parser_obj()['8xs']
         # label_name = '大陆'
-        # label_name = '欧美'
-        label_name = '三级'
+        label_name = '欧美'
+        # label_name = '三级'
         all_video_list = await self.get_8xs_some_label_all_video_list_by_label_name(
             label_name=label_name, )
         await self.get_8xs_all_video_info_by_video_list(

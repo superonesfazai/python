@@ -13,7 +13,6 @@
 
 import time
 from random import randint
-from gc import collect
 
 from settings import (
     PHANTOMJS_DRIVER_PATH,
@@ -30,7 +29,6 @@ from sql_str_controller import (
     tb_update_str_2,
     tb_update_str_3,)
 
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from multiplex_code import _handle_goods_shelves_in_auto_goods_table
 from my_exceptions import (
     GoodsShelvesException,
@@ -46,7 +44,11 @@ from fzutils.spider.async_always import *
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class TaoBaoLoginAndParse(Crawler):
-    def __init__(self, logger=None):
+    def __init__(self, logger=None, is_real_times_update_call=False):
+        """
+        :param logger:
+        :param is_real_times_update_call: 是否是实时更新调用该类
+        """
         super(TaoBaoLoginAndParse, self).__init__(
             ip_pool_type=IP_POOL_TYPE,
             log_print=True,
@@ -56,8 +58,15 @@ class TaoBaoLoginAndParse(Crawler):
         self._set_headers()
         self.result_data = {}
         self.msg = ''
-        self.proxy_type = PROXY_TYPE_HTTP
-        self.req_num_retries = 3
+        self.is_real_times_update_call = is_real_times_update_call
+        if self.is_real_times_update_call:
+            self.proxy_type = PROXY_TYPE_HTTPS
+            # 不可太大，否则server采集时慢
+            self.req_num_retries = 6
+        else:
+            # 提高server首次采集成功率
+            self.proxy_type = PROXY_TYPE_HTTP
+            self.req_num_retries = 3
 
     def _set_headers(self):
         self.headers = get_random_headers(
@@ -229,7 +238,7 @@ class TaoBaoLoginAndParse(Crawler):
                     # pprint(detail_value_list)
 
             is_delete = self._get_is_delete(title=title, data=data)
-            self.lg.info('is_delete = %s' % str(is_delete))
+            # self.lg.info('is_delete = %s' % str(is_delete))
 
             # 月销量
             try:

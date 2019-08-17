@@ -1829,6 +1829,9 @@ def to_right_and_update_tb_data(data, pipeline, logger=None) -> bool:
     else:
         sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
 
-    res = pipeline._update_table(sql_str=sql_str, params=params, logger=logger)
+    res = pipeline._update_table_2(
+        sql_str=sql_str,
+        params=params,
+        logger=logger)
 
     return res

@@ -46,9 +46,11 @@ class TBUpdater(AsyncCrawler):
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/淘宝/实时更新/')
         self.sql_cli = None
+        # 1 SqlServerMyPageInfoSaveItemPipeline | 2 SqlPools
+        self.db_conn_type = 1
         self.goods_index = 1
         # 并发量
-        self.concurrency = 50
+        self.concurrency = 100
         # self.server_ip = 'http://0.0.0.0:5000'
         self.server_ip = 'http://118.31.39.97'
 
@@ -66,7 +68,7 @@ class TBUpdater(AsyncCrawler):
             else:
                 self.goods_index = 1
                 tasks_params_list = TasksParamsListObj(tasks_params_list=result, step=self.concurrency)
-                self.taobao = TaoBaoLoginAndParse(logger=self.lg)
+                self.taobao = TaoBaoLoginAndParse(logger=self.lg, is_real_times_update_call=True)
                 index = 1
                 while True:
                     try:
@@ -74,17 +76,10 @@ class TBUpdater(AsyncCrawler):
                     except AssertionError:
                         break
 
-                    tasks = []
-                    for item in slice_params_list:
-                        db_goods_info_obj = TBDbGoodsInfoObj(item=item, logger=self.lg)
-                        self.lg.info('创建 task goods_id: {}'.format(db_goods_info_obj.goods_id))
-                        tasks.append(self.loop.create_task(self._update_one_goods_info(
-                            db_goods_info_obj=db_goods_info_obj,
-                            index=index)))
-                        index += 1
-
-                    res = await _get_async_task_result(tasks=tasks, logger=self.lg)
-                    await self._except_sleep(res=res)
+                    one_res, index = await self._get_one_res(
+                        slice_params_list=slice_params_list,
+                        index=index)
+                    await self._except_sleep(res=one_res)
 
                 self.lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
             if get_shanghai_time().hour == 0:  # 0点以后不更新
@@ -103,9 +98,14 @@ class TBUpdater(AsyncCrawler):
         获取db需求更新的数据
         :return:
         '''
-        # self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
-        # 使用sqlalchemy管理数据库连接池
-        self.sql_cli = SqlPools()
+        if self.db_conn_type == 1:
+            self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        elif self.db_conn_type == 2:
+            # 使用sqlalchemy管理数据库连接池
+            self.sql_cli = SqlPools()
+        else:
+            raise ValueError('db_conn_type 值异常!')
+
         result = None
         try:
             # result = self.sql_cli._select_table(sql_str=tb_select_str_3,)
@@ -122,6 +122,208 @@ class TBUpdater(AsyncCrawler):
 
         return result
 
+    async def _get_one_res(self, slice_params_list: list, index) -> tuple:
+        """
+        获取slice_params_list对应的one_res
+        :param slice_params_list:
+        :param index:
+        :return: (list, int)
+        """
+        def get_tasks_params_list(slice_params_list: list, index: int) -> list:
+            tasks_params_list = []
+            for item in slice_params_list:
+                db_goods_info_obj = TBDbGoodsInfoObj(item=item, logger=self.lg)
+                tasks_params_list.append({
+                    'db_goods_info_obj': db_goods_info_obj,
+                    'index': index,
+                })
+                index += 1
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where is goods_id: {}, index: {}] ...'.format(
+                k['db_goods_info_obj'].goods_id,
+                k['index'],)
+
+        def get_now_args(k) -> list:
+            return [
+                k['db_goods_info_obj'].goods_id,
+                k['index'],
+            ]
+
+        async def handle_one_res(one_res: list):
+            """
+            one_res后续处理
+            :param one_res:
+            :return:
+            """
+            nonlocal slice_params_list
+
+            # 获取新new_slice_params_list
+            new_slice_params_list = []
+            for item in slice_params_list:
+                goods_id = item[1]
+                for i in one_res:
+                    # self.lg.info(str(i))
+                    try:
+                        goods_id2 = i[0]
+                        index = i[1]
+                        if goods_id == goods_id2:
+                            new_slice_params_list.append({
+                                'index': index,
+                                'before_goods_data': i[2],
+                                'end_goods_data': i[3],
+                                'item': item,
+                            })
+                            break
+                        else:
+                            continue
+                    except IndexError:
+                        continue
+
+            # 阻塞方式进行存储, 避免db高并发导致大量死锁
+            tasks = []
+            for k in new_slice_params_list:
+                item = k['item']
+                index = k['index']
+                db_goods_info_obj = TBDbGoodsInfoObj(item=item, logger=self.lg)
+                self.lg.info('create task[where is goods_id: {}, index: {}]...'.format(
+                    db_goods_info_obj.goods_id,
+                    index))
+                tasks.append(self.loop.create_task(self._update_one_goods_info_in_db(
+                    db_goods_info_obj=db_goods_info_obj,
+                    index=index,
+                    before_goods_data=k['before_goods_data'],
+                    end_goods_data=k['end_goods_data'],)))
+            one_res = await _get_async_task_result(
+                tasks=tasks,
+                logger=self.lg)
+            # pprint(one_res)
+
+            return one_res
+
+        # tasks = []
+        # # method 1
+        # for item in slice_params_list:
+        #     db_goods_info_obj = TBDbGoodsInfoObj(item=item, logger=self.lg)
+        #     self.lg.info('创建 task goods_id: {}'.format(db_goods_info_obj.goods_id))
+        #     tasks.append(self.loop.create_task(self._update_one_goods_info(
+        #         db_goods_info_obj=db_goods_info_obj,
+        #         index=index)))
+        #     index += 1
+        #
+        # res = await _get_async_task_result(tasks=tasks, logger=self.lg)
+
+        # method 2
+        one_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(
+                slice_params_list=slice_params_list,
+                index=index, ),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.block_get_tb_one_goods_info_task,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res2,
+            one_default_res=(),
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,)
+        pprint(one_res)
+        res = await handle_one_res(one_res=one_res)
+
+        return (res, index)
+
+    def block_get_tb_one_goods_info_task(self, goods_id: str, index: int):
+        """
+        阻塞获取tb单个goods信息
+        :param goods_id:
+        :param index:
+        :return:
+        """
+        tb = TaoBaoLoginAndParse(logger=self.lg, is_real_times_update_call=True)
+        before_goods_data = tb.get_goods_data(goods_id=goods_id)
+        end_goods_data = tb.deal_with_data(goods_id=goods_id)
+
+        # 处理前后某个为1, 则为1
+        is_delete = 1 \
+            if before_goods_data.get('is_delete', 0) == 1 or end_goods_data.get('is_delete', 0) == 1 \
+            else 0
+        _label = '+' \
+            if end_goods_data != {} or is_delete == 1 \
+            else '-'
+        self.lg.info('[{}] goods_id: {}, is_delete: {}'.format(
+            _label,
+            goods_id,
+            is_delete,
+        ))
+
+        try:
+            del tb
+        except:
+            pass
+        collect()
+
+        return (goods_id, index, before_goods_data, end_goods_data)
+
+    async def _update_one_goods_info_in_db(self, db_goods_info_obj, index, before_goods_data, end_goods_data):
+        """
+        更新单个goods
+        :param db_goods_info_obj:
+        :param index:
+        :param before_goods_data:
+        :param end_goods_data:
+        :return:
+        """
+        res = False
+
+        self.sql_cli = await _get_new_db_conn(
+            db_obj=self.sql_cli,
+            index=index,
+            logger=self.lg,
+            db_conn_type=self.db_conn_type,
+            remainder=50,)
+        if self.sql_cli.is_connect_success:
+            self.lg.info('*' * 15 + ' updating goods_id: {}, index: {} ...'.format(
+                db_goods_info_obj.goods_id,
+                index, ))
+            # 避免下面解析data错误休眠
+            before_goods_data_is_delete = before_goods_data.get('is_delete', 0)
+            if end_goods_data != {}:
+                data = get_goods_info_change_data(
+                    target_short_name='tb',
+                    logger=self.lg,
+                    data=end_goods_data,
+                    db_goods_info_obj=db_goods_info_obj, )
+                self.lg.info('goods_id: {}, is_delete = {}'.format(
+                    data.get('goods_id', ''),
+                    data.get('is_delete', 1)))
+                res = to_right_and_update_tb_data(
+                    data=data,
+                    pipeline=self.sql_cli,
+                    logger=self.lg,)
+
+            else:  # 表示返回的data值为空值
+                if before_goods_data_is_delete == 1:
+                    # 检索后下架状态的, res也设置为True
+                    res = True
+                else:
+                    self.lg.info('goods_id: {}, 阻塞休眠7s中...'.format(
+                        db_goods_info_obj.goods_id,))
+                    await async_sleep(delay=7., loop=self.loop)
+                    # 改为阻塞进程, 机器会挂
+                    # sleep(7.)
+
+        else:
+            self.lg.error('数据库连接失败，数据库可能关闭或者维护中')
+            await async_sleep(delay=5, loop=self.loop)
+
+        await async_sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
+        collect()
+
+        return [db_goods_info_obj.goods_id, res]
+
     async def _get_new_tb_obj(self, index) -> None:
         if index % 10 == 0:
             try:
@@ -129,7 +331,7 @@ class TBUpdater(AsyncCrawler):
             except:
                 pass
             collect()
-            self.taobao = TaoBaoLoginAndParse(logger=self.lg)
+            self.taobao = TaoBaoLoginAndParse(logger=self.lg, is_real_times_update_call=True)
 
     async def _update_one_goods_info(self, db_goods_info_obj, index):
         '''
@@ -142,7 +344,7 @@ class TBUpdater(AsyncCrawler):
             db_obj=self.sql_cli,
             index=index,
             logger=self.lg,
-            db_conn_type=2,
+            db_conn_type=self.db_conn_type,
             remainder=50)
         if self.sql_cli.is_connect_success:
             self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (
@@ -213,6 +415,10 @@ class TBUpdater(AsyncCrawler):
     def __del__(self):
         try:
             del self.lg
+        except:
+            pass
+        try:
+            del self.sql_cli
         except:
             pass
         try:

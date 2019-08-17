@@ -51,43 +51,9 @@ class TMUpdater(AsyncCrawler):
         self.sql_cli = None
         self.crawl_type = CRAWL_TYPE_ASYNCIO
         # 并发量, 控制在50个, 避免更新is_delete=1时大量丢包!!
-        self.concurrency = 50
+        self.concurrency = 100
         # self.server_ip = 'http://0.0.0.0:5000'
         self.server_ip = 'http://118.31.39.97'
-
-    async def _get_db_old_data(self) -> (list, None):
-        """
-        获取db需求更新的数据
-        :return:
-        """
-        self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
-        result = None
-        try:
-            # result = list(self.sql_cli._select_table(sql_str=tm_select_str_3))
-            result = await get_waited_2_update_db_data_from_server(
-                server_ip=self.server_ip,
-                _type='tm',
-                child_type=0,)
-        except TypeError:
-            self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
-
-        await _print_db_old_data(logger=self.lg, result=result)
-
-        return result
-
-    def _get_tmp_item(self, site_id, goods_id):
-        tmp_item = []
-        # 从数据库中取出时，先转换为对应的类型
-        if site_id == 3:
-            tmp_item.append(0)
-        elif site_id == 4:
-            tmp_item.append(1)
-        elif site_id == 6:
-            tmp_item.append(2)
-
-        tmp_item.append(goods_id)
-        
-        return tmp_item
 
     async def _update_db(self):
         while True:
@@ -124,7 +90,41 @@ class TMUpdater(AsyncCrawler):
             except:
                 pass
             collect()
-            
+
+    async def _get_db_old_data(self) -> (list, None):
+        """
+        获取db需求更新的数据
+        :return:
+        """
+        self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        result = None
+        try:
+            # result = list(self.sql_cli._select_table(sql_str=tm_select_str_3))
+            result = await get_waited_2_update_db_data_from_server(
+                server_ip=self.server_ip,
+                _type='tm',
+                child_type=0,)
+        except TypeError:
+            self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
+
+        await _print_db_old_data(logger=self.lg, result=result)
+
+        return result
+
+    def _get_tmp_item(self, site_id, goods_id):
+        tmp_item = []
+        # 从数据库中取出时，先转换为对应的类型
+        if site_id == 3:
+            tmp_item.append(0)
+        elif site_id == 4:
+            tmp_item.append(1)
+        elif site_id == 6:
+            tmp_item.append(2)
+
+        tmp_item.append(goods_id)
+        
+        return tmp_item
+
     async def _get_one_res(self, slice_params_list, index) -> tuple:
         """
         获取slice_params_list对应的one_res
@@ -157,12 +157,6 @@ class TMUpdater(AsyncCrawler):
                 k['tmp_item'],
                 k['index'],
             ]
-
-        def add_one_res_2_all_res(one_res: list, all_res: list):
-            for i in one_res:
-                all_res.append(i)
-
-            return all_res
 
         async def handle_one_res(one_res: list):
             """
@@ -203,7 +197,7 @@ class TMUpdater(AsyncCrawler):
                 self.lg.info('create task[where is goods_id: {}, index: {}]...'.format(
                     db_goods_info_obj.goods_id,
                     index))
-                tasks.append(self.loop.create_task(self._update_one_goods_info_by_celery(
+                tasks.append(self.loop.create_task(self._update_one_goods_info_in_db(
                     db_goods_info_obj=db_goods_info_obj,
                     index=index,
                     before_goods_data=k['before_goods_data'],
@@ -218,56 +212,34 @@ class TMUpdater(AsyncCrawler):
         tasks = []
         if self.crawl_type == CRAWL_TYPE_ASYNCIO:
             """asyncio"""
-            # method 1
-            for item in slice_params_list:
-                index += 1
-                db_goods_info_obj = TMDbGoodsInfoObj(item=item, logger=self.lg)
-                self.lg.info('创建 task goods_id: {}'.format(db_goods_info_obj.goods_id))
-                tasks.append(self.loop.create_task(self._update_one_goods_info(
-                    db_goods_info_obj=db_goods_info_obj,
-                    index=index,)))
-            res = await _get_async_task_result(tasks=tasks, logger=self.lg)
+            # # method 1
+            # for item in slice_params_list:
+            #     index += 1
+            #     db_goods_info_obj = TMDbGoodsInfoObj(item=item, logger=self.lg)
+            #     self.lg.info('创建 task goods_id: {}'.format(db_goods_info_obj.goods_id))
+            #     tasks.append(self.loop.create_task(self._update_one_goods_info(
+            #         db_goods_info_obj=db_goods_info_obj,
+            #         index=index,)))
+            # res = await _get_async_task_result(tasks=tasks, logger=self.lg)
 
             # method 2
-            # func_name = self.block_get_tm_one_goods_info_task
-            # for item in slice_params_list:
-            #     db_goods_info_obj = TMDbGoodsInfoObj(item=item, logger=self.lg)
-            #     self.lg.info('create task[where is goods_id: {}, index: {}] ...'.format(
-            #         db_goods_info_obj.goods_id,
-            #         index,))
-            #     tmp_item = self._get_tmp_item(
-            #         site_id=db_goods_info_obj.site_id,
-            #         goods_id=db_goods_info_obj.goods_id,)
-            #     tasks.append(self.loop.create_task(unblock_func(
-            #         func_name=func_name,
-            #         func_args=[
-            #             tmp_item,
-            #             index,
-            #         ],
-            #         logger=self.lg,
-            #     )))
-            #     index += 1
-            # one_res = await async_wait_tasks_finished(tasks=tasks)
-            # res = await handle_one_res(one_res=one_res)
-
-            # method 3
-            # one_res = await get_or_handle_target_data_by_task_params_list(
-            #     loop=self.loop,
-            #     tasks_params_list=get_tasks_params_list(
-            #         slice_params_list=slice_params_list,
-            #         index=index,),
-            #     func_name_where_get_create_task_msg=get_create_task_msg,
-            #     func_name=self.block_get_tm_one_goods_info_task,
-            #     func_name_where_get_now_args=get_now_args,
-            #     func_name_where_handle_one_res=None,
-            #     func_name_where_add_one_res_2_all_res=add_one_res_2_all_res,
-            #     one_default_res=(),
-            #     step=self.concurrency,
-            #     logger=self.lg,
-            #     get_all_res=True,
-            # )
-            # # pprint(one_res)
-            # res = await handle_one_res(one_res=one_res)
+            one_res = await get_or_handle_target_data_by_task_params_list(
+                loop=self.loop,
+                tasks_params_list=get_tasks_params_list(
+                    slice_params_list=slice_params_list,
+                    index=index,),
+                func_name_where_get_create_task_msg=get_create_task_msg,
+                func_name=self.block_get_tm_one_goods_info_task,
+                func_name_where_get_now_args=get_now_args,
+                func_name_where_handle_one_res=None,
+                func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res2,
+                one_default_res=(),
+                step=self.concurrency,
+                logger=self.lg,
+                get_all_res=True,
+            )
+            # pprint(one_res)
+            res = await handle_one_res(one_res=one_res)
 
         elif self.crawl_type == CRAWL_TYPE_CELERY:
             """celery"""
@@ -320,7 +292,7 @@ class TMUpdater(AsyncCrawler):
         :param index:
         :return:
         """
-        tm = TmallParse(logger=self.lg)
+        tm = TmallParse(logger=self.lg, is_real_times_update_call=True)
         site_id, _goods_id = goods_id
         before_goods_data = tm.get_goods_data(goods_id=goods_id)
         end_goods_data = tm.deal_with_data()
@@ -347,7 +319,7 @@ class TMUpdater(AsyncCrawler):
 
         return (site_id, _goods_id, index, before_goods_data, end_goods_data)
 
-    async def _update_one_goods_info_by_celery(self, db_goods_info_obj, index, before_goods_data, end_goods_data):
+    async def _update_one_goods_info_in_db(self, db_goods_info_obj, index, before_goods_data, end_goods_data):
         """
         更新单个goods
         :param item:
@@ -364,7 +336,7 @@ class TMUpdater(AsyncCrawler):
             logger=self.lg,
             remainder=50)
         if self.sql_cli.is_connect_success:
-            self.lg.info('### updating goods_id: {}, index: {} ...'.format(
+            self.lg.info('*' * 15 + ' updating goods_id: {}, index: {} ...'.format(
                 db_goods_info_obj.goods_id,
                 index,))
             # 避免下面解析data错误休眠
@@ -375,6 +347,9 @@ class TMUpdater(AsyncCrawler):
                     logger=self.lg,
                     data=end_goods_data,
                     db_goods_info_obj=db_goods_info_obj,)
+                self.lg.info('goods_id: {}, is_delete = {}'.format(
+                    data.get('goods_id', ''),
+                    data.get('is_delete', 1)))
                 res = to_right_and_update_tm_data(
                     data=data,
                     pipeline=self.sql_cli,
@@ -410,7 +385,7 @@ class TMUpdater(AsyncCrawler):
         """
         res = False
 
-        tmall = TmallParse(logger=self.lg)
+        tmall = TmallParse(logger=self.lg, is_real_times_update_call=True)
         self.sql_cli = await _get_new_db_conn(
             db_obj=self.sql_cli, 
             index=index, 
