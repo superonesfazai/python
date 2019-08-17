@@ -230,7 +230,7 @@ class TBUpdater(AsyncCrawler):
             step=self.concurrency,
             logger=self.lg,
             get_all_res=True,)
-        pprint(one_res)
+        # pprint(one_res)
         res = await handle_one_res(one_res=one_res)
 
         return (res, index)
