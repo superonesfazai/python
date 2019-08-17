@@ -1769,7 +1769,7 @@ def to_right_and_update_tb_data(data, pipeline, logger=None) -> bool:
     :param pipeline:
     :return:
     '''
-    def _get_db_update_params(item):
+    def _get_db_update_params(item) -> tuple:
         '''
         得到db待更新的数据
         :param item:
@@ -1811,7 +1811,7 @@ def to_right_and_update_tb_data(data, pipeline, logger=None) -> bool:
             params.insert(-1, item['shelf_time'])
             params.insert(-1, item['delete_time'])
 
-        return params
+        return tuple(params)
 
     goods_id = data.get('goods_id')
     try:

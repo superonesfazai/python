@@ -336,7 +336,7 @@ class TMUpdater(AsyncCrawler):
             logger=self.lg,
             remainder=50)
         if self.sql_cli.is_connect_success:
-            self.lg.info('*' * 15 + ' updating goods_id: {}, index: {} ...'.format(
+            self.lg.info('*' * 20 + ' updating goods_id: {}, index: {} ...'.format(
                 db_goods_info_obj.goods_id,
                 index,))
             # 避免下面解析data错误休眠
