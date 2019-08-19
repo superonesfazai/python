@@ -21,6 +21,7 @@ from time import (
     time,
     mktime,
     strptime,)
+from sys import path as sys_path
 from datetime import datetime
 from threading import Thread
 # cpu密集型
@@ -48,6 +49,61 @@ from fzutils.celery_utils import _get_celery_async_results
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.exceptions import ResponseBodyIsNullStrException
 from fzutils.spider.async_always import *
+
+def block_get_one_goods_info_task_by_external_type(external_type: str,
+                                                   goods_id: (list, str),
+                                                   index: int,
+                                                   logger=None,):
+    """
+    根据外链类型阻塞获取单个goods信息
+    :param external_type: eg: 'tm', 'tb'
+    :param goods_id:
+    :param index:
+    :param logger:
+    :return:
+    """
+    # 放在内部
+    sys_path.append('.')
+    from tmall_parse_2 import TmallParse
+    from taobao_parse import TaoBaoLoginAndParse
+
+    if external_type == 'tm':
+        external_obj = TmallParse(logger=logger, is_real_times_update_call=True)
+        site_id, _goods_id = goods_id
+        before_goods_data = external_obj.get_goods_data(goods_id=goods_id)
+        end_goods_data = external_obj.deal_with_data()
+
+    elif external_type == 'tb':
+        external_obj = TaoBaoLoginAndParse(logger=logger, is_real_times_update_call=True)
+        site_id, _goods_id = 1, goods_id
+        before_goods_data = external_obj.get_goods_data(goods_id=goods_id)
+        end_goods_data = external_obj.deal_with_data(goods_id=goods_id)
+
+    else:
+        raise ValueError('external_type value: {} 异常!'.format(external_type))
+
+    # 处理前后某个为1, 则为1
+    is_delete = 1 \
+        if before_goods_data.get('is_delete', 0) == 1 or end_goods_data.get('is_delete', 0) == 1 \
+        else 0
+    _label = '+' \
+        if end_goods_data != {} or is_delete == 1 \
+        else '-'
+    msg = '[{}] goods_id: {}, site_id: {}, is_delete: {}'.format(
+        _label,
+        _goods_id,
+        site_id,
+        is_delete,
+    )
+    _print(msg=msg, logger=logger)
+
+    try:
+        del external_obj
+    except:
+        pass
+    collect()
+
+    return (site_id, _goods_id, index, before_goods_data, end_goods_data)
 
 async def async_get_ms_begin_time_and_miaos_end_time_from_ms_time(miaosha_time: str, logger=None) -> tuple:
     """

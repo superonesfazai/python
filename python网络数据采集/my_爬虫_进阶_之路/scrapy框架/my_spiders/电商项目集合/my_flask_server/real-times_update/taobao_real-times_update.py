@@ -33,7 +33,9 @@ from multiplex_code import (
     to_right_and_update_tb_data,
     get_goods_info_change_data,
     BaseDbCommomGoodsInfoParamsObj,
-    get_waited_2_update_db_data_from_server,)
+    get_waited_2_update_db_data_from_server,
+    block_get_one_goods_info_task_by_external_type,
+)
 
 from fzutils.spider.async_always import *
 
@@ -148,8 +150,10 @@ class TBUpdater(AsyncCrawler):
 
         def get_now_args(k) -> list:
             return [
+                'tb',
                 k['db_goods_info_obj'].goods_id,
                 k['index'],
+                self.lg,
             ]
 
         async def handle_one_res(one_res: list):
@@ -167,13 +171,13 @@ class TBUpdater(AsyncCrawler):
                 for i in one_res:
                     # self.lg.info(str(i))
                     try:
-                        goods_id2 = i[0]
-                        index = i[1]
+                        goods_id2 = i[1]
+                        index = i[2]
                         if goods_id == goods_id2:
                             new_slice_params_list.append({
                                 'index': index,
-                                'before_goods_data': i[2],
-                                'end_goods_data': i[3],
+                                'before_goods_data': i[3],
+                                'end_goods_data': i[4],
                                 'item': item,
                             })
                             break
@@ -200,6 +204,10 @@ class TBUpdater(AsyncCrawler):
                 tasks=tasks,
                 logger=self.lg)
             # pprint(one_res)
+            try:
+                new_slice_params_list
+            except:
+                pass
 
             return one_res
 
@@ -222,7 +230,7 @@ class TBUpdater(AsyncCrawler):
                 slice_params_list=slice_params_list,
                 index=index, ),
             func_name_where_get_create_task_msg=get_create_task_msg,
-            func_name=self.block_get_tb_one_goods_info_task,
+            func_name=block_get_one_goods_info_task_by_external_type,
             func_name_where_get_now_args=get_now_args,
             func_name_where_handle_one_res=None,
             func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res2,
@@ -234,38 +242,6 @@ class TBUpdater(AsyncCrawler):
         res = await handle_one_res(one_res=one_res)
 
         return (res, index)
-
-    def block_get_tb_one_goods_info_task(self, goods_id: str, index: int):
-        """
-        阻塞获取tb单个goods信息
-        :param goods_id:
-        :param index:
-        :return:
-        """
-        tb = TaoBaoLoginAndParse(logger=self.lg, is_real_times_update_call=True)
-        before_goods_data = tb.get_goods_data(goods_id=goods_id)
-        end_goods_data = tb.deal_with_data(goods_id=goods_id)
-
-        # 处理前后某个为1, 则为1
-        is_delete = 1 \
-            if before_goods_data.get('is_delete', 0) == 1 or end_goods_data.get('is_delete', 0) == 1 \
-            else 0
-        _label = '+' \
-            if end_goods_data != {} or is_delete == 1 \
-            else '-'
-        self.lg.info('[{}] goods_id: {}, is_delete: {}'.format(
-            _label,
-            goods_id,
-            is_delete,
-        ))
-
-        try:
-            del tb
-        except:
-            pass
-        collect()
-
-        return (goods_id, index, before_goods_data, end_goods_data)
 
     async def _update_one_goods_info_in_db(self, db_goods_info_obj, index, before_goods_data, end_goods_data):
         """

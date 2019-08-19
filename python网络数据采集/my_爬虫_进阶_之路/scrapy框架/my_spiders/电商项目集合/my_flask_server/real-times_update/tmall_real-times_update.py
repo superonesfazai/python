@@ -30,6 +30,7 @@ from multiplex_code import (
     get_goods_info_change_data,
     BaseDbCommomGoodsInfoParamsObj,
     get_waited_2_update_db_data_from_server,
+    block_get_one_goods_info_task_by_external_type,
 )
 
 from fzutils.celery_utils import _get_celery_async_results
@@ -154,8 +155,10 @@ class TMUpdater(AsyncCrawler):
 
         def get_now_args(k) -> list:
             return [
+                'tm',
                 k['tmp_item'],
                 k['index'],
+                self.lg,
             ]
 
         async def handle_one_res(one_res: list):
@@ -206,6 +209,10 @@ class TMUpdater(AsyncCrawler):
                 tasks=tasks,
                 logger=self.lg)
             # pprint(one_res)
+            try:
+                new_slice_params_list
+            except:
+                pass
 
             return one_res
 
@@ -229,7 +236,7 @@ class TMUpdater(AsyncCrawler):
                     slice_params_list=slice_params_list,
                     index=index,),
                 func_name_where_get_create_task_msg=get_create_task_msg,
-                func_name=self.block_get_tm_one_goods_info_task,
+                func_name=block_get_one_goods_info_task_by_external_type,
                 func_name_where_get_now_args=get_now_args,
                 func_name_where_handle_one_res=None,
                 func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res2,
@@ -284,40 +291,6 @@ class TMUpdater(AsyncCrawler):
         )
 
         return async_obj
-
-    def block_get_tm_one_goods_info_task(self, goods_id: list, index: int):
-        """
-        阻塞获取tm单个goods信息
-        :param goods_id:
-        :param index:
-        :return:
-        """
-        tm = TmallParse(logger=self.lg, is_real_times_update_call=True)
-        site_id, _goods_id = goods_id
-        before_goods_data = tm.get_goods_data(goods_id=goods_id)
-        end_goods_data = tm.deal_with_data()
-
-        # 处理前后某个为1, 则为1
-        is_delete = 1 \
-            if before_goods_data.get('is_delete', 0) == 1 or end_goods_data.get('is_delete', 0) == 1 \
-            else 0
-        _label = '+' \
-            if end_goods_data != {} or is_delete == 1 \
-            else '-'
-        self.lg.info('[{}] goods_id: {}, site_id: {}, is_delete: {}'.format(
-            _label,
-            _goods_id,
-            site_id,
-            is_delete,
-        ))
-
-        try:
-            del tm
-        except:
-            pass
-        collect()
-
-        return (site_id, _goods_id, index, before_goods_data, end_goods_data)
 
     async def _update_one_goods_info_in_db(self, db_goods_info_obj, index, before_goods_data, end_goods_data):
         """
