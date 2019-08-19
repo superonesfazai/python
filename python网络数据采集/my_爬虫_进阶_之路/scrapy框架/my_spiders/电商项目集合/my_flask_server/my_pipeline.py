@@ -217,16 +217,15 @@ class SqlPools(object):
                 pass
             return result
 
-    def _update_table(self, sql_str, params:tuple, logger):
+    def _update_table(self, sql_str, params:tuple, logger) -> bool:
+        res = False
         self.engine.begin()
         self.conn = self.engine.connect()
-        _ = False
         try:
             self.conn.execute(sql_str, params)
-
             # self.engine.commit()
             logger.info('[+] add to db!')
-            _ = True
+            res = True
 
         except Exception as e:
             logger.error('| 修改信息失败, 未能将该页面信息存入到sqlserver中 | 出错goods_id: %s' % params[-1] )
@@ -237,7 +236,8 @@ class SqlPools(object):
                 self.conn.close()
             except:
                 pass
-            return _
+
+            return res
 
     def insert_into_taobao_tiantiantejia_table(self, item):
         self.engine.begin()

@@ -49,7 +49,7 @@ class TBUpdater(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/淘宝/实时更新/')
         self.sql_cli = None
         # 1 SqlServerMyPageInfoSaveItemPipeline | 2 SqlPools
-        self.db_conn_type = 1
+        self.db_conn_type = 2
         self.goods_index = 1
         # 并发量
         self.concurrency = 100
@@ -261,7 +261,7 @@ class TBUpdater(AsyncCrawler):
             index=index,
             logger=self.lg,
             db_conn_type=self.db_conn_type,
-            remainder=50,)
+            remainder=25,)
         if self.sql_cli.is_connect_success:
             self.lg.info('*' * 20 + ' updating goods_id: {}, index: {} ...'.format(
                 db_goods_info_obj.goods_id,
