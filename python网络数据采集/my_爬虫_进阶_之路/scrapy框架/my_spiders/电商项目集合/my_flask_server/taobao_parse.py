@@ -93,8 +93,7 @@ class TaoBaoLoginAndParse(Crawler):
         body = Requests.get_url_body(
             url=last_url,
             headers=self.headers,
-            params=None,
-            timeout=14,
+            timeout=15,
             ip_pool_type=self.ip_pool_type,
             proxy_type=self.proxy_type,
             num_retries=self.req_num_retries,)

@@ -1060,6 +1060,28 @@ def _get_114_one_type_company_id_list(ip_pool_type,
 
     return company_id_list
 
+def get_new_sql_cli(sql_cli, num_retries=3):
+    """
+    获取new_sql_cli
+    :param sql_cli: 原先对象
+    :return:
+    """
+    if isinstance(sql_cli, SqlServerMyPageInfoSaveItemPipeline):
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+    elif isinstance(sql_cli, SqlPools):
+        sql_cli = SqlPools()
+    else:
+        raise TypeError('sql_cli type 异常!')
+
+    if not sql_cli.is_connect_success and num_retries > 0:
+        return get_new_sql_cli(
+            sql_cli=sql_cli,
+            num_retries=num_retries-1)
+    else:
+        pass
+
+    return sql_cli
+
 def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_str=None, sql_cli=None) -> bool:
     """
     商品逻辑下架(GoodsInfoAutoGet表 or 其他表)
@@ -1078,15 +1100,19 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_
     sql_str_3 = 'update dbo.GoodsInfoAutoGet set delete_time=%s where GoodsID=%s'
     now_time = str(get_shanghai_time())
     try:
-        new_sql_cli = SqlServerMyPageInfoSaveItemPipeline() if sql_cli is None else sql_cli
-        if not new_sql_cli.is_connect_success:
-            raise SqlServerConnectionException
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline() if sql_cli is None else sql_cli
+        if not sql_cli.is_connect_success:
+            sql_cli = get_new_sql_cli(sql_cli=sql_cli, num_retries=4)
+            if not sql_cli.is_connect_success:
+                raise SqlServerConnectionException
+            else:
+                pass
         else:
             pass
 
         if 'GoodsInfoAutoGet' in sql_str:
             # 处理GoodsInfoAutoGet中异常下架但是delete_time为空值的商品
-            res2 = new_sql_cli._select_table(
+            res2 = sql_cli._select_table(
                 sql_str=sql_str_2,
                 params=(goods_id,),
                 logger=logger,)[0][0]
@@ -1097,7 +1123,7 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_
                 _print(
                     msg='@@@原先delete_time为空值, 此处赋值now_time [{}]'.format(goods_id),
                     logger=logger)
-                new_sql_cli._update_table_2(
+                sql_cli._update_table_2(
                     sql_str=sql_str_3,
                     params=(now_time, goods_id),
                     logger=logger)
@@ -1107,19 +1133,20 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_
             pass
 
         if logger is None:
-            res = new_sql_cli._update_table(
+            res = sql_cli._update_table(
                 sql_str=sql_str,
                 params=(now_time, goods_id))
         else:
-            res = new_sql_cli._update_table_2(
+            res = sql_cli._update_table_2(
                 sql_str=sql_str,
                 params=(now_time, goods_id),
                 logger=logger)
 
         try:
-            del new_sql_cli
+            del sql_cli
         except:
             pass
+
     except Exception as e:
         _print(
             msg='遇到错误:',
