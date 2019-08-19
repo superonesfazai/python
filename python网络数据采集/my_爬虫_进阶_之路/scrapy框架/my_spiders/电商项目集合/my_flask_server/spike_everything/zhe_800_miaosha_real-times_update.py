@@ -12,8 +12,6 @@ sys.path.append('..')
 
 from zhe_800_parse import Zhe800Parse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-import json
-import time
 from settings import (
     IS_BACKGROUND_RUNNING,
     MY_SPIDER_LOGS_PATH,
@@ -22,15 +20,17 @@ from settings import (
 from zhe_800_spike import Zhe800Spike
 
 from sql_str_controller import (
-    z8_delete_str_3,
     z8_select_str_4,
     z8_delete_str_4,
+    z8_update_str_6,
 )
 
 from multiplex_code import (
     _get_async_task_result,
     _get_new_db_conn,
     _print_db_old_data,
+    _handle_goods_shelves_in_auto_goods_table,
+    async_get_ms_begin_time_and_miaos_end_time_from_ms_time,
 )
 
 from fzutils.spider.async_always import *
@@ -45,51 +45,23 @@ class Z8Updater(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/折800/秒杀实时更新/',
             ip_pool_type=IP_POOL_TYPE,
         )
-        self.tmp_sql_server = None
+        self.sql_cli = None
         self.goods_index = 1
         self.concurrency = 8        # 并发量
-        self.delete_sql_str = z8_delete_str_3
 
     async def _get_db_old_data(self):
-        self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         result = None
         try:
-            self.tmp_sql_server._delete_table(sql_str=z8_delete_str_4, params=None)
+            self.sql_cli._delete_table(sql_str=z8_delete_str_4, params=None)
             await async_sleep(5)
-            result = list(self.tmp_sql_server._select_table(sql_str=z8_select_str_4))
+            result = list(self.sql_cli._select_table(sql_str=z8_select_str_4))
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
 
         await _print_db_old_data(logger=self.lg, result=result)
 
         return result
-
-    async def _get_miaosha_begin_time(self, miaosha_time) -> int:
-        miaosha_begin_time = json_2_dict(miaosha_time).get('miaosha_begin_time')
-        miaosha_begin_time = int(str(time.mktime(time.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')))[0:10])
-
-        return miaosha_begin_time
-
-    async def _get_new_z8_obj(self, index):
-        if index % 10 == 0:         # 不能共享一个对象了, 否则驱动访问会异常!
-            try:
-                del self.zhe_800_spike
-            except:
-                pass
-            collect()
-            self.zhe_800_spike = Zhe800Spike()
-
-    async def _update_is_delete(self, goods_id) -> bool:
-        '''
-        下架商品逻辑删除
-        :param goods_id:
-        :return:
-        '''
-        delete_str = 'update dbo.zhe_800_xianshimiaosha set is_delete=1 where goods_id=%s'
-        res = self.tmp_sql_server._update_table(sql_str=delete_str, params=(goods_id,))
-        await async_sleep(.3)
-
-        return res
 
     async def _update_one_goods_info(self, item, index) -> tuple:
         '''
@@ -102,35 +74,61 @@ class Z8Updater(AsyncCrawler):
         goods_id = item[0]
         miaosha_time = item[1]
         session_id = item[2]
-        miaosha_begin_time = await self._get_miaosha_begin_time(miaosha_time)
-        # self.lg.info(str(miaosha_begin_time))
+        miaosha_begin_time, miaosha_end_time = await async_get_ms_begin_time_and_miaos_end_time_from_ms_time(
+            miaosha_time=miaosha_time,
+            logger=self.lg,)
         await self._get_new_z8_obj(index=index)
-        self.tmp_sql_server = await _get_new_db_conn(db_obj=self.tmp_sql_server, index=index, logger=self.lg, remainder=30)
+        self.sql_cli = await _get_new_db_conn(
+            db_obj=self.sql_cli,
+            index=index,
+            logger=self.lg,
+            remainder=30)
 
-        if self.tmp_sql_server.is_connect_success:
+        if self.sql_cli.is_connect_success:
             is_recent_time = await self._is_recent_time(miaosha_begin_time)
             if is_recent_time == 0:
-                res = await self._update_is_delete(goods_id=goods_id)
-                self.lg.info('过期的goods_id为({0}), 限时秒杀开始时间为({1}), 逻辑删除成功!'.format(goods_id, json.loads(item[1]).get('miaosha_begin_time')))
+                res = _handle_goods_shelves_in_auto_goods_table(
+                    goods_id=goods_id,
+                    logger=self.lg,
+                    update_sql_str=z8_update_str_6,
+                    sql_cli=self.sql_cli, )
+                self.lg.info('过期的goods_id为({0}), 限时秒杀开始时间为({1}), 逻辑删除成功!'.format(
+                    goods_id,
+                    timestamp_to_regulartime(miaosha_begin_time)))
                 index += 1
                 self.goods_index = index
-                res = True
                 await async_sleep(.3)
 
                 return goods_id, res
 
             elif is_recent_time == 2:
                 # 可能包括过期的
-                self.lg.info('未来时间暂时不更新! {}'.format(timestamp_to_regulartime(miaosha_begin_time)))
+                if datetime_to_timestamp(get_shanghai_time()) > miaosha_end_time:
+                    # 处理已过期的逻辑删
+                    res = _handle_goods_shelves_in_auto_goods_table(
+                        goods_id=goods_id,
+                        logger=self.lg,
+                        update_sql_str=z8_update_str_6,
+                        sql_cli=self.sql_cli, )
+                    self.lg.info('过期的goods_id为({0}), 限时秒杀开始时间为({1}), 逻辑删除成功!'.format(
+                        goods_id,
+                        timestamp_to_regulartime(miaosha_begin_time)))
+                else:
+                    self.lg.info('未来时间暂时不更新! miaosha_begin_time: {}, miaosha_end_time: {}'.format(
+                        timestamp_to_regulartime(miaosha_begin_time),
+                        timestamp_to_regulartime(miaosha_end_time),))
+
                 index += 1
                 self.goods_index = index
 
                 return goods_id, res
 
-            else:  # 返回1，表示在待更新区间内
+            else:
+                # 返回1，表示在待更新区间内
                 self.lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(goods_id, index))
                 try:
-                    tmp_data = self.zhe_800_spike._get_one_session_id_data(base_session_id=str(session_id))
+                    tmp_data = self.zhe_800_spike._get_one_session_id_data(
+                        base_session_id=str(session_id))
                 except Exception:
                     self.lg.error(msg='遇到错误:', exc_info=True)
                     index += 1
@@ -141,9 +139,14 @@ class Z8Updater(AsyncCrawler):
                 try:
                     tmp_data = tmp_data.get('data', {}).get('blocks', [])
                     assert tmp_data != [], '该session_id不存在，此处跳过'
-                except AssertionError:  # 说明这个sessionid没有数据, 就删除对应这个sessionid的限时秒杀商品
+                except AssertionError:
+                    # 说明这个sessionid没有数据, 就删除对应这个sessionid的限时秒杀商品
                     self.lg.error(msg='遇到错误:', exc_info=True)
-                    res = await self._update_is_delete(goods_id)
+                    res = _handle_goods_shelves_in_auto_goods_table(
+                        goods_id=goods_id,
+                        logger=self.lg,
+                        update_sql_str=z8_update_str_6,
+                        sql_cli=self.sql_cli, )
                     self.lg.info(msg='该sessionid没有相关key为jsons的数据! 过期的goods_id为({0}), 限时秒杀开始时间为({1}), 删除成功!'.format(
                             goods_id,
                             miaosha_begin_time))
@@ -167,16 +170,24 @@ class Z8Updater(AsyncCrawler):
 
                 # 该session_id中现有的所有zid的list
                 miaosha_goods_all_goods_id = [i.get('zid') for i in miaosha_goods_list]
-                if goods_id not in miaosha_goods_all_goods_id:  # 内部已经下架的
-                    res = await self._update_is_delete(goods_id)
+                if goods_id not in miaosha_goods_all_goods_id:
+                    # 内部已经下架的
+                    res = _handle_goods_shelves_in_auto_goods_table(
+                        goods_id=goods_id,
+                        logger=self.lg,
+                        update_sql_str=z8_update_str_6,
+                        sql_cli=self.sql_cli,)
                     self.lg.info('该商品已被官方下架限秒活动! 下架的goods_id为({0}), 逻辑删除成功!'.format(goods_id))
                     index += 1
                     self.goods_index = index
 
                     return goods_id, res
 
-                else:  # 未下架的
-                    res = await self._one_update(miaosha_goods_list=miaosha_goods_list, goods_id=goods_id)
+                else:
+                    # 未下架的
+                    res = await self._one_update(
+                        miaosha_goods_list=miaosha_goods_list,
+                        goods_id=goods_id)
 
         else:  # 表示返回的data值为空值
             self.lg.error('数据库连接失败，数据库可能关闭或者维护中')
@@ -215,7 +226,11 @@ class Z8Updater(AsyncCrawler):
                         goods_data['taobao_price'] = item_1.get('taobao_price')
                     else:
                         self.lg.info('该商品参与活动的对应库存为0')
-                        await self._update_is_delete(goods_id=goods_id)
+                        res = _handle_goods_shelves_in_auto_goods_table(
+                            goods_id=goods_id,
+                            logger=self.lg,
+                            update_sql_str=z8_update_str_6,
+                            sql_cli=self.sql_cli, )
                         break
 
                     goods_data['sub_title'] = item_1.get('sub_title')
@@ -226,17 +241,24 @@ class Z8Updater(AsyncCrawler):
                     if goods_data.get('is_delete', 0) == 1:
                         self.lg.info('该商品[{0}]已售罄...'.format(goods_id))
 
-                    # self.lg.info(str(goods_data['stock_info']))
-                    # self.lg.info(str(goods_data['miaosha_time']))
                     res = zhe_800_miaosha.to_update_zhe_800_xianshimiaosha_table(
                         data=goods_data,
-                        pipeline=self.tmp_sql_server)
+                        pipeline=self.sql_cli)
                     break
             else:
                 pass
         collect()
 
         return res
+
+    async def _get_new_z8_obj(self, index):
+        if index % 10 == 0:         # 不能共享一个对象了, 否则驱动访问会异常!
+            try:
+                del self.zhe_800_spike
+            except:
+                pass
+            collect()
+            self.zhe_800_spike = Zhe800Spike()
 
     async def _is_recent_time(self, timestamp) -> int:
         '''
@@ -358,12 +380,8 @@ def _fck_run():
         pass
 
 def main():
-    '''
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
     _fck_run()
 

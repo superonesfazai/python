@@ -11,8 +11,6 @@ sys.path.append('..')
 
 from tmall_parse_2 import TmallParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from gc import collect
-import time
 
 from settings import (
     IS_BACKGROUND_RUNNING,
@@ -25,7 +23,10 @@ from sql_str_controller import (
     tb_update_str_4,)
 from multiplex_code import (
     _print_db_old_data,
-    _get_new_db_conn,)
+    _get_new_db_conn,
+    _handle_goods_shelves_in_auto_goods_table,
+    async_get_ms_begin_time_and_miaos_end_time_from_ms_time,
+)
 from fzutils.spider.async_always import *
 
 class TaoBaoQiangGouRealTimesUpdate(Crawler):
@@ -41,14 +42,15 @@ class TaoBaoQiangGouRealTimesUpdate(Crawler):
         self.delete_sql_str = tb_delete_str_1
 
     def _set_headers(self):
-        self.headers = {
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': get_random_pc_ua(),
-            'accept': '*/*',
+        self.headers = get_random_headers(
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='',
+        )
+        self.headers.update({
             'referer': 'https://qiang.taobao.com/?spm=a21bo.2017.2003.1.5af911d94ZThxY',
             'authority': 'unszacs.m.taobao.com',
-        }
+        })
 
     async def _run_forever(self):
         '''
@@ -68,8 +70,8 @@ class TaoBaoQiangGouRealTimesUpdate(Crawler):
         if get_shanghai_time().hour == 0:   # 0点以后不更新
             sleep(60*60*5.5)
         else:
-            self.lg.info('休眠60s...')
-            sleep(60)
+            self.lg.info('休眠30s...')
+            sleep(30)
 
         return
 
@@ -81,11 +83,11 @@ class TaoBaoQiangGouRealTimesUpdate(Crawler):
         '''
         index = 1
         for item in result:  # 实时更新数据
-            miaosha_begin_time = json_2_dict(
-                json_str=item[1],
-                logger=self.lg,).get('miaosha_begin_time')
-            miaosha_begin_time = int(str(time.mktime(time.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')))[0:10])
-            # self.lg.info(str(miaosha_begin_time))
+            _goods_id = item[0]
+            miaosha_time = item[1]
+            miaosha_begin_time, miaosha_end_time = await async_get_ms_begin_time_and_miaos_end_time_from_ms_time(
+                miaosha_time=miaosha_time,
+                logger=self.lg,)
 
             tmall = TmallParse(logger=self.lg)
             tmp_sql_server = await _get_new_db_conn(
@@ -96,13 +98,16 @@ class TaoBaoQiangGouRealTimesUpdate(Crawler):
 
             if tmp_sql_server.is_connect_success:
                 if await self.is_recent_time(miaosha_begin_time) == 0:
-                    # tmp_sql_server._delete_table(sql_str=self.delete_sql_str, params=(item[0],))
-                    tmp_sql_server._update_table(sql_str=tb_update_str_4, params=(item[0],))
-                    self.lg.info('过期的goods_id为(%s)' % item[0] + ', 限时秒杀开始时间为(%s), 删除成功!' % miaosha_begin_time)
+                    _handle_goods_shelves_in_auto_goods_table(
+                        goods_id=_goods_id,
+                        logger=self.lg,
+                        update_sql_str=tb_update_str_4,
+                        sql_cli=tmp_sql_server,)
+                    self.lg.info('过期的goods_id为(%s)' % _goods_id + ', 限时秒杀开始时间为(%s), 删除成功!' % miaosha_begin_time)
                     await async_sleep(.3)
 
                 else:   # 返回1, 表示在待更新的区间内
-                    self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (item[0], str(index)))
+                    self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (_goods_id, str(index)))
 
                     '''NOTICE: 由于都是当天数据, 此处不更新上下架时间，就更新商品数据'''
                     goods_id = tmall.get_goods_id_from_url(item[2])
@@ -112,7 +117,7 @@ class TaoBaoQiangGouRealTimesUpdate(Crawler):
 
                     if goods_data != {}:
                         # self.lg.info(str(item))
-                        goods_data['goods_id'] = item[0]
+                        goods_data['goods_id'] = _goods_id
 
                         await tmall._update_taoqianggou_xianshimiaosha_table(data=goods_data, pipeline=tmp_sql_server)
                         await async_sleep(TMALL_REAL_TIMES_SLEEP_TIME)

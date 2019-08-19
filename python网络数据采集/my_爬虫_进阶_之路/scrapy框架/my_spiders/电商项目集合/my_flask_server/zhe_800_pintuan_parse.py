@@ -61,72 +61,59 @@ class Zhe800PintuanParse(Crawler):
         tmp_url = 'https://pina.m.zhe800.com/detail/detail.html?zid=' + str(goods_id)
         print('------>>>| 得到的商品手机版地址为: ', tmp_url)
 
-        '''
-        原先采用requests来模拟的，之前能用，但是数据多了请求多了sleep也不管用后面会获取不到信息
-        '''
-        body = Requests.get_url_body(url=tmp_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
-        # print(body)
-        if body == '':
-            print('获取到的tmp_url的body为空值, 此处跳过!')
-            return self._data_error_init()
-
-        # 不用这个了因为会影响到正常情况的商品
         try:
-            if re.compile(r'很抱歉，您查看的页面木有了~').findall(body) != [] and (len(body)< 660 and len(body)>640):   # 单独处理商品页面不存在的情况
-                print('很抱歉，您查看的页面木有了~')
-                self.result_data = {}
-                return str(goods_id)
-            else:
+            '''
+            原先采用requests来模拟的，之前能用，但是数据多了请求多了sleep也不管用后面会获取不到信息
+            '''
+            body = Requests.get_url_body(
+                url=tmp_url,
+                headers=self.headers,
+                ip_pool_type=self.ip_pool_type)
+            # print(body)
+            assert body != ''
+
+            '''
+            采用phantomjs
+            '''
+            # main_body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url, css='div.title')
+            # # print(main_body)
+            # if main_body == '':
+            #     print('获取到的main_body为空值, 此处跳过!')
+            #     return self._data_error_init()
+
+            # 不用这个了因为会影响到正常情况的商品
+            try:
+                if re.compile(r'很抱歉，您查看的页面木有了~').findall(body) != [] and (
+                        len(body) < 660 and len(body) > 640):  # 单独处理商品页面不存在的情况
+                    print('很抱歉，您查看的页面木有了~')
+                    self.result_data = {}
+                    return str(goods_id)
+                else:
+                    pass
+            except:
                 pass
-        except:
-            pass
 
-        try:
             data = re.compile(r'window.prod_info = (.*?);seajs.use\(.*?\);</script>').findall(body)
-        except:
-            print('data为空!')
+            assert data != [], 'data为空!'
+            data = json_2_dict(
+                json_str=data[0],
+                default_res={},)
+            assert data != {}
+            # pprint(data)
+            # div_desc
+            div_desc_body = self.get_div_desc_body(goods_id=goods_id)
+            # print(div_desc_body)
+            assert div_desc_body != '', '获取到的div_desc_body为空!'
+            p_info = self.get_p_info_list(goods_id=goods_id)
+            # pprint(p_info)
+            assert p_info != []
+            # 获取商品实时库存信息
+            stock_info = self.get_stock_info_dict(goods_id=goods_id)
+            assert stock_info != {}, '获取到的库存信息为{}!'
+            # pprint(stock_info)
+        except (IndexError, AssertionError, Exception) as e:
+            print(e)
             return self._data_error_init()
-
-        '''
-        采用phantomjs
-        '''
-        # main_body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url, css='div.title')
-        # # print(main_body)
-        # if main_body == '':
-        #     print('获取到的main_body为空值, 此处跳过!')
-        #     return self._data_error_init()
-        #
-        # try:
-        #     data = re.compile(r'window.prod_info = (.*?);seajs.use\(.*?\);</script>').findall(main_body)  # 贪婪匹配匹配所有
-        #     # print(data)
-        # except:
-        #     print('data为空!')
-        #     return self._data_error_init()
-
-        data = json_2_dict(json_str=data[0])
-        # pprint(data)
-        if data == {}:
-            return self._data_error_init()
-
-        # div_desc
-        div_desc_body = self.get_div_desc_body(goods_id=goods_id)
-        # print(div_desc_body)
-        if div_desc_body == '':
-            print('获取到的div_desc_body为空!')
-            return {}
-
-        # p_info
-        p_info = self.get_p_info_list(goods_id=goods_id)
-        # pprint(p_info)
-        if p_info == []:
-            return {}
-
-        # 获取商品实时库存信息
-        stock_info = self.get_stock_info_dict(goods_id=goods_id)
-        if stock_info == {}:
-            print('获取到的库存信息为{}!')
-            return {}
-        # pprint(stock_info)
 
         data['div_desc'] = div_desc_body
         data['p_info'] = p_info

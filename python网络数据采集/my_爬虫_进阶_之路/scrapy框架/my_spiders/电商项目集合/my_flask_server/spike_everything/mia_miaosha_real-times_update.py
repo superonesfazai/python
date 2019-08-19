@@ -17,9 +17,7 @@ sys.path.append('..')
 from mia_parse import MiaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from gc import collect
 import json
-from pprint import pprint
 import time
 from settings import (
     IS_BACKGROUND_RUNNING, 
@@ -38,6 +36,8 @@ from multiplex_code import (
     _get_new_db_conn,
     _get_async_task_result,
     _print_db_old_data,
+    async_get_ms_begin_time_and_miaos_end_time_from_ms_time,
+    _handle_goods_shelves_in_auto_goods_table,
 )
 from fzutils.spider.async_always import *
 
@@ -57,15 +57,14 @@ class MIUpdater(AsyncCrawler):
         self.goods_index = 1
 
     async def _get_pc_headers(self) -> dict:
-        return {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            # 'Accept-Encoding:': 'gzip',
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
+        headers = await async_get_random_headers(
+            upgrade_insecure_requests=False,
+        )
+        headers.update({
             'Host': 'm.mia.com',
-            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
-        }
+        })
+
+        return headers
 
     async def _get_db_old_data(self):
         self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
@@ -107,21 +106,46 @@ class MIUpdater(AsyncCrawler):
         goods_id = item[0]
         miaosha_time = item[1]
         pid = item[2]
-        miaosha_end_time = await self._get_miaosha_end_time(miaosha_time)
+        miaosha_begin_time, miaosha_end_time = await async_get_ms_begin_time_and_miaos_end_time_from_ms_time(
+            miaosha_time=miaosha_time,
+            logger=self.lg,)
         await self._get_new_mia_obj(index)
-        self.tmp_sql_server = await _get_new_db_conn(db_obj=self.tmp_sql_server, index=index, logger=self.lg, remainder=30)
+        self.tmp_sql_server = await _get_new_db_conn(
+            db_obj=self.tmp_sql_server,
+            index=index,
+            logger=self.lg,
+            remainder=30,)
 
         if self.tmp_sql_server.is_connect_success:
             is_recent_time = await self._is_recent_time(miaosha_end_time)
             if is_recent_time == 0:
-                res = self.tmp_sql_server._update_table_2(sql_str=mia_update_str_6, params=(goods_id,), logger=self.lg)
-                self.lg.info('过期的goods_id为({}), 限时秒杀开始时间为({}), 删除成功!'.format(goods_id, json_2_dict(miaosha_time).get('miaosha_begin_time')))
+                res = _handle_goods_shelves_in_auto_goods_table(
+                    goods_id=goods_id,
+                    logger=self.lg,
+                    update_sql_str=mia_update_str_6,
+                    sql_cli=self.tmp_sql_server,)
+                self.lg.info('过期的goods_id为({}), 限时秒杀开始时间为({}), 删除成功!'.format(
+                    goods_id,
+                    timestamp_to_regulartime(miaosha_begin_time)))
                 await async_sleep(.5)
                 self.goods_index = index + 1
 
                 return goods_id, res
 
             elif is_recent_time == 2:
+                if datetime_to_timestamp(get_shanghai_time()) > miaosha_end_time:
+                    res = _handle_goods_shelves_in_auto_goods_table(
+                        goods_id=goods_id,
+                        logger=self.lg,
+                        update_sql_str=mia_update_str_6,
+                        sql_cli=self.tmp_sql_server, )
+                    self.lg.info('过期的goods_id为({}), 限时秒杀开始时间为({}), 删除成功!'.format(
+                        goods_id,
+                        timestamp_to_regulartime(miaosha_begin_time)))
+
+                else:
+                    pass
+
                 self.goods_index = index + 1
 
                 return goods_id, res
@@ -133,7 +157,10 @@ class MIUpdater(AsyncCrawler):
                 # print(body)
                 body = '' if body == '' or body == '[]' else body
                 try:
-                    tmp_data = json_2_dict(body, default_res={})
+                    tmp_data = json_2_dict(
+                        json_str=body,
+                        default_res={},
+                        logger=self.lg,)
                     assert tmp_data != {}, 'tmp_data为空dict!'
                 except AssertionError:
                     self.lg.error('遇到错误:', exc_info=True)
@@ -148,7 +175,11 @@ class MIUpdater(AsyncCrawler):
                 # self.lg.info(str(miaosha_goods_all_goods_id))
                 if goods_id not in miaosha_goods_all_goods_id:  # 内部已经下架的
                     self.lg.info('该商品已被下架限时秒杀活动，此处将其删除')
-                    res = self.tmp_sql_server._update_table_2(sql_str=mia_update_str_6, params=(goods_id,), logger=self.lg)
+                    res = _handle_goods_shelves_in_auto_goods_table(
+                        goods_id=goods_id,
+                        logger=self.lg,
+                        update_sql_str=mia_update_str_6,
+                        sql_cli=self.tmp_sql_server, )
                     self.lg.info('下架的goods_id为({}), 删除成功!'.format(goods_id))
                     self.goods_index = index + 1
                     await async_sleep(.3)
@@ -156,7 +187,10 @@ class MIUpdater(AsyncCrawler):
                     return goods_id, res
 
                 else:  # 未下架的
-                    res = await self._one_update(item_list=item_list, goods_id=goods_id, tmp_data=tmp_data)
+                    res = await self._one_update(
+                        item_list=item_list,
+                        goods_id=goods_id,
+                        tmp_data=tmp_data,)
 
         else:  # 表示返回的data值为空值
             self.lg.info('数据库连接失败，数据库可能关闭或者维护中')
@@ -300,11 +334,7 @@ def _fck_run():
         pass
 
 def main():
-    '''
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
+    print('========主函数开始========')
     daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
     _fck_run()

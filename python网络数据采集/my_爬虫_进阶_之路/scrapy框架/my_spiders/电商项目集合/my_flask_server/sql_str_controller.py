@@ -167,7 +167,7 @@ tb_update_str_2 = 'update dbo.taobao_tiantiantejia set modfiy_time = %s, shop_na
 # 常规goods下架标记
 tb_update_str_3 = 'update dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=%s  where GoodsID=%s'
 # 秒杀逻辑删
-tb_update_str_4 = 'update dbo.tao_qianggou_xianshimiaosha set is_delete=1 where goods_id=%s'
+tb_update_str_4 = 'update dbo.tao_qianggou_xianshimiaosha set is_delete=1, modfiy_time=%s where goods_id=%s'
 # 天天特价下架标记
 tb_update_str_5 = 'update dbo.taobao_tiantiantejia set is_delete=1, modfiy_time=%s where goods_id=%s'
 '''delete'''
@@ -280,14 +280,14 @@ z8_update_str_3 = 'update dbo.zhe_800_pintuan set modfiy_time=%s, shop_name=%s, 
 # 拼团下架标记
 z8_update_str_4 = 'update dbo.zhe_800_pintuan set is_delete=1, modfiy_time=%s where goods_id=%s'
 z8_update_str_5 = 'update dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=%s where GoodsID=%s'
+# 秒杀逻辑下架标记
+z8_update_str_6 = 'update dbo.zhe_800_xianshimiaosha set is_delete=1, modify_time=%s where goods_id=%s'
 
 '''delete'''
 # 拼团过期数据清空
 z8_delete_str_1 = 'delete from dbo.zhe_800_pintuan where miaosha_end_time < GETDATE()-2'
 # 拼团下架标记
 z8_delete_str_2 = 'delete from dbo.zhe_800_pintuan where goods_id=%s'
-# 秒杀下架删除
-z8_delete_str_3 = 'delete from dbo.zhe_800_xianshimiaosha where goods_id=%s'
 # 秒杀过期清空
 z8_delete_str_4 = 'delete from dbo.zhe_800_xianshimiaosha where miaosha_end_time < GETDATE()-2'
 
@@ -328,7 +328,7 @@ jp_update_str_4 = 'update dbo.juanpi_pintuan set modfiy_time=%s, shop_name=%s, g
 # 拼团下架标记
 jp_update_str_5 = 'update dbo.juanpi_pintuan set is_delete=1 where goods_id = %s'
 # 秒杀下架标记
-jp_update_str_6 = 'update dbo.juanpi_xianshimiaosha set is_delete=1 where goods_id=%s'
+jp_update_str_6 = 'update dbo.juanpi_xianshimiaosha set is_delete=1, modfiy_time=%s where goods_id=%s'
 # 拼团下架标记
 jp_update_str_7 = 'update dbo.juanpi_pintuan set is_delete=1, modfiy_time=%s  where goods_id = %s'
 '''delete'''
@@ -362,7 +362,7 @@ jm_update_str_2 = 'update dbo.jumeiyoupin_pintuan set modfiy_time=%s, shop_name=
 # 拼团更新2
 jm_update_str_3 = 'update dbo.jumeiyoupin_pintuan set modfiy_time=%s, shop_name=%s, goods_name=%s, sub_title=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s, all_sell_count=%s where goods_id=%s'
 # 秒杀下架标记
-jm_update_str_4 = 'update dbo.jumeiyoupin_xianshimiaosha set is_delete=1 where goods_id=%s'
+jm_update_str_4 = 'update dbo.jumeiyoupin_xianshimiaosha set is_delete=1, modfiy_time=%s where goods_id=%s'
 # 拼团下架标记
 jm_update_str_5 = 'update dbo.jumeiyoupin_pintuan set is_delete=1, modfiy_time=%s where goods_id=%s'
 # 拼团下架标记
@@ -387,7 +387,7 @@ cc_insert_str_1 = 'insert into dbo.chuchujie_xianshimiaosha(goods_id, goods_url,
 '''update'''
 # 秒杀更新
 cc_update_str_1 = 'update dbo.chuchujie_xianshimiaosha set modfiy_time = %s, shop_name=%s, goods_name=%s, price=%s, taobao_price=%s, sku_name=%s, sku_Info=%s, all_image_url=%s, property_info=%s, detail_info=%s, is_delete=%s where goods_id = %s'
-cc_update_str_2 = 'update dbo.chuchujie_xianshimiaosha set is_delete=1 where goods_id=%s'
+cc_update_str_2 = 'update dbo.chuchujie_xianshimiaosha set is_delete=1, modfiy_time=%s where goods_id=%s'
 '''delete'''
 # 秒杀下架删除
 cc_delete_str_1 = 'delete from dbo.chuchujie_xianshimiaosha where goods_id=%s'
@@ -451,7 +451,7 @@ mia_update_str_4 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s
 # 常规商品下架标记
 mia_update_str_5 = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
 # 秒杀逻辑删
-mia_update_str_6 = 'update dbo.mia_xianshimiaosha set is_delete=1 where goods_id=%s'
+mia_update_str_6 = 'update dbo.mia_xianshimiaosha set is_delete=1, modfiy_time=%s where goods_id=%s'
 mia_update_str_7 = 'update dbo.mia_pintuan set is_delete=1, modfiy_time=%s where goods_id = %s'
 '''delete'''
 # 拼团过期标记

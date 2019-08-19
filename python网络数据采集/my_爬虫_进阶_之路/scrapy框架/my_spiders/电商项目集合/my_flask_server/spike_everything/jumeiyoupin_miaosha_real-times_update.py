@@ -17,11 +17,6 @@ sys.path.append('..')
 from jumeiyoupin_parse import JuMeiYouPinParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from gc import collect
-import json
-from pprint import pprint
-import time
-
 from settings import (
     IS_BACKGROUND_RUNNING,
     JUMEIYOUPIN_SLEEP_TIME,
@@ -40,6 +35,8 @@ from multiplex_code import (
     _get_async_task_result,
     _get_new_db_conn,
     _print_db_old_data,
+    _handle_goods_shelves_in_auto_goods_table,
+    async_get_ms_begin_time_and_miaos_end_time_from_ms_time,
 )
 
 from fzutils.spider.fz_phantomjs import BaseDriver
@@ -54,36 +51,36 @@ class JMYPUpdater(AsyncCrawler):
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/聚美优品/秒杀实时更新/',
             ip_pool_type=IP_POOL_TYPE,)
-        self.tmp_sql_server = None
+        self.sql_cli = None
         self.delete_sql_str = jm_delete_str_1
         self.goods_index = 1
         self.concurrency = 10   # 并发量
 
     async def _get_pc_headers(self):
-        return {
-            'Accept': 'application/json,text/javascript,text/plain,*/*;q=0.01',
-            # 'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-            'Connection': 'keep-alive',
+        headers = await async_get_random_headers(
+            upgrade_insecure_requests=False,
+        )
+        headers.update({
+            'accept': 'application/json,text/javascript,text/plain,*/*;q=0.01',
             # 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'Host': 'h5.jumei.com',
-            'Referer': 'https://h5.jumei.com/',
-            'Cache-Control': 'max-age=0',
+            'referer': 'https://h5.jumei.com/',
             'X-Requested-With': 'XMLHttpRequest',
-            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
-        }
+        })
+
+        return headers
 
     async def _get_db_old_data(self) -> (list, None):
         '''
         待更新数据
         :return:
         '''
-        self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
+        self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         result = None
         try:
-            self.tmp_sql_server._delete_table(sql_str=jm_delete_str_2)
+            self.sql_cli._delete_table(sql_str=jm_delete_str_2)
             await async_sleep(5)
-            result = list(self.tmp_sql_server._select_table(sql_str=jm_select_str_1))
+            result = list(self.sql_cli._select_table(sql_str=jm_select_str_1))
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
 
@@ -110,16 +107,6 @@ class JMYPUpdater(AsyncCrawler):
 
         return cookies
 
-    async def _get_miaosha_end_time(self, miaosha_time) -> int:
-        '''
-        获取秒杀结束时间
-        :return:
-        '''
-        miaosha_end_time = json.loads(miaosha_time).get('miaosha_end_time')
-        miaosha_end_time = int(str(time.mktime(time.strptime(miaosha_end_time, '%Y-%m-%d %H:%M:%S')))[0:10])
-
-        return miaosha_end_time
-
     async def _get_new_jumei_obj(self, index):
         if index % 10 == 0:         # 不能共享一个对象了, 否则驱动访问会异常!
             try:
@@ -128,16 +115,6 @@ class JMYPUpdater(AsyncCrawler):
                 pass
             collect()
             self.jumeiyoupin_miaosha = JuMeiYouPinParse()
-
-    async def _update_is_delete(self, goods_id):
-        '''
-        逻辑删
-        :param goods_id:
-        :return:
-        '''
-        res = self.tmp_sql_server._update_table(sql_str=jm_update_str_4, params=(goods_id,))
-
-        return res
 
     async def _get_one_page_all_goods_list(self, *params) -> (list, str):
         '''
@@ -179,23 +156,41 @@ class JMYPUpdater(AsyncCrawler):
         miaosha_time = item[1]
         page = item[2]
         goods_url = item[3]
-        miaosha_end_time = await self._get_miaosha_end_time(miaosha_time)
-        # self.lg.info(str(miaosha_end_time))
+        miaosha_begin_time, miaosha_end_time = await async_get_ms_begin_time_and_miaos_end_time_from_ms_time(
+            miaosha_time=miaosha_time,
+            logger=self.lg,)
         await self._get_new_jumei_obj(index=index)
-        self.tmp_sql_server = await _get_new_db_conn(
-            db_obj=self.tmp_sql_server,
+        self.sql_cli = await _get_new_db_conn(
+            db_obj=self.sql_cli,
             index=index,
             logger=self.lg,)
 
-        if self.tmp_sql_server.is_connect_success:
+        if self.sql_cli.is_connect_success:
             is_recent_time_res = await self._is_recent_time(miaosha_end_time)
             if is_recent_time_res == 0:
-                res = await self._update_is_delete(goods_id)
-                self.lg.info('过期的goods_id为({}), 限时秒杀结束时间为({}), 逻辑删除成功!'.format(goods_id, json.loads(miaosha_time).get('miaosha_end_time')))
+                res = _handle_goods_shelves_in_auto_goods_table(
+                    goods_id=goods_id,
+                    logger=self.lg,
+                    update_sql_str=jm_update_str_4,
+                    sql_cli=self.sql_cli, )
+                self.lg.info('过期的goods_id为({}), 限时秒杀结束时间为({}), 逻辑删除成功!'.format(
+                    goods_id, 
+                    timestamp_to_regulartime(miaosha_end_time)))
                 await async_sleep(.3)
 
             elif is_recent_time_res == 2:
-                pass
+                if datetime_to_timestamp(get_shanghai_time()) > miaosha_end_time:
+                    res = _handle_goods_shelves_in_auto_goods_table(
+                        goods_id=goods_id,
+                        logger=self.lg,
+                        update_sql_str=jm_update_str_4,
+                        sql_cli=self.sql_cli, )
+                    self.lg.info('过期的goods_id为({}), 限时秒杀结束时间为({}), 逻辑删除成功!'.format(
+                        goods_id,
+                        timestamp_to_regulartime(miaosha_end_time)))
+                    
+                else:
+                    pass
 
             else:  # 返回1，表示在待更新区间内
                 self.lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(goods_id, index))
@@ -206,7 +201,11 @@ class JMYPUpdater(AsyncCrawler):
                     return res
 
                 elif this_page_all_goods_list == []:
-                    res = await self._update_is_delete(goods_id=goods_id)
+                    res = _handle_goods_shelves_in_auto_goods_table(
+                        goods_id=goods_id,
+                        logger=self.lg,
+                        update_sql_str=jm_update_str_4,
+                        sql_cli=self.sql_cli, )
                     self.lg.error('#### 该page对应得到的this_page_all_goods_list为空[]!')
                     self.lg.error('** 该商品已被下架限时秒杀活动, 此处将其逻辑删除, goods_id:{}'.format(goods_id))
                     await async_sleep(.3)
@@ -219,7 +218,11 @@ class JMYPUpdater(AsyncCrawler):
                     #
                     # if item[0] not in miaosha_goods_all_goods_id:  # 内部已经下架的
                     #     self.lg.info('该商品已被下架限时秒杀活动，此处将其删除')
-                    #     res = await self._update_is_delete(goods_id=goods_id)
+                    #     res = _handle_goods_shelves_in_auto_goods_table(
+                    #         goods_id=goods_id,
+                    #         logger=self.lg,
+                    #         update_sql_str=jm_update_str_4,
+                    #         sql_cli=self.sql_cli, )
                     #     self.lg.info('下架的goods_id为(%s)' % item[0], ', 删除成功!')
                     #     pass
 
@@ -237,7 +240,7 @@ class JMYPUpdater(AsyncCrawler):
                         }
                         goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(
                             miaosha_time=goods_data['miaosha_time'])
-                        res = self.jumeiyoupin_miaosha.update_jumeiyoupin_xianshimiaosha_table(data=goods_data, pipeline=self.tmp_sql_server)
+                        res = self.jumeiyoupin_miaosha.update_jumeiyoupin_xianshimiaosha_table(data=goods_data, pipeline=self.sql_cli)
 
         else:  # 表示返回的data值为空值
             self.lg.info('数据库连接失败，数据库可能关闭或者维护中')
@@ -338,12 +341,8 @@ def _fck_run():
         pass
 
 def main():
-    '''
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')  
+    daemon_init()  
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
     _fck_run()
 

@@ -13,7 +13,6 @@ sys.path.append('..')
 from zhe_800_pintuan_parse import Zhe800PintuanParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-# import gc
 from gc import collect
 from time import sleep
 import re
@@ -24,7 +23,6 @@ from settings import (
 from sql_str_controller import (
     z8_delete_str_1,
     z8_select_str_2,
-    z8_delete_str_2,
     z8_update_str_4,)
 from multiplex_code import (
     _block_print_db_old_data,

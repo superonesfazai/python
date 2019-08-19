@@ -13,8 +13,6 @@ sys.path.append('..')
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from gc import collect
-from pprint import pprint
 import time
 from settings import (
     IS_BACKGROUND_RUNNING,
@@ -32,6 +30,8 @@ from multiplex_code import (
     _get_async_task_result,
     _get_new_db_conn,
     _print_db_old_data,
+    async_get_ms_begin_time_and_miaos_end_time_from_ms_time,
+    _handle_goods_shelves_in_auto_goods_table,
 )
 
 from fzutils.spider.async_always import *
@@ -56,15 +56,13 @@ class JPUpdater(AsyncCrawler):
         self.delete_sql_str = jp_delete_str_3
 
     async def _get_pc_headers(self) -> dict:
-        return {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            # 'Accept-Encoding:': 'gzip',
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
-            'Host': 'm.juanpi.com',
-            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
-        }
+        headers = await async_get_random_headers(upgrade_insecure_requests=False)
+        headers.update({
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'host': 'm.juanpi.com',
+        })
+
+        return headers
 
     async def _get_db_old_data(self) -> (None, list):
         self.tmp_sql_server = SqlServerMyPageInfoSaveItemPipeline()
@@ -79,12 +77,6 @@ class JPUpdater(AsyncCrawler):
         await _print_db_old_data(logger=self.lg, result=result)
 
         return result
-
-    async def _get_miaosha_begin_time(self, miaosha_time) -> int:
-        miaosha_begin_time = json_2_dict(miaosha_time).get('miaosha_begin_time')
-        miaosha_begin_time = int(str(time.mktime(time.strptime(miaosha_begin_time, '%Y-%m-%d %H:%M:%S')))[0:10])
-
-        return miaosha_begin_time
 
     async def _get_new_jp_obj(self, index):
         if index % 10 == 0:         # 不能共享一个对象了, 否则驱动访问会异常!
@@ -107,16 +99,23 @@ class JPUpdater(AsyncCrawler):
         miaosha_time = item[1]
         tab_id = item[2]
         page = item[3]
-        miaosha_begin_time = await self._get_miaosha_begin_time(miaosha_time)
-        # self.lg.info(str(miaosha_begin_time))
+        miaosha_begin_time, miaosha_end_time = await async_get_ms_begin_time_and_miaos_end_time_from_ms_time(
+            miaosha_time=miaosha_time,
+            logger=self.lg,)
         await self._get_new_jp_obj(index=index)
         self.tmp_sql_server = await _get_new_db_conn(db_obj=self.tmp_sql_server, index=index, logger=self.lg, remainder=30)
 
         if self.tmp_sql_server.is_connect_success:
             is_recent_time = await self._is_recent_time(miaosha_begin_time)
             if is_recent_time == 0:
-                res = self.tmp_sql_server._update_table(sql_str=jp_update_str_6, params=(goods_id,))
-                self.lg.info('过期的goods_id为({}), 限时秒杀开始时间为({}), 逻辑删除成功!'.format(goods_id, miaosha_begin_time))
+                res = _handle_goods_shelves_in_auto_goods_table(
+                    goods_id=goods_id,
+                    logger=self.lg,
+                    update_sql_str=jp_update_str_6,
+                    sql_cli=self.tmp_sql_server,)
+                self.lg.info('过期的goods_id为({}), 限时秒杀开始时间为({}), 逻辑删除成功!'.format(
+                    goods_id,
+                    timestamp_to_regulartime(miaosha_begin_time)))
                 await async_sleep(.3)
                 index += 1
                 self.goods_index = index
@@ -124,7 +123,17 @@ class JPUpdater(AsyncCrawler):
                 return goods_id, res
 
             elif is_recent_time == 2:
-                self.lg.info('goods_id: {}, 未来时间跳过更新...'.format(goods_id))
+                if datetime_to_timestamp(get_shanghai_time()) > miaosha_end_time:
+                    res = _handle_goods_shelves_in_auto_goods_table(
+                        goods_id=goods_id,
+                        logger=self.lg,
+                        update_sql_str=jp_update_str_6,
+                        sql_cli=self.tmp_sql_server, )
+                    self.lg.info('过期的goods_id为({}), 限时秒杀开始时间为({}), 逻辑删除成功!'.format(
+                        goods_id,
+                        timestamp_to_regulartime(miaosha_begin_time)))
+                else:
+                    self.lg.info('goods_id: {}, 未来时间跳过更新...'.format(goods_id))
                 index += 1
                 self.goods_index = index
 
@@ -160,7 +169,11 @@ class JPUpdater(AsyncCrawler):
                         self.lg.info('该商品[{}]未下架, 此处不进行更新跳过!!'.format(goods_id))
                     else:
                         # 表示该tab_id，page中没有了该goods_id
-                        res = self.tmp_sql_server._update_table(sql_str=jp_update_str_6, params=(goods_id,))
+                        res = _handle_goods_shelves_in_auto_goods_table(
+                            goods_id=goods_id,
+                            logger=self.lg,
+                            update_sql_str=jp_update_str_6,
+                            sql_cli=self.tmp_sql_server, )
                         self.lg.info('该商品[goods_id为({})]已被下架限时秒杀活动，此处将其逻辑删除'.format(goods_id))
 
                     index += 1
@@ -330,12 +343,8 @@ def _fck_run():
         pass
 
 def main():
-    '''
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
     _fck_run()
 

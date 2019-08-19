@@ -17,11 +17,7 @@ sys.path.append('..')
 from mogujie_miaosha_parse import MoGuJieMiaoShaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-import gc
-from time import sleep
-import re
 import json
-from pprint import pprint
 import time
 from settings import (
     IS_BACKGROUND_RUNNING, 
@@ -30,6 +26,8 @@ from settings import (
 from decimal import Decimal
 from multiplex_code import (
     _block_print_db_old_data,
+    _handle_goods_shelves_in_auto_goods_table,
+    async_get_ms_begin_time_and_miaos_end_time_from_ms_time,
 )
 
 from sql_str_controller import (
@@ -39,14 +37,7 @@ from sql_str_controller import (
     mg_update_str_1,
 )
 
-from fzutils.time_utils import (
-    get_shanghai_time,
-    timestamp_to_regulartime,
-)
-from fzutils.linux_utils import daemon_init
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
-from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
+from fzutils.spider.async_always import *
 
 class MoGuJieMiaoShaRealTimeUpdate(object):
     def __init__(self):
@@ -55,15 +46,12 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
         self.ip_pool_type = IP_POOL_TYPE
 
     def _set_headers(self):
-        self.headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            # 'Accept-Encoding:': 'gzip',
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
+        self.headers = get_random_headers(
+            upgrade_insecure_requests=False,
+        )
+        self.headers.update({
             'Host': 'm.mogujie.com',
-            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
-        }
+        })
 
     def run_forever(self):
         '''
@@ -171,13 +159,13 @@ class MoGuJieMiaoShaRealTimeUpdate(object):
                     print('数据库连接失败，数据库可能关闭或者维护中')
                     pass
                 index += 1
-                gc.collect()
+                collect()
             print('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:
             sleep(5)
-        gc.collect()
+        collect()
 
     def get_item_list(self, event_time):
         '''
@@ -245,18 +233,13 @@ def just_fuck_run():
             del tmp
         except:
             pass
-        gc.collect()
+        collect()
         print('一次大更新完毕'.center(30, '-'))
 
 def main():
-    '''
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    '''
-    print('========主函数开始========')  # 在调用daemon_init函数前是可以使用print到标准输出的，调用之后就要用把提示信息通过stdout发送到日志系统中了
-    daemon_init()  # 调用之后，你的程序已经成为了一个守护进程，可以执行自己的程序入口了
+    print('========主函数开始========')
+    daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
-    # time.sleep(10)  # daemon化自己的程序之后，sleep 10秒，模拟阻塞
     just_fuck_run()
 
 if __name__ == '__main__':

@@ -18,7 +18,9 @@ from my_pipeline import (
     SqlPools,)
 
 from time import (
-    time,)
+    time,
+    mktime,
+    strptime,)
 from datetime import datetime
 from threading import Thread
 # cpu密集型
@@ -46,6 +48,24 @@ from fzutils.celery_utils import _get_celery_async_results
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.exceptions import ResponseBodyIsNullStrException
 from fzutils.spider.async_always import *
+
+async def async_get_ms_begin_time_and_miaos_end_time_from_ms_time(miaosha_time: str, logger=None) -> tuple:
+    """
+    根据ms_time 获取开始时间跟结束时间
+    :param miaosha_time: '{xxx}'
+    :param logger:
+    :return: (int, int)
+    """
+    ms_time = json_2_dict(
+        json_str=miaosha_time,
+        default_res={},
+        logger=logger,)
+    ms_begin_time = ms_time.get('miaosha_begin_time', '')
+    ms_end_time = ms_time.get('miaosha_end_time', '')
+    ms_begin_time = int(str(mktime(strptime(ms_begin_time, '%Y-%m-%d %H:%M:%S')))[0:10])
+    ms_end_time = int(str(mktime(strptime(ms_end_time, '%Y-%m-%d %H:%M:%S')))[0:10])
+
+    return ms_begin_time, ms_end_time
 
 async def get_waited_2_update_db_data_from_server(server_ip: str='http://0.0.0.0:5000',
                                                   _type: str='tm',
