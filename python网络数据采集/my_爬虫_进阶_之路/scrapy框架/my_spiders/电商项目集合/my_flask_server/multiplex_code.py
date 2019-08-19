@@ -1079,6 +1079,11 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_
     now_time = str(get_shanghai_time())
     try:
         new_sql_cli = SqlServerMyPageInfoSaveItemPipeline() if sql_cli is None else sql_cli
+        if not new_sql_cli.is_connect_success:
+            raise SqlServerConnectionException
+        else:
+            pass
+
         if 'GoodsInfoAutoGet' in sql_str:
             # 处理GoodsInfoAutoGet中异常下架但是delete_time为空值的商品
             res2 = new_sql_cli._select_table(
