@@ -21,7 +21,6 @@ from time import (
     time,
     mktime,
     strptime,)
-from sys import path as sys_path
 from datetime import datetime
 from threading import Thread
 # cpu密集型
@@ -29,7 +28,7 @@ from threading import Thread
 # IO密集型
 from multiprocessing.dummy import Pool as ThreadPool
 from multiprocessing import cpu_count
-from gc import collect
+from sys import path as sys_path
 from my_exceptions import (
     SqlServerConnectionException,
     DBGetGoodsSkuInfoErrorException,)
@@ -62,8 +61,7 @@ def block_get_one_goods_info_task_by_external_type(external_type: str,
     :param logger:
     :return:
     """
-    # 放在内部
-    sys_path.append('.')
+    # 放在内部, 外部导异常
     from tmall_parse_2 import TmallParse
     from taobao_parse import TaoBaoLoginAndParse
 
@@ -101,7 +99,6 @@ def block_get_one_goods_info_task_by_external_type(external_type: str,
         del external_obj
     except:
         pass
-    collect()
 
     return (site_id, _goods_id, index, before_goods_data, end_goods_data)
 
@@ -1073,7 +1070,7 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_
     :return:
     """
     res = False
-    _print(msg='@@@ goods_id: {}已下架, 进行逻辑删除!'.format(goods_id), logger=logger)
+    _print(msg='@@@ goods_id: {} 已下架, 逻辑删!'.format(goods_id), logger=logger)
     sql_str = 'update dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=%s where GoodsID=%s' \
         if update_sql_str is None \
         else update_sql_str
@@ -1081,10 +1078,10 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_
     sql_str_3 = 'update dbo.GoodsInfoAutoGet set delete_time=%s where GoodsID=%s'
     now_time = str(get_shanghai_time())
     try:
-        sql_cli = SqlServerMyPageInfoSaveItemPipeline() if sql_cli is None else sql_cli
+        new_sql_cli = SqlServerMyPageInfoSaveItemPipeline() if sql_cli is None else sql_cli
         if 'GoodsInfoAutoGet' in sql_str:
             # 处理GoodsInfoAutoGet中异常下架但是delete_time为空值的商品
-            res2 = sql_cli._select_table(
+            res2 = new_sql_cli._select_table(
                 sql_str=sql_str_2,
                 params=(goods_id,),
                 logger=logger,)[0][0]
@@ -1095,29 +1092,35 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_
                 _print(
                     msg='@@@原先delete_time为空值, 此处赋值now_time [{}]'.format(goods_id),
                     logger=logger)
-                sql_cli._update_table_2(
+                new_sql_cli._update_table_2(
                     sql_str=sql_str_3,
                     params=(now_time, goods_id),
                     logger=logger)
             else:
                 pass
+        else:
+            pass
 
         if logger is None:
-            res = sql_cli._update_table(
+            res = new_sql_cli._update_table(
                 sql_str=sql_str,
                 params=(now_time, goods_id))
         else:
-            res = sql_cli._update_table_2(
+            res = new_sql_cli._update_table_2(
                 sql_str=sql_str,
                 params=(now_time, goods_id),
                 logger=logger)
 
         try:
-            del sql_cli
+            del new_sql_cli
         except:
             pass
     except Exception as e:
-        _print(msg='遇到错误:', logger=logger, exception=e, log_level=2)
+        _print(
+            msg='遇到错误:',
+            logger=logger,
+            exception=e,
+            log_level=2)
 
     return res
 

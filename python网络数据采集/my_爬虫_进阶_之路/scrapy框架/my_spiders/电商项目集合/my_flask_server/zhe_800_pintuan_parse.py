@@ -27,6 +27,9 @@ from multiplex_code import _z8_get_parent_dir
 
 from fzutils.cp_utils import _get_right_model_data
 # from fzutils.spider.fz_phantomjs import BaseDriver
+from fzutils.spider.fz_requests import (
+    PROXY_TYPE_HTTPS,
+    PROXY_TYPE_HTTP,)
 from fzutils.spider.async_always import *
 
 # phantomjs驱动地址
@@ -39,6 +42,7 @@ class Zhe800PintuanParse(Crawler):
         )
         self._set_headers()
         self.result_data = {}
+        self.num_retries = 3
         # self.driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH)
 
     def _set_headers(self):
@@ -68,9 +72,11 @@ class Zhe800PintuanParse(Crawler):
             body = Requests.get_url_body(
                 url=tmp_url,
                 headers=self.headers,
-                ip_pool_type=self.ip_pool_type)
-            # print(body)
+                proxy_type=PROXY_TYPE_HTTP,
+                ip_pool_type=self.ip_pool_type,
+                num_retries=self.num_retries,)
             assert body != ''
+            # print(body)
 
             '''
             采用phantomjs

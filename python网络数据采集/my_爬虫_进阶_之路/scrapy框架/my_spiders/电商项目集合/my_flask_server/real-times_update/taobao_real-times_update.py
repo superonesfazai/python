@@ -84,7 +84,9 @@ class TBUpdater(AsyncCrawler):
                     await self._except_sleep(res=one_res)
 
                 self.lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
-            if get_shanghai_time().hour == 0:  # 0点以后不更新
+
+            if get_shanghai_time().hour == 0:
+                # 0点以后不更新
                 await async_sleep(60 * 60 * 5.5)
             else:
                 await async_sleep(5.)
