@@ -1082,7 +1082,10 @@ def get_new_sql_cli(sql_cli, num_retries=3):
 
     return sql_cli
 
-def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_str=None, sql_cli=None) -> bool:
+def _handle_goods_shelves_in_auto_goods_table(goods_id,
+                                              logger=None,
+                                              update_sql_str=None,
+                                              sql_cli=None) -> bool:
     """
     商品逻辑下架(GoodsInfoAutoGet表 or 其他表)
     :param goods_id:
@@ -1098,11 +1101,11 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_
         else update_sql_str
     sql_str_2 = 'select top 1 delete_time from dbo.GoodsInfoAutoGet where GoodsID=%s'
     sql_str_3 = 'update dbo.GoodsInfoAutoGet set delete_time=%s where GoodsID=%s'
-    now_time = str(get_shanghai_time())
     try:
+        now_time = str(get_shanghai_time())
         sql_cli = SqlServerMyPageInfoSaveItemPipeline() if sql_cli is None else sql_cli
         if not sql_cli.is_connect_success:
-            sql_cli = get_new_sql_cli(sql_cli=sql_cli, num_retries=5)
+            sql_cli = get_new_sql_cli(sql_cli=sql_cli, num_retries=3)
             if not sql_cli.is_connect_success:
                 raise SqlServerConnectionException
             else:

@@ -185,11 +185,13 @@ class SqlPools(object):
         super(SqlPools, self).__init__()
         self.is_connect_success = True
         try:
-            self.engine = create_engine('mssql+pymssql://%s:%s@%s:%d/%s' % (USER, PASSWORD, HOST, PORT, DATABASE), pool_recycle=3600)
+            self.engine = create_engine(
+                'mssql+pymssql://{}:{}@{}:{}/{}'.format(USER, PASSWORD, HOST, PORT, DATABASE),
+                pool_recycle=3600)
             self.conn = self.engine.connect()
         except Exception as e:
-            print('数据库连接失败!!')
             self.is_connect_success = False
+            print('数据库连接失败!!')
 
     def _select_table(self, sql_str, params=None, logger=None):
         self.engine.begin()

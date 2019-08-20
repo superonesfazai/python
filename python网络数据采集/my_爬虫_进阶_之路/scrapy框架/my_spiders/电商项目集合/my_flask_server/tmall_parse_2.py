@@ -82,8 +82,8 @@ class TmallParse(Crawler):
         if goods_id == []:
             return self._data_error_init()
 
-        type = goods_id[0]  # 天猫类型
-        # self.lg.info(str(type))
+        tm_type = goods_id[0]  # 天猫类型
+        # self.lg.info(str(tm_type))
         goods_id = goods_id[1]  # 天猫goods_id
         tmp_url = 'https://detail.m.tmall.com/item.htm?id=' + str(goods_id)
         # self.lg.info('------>>>| phone_url: {}'.format(tmp_url))
@@ -101,12 +101,12 @@ class TmallParse(Crawler):
             num_retries=self.req_num_retries,)
 
         try:
-            assert body != '', '获取到的body为空值, 此处跳过! 出错type %s: , goods_id: %s' % (str(type), goods_id)
+            assert body != '', '获取到的body为空值, 此处跳过!'
             data = json_2_dict(
                 json_str=re.compile('mtopjsonp3\((.*)\)').findall(body)[0],
                 default_res={},
                 logger=self.lg)
-            assert data != {}, 'data为空dict, 出错type: {}, goods_id: {}'.format(str(type), str(goods_id))
+            assert data != {}, 'data为空dict!'
             # pprint(data)
             if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
                     and data.get('data', {}).get('seller', {}).get('evaluates') is None:
@@ -118,18 +118,20 @@ class TmallParse(Crawler):
             _handle_goods_shelves_in_auto_goods_table(
                 goods_id=goods_id,
                 logger=self.lg)
-            tmp_data_s = self.init_pull_off_shelves_goods(type)
+            tmp_data_s = self.init_pull_off_shelves_goods(tm_type)
             self.result_data = {}
             return tmp_data_s
 
         except (AssertionError, IndexError):
-            self.lg.error('遇到错误:', exc_info=True)
+            self.lg.error('遇到错误[出错tm_type: {}, goods_id: {}]:'.format(
+                tm_type,
+                goods_id,), exc_info=True)
             return self._data_error_init()
 
         # 处理商品被转移或者下架导致页面不存在的商品
         if data.get('data', {}).get('seller', {}).get('evaluates') is None:
-            self.lg.error('data为空, 地址被重定向, 该商品可能已经被转移或下架, 出错type: {}, goods_id: {}'.format(
-                type,
+            self.lg.error('data为空, 地址被重定向, 该商品可能已经被转移或下架, 出错tm_type: {}, goods_id: {}'.format(
+                tm_type,
                 goods_id))
             return self._data_error_init()
 
@@ -154,7 +156,7 @@ class TmallParse(Crawler):
             json_str=mock_data,
             logger=self.lg)
         if mock_data == {}:
-            self.lg.error('出错type: {0}, goods_id: {1}'.format(type, goods_id))
+            self.lg.error('出错tm_type: {0}, goods_id: {1}'.format(tm_type, goods_id))
             return self._data_error_init()
 
         mock_data['feature'] = ''
@@ -163,16 +165,17 @@ class TmallParse(Crawler):
 
         # self.lg.info(str(result_data.get('apiStack', [])[0]))   # 可能会有{'name': 'esi', 'value': ''}的情况
         if result_data.get('apiStack', [])[0].get('value', '') == '':
-            self.lg.error("result_data.get('apiStack', [])[0].get('value', '')的值为空....出错type: {}, goods_id: {}".format(
-                str(type),
+            self.lg.error("result_data.get('apiStack', [])[0].get('value', '')的值为空....出错tm_type: {}, goods_id: {}".format(
+                tm_type,
                 goods_id))
             result_data['trade'] = {}
             return self._data_error_init()
         else:
-            result_data['trade'] = result_data.get('apiStack', [])[0].get('value', {}).get('trade', {})     # 用于判断该商品是否已经下架的参数
+            # 用于判断该商品是否已经下架的参数
+            result_data['trade'] = result_data.get('apiStack', [])[0].get('value', {}).get('trade', {})
             # pprint(result_data['trade'])
 
-        result_data['type'] = type
+        result_data['type'] = tm_type
         result_data['goods_id'] = goods_id
         self.result_data = result_data
         # pprint(self.result_data)

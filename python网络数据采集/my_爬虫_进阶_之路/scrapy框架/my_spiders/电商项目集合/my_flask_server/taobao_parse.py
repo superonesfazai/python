@@ -99,6 +99,7 @@ class TaoBaoLoginAndParse(Crawler):
             num_retries=self.req_num_retries,)
 
         try:
+            assert body != '', 'body不为空值!'
             data = json_2_dict(
                 json_str=re.compile(r'\((.*)\)').findall(body)[0],
                 default_res={},
@@ -112,7 +113,9 @@ class TaoBaoLoginAndParse(Crawler):
 
         except GoodsShelvesException:
             ## 表示该商品已经下架, 原地址被重定向到新页面
-            _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, logger=self.lg)
+            _handle_goods_shelves_in_auto_goods_table(
+                goods_id=goods_id,
+                logger=self.lg,)
             tmp_data_s = self.init_pull_off_shelves_goods()
             self.result_data = {}
             return tmp_data_s
