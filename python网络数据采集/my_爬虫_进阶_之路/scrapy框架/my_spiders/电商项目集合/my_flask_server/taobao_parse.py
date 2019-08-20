@@ -59,6 +59,7 @@ class TaoBaoLoginAndParse(Crawler):
         self.result_data = {}
         self.msg = ''
         self.is_real_times_update_call = is_real_times_update_call
+        self.req_timeout = 15
         if self.is_real_times_update_call:
             self.proxy_type = PROXY_TYPE_HTTPS
             # 不可太大，否则server采集时慢
@@ -67,16 +68,6 @@ class TaoBaoLoginAndParse(Crawler):
             # 提高server首次采集成功率
             self.proxy_type = PROXY_TYPE_HTTP
             self.req_num_retries = 3
-
-    def _set_headers(self):
-        self.headers = get_random_headers(
-            connection_status_keep_alive=False,
-            upgrade_insecure_requests=False,
-            cache_control=''
-        )
-        self.headers.update({
-            'accept': '*/*',
-        })
 
     def get_goods_data(self, goods_id):
         '''
@@ -90,10 +81,14 @@ class TaoBaoLoginAndParse(Crawler):
 
         # 获取主接口的body
         last_url = self._get_last_url(goods_id=goods_id)
+        headers = get_random_headers(
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='')
         body = Requests.get_url_body(
             url=last_url,
-            headers=self.headers,
-            timeout=15,
+            headers=headers,
+            timeout=self.req_timeout,
             ip_pool_type=self.ip_pool_type,
             proxy_type=self.proxy_type,
             num_retries=self.req_num_retries,)
@@ -979,11 +974,14 @@ class TaoBaoLoginAndParse(Crawler):
         last_url = re.compile(r'\+').sub('', url)  # 转换后得到正确的url请求地址(替换'+')
         # self.lg.info(last_url)
 
+        headers = get_random_headers(
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='',)
         body = Requests.get_url_body(
             url=last_url,
-            headers=self.headers,
-            params=None,
-            timeout=14,
+            headers=headers,
+            timeout=self.req_timeout,
             num_retries=self.req_num_retries,
             ip_pool_type=self.ip_pool_type,
             proxy_type=self.proxy_type,)
@@ -1021,7 +1019,11 @@ class TaoBaoLoginAndParse(Crawler):
         self.lg.info('正在尝试通过2版获取div_desc...')
         t = str(time.time().__round__()) + str(randint(100, 999))
 
-        headers = self._get_phone_headers()
+        headers = get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='',)
         headers.update({
             'authority': 'h5api.m.taobao.com',
             # 'referer': 'https://h5.m.taobao.com/app/detail/desc.html?_isH5Des=true',
@@ -1082,15 +1084,6 @@ class TaoBaoLoginAndParse(Crawler):
         # self.lg.info(div_desc)
 
         return div_desc
-
-    @staticmethod
-    def _get_phone_headers():
-        return {
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': get_random_phone_ua(),
-            'accept': '*/*',
-        }
 
     def deal_with_div(self, div):
         body = div

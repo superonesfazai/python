@@ -55,6 +55,7 @@ class TmallParse(Crawler):
         self.result_data = {}
         self.msg = ''
         self.is_real_times_update_call = is_real_times_update_call
+        self.req_timeout = 15
         if self.is_real_times_update_call:
             self.proxy_type = PROXY_TYPE_HTTPS
             # 不可太大，否则server采集时慢
@@ -95,7 +96,7 @@ class TmallParse(Crawler):
         body = Requests.get_url_body(
             url=last_url,
             headers=self.headers,
-            timeout=14,
+            timeout=self.req_timeout,
             ip_pool_type=self.ip_pool_type,
             proxy_type=self.proxy_type,
             num_retries=self.req_num_retries,)

@@ -1105,7 +1105,7 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id,
         now_time = str(get_shanghai_time())
         sql_cli = SqlServerMyPageInfoSaveItemPipeline() if sql_cli is None else sql_cli
         if not sql_cli.is_connect_success:
-            sql_cli = get_new_sql_cli(sql_cli=sql_cli, num_retries=3)
+            sql_cli = get_new_sql_cli(sql_cli=sql_cli, num_retries=8)
             if not sql_cli.is_connect_success:
                 raise SqlServerConnectionException
             else:
