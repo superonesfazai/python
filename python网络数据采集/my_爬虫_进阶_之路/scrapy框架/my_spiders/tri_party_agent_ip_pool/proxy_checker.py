@@ -60,97 +60,6 @@ class ProxyChecker(AsyncCrawler):
         self.sqlite3_cli = BaseSqlite3Cli(db_path='proxy.db')
         self.tri_id = tri_id                    # 三方的id
 
-    @staticmethod
-    async def _get_rules_list(data=None, area='') -> list:
-        """
-        设置三方代理抽取规格
-        :param data: data dict中待提取的源对象(源数据 or item), 每个selector可能不同, 需要进行动态的赋值data获取正确的selector
-        :param area: '' | '国内' | '国外'
-        :return:
-        """
-        return [
-            {
-                'id': 0,
-                'api_return_type': 'json',
-                'origin': 'www.kuaidaili.com',
-                # 高匿
-                # 'api_url': 'https://dev.kdlapi.com/api/getproxy/?orderid=964285337936533&num=100&area={}&b_pcchrome=1&b_pcie=1&b_pcff=1&protocol=2&method=2&an_ha=1&sp2=1&f_loc=1&f_an=1&f_pr=1&f_sp=1&quality=1&sort=2&format=json&sep=1'.format(unquote_plus(area)),
-                # 高匿 or 普匿
-                'api_url': 'https://dev.kdlapi.com/api/getproxy/?orderid=964285337936533&num=100&area={}&b_pcchrome=1&b_pcie=1&b_pcff=1&protocol=2&method=2&an_an=1&an_ha=1&sp2=1&f_loc=1&f_an=1&f_pr=1&f_sp=1&quality=1&sort=2&format=json&sep=1'.format(unquote_plus(area)),
-                'proxy_list': {
-                    'method': 'dict_path',
-                    'selector': data.get('data', {}).get('proxy_list', []) if isinstance(data, dict) else [],
-                },
-                'ip': {
-                    'method': 're',
-                    'selector': '(\d+\.\d+\.\d+\.\d+)',
-                },
-                'port': {
-                    'method': 're',
-                    'selector': ':(\d+),',
-                },
-                'activity_time': None,                      # ip存活时间, int 单位秒
-                'add_white_list_url': None,                 # 增加白名单的url
-                'api_url_call_frequency_sleep_time': 4.5,   # 非并发api_url单次调用频率的休眠时间
-            },
-            {
-                'id': 1,
-                'api_return_type': 'json',
-                'origin': 'proxy.horocn.com',
-                'api_url': HOROCN_API_URL,
-                'proxy_list': {
-                    'method': 'dict_path',
-                    'selector': data if isinstance(data, list) else [],
-                },
-                'ip': {
-                    'method': 'dict_path',
-                    'selector': data.get('host', '') if isinstance(data, dict) else '',
-                },
-                'port': {
-                    'method': 'dict_path',
-                    'selector': data.get('port', '') if isinstance(data, dict) else '',
-                },
-                'activity_time': 6 * 60,                    # 官方3分钟, 此处我设置为6
-                'add_white_list_url': 'https://proxy.horocn.com/api/ip/whitelist',
-                'api_url_call_frequency_sleep_time': 0,
-            },
-            {
-                'id': 2,
-                'api_return_type': 'json',
-                'origin': 'www.moguproxy.com',
-                'api_url': 'http://piping.mogumiao.com/proxy/api/get_ip_bs?appKey=f6663fc6d2e746219cd6de180d3db78c&count=30&expiryDate=0&format=1&newLine=2',
-                'proxy_list': {
-                    'method': 'dict_path',
-                    'selector': data.get('msg', []) if isinstance(data, dict) else [],
-                },
-                'ip': {
-                    'method': 'dict_path',
-                    'selector': data.get('ip', '') if isinstance(data, dict) else '',
-                },
-                'port': {
-                    'method': 'dict_path',
-                    'selector': data.get('port', '') if isinstance(data, dict) else '',
-                },
-                'activity_time': 5 * 60,
-                'add_white_list_url': None,
-                'api_url_call_frequency_sleep_time': 4.5,
-            }
-        ]
-
-    @staticmethod
-    async def _get_insert_params(item) -> dict:
-        """
-        获取待插入的参数
-        :return:
-        """
-        return {
-            'ip': item['ip'],
-            'port': int(item['port']),
-            'score': item['score'],
-            'agency_agreement': item['agency_agreement'],
-            'check_time': item['check_time'],
-        }
-
     async def _fck_run(self) -> None:
         """
         main
@@ -206,6 +115,20 @@ class ProxyChecker(AsyncCrawler):
                 await async_sleep(self.CHECKED_PROXY_SLEEP_TIME)
             else:   # activity_time不为空, 则实时监控
                 pass
+
+    @staticmethod
+    async def _get_insert_params(item) -> dict:
+        """
+        获取待插入的参数
+        :return:
+        """
+        return {
+            'ip': item['ip'],
+            'port': int(item['port']),
+            'score': item['score'],
+            'agency_agreement': item['agency_agreement'],
+            'check_time': item['check_time'],
+        }
 
     async def _get_api_url_call_frequency_sleep_time(self) -> (int, float):
         """
@@ -350,7 +273,10 @@ class ProxyChecker(AsyncCrawler):
             score = item['score']
             check_time = item['check_time']
             if ip in db_ip_list:
-                update_res = await self._update_score_in_db(ip=ip, score=score, check_time=check_time)
+                update_res = await self._update_score_in_db(
+                    ip=ip,
+                    score=score,
+                    check_time=check_time)
                 if update_res:
                     update_count += 1
 
@@ -505,7 +431,9 @@ class ProxyChecker(AsyncCrawler):
         :param target_obj:
         :return:
         """
-        proxy_list = await async_parse_field(parser=parser, target_obj=target_obj)
+        proxy_list = await async_parse_field(
+            parser=parser,
+            target_obj=target_obj)
         assert  proxy_list != [], 'proxy_list为空list!'
 
         return proxy_list
@@ -655,7 +583,9 @@ class ProxyChecker(AsyncCrawler):
                 if ip not in _:
                     self.checked_proxy_list.append(item)
 
-        print('[{}] new add 高匿ip num: {}'.format('+' if used_index > 0 else '-', used_index))
+        print('[{}] new add 高匿ip num: {}'.format(
+            '+' if used_index > 0 else '-',
+            used_index))
 
         return used_index
 
@@ -669,6 +599,84 @@ class ProxyChecker(AsyncCrawler):
         self.delete_sql_str = 'delete from proxy_obj_table where ip=?'
         self.update_sql_str = 'update proxy_obj_table set score=?, check_time=? where ip=?'
         self.drop_table = 'drop table proxy_obj_table;'
+
+    @staticmethod
+    async def _get_rules_list(data=None, area='') -> list:
+        """
+        设置三方代理抽取规格
+        :param data: data dict中待提取的源对象(源数据 or item), 每个selector可能不同, 需要进行动态的赋值data获取正确的selector
+        :param area: '' | '国内' | '国外'
+        :return:
+        """
+        return [
+            {
+                'id': 0,
+                'api_return_type': 'json',
+                'origin': 'www.kuaidaili.com',
+                # 高匿
+                # 'api_url': 'https://dev.kdlapi.com/api/getproxy/?orderid=964285337936533&num=100&area={}&b_pcchrome=1&b_pcie=1&b_pcff=1&protocol=2&method=2&an_ha=1&sp2=1&f_loc=1&f_an=1&f_pr=1&f_sp=1&quality=1&sort=2&format=json&sep=1'.format(unquote_plus(area)),
+                # 高匿 or 普匿
+                'api_url': 'https://dev.kdlapi.com/api/getproxy/?orderid=964285337936533&num=100&area={}&b_pcchrome=1&b_pcie=1&b_pcff=1&protocol=2&method=2&an_an=1&an_ha=1&sp2=1&f_loc=1&f_an=1&f_pr=1&f_sp=1&quality=1&sort=2&format=json&sep=1'.format(
+                    unquote_plus(area)),
+                'proxy_list': {
+                    'method': 'dict_path',
+                    'selector': data.get('data', {}).get('proxy_list', []) if isinstance(data, dict) else [],
+                },
+                'ip': {
+                    'method': 're',
+                    'selector': '(\d+\.\d+\.\d+\.\d+)',
+                },
+                'port': {
+                    'method': 're',
+                    'selector': ':(\d+),',
+                },
+                'activity_time': None,  # ip存活时间, int 单位秒
+                'add_white_list_url': None,  # 增加白名单的url
+                'api_url_call_frequency_sleep_time': 4.5,  # 非并发api_url单次调用频率的休眠时间
+            },
+            {
+                'id': 1,
+                'api_return_type': 'json',
+                'origin': 'proxy.horocn.com',
+                'api_url': HOROCN_API_URL,
+                'proxy_list': {
+                    'method': 'dict_path',
+                    'selector': data if isinstance(data, list) else [],
+                },
+                'ip': {
+                    'method': 'dict_path',
+                    'selector': data.get('host', '') if isinstance(data, dict) else '',
+                },
+                'port': {
+                    'method': 'dict_path',
+                    'selector': data.get('port', '') if isinstance(data, dict) else '',
+                },
+                'activity_time': 6 * 60,  # 官方3分钟, 此处我设置为6
+                'add_white_list_url': 'https://proxy.horocn.com/api/ip/whitelist',
+                'api_url_call_frequency_sleep_time': 0,
+            },
+            {
+                'id': 2,
+                'api_return_type': 'json',
+                'origin': 'www.moguproxy.com',
+                'api_url': 'http://piping.mogumiao.com/proxy/api/get_ip_bs?appKey=f6663fc6d2e746219cd6de180d3db78c&count=30&expiryDate=0&format=1&newLine=2',
+                'proxy_list': {
+                    'method': 'dict_path',
+                    'selector': data.get('msg', []) if isinstance(data, dict) else [],
+                },
+                'ip': {
+                    'method': 'dict_path',
+                    'selector': data.get('ip', '') if isinstance(data, dict) else '',
+                },
+                'port': {
+                    'method': 'dict_path',
+                    'selector': data.get('port', '') if isinstance(data, dict) else '',
+                },
+                'activity_time': 5 * 60,
+                'add_white_list_url': None,
+                'api_url_call_frequency_sleep_time': 4.5,
+            }
+        ]
 
     def __del__(self):
         try:

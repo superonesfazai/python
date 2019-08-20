@@ -979,22 +979,20 @@ class TaoBaoLoginAndParse(Crawler):
         last_url = re.compile(r'\+').sub('', url)  # 转换后得到正确的url请求地址(替换'+')
         # self.lg.info(last_url)
 
-        data = Requests.get_url_body(
+        body = Requests.get_url_body(
             url=last_url,
             headers=self.headers,
             params=None,
             timeout=14,
-            num_retries=3,
+            num_retries=self.req_num_retries,
             ip_pool_type=self.ip_pool_type,
             proxy_type=self.proxy_type,)
-        # self.lg.info(data)
-        if data == '':
-            self.lg.error('获取到的div_desc为空值!请检查! 出错goods_id: {0}'.format(goods_id))
-            return ''
+        # self.lg.info(body)
 
         try:
+            assert body != '', '获取到的div_desc为空值!请检查!'
             data = json_2_dict(
-                json_str=re.compile('mtopjsonp1\((.*)\)').findall(data)[0],
+                json_str=re.compile('\((.*)\)').findall(body)[0],
                 default_res={},
                 logger=self.lg)
             # self.lg.info(str(data))
@@ -1053,6 +1051,7 @@ class TaoBaoLoginAndParse(Crawler):
             proxy_type=self.proxy_type)
         # self.lg.info(body)
         try:
+            assert body != '', '获取2版div_desc为空值!'
             data = json_2_dict(
                 json_str=re.compile('\((.*)\)').findall(body)[0],
                 default_res={},
