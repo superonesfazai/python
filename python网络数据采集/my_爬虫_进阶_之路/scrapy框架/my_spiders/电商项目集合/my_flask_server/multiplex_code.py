@@ -87,11 +87,12 @@ def block_get_one_goods_info_task_by_external_type(external_type: str,
     _label = '+' \
         if end_goods_data != {} or is_delete == 1 \
         else '-'
-    msg = '[{}] goods_id: {}, site_id: {}, is_delete: {}'.format(
+    msg = '[{}] goods_id: {}, site_id: {}, is_delete: {}, index: {}'.format(
         _label,
         _goods_id,
         site_id,
         is_delete,
+        index,
     )
     _print(msg=msg, logger=logger)
 
@@ -821,6 +822,12 @@ def _block_get_new_db_conn(db_obj, index, logger=None, remainder=20, db_conn_typ
             raise ValueError('db_conn_type赋值异常!')
         _print(msg='init over !', logger=logger)
 
+    else:
+        pass
+
+    if not db_obj.is_connect_success:
+        # 连接失败则进行多次连接获取新对象
+        db_obj = get_new_sql_cli(sql_cli=db_obj, num_retries=3)
     else:
         pass
 
