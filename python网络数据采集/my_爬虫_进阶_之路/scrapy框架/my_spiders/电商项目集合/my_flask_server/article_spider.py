@@ -355,7 +355,7 @@ class ArticleParser(AsyncCrawler):
                 'site_id': 25,
             },
             'ck': {
-                'debug': False,
+                'debug': True,
                 'name': '场库网(短视频)',
                 'url': 'https://www.vmovier.com/',
                 'obj_origin': 'www.vmovier.com',
@@ -419,7 +419,7 @@ class ArticleParser(AsyncCrawler):
             },
         }
 
-    async def get_article_spiders_intro(self,) -> str:
+    async def get_article_spiders_intro(self) -> str:
         """
         获取可用文章爬虫介绍
         :return:

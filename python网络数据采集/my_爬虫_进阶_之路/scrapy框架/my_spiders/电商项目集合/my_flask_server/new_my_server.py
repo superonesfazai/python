@@ -2001,9 +2001,13 @@ def get_article_res(article_url: str) -> dict:
     # 不采用, 并发时由于上诉报错, 导致其他的同时请求皆失败!!
     # loop = new_event_loop()
 
-    # success! 非阻塞!
-    nest_asyncio.apply()
-    # 无上方一行时, 报错: 'RuntimeError: This event loop is already running'
+    try:
+        # # success! 非阻塞!
+        nest_asyncio.apply()
+        # # 无上方一行时, 报错: 'RuntimeError: This event loop is already running'
+    except Exception:
+        my_lg.error('遇到错误:', exc_info=True)
+
     loop = get_event_loop()
 
     article_res = {}
@@ -2104,7 +2108,11 @@ def fortune_telling():
         :param req_args_dict:
         :return:
         """
-        nest_asyncio.apply()
+        try:
+            # # success! 非阻塞!
+            nest_asyncio.apply()
+        except Exception:
+            my_lg.error('遇到错误:', exc_info=True)
 
         fortune_telling_type = int(req_args_dict.get('type', '0'))
         byj_spider = BuYiJuSpider(logger=my_lg)

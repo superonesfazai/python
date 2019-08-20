@@ -1102,7 +1102,7 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_
     try:
         sql_cli = SqlServerMyPageInfoSaveItemPipeline() if sql_cli is None else sql_cli
         if not sql_cli.is_connect_success:
-            sql_cli = get_new_sql_cli(sql_cli=sql_cli, num_retries=4)
+            sql_cli = get_new_sql_cli(sql_cli=sql_cli, num_retries=5)
             if not sql_cli.is_connect_success:
                 raise SqlServerConnectionException
             else:
@@ -1142,10 +1142,11 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id, logger=None, update_sql_
                 params=(now_time, goods_id),
                 logger=logger)
 
-        try:
-            del sql_cli
-        except:
-            pass
+        # 避免段错误: c指针异常 segmentation fault
+        # try:
+        #     del sql_cli
+        # except:
+        #     pass
 
     except Exception as e:
         _print(
