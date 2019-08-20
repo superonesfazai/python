@@ -207,7 +207,7 @@ class TBUpdater(AsyncCrawler):
                 logger=self.lg)
             # pprint(one_res)
             try:
-                new_slice_params_list
+                del new_slice_params_list
             except:
                 pass
 
