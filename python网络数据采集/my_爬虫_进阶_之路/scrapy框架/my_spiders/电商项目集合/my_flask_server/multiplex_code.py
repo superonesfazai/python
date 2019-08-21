@@ -23,7 +23,6 @@ from time import (
     strptime,)
 from datetime import datetime
 from random import uniform
-from threading import Thread
 # cpu密集型
 # from multiprocessing import Pool, cpu_count
 # IO密集型
@@ -48,48 +47,8 @@ from fzutils.spider.selector import parse_field
 from fzutils.celery_utils import _get_celery_async_results
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.exceptions import ResponseBodyIsNullStrException
+from fzutils.thread_utils import ThreadTaskObj
 from fzutils.spider.async_always import *
-
-class ThreadTaskObj(Thread):
-    def __init__(self,
-                 func_name,
-                 args: (list, tuple)=(),
-                 default_res=None,
-                 func_timeout=None,
-                 logger=None):
-        """
-        重写任务线程
-        :param func_name:
-        :param args:
-        :param default_res:
-        :param func_timeout:
-        :param logger:
-        """
-        super(ThreadTaskObj, self).__init__()
-        self.func_name = func_name
-        self.args = args
-        # Thread默认结果
-        self.default_res = default_res
-        self.res = default_res
-        self.func_timeout = func_timeout
-        self.logger = logger
-
-    def run(self):
-        self.res = self.func_name(*self.args)
-
-    def _get_result(self):
-        try:
-            # 等待线程执行完毕
-            Thread.join(self, timeout=self.func_timeout)
-            return self.res
-        except Exception as e:
-            _print(
-                msg='线程遇到错误:', 
-                logger=self.logger, 
-                log_level=2, 
-                exception=e)
-
-            return self.default_res
 
 def block_get_one_goods_info_task_by_external_type(external_type: str,
                                                    goods_id: (list, str),
