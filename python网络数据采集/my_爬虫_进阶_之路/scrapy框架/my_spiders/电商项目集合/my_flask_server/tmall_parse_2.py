@@ -136,10 +136,14 @@ class TmallParse(Crawler):
                 goods_id))
             return self._data_error_init()
 
-        data['data']['rate'] = ''  # 这是宝贝评价
-        data['data']['resource'] = ''  # 买家询问别人
-        data['data']['vertical'] = ''  # 也是问和回答
-        data['data']['seller']['evaluates'] = ''  # 宝贝描述, 卖家服务, 物流服务的评价值...
+        # 这是宝贝评价
+        data['data']['rate'] = ''
+        # 买家询问别人
+        data['data']['resource'] = ''
+        # 也是问和回答
+        data['data']['vertical'] = ''
+        # 宝贝描述, 卖家服务, 物流服务的评价值...
+        data['data']['seller']['evaluates'] = ''
         result_data = data['data']
 
         # 处理result_data['apiStack'][0]['value']

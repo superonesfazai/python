@@ -121,7 +121,7 @@ class TaoBaoLoginAndParse(Crawler):
 
         # 处理商品被转移或者下架导致页面不存在的商品
         if data.get('data').get('seller', {}).get('evaluates') is None:
-            self.lg.info('data为空, 地址被重定向, 该商品可能已经被转移或下架')
+            self.lg.info('data为空, 地址被重定向, 该商品[goods_id: {}]可能已经被转移或下架'.format(goods_id))
             return self._data_error_init()
 
         data = self._wash_tb_origin_data(data=data)
@@ -143,7 +143,6 @@ class TaoBaoLoginAndParse(Crawler):
             logger=self.lg,)
         if mock_data == {}:
             self.lg.error('出错goods_id: {0}'.format(goods_id))
-
             return self._data_error_init()
 
         mock_data['feature'] = ''
