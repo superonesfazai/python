@@ -53,6 +53,7 @@ class TMUpdater(AsyncCrawler):
         self.crawl_type = CRAWL_TYPE_ASYNCIO
         # 并发量, 控制在50个, 避免更新is_delete=1时大量丢包!!
         self.concurrency = 100
+        self.concurrent_type = 1
         # self.server_ip = 'http://0.0.0.0:5000'
         self.server_ip = 'http://118.31.39.97'
 
@@ -244,6 +245,7 @@ class TMUpdater(AsyncCrawler):
                 step=self.concurrency,
                 logger=self.lg,
                 get_all_res=True,
+                concurrent_type=self.concurrent_type,
             )
             # pprint(one_res)
             res = await handle_one_res(one_res=one_res)
