@@ -51,20 +51,27 @@ from fzutils.exceptions import ResponseBodyIsNullStrException
 from fzutils.spider.async_always import *
 
 class ThreadTaskObj(Thread):
-    """
-    重写任务线程
-    """
     def __init__(self,
                  func_name,
                  args: (list, tuple)=(),
                  default_res=None,
+                 func_timeout=None,
                  logger=None):
+        """
+        重写任务线程
+        :param func_name:
+        :param args:
+        :param default_res:
+        :param func_timeout:
+        :param logger:
+        """
         super(ThreadTaskObj, self).__init__()
         self.func_name = func_name
         self.args = args
         # Thread默认结果
         self.default_res = default_res
         self.res = default_res
+        self.func_timeout = func_timeout
         self.logger = logger
 
     def run(self):
@@ -73,7 +80,7 @@ class ThreadTaskObj(Thread):
     def _get_result(self):
         try:
             # 等待线程执行完毕
-            Thread.join(self)
+            Thread.join(self, timeout=self.func_timeout)
             return self.res
         except Exception as e:
             _print(
@@ -1214,6 +1221,11 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id,
         logger=logger,)
     task_obj.start()
     res = task_obj._get_result()
+
+    try:
+        del task_obj
+    except:
+        pass
 
     return res
 
