@@ -239,7 +239,9 @@ class TBUpdater(AsyncCrawler):
             one_default_res=(),
             step=self.concurrency,
             logger=self.lg,
-            get_all_res=True,)
+            get_all_res=True,
+            concurrent_type=1,
+        )
         # pprint(one_res)
         res = await handle_one_res(one_res=one_res)
 
