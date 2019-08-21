@@ -15,7 +15,9 @@ from logging import config as logging_config
 from multiplex_code import (
     _get_al_one_type_company_id_list,
     _get_114_one_type_company_id_list,
-    _get_someone_goods_id_all_comment,)
+    _get_someone_goods_id_all_comment,
+    ThreadTaskObj,
+)
 from settings import (
     PHANTOMJS_DRIVER_PATH,
 )
@@ -213,29 +215,6 @@ def _get_114_one_type_company_id_list_task(self,
 
     return res
 
-class TaskObj(Thread):
-    '''
-    重写爬虫线程
-    '''
-    def __init__(self, func, args=(), default_res=None):
-        super(TaskObj, self).__init__()
-        self.func = func
-        self.args = args
-        # Thread默认结果
-        self.default_res = default_res
-        self.res = default_res
-
-    def run(self):
-        self.res = self.func(*self.args)
-
-    def _get_result(self):
-        try:
-            Thread.join(self)  # 等待线程执行完毕
-            return self.res
-        except Exception:
-            lg.error('线程遇到错误:', exc_info=True)
-            return self.default_res
-
 @app.task(name=tasks_name + '._parse_one_company_info_task', bind=True)
 def _parse_one_company_info_task(self,
                                  short_name,
@@ -274,7 +253,7 @@ def _parse_one_company_info_task(self,
         return res
 
     # TODO celery与asyncio的结合使用将在celery5.0(官方未开发)以后实现, 现在celery4.2.1会出现异常!
-    thread1 = TaskObj(oo, args=(), default_res={})
+    thread1 = ThreadTaskObj(oo, args=(), default_res={})
     thread1.start()
     lg.info('thread {} is running...'.format(current_thread().name))
 
