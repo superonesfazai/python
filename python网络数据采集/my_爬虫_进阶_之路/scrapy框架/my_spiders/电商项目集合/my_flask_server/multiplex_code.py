@@ -1158,6 +1158,8 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id,
             now_time = str(get_shanghai_time())
             new_sql_cli = SqlServerMyPageInfoSaveItemPipeline() if sql_cli is None else sql_cli
             if not new_sql_cli.is_connect_success:
+                # 报错: malloc: *** error for object 0x102a3f200: pointer being freed was not allocated
+                # 因为new_sql_cli中的某个地址呗多次回收导致异常
                 # sleep(uniform(1, 8))
                 new_sql_cli = get_new_sql_cli(sql_cli=new_sql_cli, num_retries=5)
                 if not new_sql_cli.is_connect_success:

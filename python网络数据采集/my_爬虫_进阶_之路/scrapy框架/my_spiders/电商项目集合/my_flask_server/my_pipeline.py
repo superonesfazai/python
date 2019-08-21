@@ -9,7 +9,7 @@
 
 from pymssql import *
 from json import dumps
-import gc
+from gc import collect
 import sqlalchemy
 from sqlalchemy import create_engine
 import datetime, calendar
@@ -175,10 +175,20 @@ class SqlServerMyPageInfoSaveItemPipeline(BaseSqlServer):
 
     def __del__(self):
         try:
-            self.conn.close()
+            if self.is_connect_success:
+                # 连接成功才进行释放
+                self.conn.close()
+            else:
+                pass
+            del self.is_connect_success
+            del self.host
+            del self.user
+            del self.passwd
+            del self.db
+            del self.port
         except Exception:
             pass
-        gc.collect()
+        collect()
 
 class SqlPools(object):
     def __init__(self):
