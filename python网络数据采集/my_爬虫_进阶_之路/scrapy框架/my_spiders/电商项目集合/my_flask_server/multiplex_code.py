@@ -48,6 +48,7 @@ from fzutils.celery_utils import _get_celery_async_results
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.exceptions import ResponseBodyIsNullStrException
 from fzutils.thread_utils import ThreadTaskObj
+from fzutils.exceptions import catch_exceptions
 from fzutils.spider.async_always import *
 
 def block_get_one_goods_info_task_by_external_type(external_type: str,
@@ -1102,91 +1103,86 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id,
     :param sql_cli: db连接对象
     :return:
     """
+    @catch_exceptions(logger=logger, default_res=False)
     def off_shelves_goods() -> bool:
         nonlocal goods_id, logger
         nonlocal update_sql_str, sql_cli
 
-        res = False
         _print(msg='@@@ goods_id: {} 已下架, 逻辑删!'.format(goods_id), logger=logger)
         sql_str = 'update dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=%s where GoodsID=%s' \
             if update_sql_str is None \
             else update_sql_str
         sql_str_2 = 'select top 1 delete_time from dbo.GoodsInfoAutoGet where GoodsID=%s'
         sql_str_3 = 'update dbo.GoodsInfoAutoGet set delete_time=%s where GoodsID=%s'
-        try:
-            now_time = str(get_shanghai_time())
-            new_sql_cli = SqlServerMyPageInfoSaveItemPipeline() if sql_cli is None else sql_cli
+
+        now_time = str(get_shanghai_time())
+        new_sql_cli = SqlServerMyPageInfoSaveItemPipeline() if sql_cli is None else sql_cli
+        if not new_sql_cli.is_connect_success:
+            # 报错: malloc: *** error for object 0x102a3f200: pointer being freed was not allocated
+            # 因为new_sql_cli中的某个地址呗多次回收导致异常
+            # sleep(uniform(1, 8))
+            new_sql_cli = get_new_sql_cli(sql_cli=new_sql_cli, num_retries=5)
             if not new_sql_cli.is_connect_success:
-                # 报错: malloc: *** error for object 0x102a3f200: pointer being freed was not allocated
-                # 因为new_sql_cli中的某个地址呗多次回收导致异常
-                # sleep(uniform(1, 8))
-                new_sql_cli = get_new_sql_cli(sql_cli=new_sql_cli, num_retries=5)
-                if not new_sql_cli.is_connect_success:
-                    raise SqlServerConnectionException
-                else:
-                    pass
+                raise SqlServerConnectionException
             else:
                 pass
+        else:
+            pass
 
-            if 'GoodsInfoAutoGet' in sql_str:
+        if 'GoodsInfoAutoGet' in sql_str:
+            # 处理GoodsInfoAutoGet中异常下架但是delete_time为空值的商品
+            res2 = new_sql_cli._select_table(
+                sql_str=sql_str_2,
+                params=(goods_id,),
+                logger=logger,)[0][0]
+            # pprint(res2)
+            if res2 is None:
+                # 更新下架时间
                 # 处理GoodsInfoAutoGet中异常下架但是delete_time为空值的商品
-                res2 = new_sql_cli._select_table(
-                    sql_str=sql_str_2,
-                    params=(goods_id,),
-                    logger=logger,)[0][0]
-                # pprint(res2)
-                if res2 is None:
-                    # 更新下架时间
-                    # 处理GoodsInfoAutoGet中异常下架但是delete_time为空值的商品
-                    _print(msg='@@@原先delete_time为空值, 此处赋值now_time [{}]'.format(goods_id), logger=logger)
-                    new_sql_cli._update_table_2(
-                        sql_str=sql_str_3,
-                        params=(now_time, goods_id),
-                        logger=logger)
-                else:
-                    pass
-            else:
-                pass
-
-            if logger is None:
-                res = new_sql_cli._update_table(
-                    sql_str=sql_str,
-                    params=(now_time, goods_id))
-            else:
-                res = new_sql_cli._update_table_2(
-                    sql_str=sql_str,
+                _print(msg='@@@原先delete_time为空值, 此处赋值now_time [{}]'.format(goods_id), logger=logger)
+                new_sql_cli._update_table_2(
+                    sql_str=sql_str_3,
                     params=(now_time, goods_id),
                     logger=logger)
-
-            # 注释掉: del sql_cli 容易造成段错误: c指针异常 segmentation fault
-            # todo 改用内参数new_sql_cli来重新赋值sql_cli避免删除传参时带来的段错误
-            try:
-                del new_sql_cli
-            except:
+            else:
                 pass
+        else:
+            pass
 
-        except Exception as e:
-            _print(
-                msg='遇到错误:',
-                logger=logger,
-                exception=e,
-                log_level=2)
+        if logger is None:
+            res = new_sql_cli._update_table(
+                sql_str=sql_str,
+                params=(now_time, goods_id))
+        else:
+            res = new_sql_cli._update_table_2(
+                sql_str=sql_str,
+                params=(now_time, goods_id),
+                logger=logger)
+
+        # 注释掉: del sql_cli 容易造成段错误: c指针异常 segmentation fault
+        # todo 改用内参数new_sql_cli来重新赋值sql_cli避免删除传参时带来的段错误
+        try:
+            del new_sql_cli
+        except:
+            pass
 
         return res
 
-    # 开线程来做
-    task_obj = ThreadTaskObj(
-        func_name=off_shelves_goods,
-        args=(),
-        default_res=False,
-        logger=logger,)
-    task_obj.start()
-    res = task_obj._get_result()
+    res = off_shelves_goods()
 
-    try:
-        del task_obj
-    except:
-        pass
+    # 开线程来做
+    # task_obj = ThreadTaskObj(
+    #     func_name=off_shelves_goods,
+    #     args=(),
+    #     default_res=False,
+    #     logger=logger,)
+    # task_obj.start()
+    # res = task_obj._get_result()
+    #
+    # try:
+    #     del task_obj
+    # except:
+    #     pass
 
     return res
 
