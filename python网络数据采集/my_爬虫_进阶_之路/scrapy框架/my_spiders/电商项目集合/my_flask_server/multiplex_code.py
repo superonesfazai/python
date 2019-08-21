@@ -46,9 +46,6 @@ from fzutils.common_utils import (
 from fzutils.spider.selector import parse_field
 from fzutils.celery_utils import _get_celery_async_results
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.exceptions import ResponseBodyIsNullStrException
-from fzutils.thread_utils import ThreadTaskObj
-from fzutils.exceptions import catch_exceptions
 from fzutils.spider.async_always import *
 
 def block_get_one_goods_info_task_by_external_type(external_type: str,
