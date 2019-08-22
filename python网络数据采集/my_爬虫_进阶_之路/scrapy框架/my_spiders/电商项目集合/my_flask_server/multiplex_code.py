@@ -1165,21 +1165,21 @@ def _handle_goods_shelves_in_auto_goods_table(goods_id,
 
         return res
 
-    res = off_shelves_goods()
+    # res = off_shelves_goods()
 
     # 开线程来做
-    # task_obj = ThreadTaskObj(
-    #     func_name=off_shelves_goods,
-    #     args=(),
-    #     default_res=False,
-    #     logger=logger,)
-    # task_obj.start()
-    # res = task_obj._get_result()
-    #
-    # try:
-    #     del task_obj
-    # except:
-    #     pass
+    task_obj = ThreadTaskObj(
+        func_name=off_shelves_goods,
+        args=[],
+        default_res=False,
+        logger=logger,)
+    task_obj.start()
+    res = task_obj._get_result()
+
+    try:
+        del task_obj
+    except:
+        pass
 
     return res
 

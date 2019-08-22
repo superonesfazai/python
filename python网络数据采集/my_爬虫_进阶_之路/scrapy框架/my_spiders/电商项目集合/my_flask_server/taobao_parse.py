@@ -35,9 +35,6 @@ from my_exceptions import (
 )
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.spider.fz_requests import (
-    PROXY_TYPE_HTTPS,
-    PROXY_TYPE_HTTP,)
 from fzutils.spider.async_always import *
 
 # phantomjs驱动地址

@@ -11,7 +11,6 @@
 网易严选m站抓取
 """
 
-import gc
 from settings import (
     PHANTOMJS_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,
@@ -536,7 +535,7 @@ class YanXuanParse(Crawler):
             del self.lg
         except:
             pass
-        gc.collect()
+        collect()
 
 if __name__ == '__main__':
     yanxuan = YanXuanParse()

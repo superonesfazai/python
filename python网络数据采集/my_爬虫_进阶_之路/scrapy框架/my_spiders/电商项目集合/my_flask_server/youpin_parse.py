@@ -11,8 +11,6 @@
 小米有品常规商品采集解析
 """
 
-import gc
-
 from settings import (
     MY_SPIDER_LOGS_PATH,
     IP_POOL_TYPE,
@@ -625,7 +623,7 @@ class YouPinParse(Crawler):
             del self.lg
         except:
             pass
-        gc.collect()
+        collect()
 
 if __name__ == '__main__':
     yp = YouPinParse()

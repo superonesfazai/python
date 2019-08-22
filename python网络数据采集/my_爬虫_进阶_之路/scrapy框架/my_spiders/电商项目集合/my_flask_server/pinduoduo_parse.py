@@ -15,7 +15,6 @@
 
 from random import randint
 import requests
-import gc
 
 from settings import (
     PHANTOMJS_DRIVER_PATH,
@@ -470,7 +469,7 @@ class PinduoduoParse(Crawler):
             del self.driver
         except:
             pass
-        gc.collect()
+        collect()
 
 if __name__ == '__main__':
     pinduoduo = PinduoduoParse()

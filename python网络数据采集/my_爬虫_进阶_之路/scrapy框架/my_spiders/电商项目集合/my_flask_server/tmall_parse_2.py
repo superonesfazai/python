@@ -8,8 +8,6 @@
 '''
 
 from random import randint
-import json
-from gc import collect
 
 from settings import (
     MY_SPIDER_LOGS_PATH,
@@ -34,9 +32,6 @@ from my_exceptions import (
 )
 
 from fzutils.cp_utils import _get_right_model_data
-from fzutils.spider.fz_requests import (
-    PROXY_TYPE_HTTPS,
-    PROXY_TYPE_HTTP,)
 from fzutils.spider.async_always import *
 
 class TmallParse(Crawler):

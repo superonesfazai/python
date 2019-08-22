@@ -10,8 +10,6 @@
 goods spider
 """
 
-from gc import collect
-
 from settings import (
     PHANTOMJS_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,

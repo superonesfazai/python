@@ -22,7 +22,6 @@ from sql_str_controller import (
     kl_update_str_1,
     kl_update_str_3,
 )
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_exceptions import GoodsShelvesException
 from multiplex_code import _handle_goods_shelves_in_auto_goods_table
 

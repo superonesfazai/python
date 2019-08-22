@@ -1,5 +1,7 @@
 # 线程
 
+[Python线程同步机制: Locks, RLocks, Semaphores, Conditions, Events和Queues](http://yoyzhou.github.io/blog/2013/02/28/python-threads-synchronization-locks/)
+
 ## 内核级线程 or 用户级线程
 在计算机里面通常的分类是内核级线程和用户级线程。内核级线程的调度是由系统完成的，而用户级线程的调度是由用户来控制的。
 

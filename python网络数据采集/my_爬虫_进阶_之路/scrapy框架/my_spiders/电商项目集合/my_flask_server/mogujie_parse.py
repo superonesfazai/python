@@ -14,8 +14,6 @@ import sys
 sys.path.append('..')
 
 from decimal import Decimal
-from gc import collect
-
 from settings import IP_POOL_TYPE
 from sql_str_controller import (
     mg_insert_str_2,

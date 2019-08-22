@@ -13,7 +13,6 @@ from gc import collect
 import sqlalchemy
 from sqlalchemy import create_engine
 import datetime, calendar
-import asyncio
 from pprint import pprint
 
 from settings import (

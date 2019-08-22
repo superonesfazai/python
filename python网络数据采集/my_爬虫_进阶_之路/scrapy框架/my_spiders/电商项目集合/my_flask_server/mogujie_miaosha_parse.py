@@ -8,9 +8,6 @@
 '''
 
 from decimal import Decimal
-
-from gc import collect
-
 from mogujie_parse import MoGuJieParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
@@ -48,7 +45,11 @@ class MoGuJieMiaoShaParse(MoGuJieParse, Crawler):
             return self._data_error()
 
         data = {}
-        body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True, ip_pool_type=self.ip_pool_type)
+        body = Requests.get_url_body(
+            url=tmp_url,
+            headers=self.headers,
+            had_referer=True,
+            ip_pool_type=self.ip_pool_type)
         # print(body)
         if body == '':
             print('获取到的body为空str!')

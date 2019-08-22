@@ -32,7 +32,6 @@ from fzutils.spider.fz_driver import BaseDriver
 from fzutils.free_api_utils import (
     get_bd_map_shop_info_list_by_keyword_and_area_name,
     get_gd_map_shop_info_list_by_keyword_and_area_name,)
-from fzutils.thread_utils import ThreadTaskObj
 from fzutils.spider.async_always import *
 
 """

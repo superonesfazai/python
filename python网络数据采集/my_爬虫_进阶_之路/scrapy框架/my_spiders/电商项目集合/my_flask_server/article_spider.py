@@ -58,7 +58,6 @@ news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 
 from os import getcwd
 from os.path import abspath
-from gc import collect
 from ftfy import fix_text
 from requests import session
 from my_items import WellRecommendArticle
@@ -82,7 +81,6 @@ from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.spider.selector import (
     async_parse_field,
     parse_field,)
-from fzutils.spider.fz_requests import PROXY_TYPE_HTTPS
 from fzutils.spider.async_always import *
 
 class ArticleParser(AsyncCrawler):

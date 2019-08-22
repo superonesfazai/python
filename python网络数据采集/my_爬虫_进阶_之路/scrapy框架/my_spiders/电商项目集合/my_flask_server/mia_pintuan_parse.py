@@ -11,11 +11,7 @@
 蜜芽拼团页面解析系统
 '''
 
-import gc
-
 from mia_parse import MiaParse
-from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-
 from sql_str_controller import (
     mia_insert_str_2,
     mia_update_str_3,
@@ -91,7 +87,7 @@ class MiaPintuanParse(MiaParse, Crawler):
                 or is_replenishment_status:      # 单独处理拼团下架被定向到手机版主页的拼团商品
             print('++++++ 该拼团商品已下架，被定向到蜜芽主页 or 处在缺货状态中!')
             _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, update_sql_str=mia_update_str_7)
-            gc.collect()
+            collect()
             return self._data_error_init()
 
         # 判断是否跳转，并得到跳转url, 跳转url的body, 以及is_hk(用于判断是否是全球购的商品)
@@ -151,7 +147,7 @@ class MiaPintuanParse(MiaParse, Crawler):
         except MiaSkusIsNullListException:
             print('该商品已不参与拼团!! 无拼团属性')
             _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, update_sql_str=mia_update_str_7)
-            gc.collect()
+            collect()
             return self._data_error_init()
 
         except Exception as e:
@@ -411,7 +407,7 @@ class MiaPintuanParse(MiaParse, Crawler):
         return (true_sku_info, i_s, pintuan_time, all_sell_count)
 
     def __del__(self):
-        gc.collect()
+        collect()
 
 if __name__ == '__main__':
     mia_pintuan = MiaPintuanParse()

@@ -17,7 +17,6 @@ from article_spider import (
     modify_body_p_typesetting,
     modify_body_img_centering,)
 from fzutils.spider.selector import async_parse_field
-from fzutils.exceptions import catch_exceptions_with_class_logger
 from fzutils.spider.async_always import *
 
 class BuYiJuSpider(AsyncCrawler):

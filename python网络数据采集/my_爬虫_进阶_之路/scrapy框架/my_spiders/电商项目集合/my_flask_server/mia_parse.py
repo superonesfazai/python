@@ -11,8 +11,6 @@
 蜜芽页面采集系统
 """
 
-from gc import collect
-
 from settings import IP_POOL_TYPE
 from sql_str_controller import (
     mia_insert_str_1,

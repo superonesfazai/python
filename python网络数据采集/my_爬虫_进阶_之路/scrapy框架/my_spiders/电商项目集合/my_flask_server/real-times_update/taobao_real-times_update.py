@@ -203,6 +203,9 @@ class TBUpdater(AsyncCrawler):
                     index=index,
                     before_goods_data=k['before_goods_data'],
                     end_goods_data=k['end_goods_data'],)))
+
+            # self.lg.error(str(one_res))
+            # self.lg.error(str(tasks))
             one_res = await _get_async_task_result(
                 tasks=tasks,
                 logger=self.lg)
@@ -231,7 +234,7 @@ class TBUpdater(AsyncCrawler):
             loop=self.loop,
             tasks_params_list=get_tasks_params_list(
                 slice_params_list=slice_params_list,
-                index=index, ),
+                index=index,),
             func_name_where_get_create_task_msg=get_create_task_msg,
             func_name=block_get_one_goods_info_task_by_external_type,
             func_name_where_get_now_args=get_now_args,
@@ -432,6 +435,14 @@ def main():
     _fck_run()
 
 if __name__ == '__main__':
+    system_type = get_system_type()
+    if system_type == 'Darwin':
+        # local以守护进程运行
+        # IS_BACKGROUND_RUNNING = True
+        pass
+    else:
+        pass
+
     if IS_BACKGROUND_RUNNING:
         main()
     else:

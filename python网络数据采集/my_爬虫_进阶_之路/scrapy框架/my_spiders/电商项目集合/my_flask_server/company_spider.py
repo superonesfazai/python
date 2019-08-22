@@ -28,8 +28,6 @@ Pass:
     1. 58(pc/m/wx站手机号为短期(内部电话转接) pass)
 """
 
-from gc import collect
-
 from settings import (
     MY_SPIDER_LOGS_PATH,
     COMPANY_ITEM_LIST,

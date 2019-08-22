@@ -488,6 +488,13 @@ def main():
     _fck_run()
 
 if __name__ == '__main__':
+    system_type = get_system_type()
+    if system_type == 'Darwin':
+        # local以守护进程运行
+        IS_BACKGROUND_RUNNING = True
+    else:
+        pass
+
     if IS_BACKGROUND_RUNNING:
         main()
     else:

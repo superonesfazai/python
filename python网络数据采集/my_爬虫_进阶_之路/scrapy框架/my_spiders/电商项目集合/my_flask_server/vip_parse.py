@@ -13,7 +13,6 @@
 
 import time
 from random import randint
-import gc
 
 from settings import IP_POOL_TYPE
 from sql_str_controller import (
@@ -801,7 +800,7 @@ class VipParse(Crawler):
                 return []
 
     def __del__(self):
-        gc.collect()
+        collect()
 
 if __name__ == '__main__':
     vip = VipParse()
