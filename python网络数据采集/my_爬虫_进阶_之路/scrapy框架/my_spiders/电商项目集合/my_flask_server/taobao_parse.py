@@ -270,7 +270,7 @@ class TaoBaoLoginAndParse(Crawler):
             # self.lg.info(json_data)
             return result
         else:
-            self.lg.info('待处理的data为空的dict, 该商品可能已经转移或者下架')
+            self.lg.info('待处理的data为空的dict, 该商品[goods_id: {}]可能已经转移或者下架'.format(goods_id))
             return {}
 
     @staticmethod

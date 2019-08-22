@@ -38,6 +38,7 @@ class XOSpider(AsyncCrawler):
         self.max_8xs_dalu_all_page_num = 20
         self.max_8xs_usa_all_page_num = 20
         self.max_8xs_blue_all_page_num = 20
+        self.concurrent_type = 1
 
     async def _fck_run(self):
         # await self.s69zy3_spider()
@@ -46,10 +47,10 @@ class XOSpider(AsyncCrawler):
 
     async def _8xs_spider(self):
         """
-        target_url: https://8xsao.com/
+        target_url: https://8xsha.com/
         :return:
         """
-        self.basic_domain_name = '8xsao.com'
+        self.basic_domain_name = '8xsha.com'
         self.parser_obj = self.get_parser_obj()['8xs']
         # label_name = '大陆'
         label_name = '欧美'
@@ -105,7 +106,9 @@ class XOSpider(AsyncCrawler):
             one_default_res=[],
             step=self.concurrency,
             logger=self.lg,
-            get_all_res=True,)
+            get_all_res=True,
+            concurrent_type=self.concurrent_type,
+        )
         pprint(all_res)
         print('获取{} video_all_res_num: {}'.format(label_name, len(all_res)))
         all_res = list_remove_repeat_dict_plus(
@@ -225,7 +228,9 @@ class XOSpider(AsyncCrawler):
             one_default_res={},
             step=self.concurrency,
             logger=self.lg,
-            get_all_res=True,)
+            get_all_res=True,
+            concurrent_type=self.concurrent_type,
+        )
         pprint(all_res)
         print('all_res_num: {}'.format(len(all_res)))
 
@@ -327,7 +332,9 @@ class XOSpider(AsyncCrawler):
             one_default_res=[],
             step=self.concurrency,
             logger=self.lg,
-            get_all_res=True,)
+            get_all_res=True,
+            concurrent_type=self.concurrent_type,
+        )
         pprint(all_res)
         print('获取{} video_all_res_num: {}'.format(label_name, len(all_res)))
         all_res = list_remove_repeat_dict_plus(
@@ -396,7 +403,9 @@ class XOSpider(AsyncCrawler):
             one_default_res={},
             step=self.concurrency,
             logger=self.lg,
-            get_all_res=True,)
+            get_all_res=True,
+            concurrent_type=self.concurrent_type,
+        )
         pprint(all_res)
         print('all_res_num: {}'.format(len(all_res)))
 
@@ -533,7 +542,9 @@ class XOSpider(AsyncCrawler):
             one_default_res=[],
             step=self.concurrency,
             logger=self.lg,
-            get_all_res=True,)
+            get_all_res=True,
+            concurrent_type=self.concurrent_type,
+        )
         pprint(all_res)
         print('获取中文字幕video_all_res_num: {}'.format(len(all_res)))
         # 不采用request, 不管page_num怎么变都只拿到首页数据, 改用driver
