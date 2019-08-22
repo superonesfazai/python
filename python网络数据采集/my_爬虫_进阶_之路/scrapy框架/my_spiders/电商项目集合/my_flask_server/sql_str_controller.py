@@ -400,9 +400,11 @@ cc_delete_str_2 = 'delete from dbo.chuchujie_xianshimiaosha where miaosha_end_ti
 '''select'''
 # 常规goods实时更新数据获取
 kl_select_str_1 = '''
-select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
+select top 500 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
 from dbo.GoodsInfoAutoGet 
-where SiteID=29 and GETDATE()-ModfiyTime>0.3 and MainGoodsID is not null
+where SiteID=29 
+and MainGoodsID is not null
+-- and GETDATE()-ModfiyTime>0.3 
 order by ModfiyTime asc'''
 '''update'''
 # 常规goods更新

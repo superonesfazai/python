@@ -13,8 +13,6 @@ sys.path.append('..')
 from kaola_parse import KaoLaParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from gc import collect
-from time import sleep
 from logging import (
     INFO,
     ERROR)
@@ -35,13 +33,7 @@ from multiplex_code import (
 )
 
 from fzutils.log_utils import set_logger
-from fzutils.time_utils import (
-    get_shanghai_time,
-)
-from fzutils.linux_utils import daemon_init
-from fzutils.cp_utils import (
-    get_shelf_time_and_delete_time,
-)
+from fzutils.spider.async_always import *
 
 def run_forever():
     while True:
@@ -64,7 +56,7 @@ def run_forever():
             _block_print_db_old_data(result=result, logger=my_lg)
             index = 1
             # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-            kaola = KaoLaParse(logger=my_lg)
+            kaola = KaoLaParse(logger=my_lg, is_real_times_update_call=True)
             for item in result:  # 实时更新数据
                 goods_id = item[1]
                 if index % 5 == 0:
@@ -72,7 +64,7 @@ def run_forever():
                         del kaola
                     except:
                         pass
-                    kaola = KaoLaParse(logger=my_lg)
+                    kaola = KaoLaParse(logger=my_lg, is_real_times_update_call=True)
                     collect()
 
                 sql_cli = _block_get_new_db_conn(db_obj=sql_cli, index=index, logger=my_lg, remainder=10,)
@@ -119,8 +111,8 @@ def run_forever():
                         kaola.to_right_and_update_data(data, pipeline=sql_cli)
 
                     else:  # 表示返回的data值为空值
-                        my_lg.info('------>>>| 休眠8s中...')
-                        sleep(8)
+                        my_lg.info('------>>>| 休眠3s中...')
+                        sleep(3.)
 
                 else:  # 表示返回的data值为空值
                     my_lg.error('数据库连接失败，数据库可能关闭或者维护中')
@@ -132,7 +124,8 @@ def run_forever():
 
             my_lg.info('全部数据更新完毕'.center(100, '#'))  # sleep(60*60)
 
-        if get_shanghai_time().hour == 0:  # 0点以后不更新
+        if get_shanghai_time().hour == 0:
+            # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:
             sleep(60)

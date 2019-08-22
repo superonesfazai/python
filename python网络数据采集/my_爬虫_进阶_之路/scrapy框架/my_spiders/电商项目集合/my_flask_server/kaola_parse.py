@@ -11,8 +11,6 @@
 网易考拉pc站抓取, m站p_info信息不全(不采用)
 """
 
-import gc
-
 from settings import (
     PHANTOMJS_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,
@@ -31,7 +29,13 @@ from fzutils.spider.selector import parse_field
 from fzutils.spider.async_always import *
 
 class KaoLaParse(Crawler):
-    def __init__(self, logger=None):
+    def __init__(self,
+                 logger=None,
+                 is_real_times_update_call=False):
+        """
+        :param logger:
+        :param is_real_times_update_call:
+        """
         super(KaoLaParse, self).__init__(
             ip_pool_type=IP_POOL_TYPE,
             log_print=True,
@@ -39,18 +43,12 @@ class KaoLaParse(Crawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/网易考拉/_/',
         )
         self.result_data = {}
-        self._set_headers()
-
-    def _set_headers(self):
-        self.headers = {
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9',
-            'user-agent': get_random_phone_ua(),
-            'content-type': 'application/x-www-form-urlencoded',
-            'accept': '*/*',
-            # 'authority': 'm-goods.kaola.com',
-            'x-requested-with': 'XMLHttpRequest',
-        }
+        if is_real_times_update_call:
+            self.proxy_type = PROXY_TYPE_HTTPS
+            self.req_num_retries = 5
+        else:
+            self.proxy_type = PROXY_TYPE_HTTP
+            self.req_num_retries = 3
 
     def _get_goods_data(self, goods_id):
         '''
@@ -58,62 +56,83 @@ class KaoLaParse(Crawler):
         :param goods_id: 
         :return: 
         '''
-        if goods_id == '':
-            self.lg.error('获取到的goods_id为空值!此处跳过!')
-            return self._get_data_error_init()
-
-        # 网易考拉pc站抓取, m站p_info信息不全(不采用)
-        # phone_body(requests设置代理一直302无限重定向, 于是phantomjs)
-        # body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=url)
+        data = {}
 
         url = 'https://goods.kaola.com/product/{0}.html'.format(goods_id)
         self.lg.info('------>>>| 正在抓取考拉地址为: {0}'.format(url))
+        try:
+            assert goods_id != '', '获取到的goods_id为空值!此处跳过!'
 
-        body = self._get_pc_goods_body(goods_id=goods_id)
-        # self.lg.info(body)
-        pc_goods_body = body
-        if body == '':
-            return self._get_data_error_init()
+            # 网易考拉pc站抓取, m站p_info信息不全(不采用)
+            # phone_body(requests设置代理一直302无限重定向, 于是phantomjs)
+            # body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=url)
 
-        if '你很神，找到了不存在的页面' in body:
-            _handle_goods_shelves_in_auto_goods_table(
-                goods_id=goods_id,
-                logger=self.lg,)
-            return self._get_data_error_init()
+            # 获取pc body
+            headers = get_random_headers(connection_status_keep_alive=False)
+            headers.update({
+                'authority': 'goods.kaola.com',
+            })
+            url = 'https://goods.kaola.com/product/{}.html'.format(goods_id)
+            body = Requests.get_url_body(
+                url=url,
+                headers=headers,
+                ip_pool_type=self.ip_pool_type,
+                proxy_type=self.proxy_type,
+                num_retries=self.req_num_retries, )
+            # self.lg.info(body)
+            assert body != ''
+            pc_goods_body = body
 
-        # _ = self._get_right_body(body)    # phone端
-        _ = self._get_pc_right_body(body)   # pc端
-        # pprint(_)
-        if _ == {}:
-            self.lg.error('获取body时索引异常!出错goods_id为:{0}, 出错地址: {1}'.format(goods_id, url))
-            return self._get_data_error_init()
+            if '你很神，找到了不存在的页面' in body \
+                    or '商品已失效，请看看其他商品吧~' in body:
+                raise GoodsShelvesException
 
-        else:
+            # _ = self._get_right_body(body)    # phone端
+            _ = self._get_pc_right_body(body)  # pc端
+            # pprint(_)
+            assert _ != {}, '获取body时索引异常!'
+
+            headers = get_random_headers(
+                user_agent_type=1,
+                connection_status_keep_alive=False,
+                upgrade_insecure_requests=False,
+                cache_control='', )
+            headers.update({
+                'x-requested-with': 'XMLHttpRequest',
+                # 'authority': 'm-goods.kaola.com',
+            })
             # TODO 获取m站的sku_info(但是没有税费)
             # sku_info_url = 'https://m-goods.kaola.com/product/getWapGoodsDetailDynamic.json'
             # params = self._get_params(goods_id=goods_id)
-            # body = Requests.get_url_body(url=sku_info_url, headers=self.headers, params=params)
+            # body = Requests.get_url_body(
+            #     url=sku_info_url,
+            #     headers=headers,
+            #     params=params,
+            #     ip_pool_type=self.ip_pool_type,
+            #     proxy_type=self.proxy_type,
+            #     num_retries=self.req_num_retries,)
 
             # 获取pc站的sku_info
             sku_info_url = 'https://goods.kaola.com/product/getPcGoodsDetailDynamic.json'
             params = self._get_pc_sku_info_params(goods_id=goods_id)
             body = Requests.get_url_body(
                 url=sku_info_url,
-                headers=self.headers,
+                headers=headers,
                 params=params,
-                ip_pool_type=self.ip_pool_type)
+                ip_pool_type=self.ip_pool_type,
+                proxy_type=self.proxy_type,
+                num_retries=self.req_num_retries,)
+            assert body != ''
 
-            sku_info = json_2_dict(json_str=body, logger=self.lg).get('data')
-            if sku_info is None:
-                self.lg.error('获取到we的sku_info为None!出错goods_id: {0}, 出错地址: {1}'.format(goods_id, url))
+            sku_info = json_2_dict(
+                json_str=body,
+                logger=self.lg).get('data', {})
+            assert sku_info != {}, '获取到we的sku_info为None!'
             _['sku_info'] = sku_info
             # pprint(_)
+            _ = self._wash_data(_)
+            # pprint(_)
 
-        _ = self._wash_data(_)
-        # pprint(_)
-
-        data = {}
-        try:
             # title, sub_title
             data['title'] = self._get_title(data=_)
             data['sub_title'] = ''
@@ -137,7 +156,9 @@ class KaoLaParse(Crawler):
             self.lg.info('parent_dir: {}'.format(data['parent_dir']))
 
         except GoodsShelvesException:
-            _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id, logger=self.lg)
+            _handle_goods_shelves_in_auto_goods_table(
+                goods_id=goods_id,
+                logger=self.lg)
             return self._get_data_error_init()
 
         except Exception:
@@ -146,6 +167,7 @@ class KaoLaParse(Crawler):
             return self._get_data_error_init()
 
         self.result_data = data
+
         return data
 
     def _deal_with_data(self):
@@ -236,25 +258,6 @@ class KaoLaParse(Crawler):
         parent_dir = '/'.join(parent_dir_str.split('-'))
 
         return parent_dir
-
-    def _get_pc_goods_body(self, goods_id):
-        """
-        获取pc body
-        :param goods_id:
-        :return:
-        """
-        headers = self._get_pc_headers()
-        headers.update({
-            'authority': 'goods.kaola.com',
-        })
-        url = 'https://goods.kaola.com/product/{}.html'.format(goods_id)
-        body = Requests.get_url_body(
-            url=url,
-            headers=headers,
-            ip_pool_type=self.ip_pool_type)
-        # self.lg.info(body)
-
-        return body
 
     def to_right_and_update_data(self, data, pipeline):
         '''
@@ -733,17 +736,6 @@ class KaoLaParse(Crawler):
 
         return {}
 
-    @staticmethod
-    def _get_pc_headers():
-        return {
-            'cache-control': 'max-age=0',
-            'upgrade-insecure-requests': '1',
-            'user-agent': get_random_pc_ua(),
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
-        }
-
     def get_goods_id_from_url(self, kaola_url):
         '''
         得到goods_id
@@ -766,7 +758,7 @@ class KaoLaParse(Crawler):
             del self.lg
         except:
             pass
-        gc.collect()
+        collect()
 
 if __name__ == '__main__':
     kaola = KaoLaParse()
