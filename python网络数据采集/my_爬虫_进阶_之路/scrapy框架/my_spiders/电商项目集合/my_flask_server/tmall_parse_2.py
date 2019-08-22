@@ -7,8 +7,6 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from random import randint
-
 from settings import (
     MY_SPIDER_LOGS_PATH,
     IP_POOL_TYPE,)
@@ -46,7 +44,6 @@ class TmallParse(Crawler):
             logger=logger,
             log_save_path=MY_SPIDER_LOGS_PATH + '/天猫/_/',
         )
-        self._set_headers()
         self.result_data = {}
         self.msg = ''
         self.is_real_times_update_call = is_real_times_update_call
@@ -58,16 +55,6 @@ class TmallParse(Crawler):
         else:
             self.proxy_type = PROXY_TYPE_HTTP
             self.req_num_retries = 3
-
-    def _set_headers(self):
-        self.headers = get_random_headers(
-            upgrade_insecure_requests=False,
-            cache_control=''
-        )
-        self.headers.update({
-            'accept': '*/*',
-            'referer': 'https://detail.m.tmall.com/item.htm?id=541107920538',
-        })
 
     def get_goods_data(self, goods_id):
         '''
@@ -81,16 +68,19 @@ class TmallParse(Crawler):
         tm_type = goods_id[0]  # 天猫类型
         # self.lg.info(str(tm_type))
         goods_id = goods_id[1]  # 天猫goods_id
-        tmp_url = 'https://detail.m.tmall.com/item.htm?id=' + str(goods_id)
-        # self.lg.info('------>>>| phone_url: {}'.format(tmp_url))
+        phone_url = 'https://detail.m.tmall.com/item.htm?id=' + str(goods_id)
+        # self.lg.info('------>>>| phone_url: {}'.format(phone_url))
 
-        self.headers.update({
-            'Referer': tmp_url
+        headers = get_random_headers(
+            upgrade_insecure_requests=False,
+            cache_control='')
+        headers.update({
+            'Referer': phone_url,
         })
         last_url = self._get_last_url(goods_id=goods_id)
         body = Requests.get_url_body(
             url=last_url,
-            headers=self.headers,
+            headers=headers,
             timeout=self.req_timeout,
             ip_pool_type=self.ip_pool_type,
             proxy_type=self.proxy_type,
@@ -99,7 +89,7 @@ class TmallParse(Crawler):
         try:
             assert body != '', '获取到的body为空值, 此处跳过!'
             data = json_2_dict(
-                json_str=re.compile('mtopjsonp3\((.*)\)').findall(body)[0],
+                json_str=re.compile('\((.*)\)').findall(body)[0],
                 default_res={},
                 logger=self.lg)
             assert data != {}, 'data为空dict!'
@@ -110,18 +100,19 @@ class TmallParse(Crawler):
 
         except GoodsShelvesException:
             ## 表示该商品已经下架, 原地址被重定向到新页面
-            # self.lg.info('@@@@@@ 该商品已经下架...')
             _handle_goods_shelves_in_auto_goods_table(
                 goods_id=goods_id,
                 logger=self.lg)
-            tmp_data_s = self.init_pull_off_shelves_goods(tm_type)
+            tmp_data_s = self.init_pull_off_shelves_goods(tm_type=tm_type)
             self.result_data = {}
             return tmp_data_s
 
         except (AssertionError, IndexError):
-            self.lg.error('遇到错误[出错tm_type: {}, goods_id: {}]:'.format(
-                tm_type,
-                goods_id,), exc_info=True)
+            self.lg.error(
+                msg='遇到错误[出错tm_type: {}, goods_id: {}]:'.format(
+                    tm_type,
+                    goods_id,),
+                exc_info=True)
             return self._data_error_init()
 
         # 处理商品被转移或者下架导致页面不存在的商品
@@ -196,8 +187,8 @@ class TmallParse(Crawler):
             goods_id = data['goods_id']
             # 天猫类型
             tmall_type = data.get('type', 33)  # 33用于表示无法正确获取
-            # self.lg.info(str(tmall_type))
-            shop_name = data['seller'].get('shopName', '')      # 可能不存在shopName这个字段
+            # 可能不存在shopName这个字段
+            shop_name = data['seller'].get('shopName', '')
             account = data['seller'].get('sellerNick', '')
             title = data['item']['title']
             sub_title = data['item'].get('subtitle', '')
@@ -209,9 +200,7 @@ class TmallParse(Crawler):
             # 商品标签属性名称,及其对应id值
             detail_name_list, detail_value_list = taobao._get_detail_name_and_value_list(data=data)
 
-            '''
-            每个标签对应值的价格及其库存
-            '''
+            # 每个标签对应值的价格及其库存
             price_info_list = taobao._get_price_info_list(data=data, detail_value_list=detail_value_list)
             # 多规格进行重新赋值
             price, taobao_price = taobao._get_new_price_and_taobao_price_when_price_info_list_not_null_list(
@@ -223,8 +212,8 @@ class TmallParse(Crawler):
             all_img_url = taobao._get_all_img_url(tmp_all_img_url=data['item']['images'])
             # self.lg.info(str(all_img_url))
 
-            # 详细信息p_info
-            p_info = taobao._get_p_info(tmp_p_info=data.get('props').get('groupProps'))  # tmp_p_info 一个list [{'内存容量': '32GB'}, ...]
+            # tmp_p_info 一个list [{'内存容量': '32GB'}, ...]
+            p_info = taobao._get_p_info(tmp_p_info=data.get('props').get('groupProps'))
             if p_info != []:
                 p_info = [{
                     'id': 0,
@@ -251,10 +240,12 @@ class TmallParse(Crawler):
                 div_desc = taobao.get_div_from_pc_div_url(pc_div_url, goods_id)
                 # self.lg.info(div_desc)
                 if div_desc == '':
-                    self.lg.error('该商品的div_desc为空! 出错goods_id: %s' % str(goods_id))
+                    self.lg.error('该商品的div_desc为空! 出错goods_id: {}'.format(goods_id))
                     return self._data_error_init()
-
-                collect()
+                else:
+                    pass
+            else:
+                pass
 
             '''
             后期处理
@@ -285,14 +276,17 @@ class TmallParse(Crawler):
                 pass
 
             # 月销量
+            sell_count = '0'
             try:
                 sell_count = str(data.get('apiStack', [])[0].get('value', {}).get('item', {}).get('sellCount', ''))
-            except:
-                sell_count = '0'
                 # self.lg.info(sell_count)
+            except:
+                pass
 
-            try: del taobao
-            except: pass
+            try:
+                del taobao
+            except:
+                pass
             result = {
                 'shop_name': shop_name,                 # 店铺名称
                 'account': account,                     # 掌柜
@@ -321,15 +315,10 @@ class TmallParse(Crawler):
             # }
             # json_data = dumps(wait_to_send_data, ensure_ascii=False)
             # print(json_data)
-            collect()
-
             return result
 
         else:
             self.lg.info('待处理的data为空的dict, 该商品可能已经转移或者下架')
-            # return {
-            #     'is_delete': 1,
-            # }
             return {}
 
     def _data_error_init(self):
@@ -535,7 +524,7 @@ class TmallParse(Crawler):
 
         return params
 
-    def init_pull_off_shelves_goods(self, type):
+    def init_pull_off_shelves_goods(self, tm_type):
         '''
         初始化下架商品的数据
         :return:
@@ -558,7 +547,7 @@ class TmallParse(Crawler):
             'div_desc': '',  # div_desc
             'sell_count': '0',  # 月销量
             'is_delete': is_delete,  # 是否下架判断
-            'type': type,  # 天猫类型
+            'type': tm_type,  # 天猫类型
         }
         return result
 
@@ -598,7 +587,7 @@ class TmallParse(Crawler):
         params = (
             ('jsv', '2.4.8'),
             ('appKey', '12574478'),
-            ('t', str(datetime_to_timestamp(get_shanghai_time())) + str(randint(100, 999))),
+            ('t', get_now_13_bit_timestamp()),
             # ('sign', 'de765f1adf3bdc4a07687d45fd10a6b3'),
             ('api', 'mtop.taobao.detail.getdetail'),
             ('v', '6.0'),
@@ -707,18 +696,13 @@ class TmallParse(Crawler):
         collect()
 
 if __name__ == '__main__':
-    tmall = TmallParse()
+    tm = TmallParse()
     while True:
         tmall_url = input('请输入待爬取的天猫商品地址: ')
         tmall_url = tmall_url.strip('\n').strip(';')
-        goods_id = tmall.get_goods_id_from_url(tmall_url)   # 返回一个dict类型
+        goods_id = tm.get_goods_id_from_url(tmall_url)   # 返回一个dict类型
         # print(goods_id)
-        if goods_id != []:
-            data = tmall.get_goods_data(goods_id=goods_id)
-            result = tmall.deal_with_data()
-            pprint(result)
-            # print(result)
-            collect()
-        else:
-            print('获取到的天猫商品地址无法解析，地址错误')
-
+        assert goods_id != []
+        data = tm.get_goods_data(goods_id=goods_id)
+        result = tm.deal_with_data()
+        pprint(result)

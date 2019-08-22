@@ -11,15 +11,11 @@
 可爬取淘宝, 全球购, 天天特价
 """
 
-import time
-from random import randint
-
 from settings import (
-    PHANTOMJS_DRIVER_PATH,
-    CHROME_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,
     IP_POOL_TYPE,)
 from urllib.parse import urlencode
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from sql_str_controller import (
     tb_update_str_1,
@@ -27,18 +23,18 @@ from sql_str_controller import (
     tb_insert_str_2,
     tb_insert_str_3,
     tb_update_str_2,
-    tb_update_str_3,)
+    tb_update_str_3,
+)
 
-from multiplex_code import _handle_goods_shelves_in_auto_goods_table
+from multiplex_code import (
+    _handle_goods_shelves_in_auto_goods_table,
+)
 from my_exceptions import (
     GoodsShelvesException,
 )
 
 from fzutils.cp_utils import _get_right_model_data
 from fzutils.spider.async_always import *
-
-# phantomjs驱动地址
-EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class TaoBaoLoginAndParse(Crawler):
     def __init__(self, logger=None, is_real_times_update_call=False):
@@ -52,7 +48,6 @@ class TaoBaoLoginAndParse(Crawler):
             logger=logger,
             log_save_path=MY_SPIDER_LOGS_PATH + '/淘宝/_/',
         )
-        self._set_headers()
         self.result_data = {}
         self.msg = ''
         self.is_real_times_update_call = is_real_times_update_call
@@ -113,12 +108,15 @@ class TaoBaoLoginAndParse(Crawler):
             return tmp_data_s
 
         except (IndexError, AssertionError):
-            self.lg.error('data为空! 出错goods_id: {0}'.format(goods_id), exc_info=True)
+            self.lg.error(
+                msg='遇到错误[出错goods_id: {0}]:'.format(goods_id),
+                exc_info=True)
             return self._data_error_init()
 
         # 处理商品被转移或者下架导致页面不存在的商品
         if data.get('data').get('seller', {}).get('evaluates') is None:
-            self.lg.info('data为空, 地址被重定向, 该商品[goods_id: {}]可能已经被转移或下架'.format(goods_id))
+            self.lg.info('data为空, 地址被重定向, 该商品[goods_id: {}]可能已经被转移或下架'.format(
+                goods_id))
             return self._data_error_init()
 
         data = self._wash_tb_origin_data(data=data)
@@ -151,7 +149,6 @@ class TaoBaoLoginAndParse(Crawler):
         if result_data.get('apiStack', [])[0].get('value', '') == '':
             self.lg.info("result_data.get('apiStack', [])[0].get('value', '')的值为空....")
             result_data['trade'] = {}
-
             return self._data_error_init()
 
         else:
@@ -174,7 +171,8 @@ class TaoBaoLoginAndParse(Crawler):
         '''
         data = self.result_data
         if data != {}:
-            shop_name = data['seller'].get('shopName', '')      # 可能不存在shopName这个字段
+            # 可能不存在shopName这个字段
+            shop_name = data['seller'].get('shopName', '')
             account = data['seller'].get('sellerNick', '')
             title = data['item']['title']
             sub_title = data['item'].get('subtitle', '')
@@ -183,15 +181,15 @@ class TaoBaoLoginAndParse(Crawler):
             # 商品库存
             try:
                 goods_stock = data['apiStack'][0]['value'].get('skuCore', {}).get('sku2info', {}).get('0', {}).get('quantity', '')
-            except IndexError:
+            except (IndexError, Exception):
                 self.lg.error('获取goods_stock时索引异常!出错goods_id: {0}'.format(goods_id))
                 return self._data_error_init()
 
             # 商品标签属性名称,及其对应id值
             try:
                 detail_name_list, detail_value_list = self._get_detail_name_and_value_list(data=data)
-            except IndexError:
-                self.lg.error(exc_info=True)
+            except (IndexError, Exception):
+                self.lg.error('遇到错误:', exc_info=True)
                 return self._data_error_init()
 
             price_info_list = self._get_price_info_list(data=data, detail_value_list=detail_value_list)
@@ -203,10 +201,13 @@ class TaoBaoLoginAndParse(Crawler):
 
             all_img_url = self._get_all_img_url(tmp_all_img_url=data['item']['images'])
             # self.lg.info(str(all_img_url))
-            p_info = self._get_p_info(tmp_p_info=data.get('props').get('groupProps'))   # tmp_p_info 一个list [{'内存容量': '32GB'}, ...]
+            # tmp_p_info 一个list [{'内存容量': '32GB'}, ...]
+            p_info = self._get_p_info(tmp_p_info=data.get('props').get('groupProps'))
             div_desc = self._get_div_desc(data=data, goods_id=goods_id)
             if div_desc == '':
                 return self._data_error_init()
+            else:
+                pass
 
             '''
             后期处理
@@ -234,11 +235,12 @@ class TaoBaoLoginAndParse(Crawler):
             # self.lg.info('is_delete = %s' % str(is_delete))
 
             # 月销量
+            sell_count = '0'
             try:
                 sell_count = str(data.get('apiStack', [])[0].get('value', {}).get('item', {}).get('sellCount', ''))
+                # self.lg.info(sell_count)
             except:
-                sell_count = '0'
-            # self.lg.info(sell_count)
+                pass
 
             result = {
                 'shop_name': shop_name,                             # 店铺名称
@@ -311,6 +313,8 @@ class TaoBaoLoginAndParse(Crawler):
             except Exception:
                 # self.lg.error('遇到错误:', exc_info=True)
                 pass
+        else:
+            pass
 
         return price, taobao_price
 
@@ -327,6 +331,7 @@ class TaoBaoLoginAndParse(Crawler):
         except:
             self.lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(goods_id), exc_info=True)
             return
+
         params = self._get_db_insert_params(item=tmp)
         if tmp.get('main_goods_id') is not None:
             # main_goods_id不为空
@@ -480,7 +485,7 @@ class TaoBaoLoginAndParse(Crawler):
         params = (
             ('jsv', '2.4.8'),
             ('appKey', '12574478'),
-            ('t', str(datetime_to_timestamp(get_shanghai_time())) + str(randint(100, 999))),
+            ('t', get_now_13_bit_timestamp()),
             # ('sign', 'b7cd843a2b40b5238d3b53faa3bb605b'),
             ('api', 'mtop.taobao.detail.getdetail'),
             ('v', '6.0'),
@@ -947,8 +952,6 @@ class TaoBaoLoginAndParse(Crawler):
         根据pc描述的url模拟请求获取描述的div
         :return: str
         '''
-        t = str(time.time().__round__()) + str(randint(100, 999))
-
         params_data_1 = {
             'id': goods_id,
             'type': '1',
@@ -957,7 +960,7 @@ class TaoBaoLoginAndParse(Crawler):
         tmp_url = 'https://api.m.taobao.com/h5/mtop.taobao.detail.getdesc/6.0/'
         _params = (
             ('appKey', '12574478'),
-            ('t', t),
+            ('t', get_now_13_bit_timestamp()),
             ('api', 'mtop.taobao.detail.getdesc'),
             ('v', '6.0'),
             ('type', 'jsonp'),
@@ -1013,8 +1016,6 @@ class TaoBaoLoginAndParse(Crawler):
         :return:
         '''
         self.lg.info('正在尝试通过2版获取div_desc...')
-        t = str(time.time().__round__()) + str(randint(100, 999))
-
         headers = get_random_headers(
             user_agent_type=1,
             connection_status_keep_alive=False,
@@ -1027,7 +1028,7 @@ class TaoBaoLoginAndParse(Crawler):
         params = (
             ('jsv', '2.4.11'),
             ('appKey', '12574478'),
-            ('t', t),
+            ('t', get_now_13_bit_timestamp()),
             # ('sign', '91f4d710bcd11690dd0c28b482c4dbbb'),
             ('api', 'mtop.taobao.detail.getdesc'),
             ('v', '6.0'),
@@ -1148,11 +1149,11 @@ class TaoBaoLoginAndParse(Crawler):
         collect()
 
 if __name__ == '__main__':
-    login_taobao = TaoBaoLoginAndParse()
+    tb = TaoBaoLoginAndParse()
     while True:
         taobao_url = input('请输入待爬取的淘宝商品地址: ')
         taobao_url.strip('\n').strip(';')
-        goods_id = login_taobao.get_goods_id_from_url(taobao_url)
-        login_taobao.get_goods_data(goods_id=goods_id)
-        data = login_taobao.deal_with_data(goods_id=goods_id)
+        goods_id = tb.get_goods_id_from_url(taobao_url)
+        tb.get_goods_data(goods_id=goods_id)
+        data = tb.deal_with_data(goods_id=goods_id)
         pprint(data)
