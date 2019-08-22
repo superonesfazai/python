@@ -7,8 +7,17 @@
 @connect : superonesfazai@gmail.com
 """
 
+try:
+    # debug python segmentation fault
+    # use: python3 -X faulthandler xxx.py
+    import faulthandler
+    faulthandler.enable()
+except ImportError as e:
+    print(e)
+
 import sys
 sys.path.append('..')
+from os import system
 
 try:
     from celery_tasks import _get_tm_one_goods_info_task
@@ -491,9 +500,17 @@ if __name__ == '__main__':
     system_type = get_system_type()
     if system_type == 'Darwin':
         # local以守护进程运行
-        IS_BACKGROUND_RUNNING = True
+        # IS_BACKGROUND_RUNNING = True
+        pass
     else:
         pass
+
+    # 报错segmentation fault解决方案
+    try:
+        cmd_str = 'ulimit -s 32768'
+        system(cmd_str)
+    except Exception as e:
+        print('遇到错误:', e)
 
     if IS_BACKGROUND_RUNNING:
         main()

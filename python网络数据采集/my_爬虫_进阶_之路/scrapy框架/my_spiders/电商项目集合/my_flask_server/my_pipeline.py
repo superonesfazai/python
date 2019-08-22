@@ -7,7 +7,9 @@
 @connect : superonesfazai@gmail.com
 '''
 
-from pymssql import *
+# from pymssql import *
+from pymssql import connect as pymssql_connect
+from pymssql import IntegrityError
 from json import dumps
 from gc import collect
 import sqlalchemy
@@ -373,7 +375,7 @@ class OtherDb(object):
         self.is_connect_success = True
         try:
             print('连接数据库成功!')
-            self.conn = connect(
+            self.conn = pymssql_connect(
                 host=HOST_2,
                 user=USER_2,
                 password=PASSWORD_2,
@@ -433,7 +435,7 @@ class DataAnalysisDbPipeline(object):
         super(DataAnalysisDbPipeline, self).__init__()
         self.is_connect_success = True
         try:
-            self.conn = connect(
+            self.conn = pymssql_connect(
                 host=HOST,
                 user=USER,
                 password=PASSWORD,

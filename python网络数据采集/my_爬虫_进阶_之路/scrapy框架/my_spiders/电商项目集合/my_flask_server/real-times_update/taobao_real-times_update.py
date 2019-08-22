@@ -11,7 +11,16 @@
 我们需要两台服务器一台拿来专门更新数据，一台拿来专门处理客服入信息
 """
 
+try:
+    # debug python segmentation fault
+    # use: python3 -X faulthandler xxx.py
+    import faulthandler
+    faulthandler.enable()
+except ImportError as e:
+    print(e)
+
 import sys
+from os import system
 sys.path.append('..')
 
 from taobao_parse import TaoBaoLoginAndParse
@@ -442,6 +451,13 @@ if __name__ == '__main__':
         pass
     else:
         pass
+
+    # 报错segmentation fault解决方案
+    try:
+        cmd_str = 'ulimit -s 32768'
+        system(cmd_str)
+    except Exception as e:
+        print('遇到错误:', e)
 
     if IS_BACKGROUND_RUNNING:
         main()
