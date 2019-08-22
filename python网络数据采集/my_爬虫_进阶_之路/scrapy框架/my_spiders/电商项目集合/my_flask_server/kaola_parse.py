@@ -63,72 +63,15 @@ class KaoLaParse(Crawler):
         try:
             assert goods_id != '', '获取到的goods_id为空值!此处跳过!'
 
-            # 网易考拉pc站抓取, m站p_info信息不全(不采用)
-            # phone_body(requests设置代理一直302无限重定向, 于是phantomjs)
-            # body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=url)
-
-            # 获取pc body
-            headers = get_random_headers(connection_status_keep_alive=False)
-            headers.update({
-                'authority': 'goods.kaola.com',
-            })
-            url = 'https://goods.kaola.com/product/{}.html'.format(goods_id)
-            body = Requests.get_url_body(
-                url=url,
-                headers=headers,
-                ip_pool_type=self.ip_pool_type,
-                proxy_type=self.proxy_type,
-                num_retries=self.req_num_retries, )
-            # self.lg.info(body)
-            assert body != ''
+            body = self.get_kl_pc_body(goods_id=goods_id)
             pc_goods_body = body
-
-            if '你很神，找到了不存在的页面' in body \
-                    or '商品已失效，请看看其他商品吧~' in body:
-                raise GoodsShelvesException
 
             # _ = self._get_right_body(body)    # phone端
             _ = self._get_pc_right_body(body)  # pc端
             # pprint(_)
             assert _ != {}, '获取body时索引异常!'
 
-            headers = get_random_headers(
-                user_agent_type=1,
-                connection_status_keep_alive=False,
-                upgrade_insecure_requests=False,
-                cache_control='', )
-            headers.update({
-                'x-requested-with': 'XMLHttpRequest',
-                # 'authority': 'm-goods.kaola.com',
-            })
-            # TODO 获取m站的sku_info(但是没有税费)
-            # sku_info_url = 'https://m-goods.kaola.com/product/getWapGoodsDetailDynamic.json'
-            # params = self._get_params(goods_id=goods_id)
-            # body = Requests.get_url_body(
-            #     url=sku_info_url,
-            #     headers=headers,
-            #     params=params,
-            #     ip_pool_type=self.ip_pool_type,
-            #     proxy_type=self.proxy_type,
-            #     num_retries=self.req_num_retries,)
-
-            # 获取pc站的sku_info
-            sku_info_url = 'https://goods.kaola.com/product/getPcGoodsDetailDynamic.json'
-            params = self._get_pc_sku_info_params(goods_id=goods_id)
-            body = Requests.get_url_body(
-                url=sku_info_url,
-                headers=headers,
-                params=params,
-                ip_pool_type=self.ip_pool_type,
-                proxy_type=self.proxy_type,
-                num_retries=self.req_num_retries,)
-            assert body != ''
-
-            sku_info = json_2_dict(
-                json_str=body,
-                logger=self.lg).get('data', {})
-            assert sku_info != {}, '获取到we的sku_info为None!'
-            _['sku_info'] = sku_info
+            _['sku_info'] = self.get_kl_pc_sku_info(goods_id=goods_id)
             # pprint(_)
             _ = self._wash_data(_)
             # pprint(_)
@@ -141,7 +84,8 @@ class KaoLaParse(Crawler):
             data['p_info'] = self._get_p_info(data=_)
             data['div_desc'] = self._get_div_desc(data=_)
             data['sell_time'] = self._get_sell_time(data=_.get('sku_info', {}))
-            data['detail_name_list'] = self._get_detail_name_list(data=_.get('sku_info', {}).get('skuDetailList', []))
+            data['detail_name_list'] = self._get_detail_name_list(
+                data=_.get('sku_info', {}).get('skuDetailList', []))
             # TODO 网易考拉官方有bug, 实际规格没货的商品, 前端还在卖, 估计是下单后再去订货, 库存0: 我这边就处理为下架
             # data['price_info_list'] = self._get_sku_info(data=_.get('sku_info', {}).get('skuDetailList', []))
             '''获取pc端的, 价格为算上税费的'''
@@ -237,6 +181,80 @@ class KaoLaParse(Crawler):
             self.lg.error('待处理的data为空的dict, 该商品可能已经转移或者下架')
 
             return self._get_data_error_init()
+
+    def get_kl_pc_body(self, goods_id: str) -> str:
+        """
+        获取kl pc body
+        :param goods_id:
+        :return:
+        """
+        # 网易考拉pc站抓取, m站p_info信息不全(不采用)
+        # phone_body(requests设置代理一直302无限重定向, 于是phantomjs)
+        # body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=url)
+
+        headers = get_random_headers(connection_status_keep_alive=False)
+        headers.update({
+            'authority': 'goods.kaola.com',
+        })
+        url = 'https://goods.kaola.com/product/{}.html'.format(goods_id)
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries, )
+        # self.lg.info(body)
+        assert body != ''
+
+        if '你很神，找到了不存在的页面' in body \
+                or '商品已失效，请看看其他商品吧~' in body:
+            raise GoodsShelvesException
+
+        return body
+
+    def get_kl_pc_sku_info(self, goods_id: str) -> dict:
+        """
+        获取pc的sku_info data
+        :return:
+        """
+        headers = get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='', )
+        headers.update({
+            'x-requested-with': 'XMLHttpRequest',
+            # 'authority': 'm-goods.kaola.com',
+        })
+        # TODO 获取m站的sku_info(但是没有税费)
+        # sku_info_url = 'https://m-goods.kaola.com/product/getWapGoodsDetailDynamic.json'
+        # params = self._get_params(goods_id=goods_id)
+        # body = Requests.get_url_body(
+        #     url=sku_info_url,
+        #     headers=headers,
+        #     params=params,
+        #     ip_pool_type=self.ip_pool_type,
+        #     proxy_type=self.proxy_type,
+        #     num_retries=self.req_num_retries,)
+
+        # 获取pc站的sku_info
+        sku_info_url = 'https://goods.kaola.com/product/getPcGoodsDetailDynamic.json'
+        params = self._get_pc_sku_info_params(goods_id=goods_id)
+        body = Requests.get_url_body(
+            url=sku_info_url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries, )
+        assert body != ''
+
+        sku_info = json_2_dict(
+            json_str=body,
+            logger=self.lg).get('data', {})
+        assert sku_info != {}, '获取到we的sku_info为None!'
+
+        return sku_info
 
     def _get_parent_dir(self, body) -> str:
         """
