@@ -20,7 +20,10 @@ from sql_str_controller import (
 from multiplex_code import _mia_get_parent_dir
 from my_exceptions import MiaSkusIsNullListException
 
-from fzutils.cp_utils import _get_right_model_data
+from multiplex_code import (
+    _get_right_model_data,
+)
+
 from fzutils.spider.async_always import *
 
 class MiaParse(Crawler):

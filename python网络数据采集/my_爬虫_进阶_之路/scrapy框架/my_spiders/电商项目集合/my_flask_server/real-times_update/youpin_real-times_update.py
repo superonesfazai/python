@@ -70,7 +70,11 @@ def run_forever():
                     yp = YouPinParse(logger=my_lg)
                     collect()
 
-                sql_cli = _block_get_new_db_conn(db_obj=sql_cli, index=index, logger=my_lg, remainder=10)
+                sql_cli = _block_get_new_db_conn(
+                    db_obj=sql_cli,
+                    index=index,
+                    logger=my_lg,
+                    remainder=10)
                 if sql_cli.is_connect_success:
                     my_lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (str(goods_id), str(index)))
                     yp._get_target_data(goods_id=goods_id)
@@ -112,7 +116,7 @@ def run_forever():
         if get_shanghai_time().hour == 0:  # 0点以后不更新
             sleep(60 * 60 * 5.5)
         else:
-            sleep(5 * 60)
+            sleep(1 * 60)
         collect()
 
 class YPDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):

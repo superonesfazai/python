@@ -24,8 +24,9 @@ from .msg import _error_data
 sys.path.append('..')
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from jd_parse import JdParse
-
-from fzutils.cp_utils import _get_right_model_data
+from multiplex_code import (
+    _get_right_model_data,
+)
 
 def _get_jd_wait_to_save_data_goods_id_list(data, my_lg):
     '''

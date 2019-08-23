@@ -48,7 +48,7 @@ class GoodsItem(Item):              # Item属性固定，无法外在添加属�
     shelf_time = Field()            # 用来记录1->0的上架时间点
     delete_time = Field()           # 用来记录0->1的下架时间点
     is_price_change = Field()       # 记录最高价和最低价是否改变
-    price_change_info = Field()     # 最高价最低价价格改变信息
+    price_change_info = Field()     # 纯规格价格变动记录下的信息
     main_goods_id = Field()         # 公司商品id
     parent_dir = Field()            # parent_dir
     sku_info_trans_time = Field()   # 规格信息变换记录时间点
@@ -66,6 +66,11 @@ class GoodsItem(Item):              # Item属性固定，无法外在添加属�
     block_id = Field()              # 未知
     father_sort = Field()           # 未知
     child_sort = Field()            # 未知
+    is_spec_change = Field()        # 纯规格变动标记
+    spec_trans_time = Field()       # 纯规格变动时间点
+    is_stock_change = Field()       # 纯库存变化标记
+    stock_trans_time = Field()      # 纯库存变动时间点
+    stock_change_info = Field()     # 纯库存变动记录的信息
 
 class CommentItem(Item):
     """

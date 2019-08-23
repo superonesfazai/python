@@ -28,12 +28,12 @@ from sql_str_controller import (
 
 from multiplex_code import (
     _handle_goods_shelves_in_auto_goods_table,
+    _get_right_model_data,
 )
 from my_exceptions import (
     GoodsShelvesException,
 )
 
-from fzutils.cp_utils import _get_right_model_data
 from fzutils.spider.async_always import *
 
 class TaoBaoLoginAndParse(Crawler):

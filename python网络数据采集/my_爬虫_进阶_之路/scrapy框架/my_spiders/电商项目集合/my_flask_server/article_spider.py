@@ -261,81 +261,81 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'focus.youth.cn',
                 'site_id': 12,
             },
-            'yg': {
-                'debug': True,
-                'name': '阳光宽频网(短视频)',
-                'url': 'https://www.365yg.com/',
-                'obj_origin': 'www.365yg.com',
-                'site_id': 13,
-            },
             'fh': {
                 'debug': True,
                 'name': '凤凰网',
                 'url': 'https://news.ifeng.com/',
                 'obj_origin': 'news.ifeng.com',
-                'site_id': 14,
+                'site_id': 13,
             },
             'ys': {
                 'debug': True,
                 'name': '51健康养生网',
                 'url': 'http://www.51jkst.com/',
                 'obj_origin': 'www.51jkst.com',
-                'site_id': 15,
+                'site_id': 14,
             },
             'cn': {
                 'debug': True,
                 'name': '彩牛养生网(短视频)',
                 'url': 'http://m.cnys.com/',
                 'obj_origin': 'm.cnys.com',
-                'site_id': 16,
+                'site_id': 15,
             },
             'if': {
                 'debug': True,
                 'name': '爱范儿',
                 'url': 'https://www.ifanr.com/',
                 'obj_origin': 'www.ifanr.com',
-                'site_id': 17,
+                'site_id': 16,
             },
             'ss': {
                 'debug': True,
                 'name': '科学松鼠会',
                 'url': 'https://songshuhui.net/',
                 'obj_origin': 'songshuhui.net',
-                'site_id': 18,
+                'site_id': 17,
             },
             'jm': {
                 'debug': True,
                 'name': '界面新闻',
                 'url': 'https://www.jiemian.com/',
                 'obj_origin': 'www.jiemian.com',
-                'site_id': 19,
+                'site_id': 18,
             },
             'pp': {
                 'debug': True,
                 'name': '澎湃网',
                 'url': 'https://m.thepaper.cn/',
                 'obj_origin': 'm.thepaper.cn',
-                'site_id': 20,
+                'site_id': 19,
             },
             'hx': {
                 'debug': True,
                 'name': '虎嗅网',
                 'url': 'https://m.huxiu.com',
                 'obj_origin': 'm.huxiu.com',
-                'site_id': 21,
+                'site_id': 20,
             },
             'nfzm': {
                 'debug': True,
                 'name': '南方周末',
                 'url': 'http://www.infzm.com/wap/#/',
                 'obj_origin': 'www.infzm.com',
-                'site_id': 22,
+                'site_id': 21,
             },
             'hqx': {
                 'debug': True,
                 'name': '好奇心日报',
                 'url': 'http://m.qdaily.com/mobile/homes.html',
                 'obj_origin': 'm.qdaily.com',
+                'site_id': 22,
+            },
+            'hk': {
+                'debug': True,
+                'name': '百度好看视频(短视频)',
+                'url': 'https://haokan.baidu.com/',
+                'obj_origin': 'haokan.baidu.com',
                 'site_id': 23,
             },
             'xg': {
@@ -345,11 +345,11 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'www.ixigua.com',
                 'site_id': 24,
             },
-            'hk': {
+            'yg': {
                 'debug': True,
-                'name': '百度好看视频(短视频)',
-                'url': 'https://haokan.baidu.com/',
-                'obj_origin': 'haokan.baidu.com',
+                'name': '阳光宽频网(短视频)',
+                'url': 'https://www.365yg.com/',
+                'obj_origin': 'www.365yg.com',
                 'site_id': 25,
             },
             'ck': {
@@ -4327,6 +4327,7 @@ def main():
     # url = 'https://m.huxiu.com/article/312411.html'
     # url = 'https://m.huxiu.com/article/309642.html'
     # url = 'https://m.huxiu.com/article/312390.html'
+    # url = 'https://m.huxiu.com/article/314704.html'
     # 医疗健康
     # url = 'https://m.huxiu.com/article/308324.html'
     # url = 'https://m.huxiu.com/article/308204.html'

@@ -11,7 +11,6 @@
 聚美优品拼团页面解析类
 """
 
-from gc import collect
 from settings import (
     MY_SPIDER_LOGS_PATH,
     PHANTOMJS_DRIVER_PATH,
@@ -22,7 +21,10 @@ from sql_str_controller import (
     jm_update_str_2,
     jm_update_str_3,)
 
-from fzutils.cp_utils import _get_right_model_data
+from multiplex_code import (
+    _get_right_model_data,
+)
+
 from fzutils.spider.fz_aiohttp import AioHttp
 from fzutils.spider.async_always import *
 

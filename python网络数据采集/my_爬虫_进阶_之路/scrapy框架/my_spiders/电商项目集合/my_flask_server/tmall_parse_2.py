@@ -24,12 +24,13 @@ from sql_str_controller import (
     tm_update_str_3,)
 from multiplex_code import (
     _handle_goods_shelves_in_auto_goods_table,
-    from_tmall_type_get_site_id,)
+    _get_right_model_data,
+    from_tmall_type_get_site_id,
+)
 from my_exceptions import (
     GoodsShelvesException,
 )
 
-from fzutils.cp_utils import _get_right_model_data
 from fzutils.spider.async_always import *
 
 class TmallParse(Crawler):

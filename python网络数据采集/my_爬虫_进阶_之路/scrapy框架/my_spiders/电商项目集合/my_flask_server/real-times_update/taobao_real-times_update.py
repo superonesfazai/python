@@ -289,9 +289,6 @@ class TBUpdater(AsyncCrawler):
                     logger=self.lg,
                     data=end_goods_data,
                     db_goods_info_obj=db_goods_info_obj, )
-                self.lg.info('goods_id: {}, is_delete = {}'.format(
-                    data.get('goods_id', ''),
-                    data.get('is_delete', 1)))
                 res = to_right_and_update_tb_data(
                     data=data,
                     pipeline=self.sql_cli,

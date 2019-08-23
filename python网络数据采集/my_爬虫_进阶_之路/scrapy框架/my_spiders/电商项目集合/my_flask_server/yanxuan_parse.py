@@ -20,11 +20,14 @@ from sql_str_controller import (
     yx_update_str_1,
 )
 
+from multiplex_code import (
+    _get_right_model_data,
+)
+
 from fzutils.data.json_utils import nonstandard_json_str_handle
 from fzutils.internet_utils import (
     get_random_phone_ua,
     _get_url_contain_params,)
-from fzutils.cp_utils import _get_right_model_data
 from fzutils.data.list_utils import unique_list_and_keep_original_order
 from fzutils.spider.async_always import *
 

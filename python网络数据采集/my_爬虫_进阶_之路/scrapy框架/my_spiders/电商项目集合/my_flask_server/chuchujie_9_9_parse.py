@@ -22,7 +22,9 @@ from sql_str_controller import (
     cc_insert_str_1,
     cc_update_str_1,)
 
-from fzutils.cp_utils import _get_right_model_data
+from multiplex_code import (
+    _get_right_model_data,
+)
 from fzutils.spider.async_always import *
 
 class ChuChuJie_9_9_Parse(Crawler):

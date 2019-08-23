@@ -24,7 +24,9 @@ from multiplex_code import (
     _get_stock_trans_record,
     _block_print_db_old_data,
     _block_get_new_db_conn,
-    _get_price_change_info,)
+    _get_price_change_info,
+    format_price_info_list,
+)
 
 from fzutils.time_utils import (
     get_shanghai_time,
@@ -32,7 +34,6 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import (
     get_shelf_time_and_delete_time,
-    format_price_info_list,
 )
 from fzutils.common_utils import json_2_dict
 

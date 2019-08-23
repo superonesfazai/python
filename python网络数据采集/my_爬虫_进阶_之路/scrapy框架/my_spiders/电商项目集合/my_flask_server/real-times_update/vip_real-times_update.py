@@ -27,6 +27,7 @@ from multiplex_code import (
     get_goods_info_change_data,
     BaseDbCommomGoodsInfoParamsObj,
     _get_price_change_info,
+    format_price_info_list,
 )
 
 from fzutils.time_utils import (
@@ -35,7 +36,6 @@ from fzutils.time_utils import (
 from fzutils.linux_utils import daemon_init
 from fzutils.cp_utils import (
     get_shelf_time_and_delete_time,
-    format_price_info_list,
 )
 from fzutils.common_utils import json_2_dict
 

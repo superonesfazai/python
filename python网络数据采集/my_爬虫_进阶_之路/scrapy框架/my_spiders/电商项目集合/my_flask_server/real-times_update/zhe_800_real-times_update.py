@@ -145,7 +145,7 @@ class Z8Updater(AsyncCrawler):
             if get_shanghai_time().hour == 0:  # 0点以后不更新
                 await async_sleep(60 * 60 * 5.5)
             else:
-                await async_sleep(5.5)
+                await async_sleep(10)
             try:
                 del self.zhe_800
             except:

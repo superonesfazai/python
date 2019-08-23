@@ -27,7 +27,9 @@ from settings import TAOBAO_SLEEP_TIME
 from taobao_parse import TaoBaoLoginAndParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from fzutils.cp_utils import _get_right_model_data
+from multiplex_code import (
+    _get_right_model_data,
+)
 
 def _get_taobao_wait_to_save_data_goods_id_list(data, my_lg):
     '''

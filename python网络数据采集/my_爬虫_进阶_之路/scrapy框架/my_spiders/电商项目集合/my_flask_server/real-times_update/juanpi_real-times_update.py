@@ -13,7 +13,6 @@ sys.path.append('..')
 from juanpi_parse import JuanPiParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
-from gc import collect
 from settings import (
     IS_BACKGROUND_RUNNING,
     MY_SPIDER_LOGS_PATH,)
@@ -24,7 +23,8 @@ from multiplex_code import (
     _get_new_db_conn,
     _print_db_old_data,
     get_goods_info_change_data,
-    BaseDbCommomGoodsInfoParamsObj,)
+    BaseDbCommomGoodsInfoParamsObj,
+)
 
 from fzutils.spider.async_always import *
 
@@ -132,7 +132,7 @@ class JPUpdater(AsyncCrawler):
             if get_shanghai_time().hour == 0:  # 0点以后不更新
                 await async_sleep(60 * 60 * 5.5)
             else:
-                await async_sleep(5.5)
+                await async_sleep(10.)
             try:
                 del self.juanpi
             except:

@@ -15,9 +15,13 @@ from settings import IP_POOL_TYPE
 from sql_str_controller import (
     mg_update_str_1,
     mg_insert_str_1,
-    mg_update_str_2,)
+    mg_update_str_2,
+)
 
-from fzutils.cp_utils import _get_right_model_data
+from multiplex_code import (
+    _get_right_model_data,
+)
+
 from fzutils.spider.async_always import *
 
 class MoGuJieMiaoShaParse(MoGuJieParse, Crawler):

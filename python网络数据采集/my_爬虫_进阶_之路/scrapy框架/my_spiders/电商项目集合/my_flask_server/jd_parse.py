@@ -18,7 +18,6 @@ from settings import (
     MY_SPIDER_LOGS_PATH,
     IP_POOL_TYPE,)
 
-from gc import collect
 from random import randint
 
 from sql_str_controller import (
@@ -26,7 +25,10 @@ from sql_str_controller import (
     jd_insert_str_1,
     jd_insert_str_2,)
 
-from fzutils.cp_utils import _get_right_model_data
+from multiplex_code import (
+    _get_right_model_data,
+)
+
 from fzutils.spider.async_always import *
 
 class JdParse(Crawler):

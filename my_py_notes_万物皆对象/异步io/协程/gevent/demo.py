@@ -12,34 +12,55 @@ Gevent处理了所有的细节， 来保证你的网络库会在可能的时候�
 """
 
 from gevent.pool import Pool as GeventPool
-from gevent import joinall
+from gevent import joinall as gevent_joinall
 from gevent import monkey
 from gevent import Greenlet
-from sys import argv
-from time import sleep
+from gevent import spawn as gevent_spawn
+from fzutils.ip_pools import tri_ip_pool
+from fzutils.spider.async_always import *
 
 # 猴子补丁
-# 在进行IO操作时，默认切换协程
+# eg: 在进行IO操作时，默认切换协程
 monkey.patch_all()
 
-def run_Spider(url):
+def run_spider(url):
     '''假设我在这里调用了你的爬虫类接口'''
     # do anything what u want
     sleep(1.)
 
+@catch_exceptions(default_res={})
+def get_url_body(index):
+    url = 'https://httpbin.org/get'
+    body = Requests.get_url_body(
+        url=url,
+        ip_pool_type=tri_ip_pool,
+        proxy_type=PROXY_TYPE_HTTPS,
+        timeout=15,)
+    data = json_2_dict(json_str=body)
+    print('[{}] index: {}'.format(
+        '+' if data != {} else '-',
+        index,
+    ))
+
+    return data
+
 if __name__ == '__main__':
     # 假如你的url写在文件中 用第一个参数传进来
-    # 限制并发数20
-    pool = GeventPool(20)
-    # 这里也可以用pool.map, 我这么写比较无脑
     tasks = []
-    with open(argv[1], "r") as f:
-        for line in f:
-            tasks.append(pool.spawn(run_Spider, line.strip()))
+    for index in range(1, 50):
+        print('create task[where index: {}] ...'.format(index))
+        tasks.append(gevent_spawn(
+            get_url_body,
+            index,
+        ))
 
-    one_res = joinall(tasks)
-    for g in one_res:
-        res = g.get()
+    # list 里面item是<Greenlet at 0x11719a348: _run>
+    one_res = gevent_joinall(
+        greenlets=tasks,
+        timeout=None,
+        raise_error=False,
+        count=None,)
+    # pprint(one_res)
+    for item in one_res:
+        res = item.get()
         print(res)
-
-    print("finish")

@@ -10,8 +10,6 @@
 折800页面采集系统
 """
 
-from gc import collect
-
 from settings import (
     IP_POOL_TYPE,
 )
@@ -23,10 +21,11 @@ from sql_str_controller import (
 
 from multiplex_code import (
     _z8_get_parent_dir,
-    _handle_goods_shelves_in_auto_goods_table,)
+    _handle_goods_shelves_in_auto_goods_table,
+    _get_right_model_data,
+)
 from my_exceptions import GoodsShelvesException
 
-from fzutils.cp_utils import _get_right_model_data
 from fzutils.spider.async_always import *
 
 class Zhe800Parse(Crawler):

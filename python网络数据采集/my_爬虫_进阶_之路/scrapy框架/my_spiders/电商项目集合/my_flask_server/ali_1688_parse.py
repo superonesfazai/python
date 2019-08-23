@@ -28,9 +28,10 @@ from sql_str_controller import (
     al_insert_str_2,)
 from multiplex_code import (
     _handle_goods_shelves_in_auto_goods_table,
-    al_judge_begin_greater_than_1,)
+    al_judge_begin_greater_than_1,
+    _get_right_model_data,
+)
 
-from fzutils.cp_utils import _get_right_model_data
 from fzutils.spider.fz_driver import (
     PHONE,
     CHROME,

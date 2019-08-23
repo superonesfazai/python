@@ -25,11 +25,13 @@ from sql_str_controller import (
     jp_insert_str_1,
     jp_update_str_3,
     jp_insert_str_2,
-    jp_update_str_4,)
+    jp_update_str_4,
+)
 
-from multiplex_code import _jp_get_parent_dir
-
-from fzutils.cp_utils import _get_right_model_data
+from multiplex_code import (
+    _jp_get_parent_dir,
+    _get_right_model_data,
+)
 from fzutils.spider.async_always import *
 
 # phantomjs驱动地址

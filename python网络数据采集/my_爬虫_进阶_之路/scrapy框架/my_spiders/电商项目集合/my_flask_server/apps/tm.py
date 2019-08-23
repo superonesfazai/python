@@ -31,8 +31,9 @@ from settings import (
 )
 from tmall_parse_2 import TmallParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-
-from fzutils.cp_utils import _get_right_model_data
+from multiplex_code import (
+    _get_right_model_data,
+)
 
 def _get_tmall_wait_to_save_data_goods_id_list(data, my_lg):
     '''

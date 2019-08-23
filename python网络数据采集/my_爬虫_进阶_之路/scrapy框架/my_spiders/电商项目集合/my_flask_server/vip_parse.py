@@ -19,7 +19,10 @@ from sql_str_controller import (
     vip_update_str_1,
 )
 
-from fzutils.cp_utils import _get_right_model_data
+from multiplex_code import (
+    _get_right_model_data,
+)
+
 from fzutils.spider.async_always import *
 
 '''

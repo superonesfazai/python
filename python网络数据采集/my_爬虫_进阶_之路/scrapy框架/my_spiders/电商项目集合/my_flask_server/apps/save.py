@@ -50,7 +50,11 @@ from .mi import (
 from .jd import _from_jd_type_get_site_id
 from .tm import _from_tmall_type_get_site_id
 
-from fzutils.cp_utils import _get_right_model_data
+from sys import path as sys_path
+sys_path.append('..')
+from multiplex_code import (
+    _get_right_model_data,
+)
 
 def get_who_wait_to_save_data_goods_id_list(**kwargs):
     '''

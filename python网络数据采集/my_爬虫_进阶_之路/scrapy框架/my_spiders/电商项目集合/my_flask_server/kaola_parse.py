@@ -21,9 +21,11 @@ from sql_str_controller import (
     kl_update_str_3,
 )
 from my_exceptions import GoodsShelvesException
-from multiplex_code import _handle_goods_shelves_in_auto_goods_table
+from multiplex_code import (
+    _handle_goods_shelves_in_auto_goods_table,
+    _get_right_model_data,
+)
 
-from fzutils.cp_utils import _get_right_model_data
 # from fzutils.spider.fz_phantomjs import MyPhantomjs
 from fzutils.spider.selector import parse_field
 from fzutils.spider.async_always import *
@@ -623,9 +625,11 @@ class KaoLaParse(Crawler):
         '''
         # pprint(price_info_list)
         try:
-            tmp_price_list = sorted([round(float(item.get('detail_price', '')), 2) for item in price_info_list])
-            price = tmp_price_list[-1]  # 商品价格
-            taobao_price = tmp_price_list[0]  # 淘宝价
+            tmp_price_list = sorted([
+                (float(item.get('detail_price', '')).__round__(2))
+            for item in price_info_list])
+            price = tmp_price_list[-1]
+            taobao_price = tmp_price_list[0]
         except IndexError:
             raise IndexError('获取price, taobao_price时索引异常!请检查!')
 

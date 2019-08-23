@@ -23,13 +23,12 @@ from sql_str_controller import (
     z8_insert_str_2,
     z8_update_str_3,)
 
-from multiplex_code import _z8_get_parent_dir
+from multiplex_code import (
+    _z8_get_parent_dir,
+    _get_right_model_data,
+)
 
-from fzutils.cp_utils import _get_right_model_data
 # from fzutils.spider.fz_phantomjs import BaseDriver
-from fzutils.spider.fz_requests import (
-    PROXY_TYPE_HTTPS,
-    PROXY_TYPE_HTTP,)
 from fzutils.spider.async_always import *
 
 # phantomjs驱动地址

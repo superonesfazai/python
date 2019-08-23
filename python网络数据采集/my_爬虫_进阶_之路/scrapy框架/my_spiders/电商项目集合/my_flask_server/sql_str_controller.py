@@ -136,7 +136,8 @@ tb_select_str_2 = 'select GoodsOutUrl, goods_id from db_k85u.dbo.goodsinfo where
 tb_select_str_3 = '''
 select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time 
 from dbo.GoodsInfoAutoGet 
-where SiteID=1 and MainGoodsID is not null
+where SiteID=1 
+and MainGoodsID is not null
 order by ModfiyTime asc'''
 # 淘抢购实时更新
 tb_select_str_4 = 'select goods_id, miaosha_time, goods_url, page, spider_time from dbo.tao_qianggou_xianshimiaosha where site_id=28'
@@ -192,6 +193,7 @@ select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delet
 from dbo.GoodsInfoAutoGet 
 where MainGoodsID is not null 
 and (SiteID=3 or SiteID=4 or SiteID=6) 
+-- and GoodsID='578427888464'
 order by ModfiyTime asc
 '''
 '''insert'''
@@ -251,6 +253,8 @@ select top 500 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete
 from dbo.GoodsInfoAutoGet 
 where SiteID=11 
 and MainGoodsID is not null
+-- and IsDelete=0
+-- and GoodsID='ze171216155155183345'
 order by ModfiyTime asc
 '''
 # 秒杀实时更新
@@ -302,7 +306,11 @@ jp_select_str_2 = jp_select_str_1
 jp_select_str_3 = '''
 select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, SKUInfo, IsPriceChange, is_spec_change, PriceChangeInfo, is_stock_change, stock_change_info, sku_info_trans_time, spec_trans_time, stock_trans_time
 from dbo.GoodsInfoAutoGet 
-where SiteID=12 and MainGoodsID is not null'''
+where SiteID=12 
+and MainGoodsID is not null
+-- and IsDelete=0
+order by ModfiyTime asc
+'''
 # 秒杀实时更新
 jp_select_str_4 = '''
 select goods_id, miaosha_time, tab_id, page 

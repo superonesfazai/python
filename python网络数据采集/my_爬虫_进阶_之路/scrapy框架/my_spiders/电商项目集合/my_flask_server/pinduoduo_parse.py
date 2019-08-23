@@ -25,7 +25,9 @@ from sql_str_controller import (
     pd_insert_str_1,
     pd_update_str_2,)
 
-from fzutils.cp_utils import _get_right_model_data
+from multiplex_code import (
+    _get_right_model_data,
+)
 from fzutils.spider.async_always import *
 
 # phantomjs驱动地址

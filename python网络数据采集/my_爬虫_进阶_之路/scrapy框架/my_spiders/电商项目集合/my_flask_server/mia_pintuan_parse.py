@@ -19,10 +19,10 @@ from sql_str_controller import (
 )
 from multiplex_code import (
     _mia_get_parent_dir,
+    _get_right_model_data,
     _handle_goods_shelves_in_auto_goods_table,)
 from my_exceptions import MiaSkusIsNullListException
 
-from fzutils.cp_utils import _get_right_model_data
 from fzutils.spider.async_always import *
 
 class MiaPintuanParse(MiaParse, Crawler):
