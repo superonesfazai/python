@@ -138,7 +138,9 @@ select top 1000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delet
 from dbo.GoodsInfoAutoGet 
 where SiteID=1 
 and MainGoodsID is not null
-order by ModfiyTime asc'''
+-- and MainGoodsID=128754
+order by ModfiyTime asc
+'''
 # 淘抢购实时更新
 tb_select_str_4 = 'select goods_id, miaosha_time, goods_url, page, spider_time from dbo.tao_qianggou_xianshimiaosha where site_id=28'
 tb_select_str_5 = tb_select_str_4
@@ -255,6 +257,7 @@ where SiteID=11
 and MainGoodsID is not null
 -- and IsDelete=0
 -- and GoodsID='ze171216155155183345'
+-- and MainGoodsID=37526
 order by ModfiyTime asc
 '''
 # 秒杀实时更新

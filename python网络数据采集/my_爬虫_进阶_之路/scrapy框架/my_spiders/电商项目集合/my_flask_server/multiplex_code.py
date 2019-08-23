@@ -908,6 +908,11 @@ def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) ->
             is_price_change=data['_is_price_change'],
             price_change_info=price_change_info)
         if data['_is_price_change'] == 1:
+            if old_sku_info == [] and new_sku_info == []:
+                # 单规格变动情况下, 重新记录sku_info_trans_time
+                data['sku_info_trans_time'] = str(get_shanghai_time())
+            else:
+                pass
             _print(
                 msg='{:10s} [{}]'.format(
                     'price changed!',

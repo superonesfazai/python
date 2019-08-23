@@ -17,10 +17,16 @@ from fzutils.ip_pools import tri_ip_pool
 from fzutils.exceptions import catch_exceptions_with_class_logger
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
 from fzutils.spider.selector import parse_field
-from fzutils.spider.fz_requests import PROXY_TYPE_HTTPS
 from fzutils.spider.async_always import *
 
 nest_asyncio_apply()
+
+# 设置并发类型
+CONCURRENT_TYPE = 2
+if CONCURRENT_TYPE == 2:
+    gevent_monkey.patch_all()
+else:
+    pass
 
 class XOSpider(AsyncCrawler):
     def __init__(self):
@@ -38,7 +44,7 @@ class XOSpider(AsyncCrawler):
         self.max_8xs_dalu_all_page_num = 20
         self.max_8xs_usa_all_page_num = 20
         self.max_8xs_blue_all_page_num = 20
-        self.concurrent_type = 1
+        self.concurrent_type = CONCURRENT_TYPE
 
     async def _fck_run(self):
         # await self.s69zy3_spider()
@@ -47,10 +53,10 @@ class XOSpider(AsyncCrawler):
 
     async def _8xs_spider(self):
         """
-        target_url: https://8xsha.com/
+        target_url: https://8xshe.com
         :return:
         """
-        self.basic_domain_name = '8xsha.com'
+        self.basic_domain_name = '8xshe.com'
         self.parser_obj = self.get_parser_obj()['8xs']
         # label_name = '大陆'
         label_name = '欧美'

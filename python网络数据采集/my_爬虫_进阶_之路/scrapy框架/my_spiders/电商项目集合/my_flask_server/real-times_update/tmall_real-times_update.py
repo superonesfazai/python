@@ -49,6 +49,13 @@ from fzutils.spider.async_always import *
 CRAWL_TYPE_ASYNCIO = 0
 CRAWL_TYPE_CELERY = 1
 
+# 设置并发类型
+CONCURRENT_TYPE = 1
+if CONCURRENT_TYPE == 2:
+    gevent_monkey.patch_all()
+else:
+    pass
+
 class TMUpdater(AsyncCrawler):
     """tm 实时更新"""
     def __init__(self, *params, **kwargs):
@@ -62,7 +69,7 @@ class TMUpdater(AsyncCrawler):
         self.crawl_type = CRAWL_TYPE_ASYNCIO
         # 并发量, 控制在50个, 避免更新is_delete=1时大量丢包!!
         self.concurrency = 100
-        self.concurrent_type = 1
+        self.concurrent_type = CONCURRENT_TYPE
         # self.server_ip = 'http://0.0.0.0:5000'
         self.server_ip = 'http://118.31.39.97'
 
