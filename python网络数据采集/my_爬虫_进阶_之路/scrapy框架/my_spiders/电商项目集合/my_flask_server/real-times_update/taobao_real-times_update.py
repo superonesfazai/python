@@ -48,6 +48,13 @@ from multiplex_code import (
 
 from fzutils.spider.async_always import *
 
+# 设置并发类型
+CONCURRENT_TYPE = 2
+if CONCURRENT_TYPE == 2:
+    gevent_monkey.patch_all()
+else:
+    pass
+
 class TBUpdater(AsyncCrawler):
     def __init__(self, *params, **kwargs):
         AsyncCrawler.__init__(
@@ -62,7 +69,7 @@ class TBUpdater(AsyncCrawler):
         self.goods_index = 1
         # 并发量
         self.concurrency = 100
-        self.concurrent_type = 1
+        self.concurrent_type = CONCURRENT_TYPE
         # self.server_ip = 'http://0.0.0.0:5000'
         self.server_ip = 'http://118.31.39.97'
 

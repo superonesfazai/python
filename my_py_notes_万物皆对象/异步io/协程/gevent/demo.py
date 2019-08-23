@@ -12,7 +12,6 @@ Gevent处理了所有的细节， 来保证你的网络库会在可能的时候�
 """
 
 from gevent.pool import Pool as GeventPool
-from gevent import joinall as gevent_joinall
 from gevent import monkey
 from gevent import Greenlet
 from gevent import spawn as gevent_spawn
@@ -22,11 +21,6 @@ from fzutils.spider.async_always import *
 # 猴子补丁
 # eg: 在进行IO操作时，默认切换协程
 monkey.patch_all()
-
-def run_spider(url):
-    '''假设我在这里调用了你的爬虫类接口'''
-    # do anything what u want
-    sleep(1.)
 
 @catch_exceptions(default_res={})
 def get_url_body(index):
@@ -54,13 +48,7 @@ if __name__ == '__main__':
             index,
         ))
 
-    # list 里面item是<Greenlet at 0x11719a348: _run>
-    one_res = gevent_joinall(
-        greenlets=tasks,
-        timeout=None,
-        raise_error=False,
-        count=None,)
+    one_res = wait_for_every_greenlet_obj_run_over_and_get_tasks_res(
+        tasks=tasks,
+    )
     # pprint(one_res)
-    for item in one_res:
-        res = item.get()
-        print(res)
