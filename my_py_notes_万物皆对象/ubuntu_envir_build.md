@@ -1,10 +1,10 @@
 # 环境配置
 ```shell
 $ apt-get update && apt-get upgrade -y
-$ apt-get install wget make gcc build-essential curl zlib* openssl libssl-dev zsh git vim --fix-missing
+$ sudo apt-get install wget make gcc build-essential curl zlib* openssl libssl-dev zsh git vim --fix-missing
 $ cd ~ && mkdir myFiles && cd myFiles 
 # 安装
-$ apt-get install python3.6
+$ sudo apt-get install python3.6
 # 对应删除
 $ apt autoremove python3.6
 
