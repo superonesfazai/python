@@ -20,3 +20,24 @@
 ## packed混淆
 [https://www.cnblogs.com/c-x-a/p/9273148.html](https://www.cnblogs.com/c-x-a/p/9273148.html)
 [https://www.cnblogs.com/c-x-a/p/9273785.html](https://www.cnblogs.com/c-x-a/p/9273785.html)
+
+## articles
+主要内容包括如下：
+
+- 预览几种不同的breakpoint类型
+- 代码行级(Line-of-code)断点
+    - 代码里的某一行上打断点
+    - 有条件的行级断点
+    - 管理行级断点
+- DOM变化级断点
+    - 几种不同的DOM级断点
+- XHR/Fetch断点
+- 事件Listener断点
+- Exception 断点
+- Function 断点
+    - 确保目标函数在作用域中
+- Feedback
+
+使用breakpoints去为我们的JavaScript代码打断点。这个指南涉及了在DevTools上适用的每一种breakpoint类型，并且会讲解如何使用并设置每种类型的断点。如果是想学习如何在Chrome DevTools上调试代码，可以看[Get Started with Debugging JavaScript in Chrome DevTools](https://developers.google.com/web/tools/chrome-devtools/javascript/)
+
+文章: [使用Chrome DevTools花式打断点](https://segmentfault.com/a/1190000016671687)

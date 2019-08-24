@@ -300,7 +300,7 @@ class TaoBaoLoginAndParse(Crawler):
         :param price_info_list:
         :param price:
         :param taobao_price:
-        :return:
+        :return: (str, str)
         '''
         if price_info_list != []:
             # 重新赋值price, taobao_price 避免规格为0的价格也在最低最高价中

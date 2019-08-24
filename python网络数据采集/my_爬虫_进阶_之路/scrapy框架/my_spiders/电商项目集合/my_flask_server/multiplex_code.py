@@ -872,6 +872,12 @@ def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) ->
         site_id = db_goods_info_obj.site_id
 
     price_info_list = old_sku_info = db_goods_info_obj.old_sku_info
+    # todo ...
+    #  db sku_info两种情况: 未加价(只有一种结果: 与加价最新sku_info对比is_price_change肯定为1) or 已加价
+    #  下方是未加价的情况
+    #  因为如果该记录原先已被更新成最新价即old_sku_info已加价, 再进入下方则会被再次加价
+    #  导致最新的采集价格(加价后)与其对比, 多规格价格必变化!(is_price_change=1))
+    #  无法避免(主要db原先sku_info是否已加价无法判断)，此处照旧
     try:
         old_sku_info = format_price_info_list(
             price_info_list=price_info_list,
@@ -888,6 +894,8 @@ def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) ->
     new_sku_info = format_price_info_list(
         price_info_list=tmp_price_info_list,
         site_id=site_id,)
+    # pprint(old_sku_info)
+    # pprint(new_sku_info)
 
     try:
         # TODO 因此会导致二次循环后db 已加价的价格数据 与 最新采集数据进行对比，导致每次更新is_price_change都改变
@@ -901,12 +909,20 @@ def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) ->
         # 处理单规格的情况
         # _price_change_info这个字段不进行记录, 还是记录到price, taobao_price
         data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
+            # 原先价格两种情况: 未加价 or 已加价 (都与最新采集价格(已加价)进行对比)
             old_price=db_goods_info_obj.old_price,
             old_taobao_price=db_goods_info_obj.old_taobao_price,
-            new_price=data['price'],
-            new_taobao_price=data['taobao_price'],
+            # 最新价格都是未加价, 此处进行加价
+            new_price=add_cp_profit_2_price(data['price']),
+            new_taobao_price=add_cp_profit_2_price(data['taobao_price']),
             is_price_change=data['_is_price_change'],
             price_change_info=price_change_info)
+        # print('old_taobao_price: {}, old_price: {}, new_taobao_price: {}, new_price: {}'.format(
+        #     db_goods_info_obj.old_taobao_price,
+        #     db_goods_info_obj.old_price,
+        #     data['taobao_price'],
+        #     data['price'],
+        # ))
         if data['_is_price_change'] == 1:
             if old_sku_info == [] and new_sku_info == []:
                 # 单规格变动情况下, 重新记录sku_info_trans_time

@@ -139,6 +139,7 @@ from dbo.GoodsInfoAutoGet
 where SiteID=1 
 and MainGoodsID is not null
 -- and MainGoodsID=128754
+-- and GoodsID='561349437472'
 order by ModfiyTime asc
 '''
 # 淘抢购实时更新
