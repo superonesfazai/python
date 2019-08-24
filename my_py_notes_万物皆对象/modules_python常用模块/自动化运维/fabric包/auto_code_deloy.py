@@ -109,7 +109,9 @@ def server_tasks(my_group):
         [remote_decompress_folders(
             connect_object=item,
             folders_path=k[0],
-            target_decompress_path=k[1]
+            target_decompress_path=k[1],
+            # 解压时语言控制, 树莓派不需要此项(我已设置系统其为中文)
+            language_control='-O CP936' if is_out_server else '',
         ) for k in wait_2_decompress_folders]
 
         return
@@ -159,11 +161,28 @@ def get_connected_hosts():
 
     my_group = []
     for item in hosts_info:
-        if item.get('ip', '') == '176.122.147.85':
-            continue
+        ip = item.get('ip', '')
+        if is_out_server:
+            if ip == '176.122.147.85':
+                continue
+            else:
+                pass
 
+            if ip.startswith('192'):
+                # 内网跳过
+                continue
+            else:
+                pass
+
+        else:
+            if not ip.startswith('192'):
+                continue
+            else:
+                pass
+
+        print('目标ip: {}'.format(ip))
         _ = group.Connection(
-            host=item.get('ip'),
+            host=ip,
             user=item.get('user'),
             port=item.get('port'),
             connect_timeout=6,
@@ -181,4 +200,9 @@ def main():
     server_tasks(my_group=my_group)
 
 if __name__ == '__main__':
+    # 分开发布, 涉及解压问题
+    # 公网服务器
+    # is_out_server = True
+    # 树莓派
+    is_out_server = False
     main()
