@@ -120,7 +120,7 @@ vi ~/.zshrc
 ### 安装python3.6.3
 ```bash
 # 依赖安装(必须)
-$ sudo apt-get install wget make gcc build-essential curl zlib* bzip2-devel openssl openssl-devel libssl-dev ncurses-devel git vim python-cffi python3-cffi libffi-dev libxml2 libxslt1.1 libxml2-dev libxslt1-dev python-libxml2 python-libxslt1 freetds-dev -y --fix-missing
+$ sudo apt-get install wget make gcc build-essential curl zlib* bzip2-devel openssl openssl-devel libssl-dev ncurses-devel git vim python-cffi python3-cffi libffi-dev libxml2 libxslt1.1 libxml2-dev libxslt1-dev python-libxml2 python-libxslt1 freetds-dev tmux -y --fix-missing
 $ wget https://www.python.org/ftp/python/3.6.3/Python-3.6.3.tgz
 $ tar -zxvf Python-3.6.3.tgz
 $ cd Python-3.6.3
@@ -149,6 +149,7 @@ $ pip3 install -i http://pypi.douban.com/simple/ numpy --trusted-host pypi.douba
 # 安装pymssql必备
 $ pip3 install -i http://pypi.douban.com/simple/ Cython --trusted-host pypi.douban.com
 $ pip3 install -i http://pypi.douban.com/simple/ wheel pysocks requests requests_oauthlib selenium==3.8.0 uvloop asyncio nest_asyncio psutil pyexecjs setuptools numpy pprint chardet scrapy greenlet==0.4.14 gevent aiohttp celery flower pyexcel pyexcel-xlsx fabric jieba appium-python-client elasticsearch elasticsearch_dsl salt baidu-aip fonttools xmltodict ftfy tenacity pyzbar termcolor pypinyin bitarray click websockets==7.0 pyppeteer bunch better_exceptions scapy scapy-http demjson jsonpath pytz python-dateutil sqlalchemy pymongo redis mongoengine prettytable pika pymssql --trusted-host pypi.douban.com
+$ pip3 install -i http://pypi.douban.com/simple/ flask flask_login --trusted-host pypi.douban.com
 $ pip3 install -i http://pypi.douban.com/simple/ fzutils --trusted-host pypi.douban.com
 ```
 
