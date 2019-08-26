@@ -90,7 +90,6 @@ from logging import (
 )
 from base64 import b64decode
 from threading import Lock as ThreadingLock
-from threading import Thread
 from queue import Queue
 # 处理并发请求时协程报错: 'RuntimeError: This event loop is already running'
 import nest_asyncio
@@ -118,9 +117,7 @@ from buyiju_spider import BuYiJuSpider
 from multiprocessing import Pool as MultiprocessingPool
 
 from fzutils.log_utils import set_logger
-from fzutils.exceptions import catch_exceptions
 from fzutils.data.json_utils import get_new_list_by_handle_list_2_json_error
-from fzutils.gevent_utils import gevent_monkey
 from fzutils.spider.async_always import *
 
 try:
@@ -2278,14 +2275,17 @@ def spider_dcs():
                 # 实时更新
                 queue_name = '{}_{}_queue'.format(dcs_type, 'real_time_update')
                 sql_str = tm_select_str_3
-                t1 = Thread(
-                    target=add_2_update_queue,
-                    args=(
+                t1 = ThreadTaskObj(
+                    func_name=add_2_update_queue,
+                    args=[
                         queue_name,
                         sql_str,
                         tm_real_time_update_queue,
                         tm_real_time_update_lock,
-                    ),)
+                    ],
+                    default_res=None,
+                    func_timeout=2.,
+                    logger=my_lg,)
                 target_queue = tm_real_time_update_queue
             else:
                 raise ValueError('dcs_child_type: {} 值异常!'.format(dcs_child_type))
@@ -2295,14 +2295,17 @@ def spider_dcs():
                 # 实时更新
                 queue_name = '{}_{}_queue'.format(dcs_type, 'real_time_update')
                 sql_str = tb_select_str_3
-                t1 = Thread(
-                    target=add_2_update_queue,
-                    args=(
+                t1 = ThreadTaskObj(
+                    func_name=add_2_update_queue,
+                    args=[
                         queue_name,
                         sql_str,
                         tb_real_time_update_queue,
                         tb_real_time_update_lock,
-                    ),)
+                    ],
+                    default_res=None,
+                    func_timeout=2.,
+                    logger=my_lg,)
                 target_queue = tb_real_time_update_queue
             else:
                 raise ValueError('dcs_child_type: {} 值异常!'.format(dcs_child_type))
@@ -2312,7 +2315,8 @@ def spider_dcs():
 
         t1.start()
         # timeout 不可过大, 会导致other接口阻塞过久
-        t1.join(timeout=2.)
+        # 运行_get_result内部join
+        t1._get_result()
         try:
             del t1
         except:

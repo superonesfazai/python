@@ -76,13 +76,18 @@ $ sudo raspi-config
 
 至此我们已经打开了树莓派的VNC服务，接下来，是通过软件进行VNC远程桌面控制。
 
-### 使用VNC Viewer连接树莓派
+### 使用VNC Viewer连接树莓派(vnc 除非设置内网穿透，固定公网IP或者花生壳动态域名解析，才可外网访问)
 推荐使用：VNC Viewer，免费易用。[下载地址](https://www.realvnc.com/en/connect/download/viewer/)
 
 (vnc账户 已存在Chrome vnc书签)
 
 1. 打开VNC Viewer
 2. 在地址栏上面输入树莓派的IP地址(eg: 192.168.2.114)，按回车, 即可登录进入树莓派ui页
+
+## teamviewer
+teamviewer 则可实现内网穿透 让外网访问
+
+而teamviewer则登陆账户设置连接密码则可被世界上任意一台主机访问
 
 ## 树莓派 Raspberry Pi 更换清华大学源更新源方法
 ```bash
@@ -120,11 +125,11 @@ vi ~/.zshrc
 ### 安装python3.6.3
 ```bash
 # 依赖安装(必须)
-$ sudo apt-get install wget make gcc build-essential curl zlib* bzip2-devel openssl openssl-devel libssl-dev ncurses-devel git vim python-cffi python3-cffi libffi-dev libxml2 libxslt1.1 libxml2-dev libxslt1-dev python-libxml2 python-libxslt1 freetds-dev tmux -y --fix-missing
+$ sudo apt-get install wget make gcc build-essential curl zlib* bzip2-devel openssl openssl-devel libssl-dev ncurses-devel git vim python-cffi python3-cffi libffi-dev libxml2 libxslt1.1 libxml2-dev libxslt1-dev python-libxml2 python-libxslt1 freetds-dev tmux sqlite3 libsqlite3-dev -y --fix-missing
 $ wget https://www.python.org/ftp/python/3.6.3/Python-3.6.3.tgz
 $ tar -zxvf Python-3.6.3.tgz
 $ cd Python-3.6.3
-$ ./configure --prefix=/usr/local/python3
+$ ./configure --prefix=/usr/local/python3 --enable-loadable-sqlite-extensions
 $ make && make install
 
 # 并将/usr/local/python3/bin加入PATH
@@ -148,9 +153,53 @@ $ cd ~ && mkdir myFiles && cd myFiles && mkdir python
 $ pip3 install -i http://pypi.douban.com/simple/ numpy --trusted-host pypi.douban.com
 # 安装pymssql必备
 $ pip3 install -i http://pypi.douban.com/simple/ Cython --trusted-host pypi.douban.com
-$ pip3 install -i http://pypi.douban.com/simple/ wheel pysocks requests requests_oauthlib selenium==3.8.0 uvloop asyncio nest_asyncio psutil pyexecjs setuptools numpy pprint chardet scrapy greenlet==0.4.14 gevent aiohttp celery flower pyexcel pyexcel-xlsx fabric jieba appium-python-client elasticsearch elasticsearch_dsl salt baidu-aip fonttools xmltodict ftfy tenacity pyzbar termcolor pypinyin bitarray click websockets==7.0 pyppeteer bunch better_exceptions scapy scapy-http demjson jsonpath pytz python-dateutil sqlalchemy pymongo redis mongoengine prettytable pika pymssql --trusted-host pypi.douban.com
+$ pip3 install -i http://pypi.douban.com/simple/ pillow wheel pysocks requests requests_oauthlib requests_toolbelt selenium==3.8.0 uvloop asyncio nest_asyncio psutil pyexecjs setuptools numpy pprint chardet scrapy greenlet==0.4.14 gevent aiohttp celery flower pyexcel pyexcel-xlsx fabric jieba appium-python-client elasticsearch elasticsearch_dsl salt baidu-aip fonttools xmltodict ftfy tenacity pyzbar termcolor pypinyin bitarray click websockets==7.0 pyppeteer bunch better_exceptions scapy scapy-http demjson jsonpath pytz python-dateutil sqlalchemy pymongo redis mongoengine prettytable pika pymssql --trusted-host pypi.douban.com
 $ pip3 install -i http://pypi.douban.com/simple/ flask flask_login --trusted-host pypi.douban.com
 $ pip3 install -i http://pypi.douban.com/simple/ fzutils --trusted-host pypi.douban.com
+```
+
+### 常用shell
+```bash
+# 查看cpu温度
+$ watch -n 0.1 echo CPU: $[$(cat /sys/class/thermal/thermal_zone0/temp)/1000]°
+or 
+$ vcgencmd measure_temp
+
+# 查看某文件最后几行
+$ tail -n 200 xx.log
+```
+
+### 驱动
+```bash
+# 否则无法启动chromedriver
+$ apt-get install chromium-browser && apt-get install libnss3 libgconf-2-4
+
+# 否则无法启动firefoxdriver
+# 树莓派安装firefox
+$ sudo apt-get install firefox-esr
+```
+
+### 禁用wifi
+```bash
+$ vi /etc/modprobe.d/raspi-blacklist.conf
+# 加上
+# wifi
+blacklist brcmfmac
+blacklist brcmutil
+# 蓝牙
+# blacklist btbcm
+# blacklist hci_uart
+$ reboot
+```
+
+### 解决树莓派使用HDMI-VGA转换器黑屏的方案(如果外接显示器的话, 一般不设置已cli模式)
+设置树莓派默认启动页(desktop/shell)
+```bash
+$ sudo raspi-config
+# 1. 选择Boot Options
+# 2. 选择Desktop/cli
+# 3. 选择B3 Desktop
+# 4. 回车, 保存更改并reboot即可
 ```
 
 ### vim 变成IDE

@@ -86,7 +86,7 @@ def main_2():
         auto_run(tejia_path, logs_path, real_path, server_path, spike_path)
         print(' Money is on the way! '.center(100, '*'))
 
-        sleep(5*60)
+        sleep(1*60)
 
 def main():
     print('========主函数开始========')

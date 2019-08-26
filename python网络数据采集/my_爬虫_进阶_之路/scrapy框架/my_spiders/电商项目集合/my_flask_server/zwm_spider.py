@@ -469,6 +469,7 @@ class ZWMSpider(AsyncCrawler):
 
         all_res = []
         for item in target_list:
+            # pprint(item)
             try:
                 create_time = get_shanghai_time()
                 shop_name = item.get('merName', '')
@@ -483,7 +484,13 @@ class ZWMSpider(AsyncCrawler):
                 trans_amount = Decimal(trans_amount).__round__(2)
                 service_charge = Decimal(item['mda']).__round__(2)
                 accounting_amount = Decimal(item['mnamt']).__round__(2)
-                trans_date = date_parse(item['txnDay'])
+                # 正常情况为: '20190704', 异常为'20190824-20190824'
+                txn_day = item['txnDay']
+                if re.compile('-').findall(txn_day) != []:
+                    txn_day = txn_day.split('-')[0]
+                else:
+                    pass
+                trans_date = date_parse(txn_day)
                 trans_status = item['status']
                 if trans_status == '已结算':
                     trans_status = 0

@@ -73,6 +73,7 @@ logs_file_name_list = [
 
 zwm_file_name_list = [
     # 'zwm_spider',
+    # 'new_my_server',
 ]
 
 # 只在晚上run
@@ -125,7 +126,7 @@ def main_2():
         auto_run(spike_path, pintuan_path, real_path, other_path, logs_path, zwm_path)
         print(' Money is on the way! '.center(100, '*'))
 
-        sleep(60*15)
+        sleep(60*1)
 
 def main():
     print('========主函数开始========')

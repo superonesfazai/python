@@ -223,11 +223,12 @@ def add_cp_profit_2_price(target_price) -> (str, Decimal):
 
     return target_price
 
-def format_price_info_list(price_info_list, site_id) -> list:
+def format_price_info_list(price_info_list, site_id, is_add_profit: bool=True) -> list:
     """
     格式化price_info_list对象(常规, 秒杀, 拼团)
     :param price_info_list:
     :param site_id:
+    :param is_add_profit: 是否加利润
     :return:
     """
     if isinstance(price_info_list, list):
@@ -254,12 +255,15 @@ def format_price_info_list(price_info_list, site_id) -> list:
             if rest_number <= 0:
                 continue
 
-            # 加价
-            try:
-                detail_price = add_cp_profit_2_price(target_price=detail_price)
-                normal_price = add_cp_profit_2_price(target_price=normal_price)
-                pintuan_price = add_cp_profit_2_price(target_price=pintuan_price)
-            except Exception:
+            if is_add_profit:
+                # 加价
+                try:
+                    detail_price = add_cp_profit_2_price(target_price=detail_price)
+                    normal_price = add_cp_profit_2_price(target_price=normal_price)
+                    pintuan_price = add_cp_profit_2_price(target_price=pintuan_price)
+                except Exception:
+                    pass
+            else:
                 pass
 
             _.append({
@@ -872,16 +876,13 @@ def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) ->
         site_id = db_goods_info_obj.site_id
 
     price_info_list = old_sku_info = db_goods_info_obj.old_sku_info
-    # todo ...
-    #  db sku_info两种情况: 未加价(只有一种结果: 与加价最新sku_info对比is_price_change肯定为1) or 已加价
-    #  下方是未加价的情况
-    #  因为如果该记录原先已被更新成最新价即old_sku_info已加价, 再进入下方则会被再次加价
-    #  导致最新的采集价格(加价后)与其对比, 多规格价格必变化!(is_price_change=1))
-    #  无法避免(主要db原先sku_info是否已加价无法判断)，此处照旧
     try:
+        # todo
+        #  db old_sku_info原先只有两种情况(两者都不加价与加价后的最新采集数据对比): 未加价(则is_price_change必定为1) | 已加价(变动则is_price_change=1 or 不变则=0)
         old_sku_info = format_price_info_list(
             price_info_list=price_info_list,
-            site_id=site_id)
+            site_id=site_id,
+            is_add_profit=False,)
     except AttributeError:
         # 处理已被格式化过的
         pass
