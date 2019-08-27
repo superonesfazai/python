@@ -250,3 +250,75 @@ $ sudo raspi-config
 代码自动补全神器
 
 [YouCompleteMe](https://github.com/ycm-core/YouCompleteMe)
+
+## 外网访问树莓派
+
+### cpolar(推荐)
+如果你曾尝试将树莓派（Raspberry Pi）设置成为物联网设备，你就会知道，除非你跳过一大堆恼人的内网穿透问题，否则你就无法在本地网络上提供网页和数据。从家庭或本地网络外部访问树莓派可能是一项挑战。
+
+cpolar是一种安全的隧道服务，可以在任何地方在线提供您的设备。 隧道是一种在两台计算机之间通过互联网等公共网络建立专线的方法。 当您在两台计算机之间设置隧道时，它应该是安全且私有的，并且能够通过网络障碍，如端口阻塞路由器和防火墙。 这是一个方便的服务，允许您在安全的无线网络或防火墙后面将请求从公共互联网连接到本地计算机。 使用此平台，您可以通过非常简单的方式从家庭或本地网络外部访问Raspberry Pi。
+
+[开始页](https://dashboard.cpolar.com/get-started)
+
+### 安装
+```bash
+$ sudo wget https://www.cpolar.com/static/downloads/cpolar-stable-linux-arm.zip
+$ sudo unzip cpolar-stable-linux-arm.zip && rm -rf cpolar-stable-linux-arm.zip
+```
+
+### 注册
+免费版的cpolar允许您一次访问一个终端，并在每次启动cpolar时分配随机网址。 使用免费版本，您每次希望建立远程连接并与远程用户共享地址时，都必须从Pi生成主机地址。
+
+要创建cpolar帐户，请单击此处，然后单击注册以获取authtoken密钥。 如果您希望自己的自定义域执行联机SSH，则此令牌是必需的。
+
+登录到cpolar网站后，您将获得一个authtoken密钥，其中包含许多字符的组合。 您需要保密此令牌：拥有此令牌的任何人都可以访问您的Raspberry Pi。
+
+[获取自己账户的认证代码](https://dashboard.cpolar.com/get-started)
+
+使用您从cpolar网站获得的令牌更改yourauthtoken字符串。 您只需要为Raspberry pi执行一次认证，它就会存储在配置文件中。
+
+```bash
+$ ./cpolar authtoken xxxxx[你的账号的认证代码]
+Authtoken saved to configuration file: /root/.cpolar/cpolar.yml
+```
+
+### 远程连接
+
+#### 使用ssh从远程网络访问Pi
+在Raspberry Pi终端中键入以下命令以启用从远程访问Putty终端。
+```bash
+$ ./cpolar tcp 22
+```
+
+![](https://i.loli.net/2019/08/27/dn8XS5BmUPjuC2s.png)
+
+如果你的隧道状态为“online”，你可以在任何地方使用Putty打开你的Raspberry Pi终端。 注意下图所示的主机地址和端口号; 你将使用它们来访问Raspberry Pi。
+
+远程ssh
+```bash
+$ ssh <树莓派用户名@1.tcp.cpolar.io> -p <cpolar公网端口号>  
+
+# 本例子
+$ ssh root@1.tcp.cpolar.io -p 10012
+参数说明：
+-p 参数 指定服务器端口号
+10012 是上图cpolar分配给你的服务器端口号，每次会变化
+1.tcp.cpolar.io 是服务器分配给你的服务器主机地址，每次会变化
+root 是树莓派默认用户名
+```
+
+### http访问pi
+要在端口80上启动HTTP隧道
+```bash
+$ ./cpolar http 80
+```
+![](https://i.loli.net/2019/08/27/ipgJnWKuZfFT7vk.png)
+
+如果你的隧道状态为“online”，你可以在任何地方使用浏览器连接Raspberry Pi终端
+
+浏览器访问
+```bash
+# 例子
+http://4e9c5588.cpolar.io
+https://4e9c5588.cpolar.io
+```

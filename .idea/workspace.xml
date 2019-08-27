@@ -5,11 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4988757d-f4dc-45d8-8be8-24906bc622f9" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/just_fuck_run/just_fck_run_raspberrypi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/fzutils" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/jd_parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/jd_parse.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/jd_real-times_update.py" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/jd_real-times_update.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/树莓派相关/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/树莓派相关/readme.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -1143,23 +1139,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/jd_parse.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="281">
-              <caret line="33" column="11" selection-start-line="33" selection-start-column="11" selection-end-line="33" selection-end-column="11" />
-              <folding>
-                <element signature="e#232#349#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/jd_real-times_update.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="324">
-              <caret line="148" column="29" lean-forward="true" selection-start-line="148" selection-start-column="29" selection-end-line="148" selection-end-column="29" />
+        <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/树莓派相关/readme.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="255">
+                <caret line="255" column="4" lean-forward="true" selection-start-line="255" selection-start-column="4" selection-end-line="255" selection-end-column="10" />
+              </first_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
@@ -1294,7 +1281,6 @@
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/modules_python常用模块/自动化运维/fabric包/auto_code_deloy.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/tri_party_agent_ip_pool/settings.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/multiplex_code.py" />
-        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/树莓派相关/readme.md" />
         <option value="$PROJECT_DIR$/my_py_notes_万物皆对象/异步io/协程/gevent/demo.py" />
         <option value="/Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/fzutils/sql_utils.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/new_my_server.py" />
@@ -1310,6 +1296,7 @@
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/just_fuck_run/just_fck_run_raspberrypi.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/jd_parse.py" />
         <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/jd_real-times_update.py" />
+        <option value="$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/树莓派相关/readme.md" />
       </list>
     </option>
   </component>
@@ -1504,6 +1491,15 @@
               <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
               <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
               <item name="fzutils" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+              <item name="python网络数据采集" type="462c0819:PsiDirectoryNode" />
+              <item name="my_爬虫_进阶_之路" type="462c0819:PsiDirectoryNode" />
+              <item name="scrapy框架" type="462c0819:PsiDirectoryNode" />
+              <item name="my_spiders" type="462c0819:PsiDirectoryNode" />
+              <item name="树莓派相关" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="python" type="b2602c69:ProjectViewProjectNode" />
@@ -2329,7 +2325,7 @@
       <workItem from="1564366518005" duration="9502000" />
       <workItem from="1564543222871" duration="57771000" />
       <workItem from="1565076372676" duration="315132000" />
-      <workItem from="1566801009282" duration="14675000" />
+      <workItem from="1566801009282" duration="16845000" />
     </task>
     <task id="LOCAL-00001" summary="&quot;update commit&quot;">
       <created>1502675718378</created>
@@ -2381,7 +2377,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2342735000" />
+    <option name="totallyTimeSpent" value="2344905000" />
   </component>
   <component name="TodoView" selected-index="2">
     <todo-panel id="selected-file">
@@ -2396,7 +2392,7 @@
     <frame x="0" y="0" width="1920" height="1080" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4980198" visible="true" weight="0.14323749" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4980198" visible="true" weight="0.14323749" />
       <window_info id="Structure" order="1" sideWeight="0.5019802" side_tool="true" weight="0.1400426" />
       <window_info id="Favorites" order="2" sideWeight="0.5009901" side_tool="true" weight="0.12140575" />
       <window_info anchor="bottom" id="Database Console" order="0" weight="0.34059405" />
@@ -2621,16 +2617,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="525">
           <caret line="36" column="24" selection-start-line="36" selection-start-column="24" selection-end-line="36" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/树莓派相关/readme.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="398">
-            <caret line="214" lean-forward="true" selection-start-line="214" selection-end-line="214" />
-          </first_editor>
-          <second_editor />
         </state>
       </provider>
     </entry>
@@ -2894,6 +2880,13 @@
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/taobao_parse.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/jd_real-times_update.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="261">
+          <caret line="151" lean-forward="true" selection-start-line="151" selection-end-line="151" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/jd_parse.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="281">
@@ -2904,10 +2897,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/real-times_update/jd_real-times_update.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="148" column="29" lean-forward="true" selection-start-line="148" selection-start-column="29" selection-end-line="148" selection-end-column="29" />
+    <entry file="file://$PROJECT_DIR$/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/树莓派相关/readme.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="255">
+            <caret line="255" column="4" lean-forward="true" selection-start-line="255" selection-start-column="4" selection-end-line="255" selection-end-column="10" />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
