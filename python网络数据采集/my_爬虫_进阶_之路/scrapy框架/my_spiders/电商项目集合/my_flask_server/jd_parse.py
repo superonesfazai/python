@@ -32,7 +32,7 @@ from multiplex_code import (
 from fzutils.spider.async_always import *
 
 class JdParse(Crawler):
-    def __init__(self, logger=None):
+    def __init__(self, logger=None, is_real_times_update_call=False):
         super(JdParse, self).__init__(
             ip_pool_type=IP_POOL_TYPE,
             log_print=True,
@@ -43,6 +43,14 @@ class JdParse(Crawler):
             driver_executable_path=PHANTOMJS_DRIVER_PATH,
         )
         self.result_data = {}
+        self.is_real_times_update_call = is_real_times_update_call
+        if self.is_real_times_update_call:
+            self.proxy_type = PROXY_TYPE_HTTPS
+            # 不可太大，否则server采集时慢
+            self.req_num_retries = 5
+        else:
+            self.proxy_type = PROXY_TYPE_HTTP
+            self.req_num_retries = 3
 
     def _get_goods_is_delete(self, body) -> bool:
         '''
@@ -80,7 +88,9 @@ class JdParse(Crawler):
         body = Requests.get_url_body(
             url=url,
             headers=headers,
-            ip_pool_type=self.ip_pool_type)
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
         # self.lg.info(body)
 
         if not self._get_goods_is_delete(body=body):
@@ -261,7 +271,9 @@ class JdParse(Crawler):
             url=url,
             headers=headers,
             params=params,
-            ip_pool_type=self.ip_pool_type)
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
         # self.lg.info(str(body))
         all_sell_count = str(randint(800, 2000))
         try:
@@ -426,7 +438,9 @@ class JdParse(Crawler):
         body = Requests.get_url_body(
             url=url,
             headers=headers,
-            ip_pool_type=self.ip_pool_type,)
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
         # self.lg.info(str(body))
         li_list = Selector(text=body).css('div.p-parameter ul li ::text').extract() or []   # 尽可能多匹配
         # pprint(li_list)
@@ -466,7 +480,13 @@ class JdParse(Crawler):
             'authority': 'wq.jd.com',
         }
         # 有一些可能返回的是空的
-        body = Requests.get_url_body(url=url, headers=headers, params=params, ip_pool_type=self.ip_pool_type)
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
         # self.lg.info(str(body))
         _ = {}
         try:
@@ -493,7 +513,9 @@ class JdParse(Crawler):
         body = Requests.get_url_body(
             url=url,
             headers=headers,
-            ip_pool_type=self.ip_pool_type)
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
         # self.lg.info(str(body))
         try:
             _ = json_2_dict(re.compile('\((.*)\)').findall(body)[0]).get('content', '')
@@ -627,7 +649,9 @@ class JdParse(Crawler):
             url=url,
             headers=headers,
             params=params,
-            ip_pool_type=self.ip_pool_type)
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
         # print(body)
         try:
             _ = json_2_dict(re.compile('\((.*)\)').findall(body)[0], default_res={})

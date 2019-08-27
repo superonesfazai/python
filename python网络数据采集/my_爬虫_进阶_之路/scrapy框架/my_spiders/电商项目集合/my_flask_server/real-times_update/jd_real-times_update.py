@@ -63,7 +63,7 @@ class JDUpdater(AsyncCrawler):
             except:
                 pass
             collect()
-            self.jd = JdParse(logger=self.lg)
+            self.jd = JdParse(logger=self.lg, is_real_times_update_call=True,)
 
     async def _get_tmp_item(self, site_id, goods_id):
         tmp_item = []
@@ -139,7 +139,9 @@ class JDUpdater(AsyncCrawler):
             else:
                 self.goods_index = 1
                 tasks_params_list = TasksParamsListObj(tasks_params_list=result, step=self.concurrency)
-                self.jd = JdParse(logger=self.lg)
+                self.jd = JdParse(
+                    logger=self.lg,
+                    is_real_times_update_call=True,)
                 index = 1
                 while True:
                     try:
