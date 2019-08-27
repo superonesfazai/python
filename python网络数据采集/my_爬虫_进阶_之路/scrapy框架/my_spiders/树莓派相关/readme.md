@@ -180,6 +180,10 @@ $ man unzip
 $ apt-get install fzf
 # 用法
 $ fzf 
+
+# 切换当前工作目录
+# 通过下面方式进入fzf, 选中目标目录回车即可进入
+$ cd $(find * -type d | fzf)
 ```
 
 #### cloc
@@ -213,6 +217,28 @@ $ apt-get install nload
 $ nload
 ```
 
+### git 加速
+[blog](https://blog.csdn.net/w958660278/article/details/81161224)
+
+打开https://www.ipaddress.com/
+
+查询以下三个链接的DNS解析地址 (修改下方的ip, 再存入)
+1. github.com 
+2. assets-cdn.github.com 
+3. github.global.ssl.fastly.net
+
+```bash
+$ vi /etc/hosts
+# 加入下方
+192.30.253.112     github.com
+185.199.108.153    assets-cdn.github.com
+151.101.185.194    github.global.ssl.fastly.net
+# 刷新dns
+$ sudo /etc/init.d/networking restart
+```
+
+然后速度起飞!
+
 ### 驱动
 ```bash
 # 否则无法启动chromedriver
@@ -221,6 +247,27 @@ $ apt-get install chromium-browser && apt-get install libnss3 libgconf-2-4
 # 否则无法启动firefoxdriver
 # 树莓派安装firefox
 $ sudo apt-get install firefox-esr
+
+# 树莓派安装phantomjs(我已下载到本地直接运行即可)
+# 下面是原先的, 但是动态切换代理失败!! pass
+$ apt-get install chrpath git-core libfontconfig1-dev libxft-dev 
+$ cd ~/myFiles/linux_drivers
+$ wget https://github.com/aeberhardo/phantomjs-linux-armv6l/archive/master.zip && unzip master.zip
+$ rm -rf master.zip
+# 即可得到在树莓派上能运行的phantomjs
+$ cd phantomjs-linux-armv6l-master && tar -jxvf phantomjs-1.9.0-linux-armv6l.tar.bz2 
+# 更改路径至(文件名得一致) '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
+
+# 装2.1.1 gitHub: https://github.com/ApioLab/phantomjs-2.1.1-linux-arm
+$ apt-get install chrpath git-core libfontconfig1-dev libxft-dev 
+$ cd ~/myFiles/linux_drivers
+$ wget https://raw.githubusercontent.com/ApioLab/phantomjs-2.1.1-linux-arm/master/phantomjs-2.1.1-linux-arm.tar.bz2
+# 解压即可得到在树莓派上能运行的phantomjs
+$ tar -jxvf phantomjs-2.1.1-linux-arm.tar.bz2
+# 更改路径至(文件名得一致) '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
+# 运行./phantomjs 报错:
+# ./phantomjs: error while loading shared libraries: libssl.so.1.0.0: cannot open shared object file: No such file or directory
+# blog: https://blog.csdn.net/uniom/article/details/54092570
 ```
 
 ### 禁用wifi
