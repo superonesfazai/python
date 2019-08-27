@@ -38,7 +38,7 @@ def get_url_body(index):
 
     return data
 
-if __name__ == '__main__':
+def main():
     # 假如你的url写在文件中 用第一个参数传进来
     tasks = []
     for index in range(1, 50):
@@ -52,3 +52,6 @@ if __name__ == '__main__':
         tasks=tasks,
     )
     # pprint(one_res)
+
+if __name__ == '__main__':
+    main()

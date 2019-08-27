@@ -2237,9 +2237,11 @@ def spider_dcs():
             if target_queue.empty():
                 sql_cli = SqlServerMyPageInfoSaveItemPipeline()
                 my_lg.info('{} is null queue, 从db赋值ing...'.format(queue_name))
+                # 报错: free(): corrupted unsorted chunks
+                # 原因: 当要释放的内存在使用的时候发生了越界，将这块内存前后的一些信息改掉，就会发生这个错误。
                 res = list(sql_cli._select_table(
                     sql_str=sql_str,
-                    logger=my_lg, ))
+                    logger=my_lg,))
                 for item in res:
                     target_queue_thread_lock.acquire()
                     new_item = get_new_list_by_handle_list_2_json_error(

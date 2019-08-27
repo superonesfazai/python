@@ -406,6 +406,12 @@ async def get_waited_2_update_db_data_from_server(server_ip: str='http://0.0.0.0
     res = json_2_dict(
         json_str=body,
         default_res={},).get('data', [])
+    if res == []:
+        _sleep_time = 5
+        print('res为空list, sleep time {} s!!'.format(_sleep_time))
+        await async_sleep(_sleep_time)
+    else:
+        pass
 
     return res
 

@@ -71,6 +71,7 @@ class TMUpdater(AsyncCrawler):
         self.concurrency = 100
         self.concurrent_type = CONCURRENT_TYPE
         # self.server_ip = 'http://0.0.0.0:5000'
+        # self.server_ip = 'http://0.0.0.0:80'
         self.server_ip = 'http://118.31.39.97'
 
     async def _update_db(self):

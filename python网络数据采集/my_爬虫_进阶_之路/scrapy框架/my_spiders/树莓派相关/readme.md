@@ -169,6 +169,50 @@ $ vcgencmd measure_temp
 $ tail -n 200 xx.log
 ```
 
+### man (查看某个命令用法)
+```bash
+$ man unzip
+```
+
+#### fzf (超快的命令行模糊查找器)(强烈推荐, 相见恨晚!!)
+```bash
+# github: https://github.com/junegunn/fzf
+$ apt-get install fzf
+# 用法
+$ fzf 
+```
+
+#### cloc
+```bash
+# 代码统计工具
+$ apt-get install cloc
+# use
+$ cloc xxx.py
+```
+
+#### thefuck (纠正您控制台命令错误)(强烈推荐, 详见恨晚!!)
+```bash
+# github: https://github.com/nvbn/thefuck
+$ pip3 install thefuck
+$ vi ~/.zshrc 
+# 加入这行
+eval $(thefuck --alias)
+$ source ~/.zshrc
+
+# 用法
+root@raspberrypi:~|⇒  aptget update
+zsh: command not found: aptget
+root@raspberrypi:~|⇒  fuck
+apt-get update [enter/↑/↓/ctrl+c]
+```
+
+#### nload (查看主机网络流量)
+```bash
+$ apt-get install nload
+# use
+$ nload
+```
+
 ### 驱动
 ```bash
 # 否则无法启动chromedriver
