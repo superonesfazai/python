@@ -60,14 +60,18 @@ def test_driver(_type=CHROME,
 
     return body
 
-def test_geckodriver_change_proxy():
+def test_driver_change_proxy():
     """
     测试firefox动态切换代理
     :return:
     """
     d = BaseDriver(
-        type=FIREFOX,
-        executable_path=FIREFOX_DRIVER_PATH,
+        type=PHANTOMJS,
+        executable_path=PHANTOMJS_DRIVER_PATH,
+
+        # type=FIREFOX,
+        # executable_path=FIREFOX_DRIVER_PATH,
+
         headless=True,
         ip_pool_type=tri_ip_pool,)
     origin_ip_sel = {
@@ -75,32 +79,21 @@ def test_geckodriver_change_proxy():
         'selector': '\"origin\": \"(.*?)\",'
     }
     url = 'https://httpbin.org/get'
-    body = d.get_url_body(
-        url=url,
-        timeout=30,)
-    # print(body)
-    origin_ip = parse_field(
-        parser=origin_ip_sel,
-        target_obj=body,)
-    print('origin_ip: {}'.format(origin_ip))
+    # url = 'https://www.baidu.com'
 
-    body = d.get_url_body(
-        url=url,
-        timeout=30, )
-    # print(body)
-    origin_ip = parse_field(
-        parser=origin_ip_sel,
-        target_obj=body, )
-    print('origin_ip: {}'.format(origin_ip))
-
-    body = d.get_url_body(
-        url=url,
-        timeout=30, )
-    # print(body)
-    origin_ip = parse_field(
-        parser=origin_ip_sel,
-        target_obj=body, )
-    print('origin_ip: {}'.format(origin_ip))
+    for index in range(0, 5):
+        body = d.get_url_body(
+            url=url,
+            timeout=20,
+            change_proxy=True,
+            change_user_agent=True,)
+        if 'httpbin' in url:
+            origin_ip = parse_field(
+                parser=origin_ip_sel,
+                target_obj=body,)
+            print('origin_ip: {}'.format(origin_ip))
+        else:
+            print(body)
 
     try:
         del d
@@ -131,4 +124,4 @@ def init(driver_type, headless, proxy, url, thread_num):
 
 if __name__ == '__main__':
     # init()
-    test_geckodriver_change_proxy()
+    test_driver_change_proxy()
