@@ -87,13 +87,14 @@ class JuMeiYouPinPinTuanParse(Crawler):
         '''
         换用phantomjs
         '''
-        body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url)
+        body = self.driver.get_url_body(url=tmp_url)
         # print(body)
         try:
             body = re.compile('<pre .*?>(.*)</pre>').findall(body)[0]
             # print(body)
-        except IndexError: body = ''
-        tmp_body = self.driver.use_phantomjs_to_get_url_body(url=goods_url)
+        except IndexError:
+            body = ''
+        tmp_body = self.driver.get_url_body(url=goods_url)
         # print(tmp_body)
 
         if body == '' or tmp_body == '':

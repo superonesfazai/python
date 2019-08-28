@@ -467,7 +467,7 @@ def _jp_get_parent_dir(phantomjs, goods_id):
     '''
     url = 'http://shop.juanpi.com/deal/{0}'.format(goods_id)
     try:
-        body = phantomjs.use_phantomjs_to_get_url_body(url=url, )
+        body = phantomjs.get_url_body(url=url, )
         # print(body)
     except Exception as e:
         print(e)

@@ -147,7 +147,7 @@ class MoGuJiePinTuan(object):
                 )
                 # requests请求数据被过滤(起初能用)，改用phantomjs
                 # body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
-                body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
+                body = self.my_phantomjs.get_url_body(url=tmp_url)
                 # print(body)
 
                 try:

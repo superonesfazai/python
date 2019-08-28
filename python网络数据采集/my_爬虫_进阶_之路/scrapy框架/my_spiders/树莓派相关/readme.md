@@ -1,4 +1,18 @@
 # 树莓派
+Raspbian 是专门用于 ARM 卡片式计算机 Raspberry Pi® “树莓派”的操作系统。
+
+Raspberry Pi® “树莓派”是 2012 年问世的 ARM 计算机，旨在为儿童和所有的计算机爱好者提供一套廉价的编程学习与硬件 DIY 平台。树莓派基于 ARM11，具有 1080P 高清视频解析能力，附带用于硬件开发的 GPIO 接口，使用Linux操作系统。售价仅 $25~$35。
+
+Raspbian 系统是 Debian 7.0/wheezy 的定制版本。得益于 Debian从7.0/wheezy 开始引入的“带硬件浮点加速的ARM架构”(armhf)，Debian 7.0 在树莓派上的运行性能有了很大提升。Raspbian 默认使用 LXDE 桌面，内置 C 和 Python 编译器。
+
+Raspbian 是树莓派的开发与维护机构 The Raspbeery Pi Foundation “树莓派基金会”，推荐用于树莓派的首选系统。
+
+由于以下原因，Raspbian 需要单独组建软件仓库，而不能使用 Debian 的仓库：
+
+ Debian下所有的软件包都需要用 armhf 重新编译。
+ 树莓派有部分特有的软件包，例如 BCM2835 CPU 的 GPIO 底层操作库。
+ 树莓派用户倾向于探索、尝试最新的软件。这与 Debian 软件源的策略完全不同。
+ 
 [树莓派官网](https://www.raspberrypi.org/)
 
 ## sd卡系统刻录相关
@@ -240,24 +254,74 @@ $ sudo /etc/init.d/networking restart
 然后速度起飞!
 
 ### 驱动
+
+#### chromedriver
 ```bash
 # 否则无法启动chromedriver
-$ apt-get install chromium-browser && apt-get install libnss3 libgconf-2-4
+$ apt-get install chromium-browser libnss3 libgconf-2-4 
+正在读取软件包列表... 完成
+正在分析软件包的依赖关系树       
+正在读取状态信息... 完成       
+libgconf-2-4 已经是最新版 (3.2.6-5)。
+libnss3 已经是最新版 (2:3.42.1-1)。
+chromium-browser 已经是最新版 (74.0.3729.157-rpt5)。
+升级了 0 个软件包，新安装了 0 个软件包，要卸载 0 个软件包，有 0 个软件包未被升级。
 
-# 否则无法启动firefoxdriver
+# 从上面可知当前安装的chromium-browser版本为74.0.3729.157-rpt5
+# 找到对应版本的chromedriver进行下载
+# 官网下载地址: https://chromedriver.chromium.org/downloads
+
+# ** 推荐
+# 下载驱动包 chromium-chromedriver(注意: 必须下载对应版本)
+1. 打开google搜索chromium-chromedriver_74.0.3729.157
+3. 选择下载指定的deb文件。
+# 注意树莓派4必须是尾缀armhf.deb的, 否则报错软件包体系结构(arm64)与本机系统体系结构(armhf)不符
+# todo 树莓派上下载慢的话可以本地下载deb, 再上传安装
+$ wget https://archive.raspberrypi.org/debian/pool/main/c/chromium-browser/chromium-chromedriver_74.0.3729.157-rpt5_armhf.deb
+$ dpkg -i chromium-chromedriver_74.0.3729.157-rpt5_armhf.deb 
+正在选中未选择的软件包 chromium-chromedriver。
+(正在读取数据库 ... 系统当前共安装有 96406 个文件和目录。)
+准备解压 chromium-chromedriver_74.0.3729.157-rpt5_armhf.deb  ...
+正在解压 chromium-chromedriver (74.0.3729.157-rpt5) ...
+正在设置 chromium-chromedriver (74.0.3729.157-rpt5) ...
+# 拷贝到我的目录下
+$ cp /usr/bin/chromedriver /root/myFiles/linux_drivers 
+$ cd /root/myFiles/linux_drivers 
+# 成功
+$ ./chromedriver 
+Starting ChromeDriver 74.0.3729.157 (7b16107ab85c5364cdcd0b2dea2539a1f2dc327a-refs/branch-heads/3729@{#998}) on port 9515
+Only local connections are allowed.
+Please protect ports used by ChromeDriver and related test frameworks to prevent access by malicious code.
+# 安装虚拟桌面
+$ apt-get install xvfb
+
+# todo 在树莓派上用chromedriver经常报错如下， 偶尔会成功, 推荐用firefoz or phantomjs
+# 正常现象, 在高并发的情况下成功率还行
+报错如下:  Message: chrome not reachable
+```
+
+#### firefox 
+```bash
 # 树莓派安装firefox
+# 否则无法启动firefoxdriver
 $ sudo apt-get install firefox-esr
+# 查看版本
+$ firefox --version
+Mozilla Firefox 60.8.0
 
+# geckodriver github: https://github.com/mozilla/geckodriver
+# 选择arm7hf的下载
+$ wget https://github.com/mozilla/geckodriver/releases/download/v0.21.0/geckodriver-v0.21.0-arm7hf.tar.gz
+$ tar -xzvf geckodriver-v0.21.0-arm7hf.tar.gz
+# 成功
+$ ./geckodriver 
+1566968312048	geckodriver	INFO	geckodriver 0.21.0
+1566968312107	geckodriver	INFO	Listening on 127.0.0.1:4444
+```
+
+#### phantomjs
+```bash
 # 树莓派安装phantomjs(我已下载到本地直接运行即可)
-# 下面是原先的, 但是动态切换代理失败!! pass
-$ apt-get install chrpath git-core libfontconfig1-dev libxft-dev 
-$ cd ~/myFiles/linux_drivers
-$ wget https://github.com/aeberhardo/phantomjs-linux-armv6l/archive/master.zip && unzip master.zip
-$ rm -rf master.zip
-# 即可得到在树莓派上能运行的phantomjs
-$ cd phantomjs-linux-armv6l-master && tar -jxvf phantomjs-1.9.0-linux-armv6l.tar.bz2 
-# 更改路径至(文件名得一致) '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
-
 # 装2.1.1 gitHub: https://github.com/ApioLab/phantomjs-2.1.1-linux-arm
 $ apt-get install chrpath git-core libfontconfig1-dev libxft-dev 
 $ cd ~/myFiles/linux_drivers
@@ -265,9 +329,43 @@ $ wget https://raw.githubusercontent.com/ApioLab/phantomjs-2.1.1-linux-arm/maste
 # 解压即可得到在树莓派上能运行的phantomjs
 $ tar -jxvf phantomjs-2.1.1-linux-arm.tar.bz2
 # 更改路径至(文件名得一致) '/root/myFiles/linux_drivers/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
+
 # 运行./phantomjs 报错:
 # ./phantomjs: error while loading shared libraries: libssl.so.1.0.0: cannot open shared object file: No such file or directory
-# blog: https://blog.csdn.net/uniom/article/details/54092570
+# google 搜索libssl1.0.0 for 64bit发现解决方案
+$  vi /etc/apt/sources.list
+# 加入下面这行
+deb http://security.debian.org/debian-security jessie/updates main
+$ apt-get update
+# 报错
+获取:1 http://security.debian.org/debian-security jessie/updates InRelease [44.9 kB]
+错误:1 http://security.debian.org/debian-security jessie/updates InRelease               
+  由于没有公钥，无法验证下列签名： NO_PUBKEY 9D6D8F6BC857C906 NO_PUBKEY AA8E81B4331F7F50
+命中:2 http://mirrors.tuna.tsinghua.edu.cn/raspbian/raspbian buster InRelease
+命中:3 http://mirrors.tuna.tsinghua.edu.cn/raspberrypi buster InRelease
+正在读取软件包列表... 完成
+W: GPG 错误：http://security.debian.org/debian-security jessie/updates InRelease: 由于没有公钥，无法验证下列签名： NO_PUBKEY 9D6D8F6BC857C906 NO_PUBKEY AA8E81B4331F7F50
+E: 仓库 “http://security.debian.org/debian-security jessie/updates InRelease” 没有数字签名。
+N: 无法安全地用该源进行更新，所以默认禁用该源。
+N: 参见 apt-secure(8) 手册以了解仓库创建和用户配置方面的细节。
+# 解决方法很简单，下载导入公钥就行，下载导入key的命令如下:
+# 此处6AF0E1940624A220需要是错误提示的key
+$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9D6D8F6BC857C906 
+$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys AA8E81B4331F7F50
+# 成功
+$ apt-get update
+# 搜索libssl1.0.0
+$ apt-cache search libssl1
+libssl1.0-dev - Secure Sockets Layer toolkit - development files
+libssl1.0.2 - Secure Sockets Layer toolkit - shared libraries
+libssl1.1 - Secure Sockets Layer toolkit - shared libraries
+libssl1.0.0 - Secure Sockets Layer toolkit - shared libraries
+libssl1.0.0-dbg - Secure Sockets Layer toolkit - debug information
+$ apt-get install libssl1.0.0
+
+# 再运行./phantomjs 报错:
+./phantomjs: error while loading shared libraries: libicui18n.so.52: cannot open shared object file: No such file or directory
+$ apt-get install libicu52
 ```
 
 ### 禁用wifi

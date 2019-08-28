@@ -96,7 +96,7 @@ class WMYHQSpider(object):
             self.driver.find_element_by_css_selector('div.go-action a').send_keys(Keys.ENTER)
             sleep({0})
             '''.format(self.phantomjs_sleep_time)
-            body = self.my_phantomjs.use_phantomjs_to_get_url_body(
+            body = self.my_phantomjs.get_url_body(
                 url=item.get('article_link', ''),
                 exec_code=exec_code)
             # div.appcoupon-qrcode img

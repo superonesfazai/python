@@ -141,7 +141,7 @@ class ChuChuJie_9_9_Spike(object):
                         my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
 
                         # 获取剩余时间
-                        tmp_body = my_phantomjs.use_phantomjs_to_get_url_body(
+                        tmp_body = my_phantomjs.get_url_body(
                             url=tmp_url,
                             css_selector='p#activityTime span')
                         # print(tmp_body)

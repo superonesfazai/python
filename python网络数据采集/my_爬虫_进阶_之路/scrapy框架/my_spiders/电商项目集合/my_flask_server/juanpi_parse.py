@@ -58,11 +58,14 @@ class JuanPiParse(Crawler):
             tmp_url = 'https://web.juanpi.com/pintuan/shop/' + str(goods_id)
             print('------>>>| 得到的商品手机版的地址为: ', tmp_url)
 
-            '''
+            """
             2.采用phantomjs来处理，记住使用前别翻墙
-            '''
-            # body = self.driver.get_url_body(url=tmp_url, css_selector='div.sc-kgoBCf.bTQvTk')    # 该css为手机端标题块
-            body = self.driver.get_url_body(url=tmp_url)    # 该css为手机端标题块
+            """
+            body = self.driver.get_url_body(
+                url=tmp_url,
+                # 该css为手机端标题块
+                # css_selector='div.sc-kgoBCf.bTQvTk',
+                timeout=28,)
             # print(body)
             if re.compile(r'<span id="t-index">页面丢失ing</span>').findall(body) != []:    # 页面为空处理
                 _ = SqlServerMyPageInfoSaveItemPipeline()

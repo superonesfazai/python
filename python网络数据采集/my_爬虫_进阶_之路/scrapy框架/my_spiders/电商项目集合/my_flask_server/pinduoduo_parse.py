@@ -74,7 +74,7 @@ class PinduoduoParse(Crawler):
         '''
         2.采用phantomjs来获取
         '''
-        body = self.driver.use_phantomjs_to_get_url_body(url=tmp_url)
+        body = self.driver.get_url_body(url=tmp_url)
         if body == '':
             print('body中re匹配到的data为空!')
             return self._data_error()

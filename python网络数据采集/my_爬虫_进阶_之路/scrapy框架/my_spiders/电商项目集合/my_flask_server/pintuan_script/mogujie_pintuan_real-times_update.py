@@ -124,7 +124,7 @@ class MoGuJiePinTuanRealTimesUpdate(object):
 
                         # requests请求不到数据，涉及证书认证，直接用phantomjs
                         # body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
-                        body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url)
+                        body = self.my_phantomjs.get_url_body(url=tmp_url)
                         # print(body)
 
                         if body == '':

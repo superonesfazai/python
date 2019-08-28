@@ -175,7 +175,7 @@ class GX8899Spider(Crawler):
                 self.driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.lg, ip_pool_type=self.ip_pool_type)
                 self.lg.info('[+] phantomjs已重置!')
 
-            body = self.driver.use_phantomjs_to_get_url_body(url=url)
+            body = self.driver.get_url_body(url=url)
             # self.lg.info(str(body))
             if re.compile(r'<title>404 - 找不到文件或目录。</title>').findall(body) != []:
                 break
@@ -214,7 +214,7 @@ class GX8899Spider(Crawler):
         }
 
         # body = self._get_loop_run_result(url=url, headers=headers)
-        body = self.driver.use_phantomjs_to_get_url_body(url=url)
+        body = self.driver.get_url_body(url=url)
         if body == '':
             self.lg.info('获取到img list为空list!出错地址:{}'.format(url))
             return []

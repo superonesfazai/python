@@ -137,7 +137,7 @@ class BaseFund(object):
             # print(body)
 
             # 用phantomjs
-            body = self.my_phantomjs.use_phantomjs_to_get_url_body(
+            body = self.my_phantomjs.get_url_body(
                 url=_get_url_contain_params(url, params))
 
             try:
@@ -257,7 +257,7 @@ class BaseFund(object):
         # body = MyRequests.get_url_body(url=fund_url, headers=headers, params=params, cookies=None)
         # print(body)
 
-        body = self.my_phantomjs.use_phantomjs_to_get_url_body(
+        body = self.my_phantomjs.get_url_body(
             url=_get_url_contain_params(fund_url, params)
         )
         # print(body)

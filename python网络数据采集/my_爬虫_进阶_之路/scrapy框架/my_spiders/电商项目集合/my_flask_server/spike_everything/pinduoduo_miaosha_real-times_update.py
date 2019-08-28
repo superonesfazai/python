@@ -182,19 +182,19 @@ class Pinduoduo_Miaosha_Real_Time_Update(object):
         # 今日秒杀
         tmp_url = 'http://apiv4.yangkeduo.com/api/spike/v2/list/today?page=0&size=2000'
         # print('待爬取的今日限时秒杀数据的地址为: ', tmp_url)
-        today_data = get_data(body=self.driver.use_phantomjs_to_get_url_body(url=tmp_url))
+        today_data = get_data(body=self.driver.get_url_body(url=tmp_url))
         today_data = self.json_to_dict(tmp_data=today_data)
 
         # 明日的秒杀
         tmp_url_2 = 'http://apiv4.yangkeduo.com/api/spike/v2/list/tomorrow?page=0&size=2000'
         # print('待爬取的明日限时秒杀数据的地址为: ', tmp_url_2)
-        tomorrow_data = get_data(body=self.driver.use_phantomjs_to_get_url_body(url=tmp_url_2))
+        tomorrow_data = get_data(body=self.driver.get_url_body(url=tmp_url_2))
         tomorrow_data = self.json_to_dict(tmp_data=tomorrow_data)
 
         # 未来的秒杀
         tmp_url_3 = 'http://apiv4.yangkeduo.com/api/spike/v2/list/all_after?page=0&size=2000'
         # print('待爬取的未来限时秒杀数据的地址为: ', tmp_url_3)
-        all_after_data = get_data(body=self.driver.use_phantomjs_to_get_url_body(url=tmp_url_3))
+        all_after_data = get_data(body=self.driver.get_url_body(url=tmp_url_3))
         all_after_data = self.json_to_dict(tmp_data=all_after_data)
 
         if today_data != []:

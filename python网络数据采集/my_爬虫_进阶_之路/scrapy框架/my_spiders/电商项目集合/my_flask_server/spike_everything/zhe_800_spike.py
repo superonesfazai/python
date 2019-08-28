@@ -180,7 +180,7 @@ class Zhe800Spike(object):
                 str(base_session_id),
                 _page,
             )
-            body = self.my_phantomjs.use_phantomjs_to_get_url_body(url=tmp_url,)
+            body = self.my_phantomjs.get_url_body(url=tmp_url,)
             # print(body)
             try:
                 data = json_2_dict(re.compile(r'<pre.*?>(.*)</pre>').findall(body)[0], default_res={})
