@@ -125,10 +125,17 @@ def server_tasks(my_group):
             # ('/Users/afa/server_settings/{0}/tri_ip_pool/settings.py', '/root/myFiles/tri_party_agent_ip_pool/settings.py')
         ]
         for e in server_settings_file_path:
-            if re.compile(r'118.31.39.97').findall(item.__repr__()) != []:
+            host_ip = item.host
+            if host_ip == '118.31.39.97':
                 r = (e[0].format(2), e[1])
+
+            elif host_ip.startswith('192'):
+                r = (e[0].format(4), e[1])
+
             else:
                 r = (e[0].format(3), e[1])
+
+            # print(r)
             upload_or_download_files(
                 method='put',
                 connect_object=item,

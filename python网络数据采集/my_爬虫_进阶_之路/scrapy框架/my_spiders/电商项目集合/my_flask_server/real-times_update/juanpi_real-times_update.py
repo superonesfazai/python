@@ -61,7 +61,7 @@ class JPUpdater(AsyncCrawler):
             except:
                 pass
             collect()
-            self.juanpi = JuanPiParse()
+            self.juanpi = JuanPiParse(is_real_times_update_call=True)
 
     async def _update_one_goods_info(self, db_goods_info_obj, index):
         '''
@@ -108,7 +108,7 @@ class JPUpdater(AsyncCrawler):
             else:
                 self.goods_index = 1
                 tasks_params_list = TasksParamsListObj(tasks_params_list=result, step=self.concurrency)
-                self.juanpi = JuanPiParse()
+                self.juanpi = JuanPiParse(is_real_times_update_call=True)
                 index = 1
                 while True:
                     try:

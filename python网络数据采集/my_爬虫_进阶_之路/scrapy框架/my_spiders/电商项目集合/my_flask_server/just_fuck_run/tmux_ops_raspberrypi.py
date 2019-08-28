@@ -126,6 +126,14 @@ class TmuxOps(AsyncCrawler):
                 'delay_time': 2,
             },
             {
+                'page_name': 'jp0',
+                'cmd': 'cd {} && {} juanpi_real-times_update.py'.format(
+                    self.real_path,
+                    self.python_version_cmd,
+                ),
+                'delay_time': 2,
+            },
+            {
                 'page_name': 'zwm',
                 'cmd': 'cd {} && {} zwm_spider.py'.format(
                     self.zwm_path,

@@ -20,6 +20,7 @@ except ImportError as e:
     print(e)
 
 import sys
+import platform
 from os import system
 sys.path.append('..')
 
@@ -70,9 +71,11 @@ class TBUpdater(AsyncCrawler):
         # 并发量
         self.concurrency = 100
         self.concurrent_type = CONCURRENT_TYPE
-        # self.server_ip = 'http://0.0.0.0:5000'
-        # self.server_ip = 'http://0.0.0.0:80'
-        self.server_ip = 'http://118.31.39.97'
+        if 'armv7l-with-debian' in platform.platform():
+            self.server_ip = 'http://0.0.0.0:80'
+        else:
+            self.server_ip = 'http://118.31.39.97'
+            # self.server_ip = 'http://0.0.0.0:5000'
 
     async def _update_db(self):
         '''

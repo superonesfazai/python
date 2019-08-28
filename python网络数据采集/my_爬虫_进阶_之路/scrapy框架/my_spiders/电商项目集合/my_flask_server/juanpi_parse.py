@@ -11,9 +11,6 @@
 卷皮页面采集系统(别翻墙使用)
 """
 
-import time
-import gc
-
 from settings import (
     PHANTOMJS_DRIVER_PATH,
     IP_POOL_TYPE,)
@@ -38,13 +35,21 @@ from fzutils.spider.async_always import *
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class JuanPiParse(Crawler):
-    def __init__(self):
+    def __init__(self, is_real_times_update_call=False):
         super(JuanPiParse, self).__init__(
             ip_pool_type=IP_POOL_TYPE,
             is_use_driver=True,
             driver_executable_path=PHANTOMJS_DRIVER_PATH,
         )
         self.result_data = {}
+        self.is_real_times_update_call = is_real_times_update_call
+        if self.is_real_times_update_call:
+            self.proxy_type = PROXY_TYPE_HTTPS
+            # 不可太大，否则server采集时慢
+            self.req_num_retries = 5
+        else:
+            self.proxy_type = PROXY_TYPE_HTTP
+            self.req_num_retries = 3
 
     def get_goods_data(self, goods_id):
         '''
@@ -95,7 +100,9 @@ class JuanPiParse(Crawler):
             skudata_body = Requests.get_url_body(
                 url=skudata_url,
                 headers=headers,
-                ip_pool_type=self.ip_pool_type,)
+                ip_pool_type=self.ip_pool_type,
+                proxy_type=self.proxy_type,
+                num_retries=self.req_num_retries,)
             if skudata_body == '':
                 print('获取到的skudata_body为空str!请检查!')
                 return self._data_error_init()
@@ -215,7 +222,7 @@ class JuanPiParse(Crawler):
             # }
             # json_data = json.dumps(wait_to_send_data, ensure_ascii=False)
             # print(json_data)
-            gc.collect()
+            collect()
             return result
 
         else:
@@ -498,7 +505,7 @@ class JuanPiParse(Crawler):
                 #     is_delete = 1
                 pass
 
-            if float(end_time) < time.time():
+            if float(end_time) < datetime_to_timestamp(get_shanghai_time()):
                 '''
                 再判断日期过期的
                 '''
@@ -721,7 +728,7 @@ class JuanPiParse(Crawler):
             del self.result_data
         except:
             pass
-        gc.collect()
+        collect()
 
 if __name__ == '__main__':
     juanpi = JuanPiParse()
@@ -731,4 +738,4 @@ if __name__ == '__main__':
         goods_id = juanpi.get_goods_id_from_url(juanpi_url)
         juanpi.get_goods_data(goods_id=goods_id)
         data = juanpi.deal_with_data()
-        # pprint(data)
+        pprint(data)

@@ -66,13 +66,18 @@ def test_driver_change_proxy():
     :return:
     """
     d = BaseDriver(
+        # 可行
         type=PHANTOMJS,
         executable_path=PHANTOMJS_DRIVER_PATH,
-
         # type=FIREFOX,
         # executable_path=FIREFOX_DRIVER_PATH,
 
+        # 无效
+        # type=CHROME,
+        # executable_path=CHROME_DRIVER_PATH,
+
         headless=True,
+        driver_use_proxy=True,
         ip_pool_type=tri_ip_pool,)
     origin_ip_sel = {
         'method': 're',
@@ -123,5 +128,5 @@ def init(driver_type, headless, proxy, url, thread_num):
         tasks=tasks,)
 
 if __name__ == '__main__':
-    # init()
-    test_driver_change_proxy()
+    init()
+    # test_driver_change_proxy()

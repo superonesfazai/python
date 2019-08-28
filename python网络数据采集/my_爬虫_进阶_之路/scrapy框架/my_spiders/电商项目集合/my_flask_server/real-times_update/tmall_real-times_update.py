@@ -15,6 +15,7 @@ try:
 except ImportError as e:
     print(e)
 
+import platform
 import sys
 sys.path.append('..')
 from os import system
@@ -70,9 +71,11 @@ class TMUpdater(AsyncCrawler):
         # 并发量, 控制在50个, 避免更新is_delete=1时大量丢包!!
         self.concurrency = 100
         self.concurrent_type = CONCURRENT_TYPE
-        # self.server_ip = 'http://0.0.0.0:5000'
-        # self.server_ip = 'http://0.0.0.0:80'
-        self.server_ip = 'http://118.31.39.97'
+        if 'armv7l-with-debian' in platform.platform():
+            self.server_ip = 'http://0.0.0.0:80'
+        else:
+            self.server_ip = 'http://118.31.39.97'
+            # self.server_ip = 'http://0.0.0.0:5000'
 
     async def _update_db(self):
         while True:
