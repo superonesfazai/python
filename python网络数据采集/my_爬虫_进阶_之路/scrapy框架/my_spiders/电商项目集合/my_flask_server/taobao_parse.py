@@ -170,108 +170,111 @@ class TaoBaoLoginAndParse(Crawler):
         :return: 字典类型
         '''
         data = self.result_data
-        if data != {}:
-            # 可能不存在shopName这个字段
-            shop_name = data['seller'].get('shopName', '')
-            account = data['seller'].get('sellerNick', '')
-            title = data['item']['title']
-            sub_title = data['item'].get('subtitle', '')
-            sub_title = re.compile(r'\n').sub('', sub_title)
-            price, taobao_price = self._get_price_and_taobao_price(data=data)
-            # 商品库存
-            try:
-                goods_stock = data['apiStack'][0]['value'].get('skuCore', {}).get('sku2info', {}).get('0', {}).get('quantity', '')
-            except (IndexError, Exception):
-                self.lg.error('获取goods_stock时索引异常!出错goods_id: {0}'.format(goods_id))
-                return self._data_error_init()
-
-            # 商品标签属性名称,及其对应id值
-            try:
-                detail_name_list, detail_value_list = self._get_detail_name_and_value_list(data=data)
-            except (IndexError, Exception):
-                self.lg.error('遇到错误:', exc_info=True)
-                return self._data_error_init()
-
-            price_info_list = self._get_price_info_list(data=data, detail_value_list=detail_value_list)
-            # 多规格进行重新赋值
-            price, taobao_price = self._get_new_price_and_taobao_price_when_price_info_list_not_null_list(
-                price_info_list=price_info_list,
-                price=price,
-                taobao_price=taobao_price)
-
-            all_img_url = self._get_all_img_url(tmp_all_img_url=data['item']['images'])
-            # self.lg.info(str(all_img_url))
-            # tmp_p_info 一个list [{'内存容量': '32GB'}, ...]
-            p_info = self._get_p_info(tmp_p_info=data.get('props').get('groupProps'))
-            div_desc = self._get_div_desc(data=data, goods_id=goods_id)
-            if div_desc == '':
-                return self._data_error_init()
-            else:
-                pass
-
-            '''
-            后期处理
-            '''
-            # 后期处理detail_name_list, detail_value_list
-            detail_name_list = [{
-                'spec_name': i[0],
-                'img_here': i[2],
-            } for i in detail_name_list]
-
-            # 商品标签属性对应的值, 及其对应id值
-            if data.get('skuBase').get('props') is None:
-                pass
-            else:
-                tmp_detail_value_list = [item['values'] for item in data.get('skuBase', '').get('props', '')]
-                # self.lg.info(str(tmp_detail_value_list))
-                detail_value_list = []
-                for item in tmp_detail_value_list:
-                    tmp = [i['name'] for i in item]
-                    # self.lg.info(str(tmp))
-                    detail_value_list.append(tmp)  # 商品标签属性对应的值
-                    # pprint(detail_value_list)
-
-            is_delete = self._get_is_delete(title=title, data=data)
-            # self.lg.info('is_delete = %s' % str(is_delete))
-
-            # 月销量
-            sell_count = '0'
-            try:
-                sell_count = str(data.get('apiStack', [])[0].get('value', {}).get('item', {}).get('sellCount', ''))
-                # self.lg.info(sell_count)
-            except:
-                pass
-
-            result = {
-                'shop_name': shop_name,                             # 店铺名称
-                'account': account,                                 # 掌柜
-                'title': title,                                     # 商品名称
-                'sub_title': sub_title,                             # 子标题
-                'price': price,                                     # 商品价格
-                'taobao_price': taobao_price,                       # 淘宝价
-                'goods_stock': goods_stock,                         # 商品库存
-                'detail_name_list': detail_name_list,               # 商品标签属性名称
-                'detail_value_list': detail_value_list,             # 商品标签属性对应的值
-                'price_info_list': price_info_list,                 # 要存储的每个标签对应规格的价格及其库存
-                'all_img_url': all_img_url,                         # 所有示例图片地址
-                'p_info': p_info,                                   # 详细信息标签名对应属性
-                'div_desc': div_desc,                               # div_desc
-                'sell_count': sell_count,                           # 月销量
-                'is_delete': is_delete,                             # 用于判断商品是否已经下架
-            }
-            # self.lg.info(str(result))
-            # pprint(result)
-            # wait_to_send_data = {
-            #     'reason': 'success',
-            #     'data': result,
-            #     'code': 1
-            # }
-            # json_data = dumps(wait_to_send_data, ensure_ascii=False)
-            # self.lg.info(json_data)
-            return result
-        else:
-            self.lg.info('待处理的data为空的dict, 该商品[goods_id: {}]可能已经转移或者下架'.format(goods_id))
+        if data == {}:
             return {}
+
+        # 可能不存在shopName这个字段
+        shop_name = data['seller'].get('shopName', '')
+        account = data['seller'].get('sellerNick', '')
+        title = data['item']['title']
+        sub_title = data['item'].get('subtitle', '')
+        sub_title = re.compile(r'\n').sub('', sub_title)
+        price, taobao_price = self._get_price_and_taobao_price(data=data)
+        # 商品库存
+        try:
+            goods_stock = data['apiStack'][0]['value']\
+                .get('skuCore', {})\
+                .get('sku2info', {})\
+                .get('0', {})\
+                .get('quantity', '')
+        except (IndexError, Exception):
+            self.lg.error('获取goods_stock时索引异常!出错goods_id: {0}'.format(goods_id))
+            return self._data_error_init()
+
+        # 商品标签属性名称,及其对应id值
+        try:
+            detail_name_list, detail_value_list = self._get_detail_name_and_value_list(data=data)
+        except (IndexError, Exception):
+            self.lg.error('遇到错误:', exc_info=True)
+            return self._data_error_init()
+
+        price_info_list = self._get_price_info_list(data=data, detail_value_list=detail_value_list)
+        # 多规格进行重新赋值
+        price, taobao_price = self._get_new_price_and_taobao_price_when_price_info_list_not_null_list(
+            price_info_list=price_info_list,
+            price=price,
+            taobao_price=taobao_price)
+
+        all_img_url = self._get_all_img_url(tmp_all_img_url=data['item']['images'])
+        # self.lg.info(str(all_img_url))
+        # tmp_p_info 一个list [{'内存容量': '32GB'}, ...]
+        p_info = self._get_p_info(tmp_p_info=data.get('props').get('groupProps'))
+        div_desc = self._get_div_desc(data=data, goods_id=goods_id)
+        if div_desc == '':
+            return self._data_error_init()
+        else:
+            pass
+
+        '''
+        后期处理
+        '''
+        # 后期处理detail_name_list, detail_value_list
+        detail_name_list = [{
+            'spec_name': i[0],
+            'img_here': i[2],
+        } for i in detail_name_list]
+
+        # 商品标签属性对应的值, 及其对应id值
+        if data.get('skuBase').get('props') is None:
+            pass
+        else:
+            tmp_detail_value_list = [item['values'] for item in data.get('skuBase', '').get('props', '')]
+            # self.lg.info(str(tmp_detail_value_list))
+            detail_value_list = []
+            for item in tmp_detail_value_list:
+                tmp = [i['name'] for i in item]
+                # self.lg.info(str(tmp))
+                detail_value_list.append(tmp)  # 商品标签属性对应的值
+                # pprint(detail_value_list)
+
+        is_delete = self._get_is_delete(title=title, data=data)
+        # self.lg.info('is_delete = %s' % str(is_delete))
+
+        # 月销量
+        sell_count = '0'
+        try:
+            sell_count = str(data.get('apiStack', [])[0].get('value', {}).get('item', {}).get('sellCount', ''))
+            # self.lg.info(sell_count)
+        except:
+            pass
+
+        result = {
+            'shop_name': shop_name,                             # 店铺名称
+            'account': account,                                 # 掌柜
+            'title': title,                                     # 商品名称
+            'sub_title': sub_title,                             # 子标题
+            'price': price,                                     # 商品价格
+            'taobao_price': taobao_price,                       # 淘宝价
+            'goods_stock': goods_stock,                         # 商品库存
+            'detail_name_list': detail_name_list,               # 商品标签属性名称
+            'detail_value_list': detail_value_list,             # 商品标签属性对应的值
+            'price_info_list': price_info_list,                 # 要存储的每个标签对应规格的价格及其库存
+            'all_img_url': all_img_url,                         # 所有示例图片地址
+            'p_info': p_info,                                   # 详细信息标签名对应属性
+            'div_desc': div_desc,                               # div_desc
+            'sell_count': sell_count,                           # 月销量
+            'is_delete': is_delete,                             # 用于判断商品是否已经下架
+        }
+        # self.lg.info(str(result))
+        # pprint(result)
+        # wait_to_send_data = {
+        #     'reason': 'success',
+        #     'data': result,
+        #     'code': 1
+        # }
+        # json_data = dumps(wait_to_send_data, ensure_ascii=False)
+        # self.lg.info(json_data)
+        return result
 
     @staticmethod
     def _wash_tb_origin_data(data) -> dict:
@@ -1047,7 +1050,8 @@ class TaoBaoLoginAndParse(Crawler):
             headers=headers,
             params=params,
             ip_pool_type=self.ip_pool_type,
-            proxy_type=self.proxy_type)
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
         # self.lg.info(body)
         try:
             assert body != '', '获取2版div_desc为空值!'

@@ -65,7 +65,7 @@ class TmuxOps(AsyncCrawler):
                     self.ip_pool_path,
                     self.python_version_cmd,
                 ),
-                'delay_time': 8,
+                'delay_time': 20,
             },
             {
                 'page_name': 'new_my_server',
@@ -116,6 +116,7 @@ class TmuxOps(AsyncCrawler):
                 ),
                 'delay_time': 2,
             },
+            # tm 实时更新, 测试发现: 3个出错率低
             {
                 'page_name': 'tm0',
                 'cmd': 'cd {} && {} tmall_real-times_update.py'.format(
@@ -134,14 +135,6 @@ class TmuxOps(AsyncCrawler):
             },
             {
                 'page_name': 'tm2',
-                'cmd': 'cd {} && {} tmall_real-times_update.py'.format(
-                    self.real_path,
-                    self.python_version_cmd,
-                ),
-                'delay_time': 2,
-            },
-            {
-                'page_name': 'tm3',
                 'cmd': 'cd {} && {} tmall_real-times_update.py'.format(
                     self.real_path,
                     self.python_version_cmd,
