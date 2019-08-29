@@ -275,6 +275,7 @@ class RequestClient(AsyncCrawler):
         # article
         # url = 'http://127.0.0.1:5000/api/article'
         url = 'http://118.31.39.97/api/article'
+        # url = 'http://192.168.2.112/api/article'
         # url = 'http://23.239.0.250/api/article'
 
         with get(url, params=params) as response:

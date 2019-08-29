@@ -197,6 +197,7 @@ from dbo.GoodsInfoAutoGet
 where MainGoodsID is not null 
 and (SiteID=3 or SiteID=4 or SiteID=6) 
 -- and GoodsID='578427888464'
+-- and MainGoodsID=161846
 order by ModfiyTime asc
 '''
 '''insert'''

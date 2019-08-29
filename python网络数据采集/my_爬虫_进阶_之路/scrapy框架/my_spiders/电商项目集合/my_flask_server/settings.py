@@ -214,6 +214,14 @@ PORT_2 = 1433
 INIT_PASSWD = 'aaatttyiuxiu'
 
 """
+redis 
+"""
+REDIS_HOST = '127.0.0.1'
+REDIS_PORT = 6379
+REDIS_PASSWORD = None
+REDIS_DB = 6
+
+"""
 server
 """
 # key 用于加密

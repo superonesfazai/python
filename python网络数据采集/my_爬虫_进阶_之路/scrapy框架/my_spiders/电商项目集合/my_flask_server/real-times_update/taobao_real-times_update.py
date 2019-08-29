@@ -45,6 +45,7 @@ from multiplex_code import (
     BaseDbCommomGoodsInfoParamsObj,
     get_waited_2_update_db_data_from_server,
     block_get_one_goods_info_task_by_external_type,
+    get_waited_2_update_db_data_from_redis_server,
 )
 
 from fzutils.spider.async_always import *
@@ -134,10 +135,13 @@ class TBUpdater(AsyncCrawler):
         result = None
         try:
             # result = self.sql_cli._select_table(sql_str=tb_select_str_3,)
-            result = await get_waited_2_update_db_data_from_server(
-                server_ip=self.server_ip,
-                _type='tb',
-                child_type=0,)
+            # result = await get_waited_2_update_db_data_from_server(
+            #     server_ip=self.server_ip,
+            #     _type='tb',
+            #     child_type=0,)
+            result = get_waited_2_update_db_data_from_redis_server(
+                spider_name='tb0',
+                logger=self.lg,)
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
         except Exception:

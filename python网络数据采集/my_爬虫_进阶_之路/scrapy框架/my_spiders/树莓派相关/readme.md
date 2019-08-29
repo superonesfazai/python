@@ -368,6 +368,11 @@ $ apt-get install libssl1.0.0
 $ apt-get install libicu52
 ```
 
+### 安装redis-server
+```bash
+$ apt-get install redis-server
+```
+
 ### 禁用wifi
 ```bash
 $ vi /etc/modprobe.d/raspi-blacklist.conf
@@ -405,13 +410,13 @@ cpolar是一种安全的隧道服务，可以在任何地方在线提供您的�
 
 [开始页](https://dashboard.cpolar.com/get-started)
 
-### 安装
+#### 安装
 ```bash
 $ sudo wget https://www.cpolar.com/static/downloads/cpolar-stable-linux-arm.zip
 $ sudo unzip cpolar-stable-linux-arm.zip && rm -rf cpolar-stable-linux-arm.zip
 ```
 
-### 注册
+#### 注册
 免费版的cpolar允许您一次访问一个终端，并在每次启动cpolar时分配随机网址。 使用免费版本，您每次希望建立远程连接并与远程用户共享地址时，都必须从Pi生成主机地址。
 
 要创建cpolar帐户，请单击此处，然后单击注册以获取authtoken密钥。 如果您希望自己的自定义域执行联机SSH，则此令牌是必需的。
@@ -427,9 +432,9 @@ $ ./cpolar authtoken xxxxx[你的账号的认证代码]
 Authtoken saved to configuration file: /root/.cpolar/cpolar.yml
 ```
 
-### 远程连接
+#### 远程连接
 
-#### 使用ssh从远程网络访问Pi
+##### 使用ssh从远程网络访问Pi
 在Raspberry Pi终端中键入以下命令以启用从远程访问Putty终端。
 ```bash
 $ ./cpolar tcp 22
@@ -452,7 +457,7 @@ $ ssh root@1.tcp.cpolar.io -p 10012
 root 是树莓派默认用户名
 ```
 
-### http访问pi
+##### http访问pi
 要在端口80上启动HTTP隧道
 ```bash
 $ ./cpolar http 80
@@ -466,4 +471,45 @@ $ ./cpolar http 80
 # 例子
 http://4e9c5588.cpolar.io
 https://4e9c5588.cpolar.io
+```
+
+### 花生壳内网穿透(收费不推荐)
+进入[花生壳官网下载页面](https://hsk.oray.com/download/)，选择树莓派
+
+![](https://i.loli.net/2019/08/28/sionHPpVEGXzfdI.png)
+
+#### 安装
+```bash
+$ wget http://download.oray.com/peanuthull/embed/phddns_3.0.3_systemd.deb
+$ dpkg -i phddns_3.0.3_systemd.deb 
+正在选中未选择的软件包 phddns。
+(正在读取数据库 ... 系统当前共安装有 96419 个文件和目录。)
+准备解压 phddns_3.0.3_systemd.deb  ...
+正在解压 phddns (3.0.3) ...
+正在设置 phddns (3.0.3) ...
+Created symlink /etc/systemd/system/default.target.wants/phddns.service → /lib/systemd/system/phddns.service.
+Phddns Service install success.                           
+
++--------------------------------------------------+
+|             Oray PeanutHull Linux 3.0            |
++--------------------------------------------------+
+|  SN: xxxxxxxxxxxxxxxx   Default password: admin  |
++--------------------------------------------------+
+|    Remote Management Address http://b.oray.com   |
++--------------------------------------------------+
+```
+
+#### 卸载
+```bash
+$ dpkg -r phddns
+(正在读取数据库 ... 系统当前共安装有 96431 个文件和目录。)
+正在卸载 phddns (3.0.3) ...
+Remove Phddns Service Success.
+```
+
+#### 启动/停止/重启
+```bash
+$ phddns start
+$ phddns stop
+$ phddns restart
 ```

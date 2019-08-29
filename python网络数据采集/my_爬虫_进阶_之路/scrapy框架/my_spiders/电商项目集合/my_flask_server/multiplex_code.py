@@ -11,7 +11,12 @@
 复用code
 """
 
-from settings import IP_POOL_TYPE
+from settings import (
+    IP_POOL_TYPE,
+    REDIS_HOST,
+    REDIS_PORT,
+    REDIS_PASSWORD,
+    REDIS_DB,)
 
 from my_pipeline import (
     SqlServerMyPageInfoSaveItemPipeline,
@@ -25,6 +30,8 @@ from time import (
 from datetime import datetime
 from decimal import Decimal
 from random import uniform
+from pickle import loads as pickle_loads
+from redis import StrictRedis
 # cpu密集型
 # from multiprocessing import Pool, cpu_count
 # IO密集型
@@ -51,6 +58,54 @@ from fzutils.spider.async_always import *
 
 # 加价百分之几(公司利润)
 CP_PROFIT = 0.05
+
+@catch_exceptions(default_res=[])
+def get_waited_2_update_db_data_from_redis_server(spider_name='tm0',
+                                                  base_name='fzhook',
+                                                  slice_num=100,
+                                                  logger=None,) -> list:
+    """
+    根据spider_name从redis_server中待更新的数据
+    :param spider_name:
+    :param base_name:
+    :param slice_num: 获取的个数
+    :return:
+    """
+    redis_cli = StrictRedis(
+        host=REDIS_HOST,
+        port=REDIS_PORT,
+        password=REDIS_PASSWORD,
+        db=REDIS_DB,
+        # True 以encoding解码后返回
+        decode_responses=True,
+    )
+    db_keys_list = list(redis_cli.keys(
+        pattern='{base_name}:{spider_name}:*'.format(
+            base_name=base_name,
+            spider_name=spider_name,)))
+    # pprint(db_keys_list)
+    db_keys_list_len = len(db_keys_list)
+
+    res = []
+    index = 0
+    for key_name in db_keys_list:
+        if db_keys_list_len>slice_num and index >= slice_num:
+            # 避免db 数量小于100, 小于100则不进行判断
+            break
+
+        try:
+            # 必须这样取值, 避免报错: 'utf-8' codec can't decode byte 0x80 in position 0: invalid start byte
+            # 存入时: pickle_dumps(value).decode('latin1')
+            res.append(pickle_loads(redis_cli.get(key_name).encode('latin1')))
+        except Exception as e:
+            _print(msg='遇到错误:', logger=logger, log_level=2, exception=e)
+            continue
+
+        # 取出的就删除
+        redis_cli.delete(key_name)
+        index += 1
+
+    return res
 
 def _get_right_model_data(data, site_id=None, logger=None):
     '''
@@ -467,7 +522,8 @@ def _jp_get_parent_dir(phantomjs, goods_id):
     '''
     url = 'http://shop.juanpi.com/deal/{0}'.format(goods_id)
     try:
-        body = phantomjs.get_url_body(url=url, )
+        body = phantomjs.get_url_body(
+            url=url,)
         # print(body)
     except Exception as e:
         print(e)

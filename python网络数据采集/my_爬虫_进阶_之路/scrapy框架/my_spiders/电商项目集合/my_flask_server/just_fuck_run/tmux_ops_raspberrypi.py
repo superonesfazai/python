@@ -27,6 +27,7 @@ class TmuxOps(AsyncCrawler):
         self.zwm_path = '~/myFiles/python/my_flask_server'
         self.ip_pool_path = '~/myFiles/tri_party_agent_ip_pool'
         self.fck_run_path = '~/myFiles/python/my_flask_server/just_fuck_run'
+        self.dcs_path = '~/myFiles/python/my_flask_server/distribute_jobs'
 
     async def _fck_run(self):
         print('开始执行tmux 命令集合...')
@@ -40,6 +41,11 @@ class TmuxOps(AsyncCrawler):
         :return:
         """
         return [
+            {
+                'page_name': 'redis_server',
+                'cmd': 'cd ~ && redis-server',
+                'delay_time': 2,
+            },
             {
                 'page_name': 'cpolar_http',
                 'cmd': 'cd ~ && ./cpolar http 80',
@@ -62,9 +68,25 @@ class TmuxOps(AsyncCrawler):
                 'delay_time': 5,
             },
             {
-                'page_name': 'just_fck_run',
-                'cmd': 'cd {} && {} just_fck_run_raspberrypi.py'.format(
-                    self.fck_run_path,
+                'page_name': 'new_my_server',
+                'cmd': 'cd {} && {} new_my_server.py'.format(
+                    self.zwm_path,
+                    self.python_version_cmd,
+                ),
+                'delay_time': 2,
+            },
+            # {
+            #     'page_name': 'just_fck_run',
+            #     'cmd': 'cd {} && {} just_fck_run_raspberrypi.py'.format(
+            #         self.fck_run_path,
+            #         self.python_version_cmd,
+            #     ),
+            #     'delay_time': 2,
+            # },
+            {
+                'page_name': 'dcs_producer',
+                'cmd': 'cd {} && {} distributed_tasks_producer.py'.format(
+                    self.dcs_path,
                     self.python_version_cmd,
                 ),
                 'delay_time': 2,

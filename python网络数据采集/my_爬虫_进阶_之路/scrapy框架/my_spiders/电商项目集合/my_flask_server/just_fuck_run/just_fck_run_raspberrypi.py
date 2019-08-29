@@ -17,7 +17,7 @@ logs_file_name_list = [
 
 zwm_file_name_list = [
     # 只监控new_my_server
-    'new_my_server',
+    # 'new_my_server',
 ]
 
 # 只在晚上run
