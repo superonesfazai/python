@@ -85,13 +85,20 @@ class ProxyChecker(AsyncCrawler):
                 try:
                     # 单次请求api获取数据
                     proxy_list = await self._get_proxy_list(id=self.tri_id)
-                except:
-                    await async_sleep(4)
+                except Exception:
+                    print('sleep {}s ...'.format(4.5))
+                    await async_sleep(4.5)
                     continue
 
                 # pprint(proxy_list)
                 if proxy_list == []:
-                    await async_sleep(4)
+                    if self.tri_id == 1:
+                        # 只短暂休眠, server(请求频繁)一允许通过就会成功拿到数据
+                        print('sleep {}s ...'.format(.5))
+                        await async_sleep(.5)
+                    else:
+                        print('sleep {}s ...'.format(4.5))
+                        await async_sleep(4.5)
 
                 # 验证此次api返回数据的可用性
                 check_res = await self._check_proxy_list(proxy_list=proxy_list)
@@ -163,8 +170,14 @@ class ProxyChecker(AsyncCrawler):
                 ('token', HOROCN_TOKEN),
                 ('ip', self.local_ip),
             )
+            body = Requests.get_url_body(
+                # 注意这里方法是put
+                method='put',
+                use_proxy=False,
+                url=add_white_list_url,
+                params=params,)
             res = json_2_dict(
-                json_str=Requests.get_url_body(use_proxy=False, url=add_white_list_url, params=params),
+                json_str=body,
                 default_res={}).get('msg', 'err')
             if res == 'ok' or '白名单记录已存在' in res:
                 print('{} add to 白名单 success!'.format(self.local_ip))
@@ -380,8 +393,10 @@ class ProxyChecker(AsyncCrawler):
             use_proxy=False,
             url=api_url,
             headers=headers,
-            params=None)
-        data = body if api_return_type != 'json' else json_2_dict(body)
+            params=None,)
+        data = body \
+            if api_return_type != 'json' \
+            else json_2_dict(body)
         # pprint(data)
         # 对应提取规则
 
@@ -400,8 +415,13 @@ class ProxyChecker(AsyncCrawler):
         id = kwargs.get('id')
 
         try:
-            this_rule = await self._dynamic_get_new_dict_rule(data=data, area=area, id=id)
-            proxy_list = await self._get_ori_proxy_list(parser=this_rule['proxy_list'], target_obj=data)
+            this_rule = await self._dynamic_get_new_dict_rule(
+                data=data,
+                area=area,
+                id=id,)
+            proxy_list = await self._get_ori_proxy_list(
+                parser=this_rule['proxy_list'],
+                target_obj=data,)
         except Exception as e:
             print(e)
             return all
@@ -431,6 +451,7 @@ class ProxyChecker(AsyncCrawler):
         :param target_obj:
         :return:
         """
+        # print(target_obj)
         proxy_list = await async_parse_field(
             parser=parser,
             target_obj=target_obj)
@@ -549,6 +570,9 @@ class ProxyChecker(AsyncCrawler):
         获取本地ip
         :return:
         """
+        # httpbin = True
+        httpbin = False
+
         # 检验两次确保本地ip获取正确
         first_ip = ''
         second_ip = ''
@@ -557,7 +581,14 @@ class ProxyChecker(AsyncCrawler):
             if (first_ip != '' and second_ip != '') and (first_ip == second_ip):
                 break
             try:
-                local_ip = await async_judge_ip_is_anonymity(httpbin=False, use_proxy=False)
+                local_ip = await async_judge_ip_is_anonymity(
+                    httpbin=httpbin,
+                    use_proxy=False,
+                )
+                if httpbin:
+                    local_ip = local_ip.split(',')[0]
+                else:
+                    pass
                 first_ip = local_ip if first_ip == '' else first_ip
                 second_ip = local_ip if first_ip != '' else second_ip
             except ProxyError:

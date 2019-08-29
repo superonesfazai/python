@@ -6,6 +6,14 @@
 @connect : superonesfazai@gmail.com
 '''
 
+try:
+    # debug python segmentation fault
+    # use: python3 -X faulthandler xxx.py
+    import faulthandler
+    faulthandler.enable()
+except ImportError as e:
+    print(e)
+
 from sys import path as sys_path
 sys_path.append('..')
 
@@ -21,7 +29,6 @@ from settings import (
     REDIS_DB,
 )
 
-from pickle import loads as pickle_loads
 from redis import StrictRedis
 from redis import ConnectionPool as RedisConnectionPool
 from fzutils.sql_utils import create_dcs_tasks_in_redis
@@ -153,12 +160,16 @@ class DistributedTasksProducer(AsyncCrawler):
 
         print('spider_name: {}, db_keys_list_len: {}'.format(
             spider_name,
-            db_keys_list_len,
-        ))
+            db_keys_list_len,))
         # 小于最大值则插入新值
         sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         tmp_res = list(sql_cli._select_table(
             sql_str=sql_str,))
+        # 不删, 否则abort退出
+        # try:
+        #     del sql_cli
+        # except:
+        #     pass
 
         if tmp_res is None:
             tmp_res = []

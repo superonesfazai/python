@@ -65,7 +65,7 @@ class TmuxOps(AsyncCrawler):
                     self.ip_pool_path,
                     self.python_version_cmd,
                 ),
-                'delay_time': 5,
+                'delay_time': 8,
             },
             {
                 'page_name': 'new_my_server',
@@ -75,22 +75,23 @@ class TmuxOps(AsyncCrawler):
                 ),
                 'delay_time': 2,
             },
-            # {
-            #     'page_name': 'just_fck_run',
-            #     'cmd': 'cd {} && {} just_fck_run_raspberrypi.py'.format(
-            #         self.fck_run_path,
-            #         self.python_version_cmd,
-            #     ),
-            #     'delay_time': 2,
-            # },
             {
-                'page_name': 'dcs_producer',
-                'cmd': 'cd {} && {} distributed_tasks_producer.py'.format(
-                    self.dcs_path,
+                'page_name': 'just_fck_run',
+                'cmd': 'cd {} && {} just_fck_run_raspberrypi.py'.format(
+                    self.fck_run_path,
                     self.python_version_cmd,
                 ),
                 'delay_time': 2,
             },
+            # 已在just_fck_run_raspberrypi.py 中监控
+            # {
+            #     'page_name': 'dcs_producer',
+            #     'cmd': 'cd {} && {} -X faulthandler distributed_tasks_producer.py'.format(
+            #         self.dcs_path,
+            #         self.python_version_cmd,
+            #     ),
+            #     'delay_time': 2,
+            # },
             {
                 'page_name': 'jd0',
                 'cmd': 'cd {} && {} jd_real-times_update.py'.format(

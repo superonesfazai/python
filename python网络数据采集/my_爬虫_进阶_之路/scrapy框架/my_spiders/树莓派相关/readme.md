@@ -401,6 +401,51 @@ $ sudo raspi-config
 
 [YouCompleteMe](https://github.com/ycm-core/YouCompleteMe)
 
+#### 安装
+```bash
+# 检查一下vim对python的支持
+# 因为用sudo安装的vim默认是不支持python的，这样会导致需要python支持的插件无法运行
+# 但如果你是遇到python导致无法运行的话，也是有方法的，在下面会提到。
+# ‘-’就证明是没有支持python的
+$ vim --version | grep python 
++comments          +libcall           -python            +visualextra
++conceal           +linebreak         -python3           +viminfo
+
+# ** 很麻烦不推荐
+# 下载官网源码重新编译安装vim
+$ apt-get install libncurses5-dev
+# 100多M下载较慢的话, 可在本地先下载再上传
+$ git clone https://github.com/vim/vim.git
+$ unzip master.zip
+$ cd vim-master/src
+$ make clean
+$ which python2.7
+/usr/bin/python2.7
+# 指定python 路径
+# --with-python-config-dir=/usr/lib/python2.7/config-arm-linux-gnueabihf/ 
+$ which python3.6
+/usr/local/python3/bin/python3.6
+# 指定python3.6路径
+# --with-python-config-dir=/usr/local/python3/lib/python3.6/config-3.6m-arm-linux-gnueabihf/ 
+
+$ cd vim-master
+$ ./configure --with-features=huge --enable-python3interp --enable-pythoninterp --with-python-config-dir=/usr/local/python3/lib/python3.6/config-3.6m-arm-linux-gnueabihf/ --enable-rubyinterp --enable-luainterp --enable-perlinterp --with-python-config-dir=/usr/lib/python2.7/config-arm-linux-gnueabihf/ --enable-multibyte --enable-cscopec --prefix=/usr/local/vim/
+# 备注说明
+--with-features=huge：支持最大特性
+--enable-rubyinterp：打开对ruby编写的插件的支持
+--enable-pythoninterp：打开对python编写的插件的支持
+--enable-python3interp：打开对python3编写的插件的支持
+--enable-luainterp：打开对lua编写的插件的支持
+--enable-perlinterp：打开对perl编写的插件的支持
+--enable-multibyte：打开多字节支持，可以在Vim中输入中文
+--enable-cscope：打开对cscope的支持
+--with-python-config-dir=/usr/lib/python2.7/config-arm-linux-gnueabihf/ 指定python 路径
+--with-python-config-dir=/usr/local/python3/lib/python3.6/config-3.6m-arm-linux-gnueabihf/ 指定python3路径
+--prefix=/usr/local/vim：指定将要安装到的路径(自行创建)
+
+$ make install
+```
+
 ## 外网访问树莓派
 
 ### cpolar(推荐)

@@ -34,7 +34,7 @@ if SYSTEM_TYPE == 'Darwin':
     # local
     horocn_info_path = '/Users/afa/myFiles/pwd/horocn_info.json'
 else:
-    MIN_IP_POOl_NUM = 110
+    MIN_IP_POOl_NUM = 130
     # server
     horocn_info_path = '/root/horocn_info.json'
 

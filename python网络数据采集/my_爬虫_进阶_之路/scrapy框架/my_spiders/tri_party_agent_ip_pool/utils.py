@@ -23,7 +23,11 @@ async def _get_phone_headers():
         'Accept-Language': 'zh-CN,zh;q=0.9',
     }
 
-async def async_judge_ip_is_anonymity(ip_address='', port=0, httpbin=True, use_proxy=True, timeout=10):
+async def async_judge_ip_is_anonymity(ip_address='',
+                                      port=0,
+                                      httpbin=True,
+                                      use_proxy=True,
+                                      timeout=10,):
     '''
     异步返回当前ip地址(用于判断ip地址是否高匿)
     :param ip_address:
@@ -35,7 +39,8 @@ async def async_judge_ip_is_anonymity(ip_address='', port=0, httpbin=True, use_p
     '''
     def _get_proxies():
         return {
-            # 'http': ip_address + ':' + str(port),     # 暴露原地址
+            # 暴露原地址
+            # 'http': ip_address + ':' + str(port),
             'https': ip_address + ':' + str(port),
         }
 
@@ -62,7 +67,9 @@ async def async_judge_ip_is_anonymity(ip_address='', port=0, httpbin=True, use_p
             is_first=True,)
 
     else:
-        now_ip = json_2_dict(body).get('origin', '')
+        now_ip = json_2_dict(
+            json_str=body,
+            default_res={},).get('origin', '')
 
     return now_ip
 
