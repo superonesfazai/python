@@ -36,7 +36,11 @@ from vip_parse import VipParse
 
 from settings import *
 from my_pipeline import (
-    SqlServerMyPageInfoSaveItemPipeline,)
+    SqlServerMyPageInfoSaveItemPipeline,
+)
+from multiplex_code import (
+    contraband_name_check,
+)
 from my_signature import Signature
 # from apps.search import PostDocument
 from apps.admin import *
@@ -515,9 +519,16 @@ def get_all_data():
             else:
                 pass
 
-            begin_greater_than_1 = judge_begin_greater_than_1(price_info=wait_to_save_data.get('price_info', []), logger=my_lg)
+            begin_greater_than_1 = judge_begin_greater_than_1(
+                price_info=wait_to_save_data.get('price_info', []),
+                logger=my_lg,)
             if begin_greater_than_1:
                 return _error_msg(msg='采集的1688商品的最小起批量, 不能大于1!!')
+
+            _title = wait_to_save_data.get('title', '')
+            if contraband_name_check(target_name=_title):
+                my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
+                return _error_msg(msg='违禁物品禁止上架!')
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             collect()  
@@ -606,6 +617,11 @@ def get_taobao_data():
             else:
                 pass
 
+            _title = wait_to_save_data.get('title', '')
+            if contraband_name_check(target_name=_title):
+                my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
+                return _error_msg(msg='违禁物品禁止上架!')
+
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             collect()  
 
@@ -693,6 +709,11 @@ def get_tmall_data():
                 return _null_goods_data()
             else:
                 pass
+
+            _title = wait_to_save_data.get('title', '')
+            if contraband_name_check(target_name=_title):
+                my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
+                return _error_msg(msg='违禁物品禁止上架!')
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             collect()  
@@ -784,6 +805,11 @@ def get_jd_data():
                 return _null_goods_data()
             else:
                 pass
+
+            _title = wait_to_save_data.get('title', '')
+            if contraband_name_check(target_name=_title):
+                my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
+                return _error_msg(msg='违禁物品禁止上架!')
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             collect()  
@@ -896,6 +922,11 @@ def get_zhe_800_data():
                 goods_id=goods_id
             )
 
+            _title = wait_to_save_data.get('title', '')
+            if contraband_name_check(target_name=_title):
+                my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
+                return _error_msg(msg='违禁物品禁止上架!')
+
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del zhe_800  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
@@ -1004,6 +1035,12 @@ def get_juanpi_data():
                 username=username,
                 goods_id=goods_id
             )
+
+            _title = wait_to_save_data.get('title', '')
+            if contraband_name_check(target_name=_title):
+                my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
+                return _error_msg(msg='违禁物品禁止上架!')
+
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del juanpi  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
@@ -1110,6 +1147,12 @@ def get_pinduoduo_data():
                 username=username,
                 goods_id=goods_id
             )
+
+            _title = wait_to_save_data.get('title', '')
+            if contraband_name_check(target_name=_title):
+                my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
+                return _error_msg(msg='违禁物品禁止上架!')
+
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del pinduoduo  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
@@ -1219,6 +1262,12 @@ def get_vip_data():
                 username=username,
                 goods_id=goods_id[1]
             )
+
+            _title = wait_to_save_data.get('title', '')
+            if contraband_name_check(target_name=_title):
+                my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
+                return _error_msg(msg='违禁物品禁止上架!')
+
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del vip       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
@@ -1312,6 +1361,11 @@ def get_kaola_data():
             else:
                 pass
 
+            _title = wait_to_save_data.get('title', '')
+            if contraband_name_check(target_name=_title):
+                my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
+                return _error_msg(msg='违禁物品禁止上架!')
+
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             collect()
 
@@ -1402,6 +1456,11 @@ def get_yanxuan_data():
 
             else:
                 pass
+
+            _title = wait_to_save_data.get('title', '')
+            if contraband_name_check(target_name=_title):
+                my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
+                return _error_msg(msg='违禁物品禁止上架!')
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             collect()
@@ -1494,6 +1553,11 @@ def get_youpin_data():
             else:
                 pass
 
+            _title = wait_to_save_data.get('title', '')
+            if contraband_name_check(target_name=_title):
+                my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
+                return _error_msg(msg='违禁物品禁止上架!')
+
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             collect()
 
@@ -1583,6 +1647,11 @@ def get_mia_data():
 
             else:
                 pass
+
+            _title = wait_to_save_data.get('title', '')
+            if contraband_name_check(target_name=_title):
+                my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
+                return _error_msg(msg='违禁物品禁止上架!')
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             collect()

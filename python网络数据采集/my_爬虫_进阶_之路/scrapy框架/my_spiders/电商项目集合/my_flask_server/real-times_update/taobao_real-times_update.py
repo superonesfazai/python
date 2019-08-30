@@ -72,6 +72,8 @@ class TBUpdater(AsyncCrawler):
         # 并发量
         self.concurrency = 100
         self.concurrent_type = CONCURRENT_TYPE
+        # 0 sqlserver | 1 new_my_server | 2 redis
+        self.db_res_from = 2
         if 'armv7l-with-debian' in platform.platform():
             self.server_ip = 'http://0.0.0.0:80'
         else:
@@ -134,14 +136,21 @@ class TBUpdater(AsyncCrawler):
 
         result = None
         try:
-            # result = self.sql_cli._select_table(sql_str=tb_select_str_3,)
-            # result = await get_waited_2_update_db_data_from_server(
-            #     server_ip=self.server_ip,
-            #     _type='tb',
-            #     child_type=0,)
-            result = get_waited_2_update_db_data_from_redis_server(
-                spider_name='tb0',
-                logger=self.lg,)
+            if self.db_res_from == 0:
+                result = self.sql_cli._select_table(sql_str=tb_select_str_3,)
+
+            elif self.db_res_from == 1:
+                result = await get_waited_2_update_db_data_from_server(
+                    server_ip=self.server_ip,
+                    _type='tb',
+                    child_type=0,)
+            elif self.db_res_from == 2:
+                result = get_waited_2_update_db_data_from_redis_server(
+                    spider_name='tb0',
+                    logger=self.lg,)
+            else:
+                raise ValueError('self.db_res_from value异常!')
+
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
         except Exception:

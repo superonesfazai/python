@@ -59,6 +59,37 @@ from fzutils.spider.async_always import *
 # 加价百分之几(公司利润)
 CP_PROFIT = 0.05
 
+# 违禁物品
+CONTRABAND_GOODS_KEY_TUPLE = (
+    '医药', '阿莫西林', '罗红霉素分散片', '头孢拉定', '诺氟沙星', '芬必得', '对乙酰氨基酚片', '多潘立酮片', '盐酸小檗碱片',
+    '牛黄解毒丸', '麻醉', '爆炸', '易燃', '腐蚀', '毒性', '雷管', '火药', '爆竹', '汽油', '煤油', '桐油', '生漆',
+    '火柴', '农药', '鸦片', '吗啡', '可卡因', '高根', '军火', '武器', '腐烂', '淫秽', '毒品', '弹药', '枪支', '警械',
+    '注射', '炸弹', '手榴弹', '子弹', '照明弹', '教练弹', '烟幕弹', '炸药', '引信', '雷管', '导火索', '导雷索', '纵火',
+    '管制刀具', '匕首', '三棱刀', '佩刀', '佩剑', '斧', '短棍', '登山杖', '手杖', '易爆', '汽油', '硝化甘油', '硝铵',
+    '松香油', '橡胶水', '丁烷', '瓶装压缩', '瓶装液化', '硫化磷', '闪光粉', '黄磷', '硝化纤维胶片', '金属钠', '金属钾', '烟花',
+    '鞭炮', '氰化钾', '砷', '有毒农药', '氯气', '有毒化学', '灭鼠', '氧化剂', '烟雾剂', '发光剂', '过氧化钠', '过氧化钾', '硝酸铵',
+    '过氧化铅', '过氧醋酸', '无机氧化剂', '有机氧化剂', '过氧化物', '硫酸', '硝酸', '盐酸', '氢氧化钾', '氢氧化钠', '蓄电池',
+    '放射性', '传染性', '病毒', '病原体', '刺激性', '危险', '病菌', '海洛英', '大麻', '害虫', '敌敌畏', '炸鱼', '毒鱼', '电鱼',
+    '感染', '药物',
+)
+
+@catch_exceptions(default_res=False)
+def contraband_name_check(target_name: str) -> bool:
+    """
+    违禁物品检测
+    :return:
+    """
+    global CONTRABAND_GOODS_KEY_TUPLE
+
+    assert target_name != ''
+    for item in CONTRABAND_GOODS_KEY_TUPLE:
+        if item in target_name:
+            return True
+        else:
+            continue
+
+    return False
+
 @catch_exceptions(default_res=[])
 def get_waited_2_update_db_data_from_redis_server(spider_name='tm0',
                                                   base_name='fzhook',

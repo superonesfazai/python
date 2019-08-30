@@ -30,11 +30,11 @@ if SYSTEM_TYPE == 'Darwin':
     # ip_pool中的最小ip数量, 由于tri有时效
     # 蜻蜓代理测试实时的可设置为: 100个(比较友好并保证更新监控)
     # 蘑菇代理可设置: 500
-    MIN_IP_POOl_NUM = 155
+    MIN_IP_POOl_NUM = 150
     # local
     horocn_info_path = '/Users/afa/myFiles/pwd/horocn_info.json'
 else:
-    MIN_IP_POOl_NUM = 130
+    MIN_IP_POOl_NUM = 140
     # server
     horocn_info_path = '/root/horocn_info.json'
 
@@ -43,3 +43,9 @@ with open(horocn_info_path, 'r') as f:
     _ = json_2_dict(f.read())
     HOROCN_API_URL = _['api_url']
     HOROCN_TOKEN = _['token']
+
+select_sql_str = 'select * from proxy_obj_table'
+insert_sql_str = 'insert into proxy_obj_table(ip, port, score, agency_agreement, check_time) values(:ip, :port, :score, :agency_agreement, :check_time)'
+delete_sql_str = 'delete from proxy_obj_table where ip=?'
+update_sql_str = 'update proxy_obj_table set score=?, check_time=? where ip=?'
+drop_table = 'drop table proxy_obj_table;'
