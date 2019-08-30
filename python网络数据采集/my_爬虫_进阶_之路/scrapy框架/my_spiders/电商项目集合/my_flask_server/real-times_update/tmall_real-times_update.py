@@ -462,7 +462,7 @@ class TMUpdater(AsyncCrawler):
         count = 0
         all_count_fail_sleep_time = 100.
 
-        sleep_time = 50.
+        sleep_time = 40.
         # pprint(res)
         for item in res:
             try:

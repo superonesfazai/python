@@ -53,7 +53,7 @@ class TmuxOps(AsyncCrawler):
             },
             {
                 'page_name': 'ip_pool',
-                'cmd': 'cd {} && {} proxy_checker.py'.format(
+                'cmd': 'cd {} && {} proxy_checker_plus.py'.format(
                     self.ip_pool_path,
                     self.python_version_cmd,
                 ),

@@ -406,7 +406,7 @@ class TBUpdater(AsyncCrawler):
         '''
         count = 0
         all_count_fail_sleep_time = 100.
-        sleep_time = 50.
+        sleep_time = 40.
         for item in res:
             try:
                 if not item[1]:

@@ -163,8 +163,7 @@ class DistributedTasksProducer(AsyncCrawler):
             db_keys_list_len,))
         # 小于最大值则插入新值
         sql_cli = SqlServerMyPageInfoSaveItemPipeline()
-        tmp_res = list(sql_cli._select_table(
-            sql_str=sql_str,))
+        tmp_res = list(sql_cli._select_table(sql_str=sql_str,))
         # 不删, 否则abort退出
         # try:
         #     del sql_cli

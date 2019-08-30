@@ -394,10 +394,9 @@ class TaoBaoLoginAndParse(Crawler):
 
         # pprint(data)
         # 手机端描述地址
+        phone_div_url = ''
         if data.get('item').get('taobaoDescUrl') is not None:
             phone_div_url = 'https:' + data['item']['taobaoDescUrl']
-        else:
-            phone_div_url = ''
         # self.lg.info(phone_div_url)
 
         # pc端描述地址
@@ -406,7 +405,7 @@ class TaoBaoLoginAndParse(Crawler):
             # self.lg.info(phone_div_url)
             # self.lg.info(pc_div_url)
 
-            div_desc = self.get_div_from_pc_div_url(pc_div_url, goods_id)
+            div_desc = self.get_div_from_pc_div_url(goods_id=goods_id)
             # self.lg.info(div_desc)
             if div_desc == '':
                 self.lg.error('该商品的div_desc为空! 出错goods_id: %s' % str(goods_id))
@@ -950,18 +949,13 @@ class TaoBaoLoginAndParse(Crawler):
 
         return tuple(params)
 
-    def get_div_from_pc_div_url(self, url, goods_id):
+    def get_div_from_pc_div_url(self, goods_id):
         '''
         根据pc描述的url模拟请求获取描述的div
         :return: str
         '''
-        params_data_1 = {
-            'id': goods_id,
-            'type': '1',
-        }
-
         tmp_url = 'https://api.m.taobao.com/h5/mtop.taobao.detail.getdesc/6.0/'
-        _params = (
+        params = (
             ('appKey', '12574478'),
             ('t', get_now_13_bit_timestamp()),
             ('api', 'mtop.taobao.detail.getdesc'),
@@ -970,9 +964,12 @@ class TaoBaoLoginAndParse(Crawler):
             ('dataType', 'jsonp'),
             ('timeout', '20000'),
             ('callback', 'mtopjsonp1'),
-            ('data', dumps(params_data_1)),
+            ('data', dumps({
+                'id': goods_id,
+                'type': '1',
+            })),
         )
-        url = tmp_url + '?' + urlencode(_params)
+        url = tmp_url + '?' + urlencode(params)
         last_url = re.compile(r'\+').sub('', url)  # 转换后得到正确的url请求地址(替换'+')
         # self.lg.info(last_url)
 
@@ -1000,8 +997,16 @@ class TaoBaoLoginAndParse(Crawler):
             assert data != {}, '获取div_desc的data为空dict!'
         except Exception:
             self.lg.error('出错goods_id: {0}'.format(goods_id), exc_info=True)
-            # 尝试使用第2版接口获取!
-            div = self.get_div_from_pc_div_url2(goods_id=goods_id)
+            try:
+                # 尝试使用第2版接口获取!
+                div = self.get_div_from_pc_div_url2(goods_id=goods_id)
+                assert div != ''
+            except Exception:
+                self.lg.error('出错goods_id: {0}'.format(goods_id), exc_info=True)
+                # 尝试获取第3版接口
+                div = self.get_div_from_pc_div_url3(goods_id=goods_id)
+
+                return div
 
             return div
 
@@ -1085,6 +1090,58 @@ class TaoBaoLoginAndParse(Crawler):
         # self.lg.info(div_desc)
 
         return div_desc
+
+    def get_div_from_pc_div_url3(self, goods_id) -> str:
+        """
+        第三版的div_desc
+        :param goods_id:
+        :return:
+        """
+        self.lg.info('正在尝试通过3版获取div_desc...')
+        headers = {
+            'Sec-Fetch-Mode': 'no-cors',
+            # 'Referer': 'https://h5.m.taobao.com/app/detail/desc.html?_isH5Des=true',
+            'User-Agent': get_random_phone_ua(),
+        }
+        params = (
+            ('jsv', '2.4.11'),
+            ('appKey', '12574478'),
+            ('t', get_now_13_bit_timestamp()),
+            # ('sign', '3a357fd1682032d6b626426619840e35'),
+            ('api', 'mtop.taobao.detail.getdesc'),
+            ('v', '6.0'),
+            ('type', 'jsonp'),
+            ('dataType', 'jsonp'),
+            ('timeout', '20000'),
+            ('callback', 'mtopjsonp1'),
+            ('data', dumps({
+                'id': goods_id,
+                'type': '1',
+                # 'f': 'TB1pdrbgDZmx1VjSZFG8qux2Xla'
+            })),
+        )
+        url = 'https://h5api.m.taobao.com/h5/mtop.taobao.detail.getdesc/6.0/'
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
+        # self.lg.info(body)
+        try:
+            div = json_2_dict(
+                json_str=re.compile('\((.*)\)').findall(body)[0],
+                default_res={},
+                logger=self.lg,).get('data', {}).get('pcDescContent', '')
+            assert div != ''
+        except Exception:
+            self.lg.error('遇到错误:', exc_info=True)
+            return ''
+
+        div = self.deal_with_div(div=div)
+
+        return div
 
     def deal_with_div(self, div):
         body = div

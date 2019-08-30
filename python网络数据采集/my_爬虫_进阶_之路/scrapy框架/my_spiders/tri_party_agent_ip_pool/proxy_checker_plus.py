@@ -8,7 +8,6 @@
 
 from threading import (
     Thread,
-    current_thread,
 )
 from queue import Queue
 from fzutils.sql_utils import BaseSqlite3Cli
@@ -174,7 +173,7 @@ class ExpireProxyConsumer(Thread):
                     pass
 
                 if delete_count > 0:
-                    print('{}过期消费者 delete_ip_count: {}'.format(
+                    print('@@@ {}过期消费者 delete_ip_count: {}'.format(
                         self.name,
                         delete_count))
                 else:
@@ -187,6 +186,7 @@ class ExpireProxyConsumer(Thread):
                 sleep(6.)
 
 if __name__ == '__main__':
+    # 测试发现平均代理数量为: 260 (proxy设置有效时长为6分钟情况下)
     # todo activity_time为None的先不进行处理, 默认activity_time都有实值,
     #  即不处理分数低的proxy, 只处理过期的
     tri_id = 1

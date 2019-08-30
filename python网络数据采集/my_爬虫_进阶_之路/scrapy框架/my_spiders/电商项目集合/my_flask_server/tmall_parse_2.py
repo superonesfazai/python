@@ -240,7 +240,7 @@ class TmallParse(Crawler):
             # self.lg.info(phone_div_url)
             # self.lg.info(pc_div_url)
 
-            div_desc = taobao.get_div_from_pc_div_url(pc_div_url, goods_id)
+            div_desc = taobao.get_div_from_pc_div_url(goods_id=goods_id)
             # self.lg.info(div_desc)
             if div_desc == '':
                 self.lg.error('该商品的div_desc为空! 出错goods_id: {}'.format(goods_id))
