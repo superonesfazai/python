@@ -52,6 +52,8 @@ not supported:
     7. 36氪(https://36kr.com)
     8. 太平洋时尚网(https://www.pclady.com.cn/)
     9. 网易新闻
+    10. cnbeta(https://m.cnbeta.com/)
+    11. 少数派(https://sspai.com/)
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """

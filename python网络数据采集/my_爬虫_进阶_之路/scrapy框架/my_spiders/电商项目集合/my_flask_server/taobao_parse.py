@@ -68,7 +68,7 @@ class TaoBaoLoginAndParse(Crawler):
         :return: data   类型dict
         '''
         phone_url = 'https://h5.m.taobao.com/awp/core/detail.htm?id={}'.format(goods_id)
-        self.msg = '------>>>| phone_url: {}'
+        self.msg = '------>>>| phone_url: {}'.format(phone_url)
         # self.lg.info(self.msg)
 
         # 获取主接口的body
