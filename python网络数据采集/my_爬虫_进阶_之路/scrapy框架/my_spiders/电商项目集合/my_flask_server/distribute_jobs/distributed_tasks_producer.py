@@ -68,6 +68,20 @@ class DistributedTasksProducer(AsyncCrawler):
 
     async def _fck_run(self):
         print(get_current_func_info_by_traceback(self=self,))
+        # todo 不删除旧数据, 原因abort 脚本挂了, 能从之前的开始继续!(数据保留)
+        # await self.clear_over_redis_old_tasks()
+
+        while True:
+            print('\nnow_time: {}'.format(get_shanghai_time()))
+            await self.execute_all_create_dcs_tasks()
+            print('sleep {} s ...'.format(self.sleep_time))
+            await async_sleep(self.sleep_time)
+
+    async def clear_over_redis_old_tasks(self):
+        """
+        清空旧任务
+        :return:
+        """
         for spider_name in self.spider_name_list:
             # 每次启动先清空老数据
             # 删除指定键
@@ -76,12 +90,6 @@ class DistributedTasksProducer(AsyncCrawler):
                     base_name=self.base_name,
                     spider_name=spider_name, ))
         print('每次启动先清空老数据 !!')
-
-        while True:
-            print('\nnow_time: {}'.format(get_shanghai_time()))
-            await self.execute_all_create_dcs_tasks()
-            print('sleep {} s ...'.format(self.sleep_time))
-            await async_sleep(self.sleep_time)
 
     async def execute_all_create_dcs_tasks(self):
         """

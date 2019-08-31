@@ -462,7 +462,8 @@ class TMUpdater(AsyncCrawler):
         count = 0
         all_count_fail_sleep_time = 100.
 
-        sleep_time = 40.
+        # 本来是40., 此处不休眠
+        sleep_time = 0.
         # pprint(res)
         for item in res:
             try:
