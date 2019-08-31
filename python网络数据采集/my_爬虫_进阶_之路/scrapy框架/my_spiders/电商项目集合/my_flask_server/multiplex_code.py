@@ -115,26 +115,62 @@ def get_waited_2_update_db_data_from_redis_server(spider_name='tm0',
             base_name=base_name,
             spider_name=spider_name,)))
     # pprint(db_keys_list)
-    db_keys_list_len = len(db_keys_list)
 
-    res = []
-    index = 0
+    # 先更新旧的
+    # 先拿到所有的匹配的key
+    tmp_res = []
     for key_name in db_keys_list:
-        if db_keys_list_len>slice_num and index >= slice_num:
-            # 避免db 数量小于100, 小于100则不进行判断
-            break
-
         try:
             # 必须这样取值, 避免报错: 'utf-8' codec can't decode byte 0x80 in position 0: invalid start byte
             # 存入时: pickle_dumps(value).decode('latin1')
-            res.append(pickle_loads(redis_cli.get(key_name).encode('latin1')))
+            tmp_res.append(pickle_loads(redis_cli.get(key_name).encode('latin1')))
         except Exception as e:
             _print(msg='遇到错误:', logger=logger, log_level=2, exception=e)
             continue
 
-        # 取出的就删除
-        redis_cli.delete(key_name)
-        index += 1
+    new_res = []
+    for item in tmp_res:
+        try:
+            new_res.append({
+                'goods_id': item[1],
+                'modify_time': item[16],
+                'value': item,
+            })
+        except IndexError:
+            _print(msg='出错 item: {}'.format(str(item)), logger=logger, log_level=2)
+            continue
+
+    # 重新排序
+    new_res = sorted(new_res, key=lambda item: item.get('modify_time', ''))
+
+    # 结果集合
+    res = []
+    for item in new_res[0:slice_num]:
+        value = item.get('value')
+        if isinstance(value, (list, tuple)):
+            res.append(value)
+        else:
+            continue
+
+    # 已被取值的待删除的goods_id_list
+    need_2_delete_key_name_list = [item.get('goods_id', '') for item in new_res[0:slice_num]]
+    for goods_id in need_2_delete_key_name_list:
+        key_name = '{base_name}:{spider_name}:{goods_id}'.format(
+            base_name=base_name,
+            spider_name=spider_name,
+            goods_id=goods_id,)
+        try:
+            redis_cli.delete(key_name)
+        except Exception as e:
+            _print(msg='遇到错误:', logger=logger, log_level=2, exception=e)
+            continue
+
+    try:
+        del tmp_res
+        del new_res
+        del need_2_delete_key_name_list
+    except:
+        pass
 
     return res
 
@@ -1130,6 +1166,7 @@ class BaseDbCommomGoodsInfoParamsObj(object):
         self.old_price_trans_time = item[13]
         self.old_spec_trans_time = item[14]
         self.old_stock_trans_time = item[15]
+        self.modify_time = item[16]
 
 def get_site_id_by_jd_type(jd_type) -> int:
     '''
