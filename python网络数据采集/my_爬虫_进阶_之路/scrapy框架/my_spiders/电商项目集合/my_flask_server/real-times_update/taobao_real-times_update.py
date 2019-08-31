@@ -406,7 +406,8 @@ class TBUpdater(AsyncCrawler):
         '''
         count = 0
         all_count_fail_sleep_time = 100.
-        sleep_time = 40.
+        # 本来休眠40., 现在不休眠
+        sleep_time = 0.
         for item in res:
             try:
                 if not item[1]:
