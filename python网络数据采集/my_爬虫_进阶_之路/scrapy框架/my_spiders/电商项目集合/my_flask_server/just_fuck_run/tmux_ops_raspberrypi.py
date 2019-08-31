@@ -43,7 +43,7 @@ class TmuxOps(AsyncCrawler):
         return [
             {
                 'page_name': 'redis_server',
-                'cmd': 'cd ~ && redis-server',
+                'cmd': 'cd ~ && redis-server /etc/redis/redis.conf',
                 'delay_time': 2,
             },
             {

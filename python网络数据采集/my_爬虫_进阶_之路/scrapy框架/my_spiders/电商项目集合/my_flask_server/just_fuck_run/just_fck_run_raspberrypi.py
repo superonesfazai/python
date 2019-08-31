@@ -11,6 +11,18 @@ sys_path.append('..')
 from os import system
 from fzutils.spider.async_always import *
 
+if get_system_type() == 'Darwin':
+    python_version_cmd = 'python3'
+    logs_path = '/Users/afa/myFiles/codeDoc/pythonDoc/python/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/logs'
+    zwm_path = '/Users/afa/myFiles/codeDoc/pythonDoc/python/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server'
+    dcs_path = '/Users/afa/myFiles/codeDoc/pythonDoc/python/python网络数据采集/my_爬虫_进阶_之路/scrapy框架/my_spiders/电商项目集合/my_flask_server/distribute_jobs'
+
+else:
+    python_version_cmd= 'python3.6'
+    logs_path = '~/myFiles/python/my_flask_server/logs'
+    zwm_path = '~/myFiles/python/my_flask_server'
+    dcs_path = '~/myFiles/python/my_flask_server/distribute_jobs'
+
 logs_file_name_list = [
     # 'expired_logs_deal_with',
 ]
@@ -39,10 +51,16 @@ def run_one_file_name_list(path, file_name_list):
             process_name = item + '.py'
             if process_exit(process_name) == 0:
                 if 'distributed_tasks_producer' in item:
-                    system('cd {0} && python3.6 -X faulthandler {1}.py'.format(path, item))
+                    system('cd {0} && {1} -X faulthandler {2}.py'.format(
+                        path,
+                        python_version_cmd,
+                        item))
                 else:
                     # 如果对应的脚本没有在运行, 则运行之
-                    system('cd {0} && python3.6 {1}.py'.format(path, item))
+                    system('cd {0} && {1} {2}.py'.format(
+                        path,
+                        python_version_cmd,
+                        item))
                 sleep(2.5)  # 避免同时先后启动先sleep下
             else:
                 print(process_name + '脚本已存在!')
@@ -62,10 +80,6 @@ def auto_run(*params):
 
 def main_2():
     while True:
-        logs_path = '~/myFiles/python/my_flask_server/logs'
-        zwm_path = '~/myFiles/python/my_flask_server'
-        dcs_path = '~/myFiles/python/my_flask_server/distribute_jobs'
-
         auto_run(logs_path, zwm_path, dcs_path)
         print(' Money is on the way! '.center(100, '*'))
         sleep(15)

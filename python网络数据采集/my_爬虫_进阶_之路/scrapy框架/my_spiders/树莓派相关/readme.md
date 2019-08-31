@@ -371,6 +371,14 @@ $ apt-get install libicu52
 ### 安装redis-server
 ```bash
 $ apt-get install redis-server
+$ 设置可被外网访问
+# 找到bind 127.0.0.1将其注释, 改成bind 0.0.0.0
+# 修改密码(只供内网访问可以不设置!)
+# 找到 requirepass foobared, 把注释去掉然后设置新密码 eg: requirepass 654321yy
+$ vi /etc/redis/redis.conf
+
+# 以配置文件启动redis
+$ redis-server /etc/redis/redis.conf 
 ```
 
 ### 禁用wifi

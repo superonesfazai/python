@@ -53,3 +53,8 @@ flushall
 ```bash
 config get *
 ```
+
+#### 11. 切换db
+```bash
+select 2
+```

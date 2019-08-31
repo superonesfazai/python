@@ -16,6 +16,7 @@ import sqlalchemy
 from sqlalchemy import create_engine
 import datetime, calendar
 from pprint import pprint
+from redis import StrictRedis
 
 from settings import (
     HOST,
@@ -28,6 +29,10 @@ from settings import (
     PASSWORD_2,
     DATABASE_2,
     PORT_2,
+    REDIS_HOST,
+    REDIS_PORT,
+    REDIS_PASSWORD,
+    REDIS_DB,
 )
 
 from fzutils.sql_utils import BaseSqlServer
@@ -548,3 +553,21 @@ class DataAnalysisDbPipeline(object):
             pass
 
         return year_order_sell_count_by_month_list
+
+class RedisCli(StrictRedis):
+    def __init__(self,
+                 host=REDIS_HOST,
+                 port=REDIS_PORT,
+                 passwd=REDIS_PASSWORD,
+                 db=REDIS_DB,
+                 decode_responses: bool=True,
+                 connection_pool=None
+                 ):
+        super(RedisCli, self).__init__(
+            host=host,
+            port=port,
+            password=passwd,
+            db=db,
+            decode_responses=decode_responses,
+            connection_pool=connection_pool,)
+
