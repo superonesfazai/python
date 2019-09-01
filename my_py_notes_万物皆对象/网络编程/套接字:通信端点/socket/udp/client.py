@@ -14,6 +14,6 @@ s.sendto('hello,this is a 避免死锁.md info !'.encode(), (host, port))
 
 # -l 表示作为服务端开启，进行监听listen
 # -u 表示使用udp协议
-# nc -lu 绑定的服务器ip地址 端口
+# nc -lu 绑定的服务器ip地址 readme.md
 nc -lu 127.0.0.1 8080
 '''

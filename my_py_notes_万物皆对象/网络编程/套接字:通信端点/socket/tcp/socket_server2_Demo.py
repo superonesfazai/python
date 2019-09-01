@@ -20,7 +20,7 @@ class MyBaseRequestHandler(BaseRequestHandler):
 if __name__ == '__main__':
     #telnet 127.0.0.1 9999
     host = ''  #主机名,可以是ip,像localhost的主机名,或""
-    port = 8112  #端口
+    port = 8112  #readme.md
     addr = (host, port)
 
     server = TCPServer(addr, MyBaseRequestHandler) # 购置TVPServer对象

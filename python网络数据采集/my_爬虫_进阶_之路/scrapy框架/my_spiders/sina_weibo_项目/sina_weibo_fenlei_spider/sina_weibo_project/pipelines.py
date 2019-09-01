@@ -17,7 +17,7 @@ class BoZhuUserPipeline(object):
         super(BoZhuUserPipeline, self).__init__()
         self.conn = connect(
             host='localhost',       # 主机地址
-            port=3306,              # 端口
+            port=3306,              # readme.md
             db='python',            # 数据库
             user='root',            # 用户
             passwd='lrf654321',     # 密码
