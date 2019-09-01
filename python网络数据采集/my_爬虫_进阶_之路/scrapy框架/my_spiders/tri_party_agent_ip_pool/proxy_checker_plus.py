@@ -43,6 +43,10 @@ class TriProxyProducer(Thread):
     """
     三方代理获取的生产者
     """
+    def __init__(self, args: (list, tuple)=()):
+        super(TriProxyProducer, self).__init__()
+        self.args = args
+
     def run(self):
         global tri_proxy_queue, tri_id
         while True:
@@ -79,6 +83,10 @@ class ProxyCheckerConsumer(Thread):
     """
     新获取到代理检测的消费者
     """
+    def __init__(self, args: (list, tuple)=()):
+        super(ProxyCheckerConsumer, self).__init__()
+        self.args = args
+
     def run(self):
         global tri_proxy_queue, tri_id, local_ip
         global new_checked_proxy_queue
@@ -104,6 +112,10 @@ class NewCheckedProxyConsumer(Thread):
     """
     新检测的代理的消费者(新代理符合要求的进行入库操作)
     """
+    def __init__(self, args: (list, tuple)=()):
+        super(NewCheckedProxyConsumer, self).__init__()
+        self.args = args
+
     def run(self):
         global new_checked_proxy_queue
         while True:
@@ -134,6 +146,10 @@ class ExpireProxyConsumer(Thread):
     """
     过期代理消费者(删除过期代理)
     """
+    def __init__(self, args: (list, tuple)=()):
+        super(ExpireProxyConsumer, self).__init__()
+        self.args = args
+
     def run(self):
         while True:
             try:
@@ -207,18 +223,79 @@ if __name__ == '__main__':
     # 新代理已被检测的队列
     new_checked_proxy_queue = Queue()
 
+    tasks = []
+    # 存储所有需要监控并重启的初始化线程对象list
+    need_to_be_monitored_thread_tasks_info_list = []
     for i in range(1):
-        tri_proxy_producer = TriProxyProducer()
-        tri_proxy_producer.start()
+        func_args = ()
+        task = TriProxyProducer(args=func_args)
+        thread_name = 'thread_task:{}:{}'.format(
+            'TriProxyProducer',
+            get_uuid1(),)
+        task.setName(name=thread_name)
+        tasks.append(task)
+        need_to_be_monitored_thread_tasks_info_list.append({
+            'func_name': TriProxyProducer,
+            'thread_name': thread_name,
+            'func_args': func_args,
+            'is_class': True,
+        })
 
     for i in range(15):
-        proxy_checker_consumer = ProxyCheckerConsumer()
-        proxy_checker_consumer.start()
+        func_args = ()
+        task = ProxyCheckerConsumer()
+        thread_name = 'thread_task:{}:{}'.format(
+            'ProxyCheckerConsumer',
+            get_uuid1(),)
+        task.setName(name=thread_name)
+        tasks.append(task)
+        need_to_be_monitored_thread_tasks_info_list.append({
+            'func_name': ProxyCheckerConsumer,
+            'thread_name': thread_name,
+            'func_args': func_args,
+            'is_class': True,
+        })
 
     for i in range(5):
-        new_checked_proxy_consumer = NewCheckedProxyConsumer()
-        new_checked_proxy_consumer.start()
+        func_args = ()
+        task = NewCheckedProxyConsumer()
+        thread_name = 'thread_task:{}:{}'.format(
+            'NewCheckedProxyConsumer',
+            get_uuid1(), )
+        task.setName(name=thread_name)
+        tasks.append(task)
+        need_to_be_monitored_thread_tasks_info_list.append({
+            'func_name': NewCheckedProxyConsumer,
+            'thread_name': thread_name,
+            'func_args': func_args,
+            'is_class': True,
+        })
 
     for i in range(1):
-        expire_proxy_consumer = ExpireProxyConsumer()
-        expire_proxy_consumer.start()
+        func_args = ()
+        task = ExpireProxyConsumer()
+        thread_name = 'thread_task:{}:{}'.format(
+            'ExpireProxyConsumer',
+            get_uuid1(), )
+        task.setName(name=thread_name)
+        tasks.append(task)
+        need_to_be_monitored_thread_tasks_info_list.append({
+            'func_name': ExpireProxyConsumer,
+            'thread_name': thread_name,
+            'func_args': func_args,
+            'is_class': True,
+        })
+
+    for task in tasks:
+        task.start()
+
+    # 用来检测是否有线程down并重启down线程
+    check_thread_task = Thread(
+        target=check_thread_tasks_and_restart,
+        args=(
+            need_to_be_monitored_thread_tasks_info_list,
+            30,
+            None,
+        ))
+    check_thread_task.setName('thread_task:check_thread_task_and_restart')
+    check_thread_task.start()

@@ -22,7 +22,7 @@ from fzutils.spider.async_always import *
 nest_asyncio_apply()
 
 # 设置并发类型
-CONCURRENT_TYPE = 2
+CONCURRENT_TYPE = 1
 if CONCURRENT_TYPE == 2:
     gevent_monkey.patch_all()
 else:
@@ -42,6 +42,7 @@ class XOSpider(AsyncCrawler):
         self.max_n15_japan_page_num = 3
         self.max_n15_all_page_num = 25
         self.max_8xs_dalu_all_page_num = 20
+        self.max_8xs_rihan_all_page_num = 50
         self.max_8xs_usa_all_page_num = 20
         self.max_8xs_blue_all_page_num = 20
         self.concurrent_type = CONCURRENT_TYPE
@@ -53,13 +54,14 @@ class XOSpider(AsyncCrawler):
 
     async def _8xs_spider(self):
         """
-        target_url: https://8xshe.com
+        target_url: https://baxxun.com
         :return:
         """
-        self.basic_domain_name = '8xshe.com'
+        self.basic_domain_name = 'baxxun.com'
         self.parser_obj = self.get_parser_obj()['8xs']
         # label_name = '大陆'
-        label_name = '欧美'
+        label_name = '日韩'
+        # label_name = '欧美'
         # label_name = '三级'
         all_video_list = await self.get_8xs_some_label_all_video_list_by_label_name(
             label_name=label_name, )
@@ -135,6 +137,11 @@ class XOSpider(AsyncCrawler):
                 'label_name': '大陆',
                 'max_page_num': self.max_8xs_dalu_all_page_num,
                 'sort_type': 'video1',
+            },
+            '日韩': {
+                'label_name': '日韩',
+                'max_page_num': self.max_8xs_rihan_all_page_num,
+                'sort_type': 'video2',
             },
             '欧美': {
                 'label_name': '欧美',
@@ -911,6 +918,19 @@ class XOSpider(AsyncCrawler):
             },
             '8xs': {
                 '大陆': {
+                    'video_name': {
+                        'method': 'css',
+                        'selector': 'div.container.sy_tc ul li div.w_z h3 a ::text',
+                    },
+                    'video_region': None,
+                    'video_type': None,
+                    'url': {
+                        'method': 'css',
+                        'selector': 'div.container.sy_tc ul li div.w_z h3 a ::attr("href")',
+                    },
+                    'create_time': None,
+                },
+                '日韩': {
                     'video_name': {
                         'method': 'css',
                         'selector': 'div.container.sy_tc ul li div.w_z h3 a ::text',
