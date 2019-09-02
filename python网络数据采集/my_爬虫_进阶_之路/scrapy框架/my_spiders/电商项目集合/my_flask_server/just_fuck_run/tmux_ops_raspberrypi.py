@@ -116,7 +116,7 @@ class TmuxOps(AsyncCrawler):
                 ),
                 'delay_time': 2,
             },
-            # tm 实时更新, 测试发现: 3个出错率低
+            # tm 实时更新, 测试发现: 4个出错率低
             {
                 'page_name': 'tm0',
                 'cmd': 'cd {} && {} tmall_real-times_update.py'.format(
