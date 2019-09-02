@@ -67,9 +67,8 @@ def server_tasks(my_group):
         try:
             # connect_object.run('sudo apt-get update --fix-missing && sudo apt-get autoremove && sudo apt-get clean && apt-get -f install && apt-get install unzip --fix-missing')
             # connect_object.run('sudo apt-get install libcurl4-openssl-dev')   # for pycurl
-            connect_object.run('pip3 install --upgrade pip')
-            connect_object.run('pip3 install -i https://pypi.org/simple/ fzutils --trusted-host pypi.org -U')
-            # connect_object.run('pip3 install fzutils -U')
+            connect_object.run('{} install --upgrade pip'.format(pip_version_cmd))
+            connect_object.run('{} install -i https://pypi.org/simple/ fzutils --trusted-host pypi.org -U'.format(pip_version_cmd))
         except Exception as e:
             print(e)
             return False
@@ -212,4 +211,6 @@ if __name__ == '__main__':
     # is_out_server = True
     # 树莓派
     is_out_server = False
+
+    pip_version_cmd = 'pip3'
     main()

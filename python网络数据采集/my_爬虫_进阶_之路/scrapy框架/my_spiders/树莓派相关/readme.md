@@ -454,6 +454,103 @@ $ ./configure --with-features=huge --enable-python3interp --enable-pythoninterp 
 $ make install
 ```
 
+### spacemacs
+Spacemacs 是一份 Emacs 的配置文件，将 Vim 的快捷键移植到了 Emacs 上，可以提供 Vimer 至 Emacs 的无缝衔接。有了 Spacemacs，你不需要花那么多时间去学习 Emacs 就可以真正用 Spacemacs 开始做一些事情。
+
+[github](https://github.com/syl20bnr/spacemacs)
+
+#### 安装
+```bash
+# 先安装emacs
+$ apt-get install emacs
+$ emacs --version
+
+# 安装spacemacs
+$ mv ~/.emacs.d ~/.emacs.d.bak
+$ git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
+# Clone 至本地后，第一次使用 Spacemacs 时要加载一些 Package，以及根据你的喜好所生成的配置，建议一路回车。
+$ emacs
+
+# 安装 layer 依赖
+# spacemacs 中相关功能的插件/扩展包以 layer 的形式聚合在一起。
+# 以 Python layer 为例，其文档（位于~/.emacs.d/layers/+lang/python/README.org）明确指出了它的外部依赖。比如，获取自动补全功能，需要 anaconda-mode：
+# 请跟据你开启的 layer 自行补充所需的外部依赖
+$ pip install --upgrade "jedi>=0.9.0" "json-rpc>=1.8.1" "service_factory>=0.1.5"
+
+# dotspacemacs-configuration-layers 是启用的 layer 列表。
+# 初始列举的 layer 大多被双引号注释掉了，你可以移除注释使用它们，同时自行添加其他的 layer
+# ** 一定要启用 auto-completion 和 heml，它们是 spacemacs 的灵魂所在。另外可使用 themes-megapack 下载各类皮肤。
+
+# 第一次打开py文件, 会提示是否安装py插件, 选yes
+$ emacs test.py
+
+# python自动补全
+# 方法1(推荐)
+$ emacs
+# 打开配置文件(SPC f e d) or vi ~/.spacemacs, 找到python, 把下面注释去掉, 重启(就会自动安装相应包)就有代码补全了
+;; auto-completion
+;; spell-checking
+;; syntax-checking
+$ 依赖安装
+$ pip install -i http://pypi.douban.com/simple/ flake8 importmagic autopep8 yapf virtualenv --trusted-host pypi.douban.com
+
+# 方法2
+$ vi ~/.spacemacs
+# 找到dotspacemacs-additional-package, 把epc  deferred  auto-complete  jedi写进括号(如下面图片), 保存退出
+$ emacs
+# 在emacs中安装install-server
+$ SPC+ M-X:  Jedi:install-server
+# 添加以下配置到emacs的配置文件(.emacs.d/init.el)里
+$ vi ~/.emacs.d/init.el
+(autoload 'jedi:setup "jedi" nil t)
+(add-hook 'python-mode-hook 'jedi:setup)
+(setq jedi:setup-keys t)                      ; optional
+(setq jedi:complete-on-dot t)                 ; optional
+# 大功告成
+```
+![](https://i.loli.net/2019/09/02/tgyzDhxNs5TV2K9.png)
+
+#### spacemacs 快捷键
+Spacemacs 基本可以使用的是原生 Vim 的快捷键
+
+```bash
+F1                          帮助
+
+配置文件
+SPC f e d                   快速打开配置文件
+SPC f e R                   同步配置文件
+SPC q q                     退出 Emacs
+SPC q R                     重启 Emacs
+```
+
+#### emacs 快键键(原生的emacs)
+[Emacs快捷键列表](https://aifreedom.com/technology/112)
+
+```bash
+C = Control
+M = Meta = Alt | Esc
+Del = Backspace
+
+C+h t                       打开emacs教程
+
+C+x C+s                     保存文件
+C+x C+c                     关闭emacs
+C+a                         光标移动到行首
+C+e                         光标移动到行尾
+C+s                         向后搜索
+C+r                         向前搜索
+C+a C+k                     移除当前行
+C+x u                       撤销上一个命令(操作)
+C+g                         停止当前运行/输入的命令
+
+# 窗口命令
+C+x 2                       水平分割窗格
+C+x 3                       垂直分割窗格
+C+x o                       切换至其他窗格
+C+x 0                       关闭光标所在窗格
+C+x 4 f                     在其他窗格中打开某个文件
+```
+
 ## 外网访问树莓派
 
 ### cpolar(推荐)

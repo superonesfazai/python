@@ -105,7 +105,7 @@ class TMUpdater(AsyncCrawler):
 
             if get_shanghai_time().hour == 0:
                 # 0点以后不更新
-                await async_sleep(60 * 60 * 4.5)
+                await async_sleep(60 * 60 * .5)
             else:
                 await async_sleep(5.)
 
@@ -133,9 +133,11 @@ class TMUpdater(AsyncCrawler):
                     _type='tm',
                     child_type=0,)
             elif self.db_res_from == 2:
+                # 默认拿300个, 避免前100个失败率较高的情况下, 后面能继续更新
                 result = get_waited_2_update_db_data_from_redis_server(
                     spider_name='tm0',
-                    logger=self.lg,)
+                    logger=self.lg,
+                    slice_num=300,)
             else:
                 raise ValueError('self.db_res_from value异常!')
 
