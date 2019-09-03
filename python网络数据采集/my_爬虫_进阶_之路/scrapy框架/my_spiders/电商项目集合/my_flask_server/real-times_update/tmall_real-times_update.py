@@ -474,7 +474,7 @@ class TMUpdater(AsyncCrawler):
             except IndexError:
                 pass
         self.lg.info('Fail count: {}个, 并发量: {}个'.format(count, self.concurrency))
-        if count/self.concurrency >= .9:
+        if count/self.concurrency >= .95:
             # 全失败的休眠方式
             self.lg.info('抓取异常!! 休眠{}s中...'.format(all_count_fail_sleep_time))
             await async_sleep(all_count_fail_sleep_time)

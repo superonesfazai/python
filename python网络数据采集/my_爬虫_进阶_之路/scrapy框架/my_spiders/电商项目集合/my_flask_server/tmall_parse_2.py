@@ -72,9 +72,11 @@ class TmallParse(Crawler):
         phone_url = 'https://detail.m.tmall.com/item.htm?id=' + str(goods_id)
         # self.lg.info('------>>>| phone_url: {}'.format(phone_url))
 
+        # 使用获取基础数据的方式
+        get_base_data_method = 0
         headers = get_random_headers(
             upgrade_insecure_requests=False,
-            cache_control='')
+            cache_control='',)
         headers.update({
             'Referer': phone_url,
         })
@@ -93,7 +95,20 @@ class TmallParse(Crawler):
                 json_str=re.compile('\((.*)\)').findall(body)[0],
                 default_res={},
                 logger=self.lg)
-            assert data != {}, 'data为空dict!'
+
+            try:
+                if 'login.m.taobao.com' in data.get('data', {}).get('url', ''):
+                    # 第一种通过接口方式出错, 抛出异常
+                    raise AssertionError
+
+                assert data != {}, 'data为空dict!'
+            except AssertionError:
+                # 尝试第二种获取数据方式
+                self.lg.info('正在尝试第二种方式获取data ...')
+                # 修改方式
+                get_base_data_method = 1
+                data = self._get_data2(goods_id=goods_id)
+
             # pprint(data)
             if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
                     and data.get('data', {}).get('seller', {}).get('evaluates') is None:
@@ -137,16 +152,25 @@ class TmallParse(Crawler):
         # self.lg.info(result_data.get('apiStack', [])[0].get('value', ''))
         result_data_apiStack_value = result_data.get('apiStack', [])[0].get('value', {})
 
-        # 将处理后的result_data['apiStack'][0]['value']重新赋值给result_data['apiStack'][0]['value']
-        result_data['apiStack'][0]['value'] = self._wash_result_data_apiStack_value(
-            goods_id=goods_id,
-            result_data_apiStack_value=result_data_apiStack_value)
+        if get_base_data_method == 0:
+            # 将处理后的result_data['apiStack'][0]['value']重新赋值给result_data['apiStack'][0]['value']
+            result_data['apiStack'][0]['value'] = self._wash_result_data_apiStack_value(
+                goods_id=goods_id,
+                result_data_apiStack_value=result_data_apiStack_value)
+        else:
+            pass
 
-        # 处理mockData
         mock_data = result_data['mockData']
-        mock_data = json_2_dict(
-            json_str=mock_data,
-            logger=self.lg)
+        if get_base_data_method == 0:
+            # 处理mockData
+            mock_data = json_2_dict(
+                json_str=mock_data,
+                logger=self.lg)
+        elif get_base_data_method == 1:
+            pass
+        else:
+            raise ValueError('get_base_data_method value异常!')
+
         if mock_data == {}:
             self.lg.error('出错tm_type: {0}, goods_id: {1}'.format(tm_type, goods_id))
             return self._data_error_init()
@@ -164,7 +188,10 @@ class TmallParse(Crawler):
             return self._data_error_init()
         else:
             # 用于判断该商品是否已经下架的参数
-            result_data['trade'] = result_data.get('apiStack', [])[0].get('value', {}).get('trade', {})
+            result_data['trade'] = result_data\
+                .get('apiStack', [])[0]\
+                .get('value', {})\
+                .get('trade', {})
             # pprint(result_data['trade'])
 
         result_data['type'] = tm_type
@@ -199,17 +226,25 @@ class TmallParse(Crawler):
 
         price, taobao_price = taobao._get_price_and_taobao_price(data=data)
         # 商品库存
-        goods_stock = data['apiStack'][0]['value'].get('skuCore', {}).get('sku2info', {}).get('0', {}).get('quantity', '')
+        goods_stock = data['apiStack'][0]['value']\
+            .get('skuCore', {})\
+            .get('sku2info', {})\
+            .get('0', {})\
+            .get('quantity', '')
         # 商品标签属性名称,及其对应id值
         detail_name_list, detail_value_list = taobao._get_detail_name_and_value_list(data=data)
 
         # 每个标签对应值的价格及其库存
         price_info_list = taobao._get_price_info_list(data=data, detail_value_list=detail_value_list)
-        # 多规格进行重新赋值
-        price, taobao_price = taobao._get_new_price_and_taobao_price_when_price_info_list_not_null_list(
-            price_info_list=price_info_list,
-            price=price,
-            taobao_price=taobao_price)
+        try:
+            # 多规格进行重新赋值
+            price, taobao_price = taobao._get_new_price_and_taobao_price_when_price_info_list_not_null_list(
+                price_info_list=price_info_list,
+                price=price,
+                taobao_price=taobao_price)
+        except Exception:
+            self.lg.error('遇到错误[goods_id: {}]:'.format(goods_id), exc_info=True)
+            return self._data_error_init()
 
         # 所有示例图片地址
         all_img_url = taobao._get_all_img_url(tmp_all_img_url=data['item']['images'])
@@ -224,35 +259,16 @@ class TmallParse(Crawler):
                 'value': _i.get('p_value', ''),
             } for _i in p_info]
 
-        '''
-        div_desc
-        '''
-        # 手机端描述地址
-        phone_div_url = ''
-        if data.get('item', {}).get('taobaoDescUrl') is not None:
-            phone_div_url = 'https:' + data['item']['taobaoDescUrl']
-
-        # pc端描述地址
-        pc_div_url = ''
-        div_desc = ''
-        if data.get('item', {}).get('taobaoPcDescUrl') is not None:
-            pc_div_url = 'https:' + data['item']['taobaoPcDescUrl']
-            # self.lg.info(phone_div_url)
-            # self.lg.info(pc_div_url)
-
-            div_desc = taobao.get_div_from_pc_div_url(goods_id=goods_id)
-            # self.lg.info(div_desc)
-            if div_desc == '':
-                self.lg.error('该商品的div_desc为空! 出错goods_id: {}'.format(goods_id))
-                return self._data_error_init()
-            else:
-                pass
+        """div_desc"""
+        div_desc = taobao.get_div_from_pc_div_url(goods_id=goods_id)
+        # self.lg.info(div_desc)
+        if div_desc == '':
+            self.lg.error('该商品的div_desc为空! 出错goods_id: {}'.format(goods_id))
+            return self._data_error_init()
         else:
             pass
 
-        '''
-        后期处理
-        '''
+        """后期处理"""
         # 后期处理detail_name_list, detail_value_list
         detail_name_list = [{
             'spec_name': i[0],
@@ -303,7 +319,6 @@ class TmallParse(Crawler):
             'price_info_list': price_info_list,     # 要存储的每个标签对应规格的价格及其库存
             'all_img_url': all_img_url,             # 所有示例图片地址
             'p_info': p_info,                       # 详细信息标签名对应属性
-            'pc_div_url': pc_div_url,               # pc端描述地址
             'div_desc': div_desc,                   # div_desc
             'sell_count': sell_count,               # 月销量
             'is_delete': is_delete,                 # 是否下架判断
@@ -319,6 +334,99 @@ class TmallParse(Crawler):
         # json_data = dumps(wait_to_send_data, ensure_ascii=False)
         # print(json_data)
         return result
+
+    def _get_data2(self, goods_id) -> dict:
+        """
+        尝试第二种方式获取data
+        :param goods_id:
+        :return:
+        """
+        # todo 无法处理参加聚划算的商品, 因为data['skuBase']['skus'] = None
+        headers = get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False, )
+        headers.update({
+            'authority': 'detail.m.tmall.com',
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-user': '?1',
+            'sec-fetch-site': 'none',
+        })
+        # 必须
+        cookies = {
+            # '_m_h5_tk': '18d7e97da9f5c7a9865ea49e46ce461d_1567496859709',
+            # '_m_h5_tk_enc': '5b40dd9750869a928ce9d15d01a29d4d',
+            '_tb_token_': '35f3ee3da748',
+            # 'cna': 'wRsVFTj6JEoCAXHXtCqXOzC7',
+            'cookie2': '180810809b5c95e08a6c2f3a496fada6',
+            # 'enc': 'NMn7zFLrgU6nMXwgPWND42Y2H3tmKu0Iel59hu%2B7DFx27uPqGw349h4yvXidY3xuFC6%2FjozpnaTic5LC7jv8CA%3D%3D',
+            # 'hng': 'CN%7Czh-CN%7CCNY%7C156',
+            # 'isg': 'BLW1ZEYgBBlRF2FYLY55p6bmxDdvMmlElPcpyDfaeix7DtUA_4HxFt2MXJKdToH8',
+            # 'l': 'cB_zn817vA2VKjZ_BOfZ-urza77O5IObzsPzaNbMiIB1tR5sYdC7nHwIPrZHd3QQE95evF-yQC4umdhyl5U_8AoVBdedKXIpB',
+            # 'lid': '%E6%88%91%E6%98%AF%E5%B7%A5%E5%8F%B79527%E6%9C%AC%E4%BA%BA',
+            't': '593a350382a4f28aa3e06c16c39febf2',
+            # 'tracknick': '%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA',
+        }
+        params = (
+            ('id', goods_id),
+            # ('skuId', '4016838121041'),
+        )
+        url = 'https://detail.m.tmall.com/item.htm'
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            params=params,
+            cookies=cookies,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
+        # self.lg.info(body)
+        assert body != ''
+        data0 = json_2_dict(
+            json_str=re.compile('var _DATA_Detail = (.*?);</script>').findall(body)[0],
+            default_res={}, )
+        data1 = json_2_dict(
+            json_str=re.compile('var _DATA_Mdskip =(.*?)</script>').findall(body)[0],
+            default_res={},)
+
+        # 这个必须存在, 否则报错退出!
+        data0['mockData'] = data0['mock']
+        # 判断下架参数赋值(必须)
+        if data0.get('apiStack') is None:
+            data0['apiStack'] = [{
+                'value': {
+                    'trade': data0['trade'],
+                    # 'skuCore': data0['mockData'].get('skuCore', {}),
+                    # 应该取data1中的skuCore
+                    'skuCore': data1.get('skuCore', {}),
+                }
+            }]
+        else:
+            pass
+
+        try:
+            data0['mock'] = {}
+            data0['detailDesc'] = {}
+            data0['modules'] = {}
+            data0['rate'] = {}
+            data0['tags'] = {}
+            data0['jumpUrl'] = {}
+            data0['traceDatas'] = {}
+            data1['consumerProtection'] = {}
+            data1['modules'] = {}
+            data1['userInfo'] = {}
+            # 问大家
+            data1['vertical'] = {}
+        except:
+            pass
+        # pprint(data0)
+        # pprint(data1)
+
+        data = {
+            'data': data0,
+        }
+        # pprint(data)
+
+        return data
 
     def _data_error_init(self):
         '''

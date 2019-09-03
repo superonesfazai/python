@@ -199,11 +199,15 @@ class TaoBaoLoginAndParse(Crawler):
             return self._data_error_init()
 
         price_info_list = self._get_price_info_list(data=data, detail_value_list=detail_value_list)
-        # 多规格进行重新赋值
-        price, taobao_price = self._get_new_price_and_taobao_price_when_price_info_list_not_null_list(
-            price_info_list=price_info_list,
-            price=price,
-            taobao_price=taobao_price)
+        try:
+            # 多规格进行重新赋值
+            price, taobao_price = self._get_new_price_and_taobao_price_when_price_info_list_not_null_list(
+                price_info_list=price_info_list,
+                price=price,
+                taobao_price=taobao_price)
+        except Exception:
+            self.lg.error('遇到错误[goods_id: {}]:'.format(goods_id), exc_info=True)
+            return self._data_error_init()
 
         all_img_url = self._get_all_img_url(tmp_all_img_url=data['item']['images'])
         # self.lg.info(str(all_img_url))
@@ -297,7 +301,10 @@ class TaoBaoLoginAndParse(Crawler):
 
         return data
 
-    def _get_new_price_and_taobao_price_when_price_info_list_not_null_list(self, price_info_list, price, taobao_price) -> tuple:
+    def _get_new_price_and_taobao_price_when_price_info_list_not_null_list(self,
+                                                                           price_info_list: list,
+                                                                           price,
+                                                                           taobao_price,) -> tuple:
         '''
         当price_info_list不为空list时, 重新赋值price, taobao_price
         :param price_info_list:
@@ -305,17 +312,24 @@ class TaoBaoLoginAndParse(Crawler):
         :param taobao_price:
         :return: (str, str)
         '''
+        # pprint(price_info_list)
         if price_info_list != []:
             # 重新赋值price, taobao_price 避免规格为0的价格也在最低最高价中
             try:
                 tmp_price_info_list = sorted(
-                    iterable=price_info_list,
+                    price_info_list,
                     key=lambda item: float(item.get('detail_price', '')),)
                 price = str(float(tmp_price_info_list[-1]['detail_price']))
                 taobao_price = str(float(tmp_price_info_list[0]['detail_price']))
             except Exception:
                 # self.lg.error('遇到错误:', exc_info=True)
                 pass
+        else:
+            pass
+
+        if isinstance(price, str):
+            assert price != '', 'price不为空str'
+            assert taobao_price != '', 'taobao_price不为空str'
         else:
             pass
 
@@ -393,29 +407,13 @@ class TaoBaoLoginAndParse(Crawler):
         goods_id = kwargs.get('goods_id')
 
         # pprint(data)
-        # 手机端描述地址
-        phone_div_url = ''
-        if data.get('item').get('taobaoDescUrl') is not None:
-            phone_div_url = 'https:' + data['item']['taobaoDescUrl']
-        # self.lg.info(phone_div_url)
+        div_desc = self.get_div_from_pc_div_url(goods_id=goods_id)
+        # self.lg.info(div_desc)
+        if div_desc == '':
+            self.lg.error('该商品的div_desc为空! 出错goods_id: %s' % str(goods_id))
+            return ''
 
-        # pc端描述地址
-        if data.get('item').get('taobaoPcDescUrl') is not None:
-            pc_div_url = 'https:' + data['item']['taobaoPcDescUrl']
-            # self.lg.info(phone_div_url)
-            # self.lg.info(pc_div_url)
-
-            div_desc = self.get_div_from_pc_div_url(goods_id=goods_id)
-            # self.lg.info(div_desc)
-            if div_desc == '':
-                self.lg.error('该商品的div_desc为空! 出错goods_id: %s' % str(goods_id))
-                return ''
-
-            # self.driver.quit()
-            collect()
-        else:
-            pc_div_url = ''
-            div_desc = ''
+        collect()
 
         return div_desc
 
@@ -596,12 +594,18 @@ class TaoBaoLoginAndParse(Crawler):
                 detail_name_list = []
                 for i in sku_base['props']:
                     tmp = [i['name'], i['pid']]
-                    value = i.get('values', [])
+                    values = i.get('values', [])
                     img_here = 0
-                    for j in value:
-                        if j.get('image', '') != '':
+                    for j in values:
+                        # self.lg.info(str(j))
+                        # tm 2版是None
+                        image_value = j.get('image', '')
+                        if image_value != '' \
+                                and image_value is not None:
                             img_here = 1
                             break
+                        else:
+                            continue
                     tmp.append(img_here)
                     detail_name_list.append(tmp)
                 # self.lg.info(str(detail_name_list))
@@ -615,6 +619,11 @@ class TaoBaoLoginAndParse(Crawler):
                     detail_value_list.append(tmp)  # 商品标签属性对应的值
                     # pprint(detail_value_list)
 
+            else:
+                pass
+        else:
+            pass
+
         return detail_name_list, detail_value_list
 
     def _get_price_info_list(self, data, detail_value_list):
@@ -625,7 +634,12 @@ class TaoBaoLoginAndParse(Crawler):
         :return:
         '''
         def add_normal_price(normal_sku_info, sku2_info):
-            '''给原先的list的item添加原价'''
+            """
+            给原先的list的item添加原价
+            :param normal_sku_info:
+            :param sku2_info:
+            :return:
+            """
             for key1, value1 in normal_sku_info.items():
                 for key2, value2 in sku2_info.items():
                     if key1 == key2:
@@ -636,7 +650,8 @@ class TaoBaoLoginAndParse(Crawler):
 
         # pprint(data)
         if data.get('skuBase').get('skus') is not None:
-            skus = data['skuBase']['skus']  # 里面是所有规格的可能值[{'propPath': '20105:4209035;1627207:1710113203;5919063:3266779;122216431:28472', 'skuId': '3335554577910'}, ...]
+            # 里面是所有规格的可能值[{'propPath': '20105:4209035;1627207:1710113203;5919063:3266779;122216431:28472', 'skuId': '3335554577910'}, ...]
+            skus = data['skuBase']['skus']
             pros = data.get('skuBase', {}).get('props', [])
             sku2_info = data['apiStack'][0].get('value').get('skuCore').get('sku2info')
             normal_sku_info = data.get('mockData', {}).get('skuCore', {}).get('sku2info', {})
@@ -645,30 +660,41 @@ class TaoBaoLoginAndParse(Crawler):
                 normal_sku_info.pop('0')
             except Exception:
                 pass
+            # pprint(skus)
             # pprint(sku2_info)
             # pprint(normal_sku_info)
             sku2_info = add_normal_price(normal_sku_info, sku2_info)
 
             prop_path_list = []  # 要存储的每个标签对应规格的价格及其库存
             for key, value in sku2_info.items():
-                tmp_prop_path_list = [item for item in skus if item.get('skuId') == key]  # [{'skuId': '3335554577923', 'propPath': '20105:4209035;1627207:1710113207;5919063:3266781;122216431:28473'}]
+                # [{'skuId': '3335554577923', 'propPath': '20105:4209035;1627207:1710113207;5919063:3266781;122216431:28473'}]
+                tmp_prop_path_list = [item for item in skus if str(item.get('skuId')) == str(key)]
+                # pprint(tmp_prop_path_list)
 
                 # 处理propPath得到可识别的文字
                 prop_path = tmp_prop_path_list[0].get('propPath', '').split(';')
                 prop_path = [i.split(':') for i in prop_path]
-                prop_path_2 = [i[1] for i in prop_path]     # 暂存值
-                prop_path = [j[1] for j in prop_path]  # 是每个属性对应的vid值(是按顺序来的)['4209035', '1710113207', '3266781', '28473']
+                # 暂存值
+                prop_path_2 = [i[1] for i in prop_path]
+                # 是每个属性对应的vid值(是按顺序来的)['4209035', '1710113207', '3266781', '28473']
+                prop_path = [j[1] for j in prop_path]
                 # self.lg.info(str(prop_path))
                 # pprint(prop_path_2)
 
-                for index in range(0, len(prop_path)):  # 将每个值对应转换为具体规格
+                # 将每个值对应转换为具体规格
+                # pprint(detail_value_list)
+                for index in range(0, len(prop_path)):
                     for i in detail_value_list:
                         for j in i:
-                            if prop_path[index] == j[1]:
+                            # self.lg.info('{}, {}'.format(prop_path[index], j[1]))
+                            if str(prop_path[index]) == str(j[1]):
                                 prop_path[index] = j[0]
-                # self.lg.info(str(prop_path))                  # 其格式为  ['32GB', '【黑色主机】【红 /  蓝 手柄】', '套餐二', '港版']
+
+                # 其格式为  ['32GB', '【黑色主机】【红 /  蓝 手柄】', '套餐二', '港版']
+                # self.lg.info(str(prop_path))
                 # 再转换为要存储的字符串
-                spec_value = '|'.join(prop_path)  # 其规格为  32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版
+                # 其规格为  32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版
+                spec_value = '|'.join(prop_path)
                 # self.lg.info(prop_path)
 
                 oo = value.get('price', {})
@@ -718,6 +744,8 @@ class TaoBaoLoginAndParse(Crawler):
         pros = kwargs.get('pros')
         prop_path_2 = kwargs.get('prop_path_2')
 
+        # pprint(pros)
+        # pprint(prop_path_2)
         img_url = ''
         if len(pros) >= 1:  # 得到规格示例图
             # pprint(pros)
@@ -728,6 +756,10 @@ class TaoBaoLoginAndParse(Crawler):
                 if len(values) >= 1:
                     if values[0].get('image') is not None:
                         img_url_list = values
+                    else:
+                        continue
+                else:
+                    continue
 
             # pprint(img_url_list)
             img_url_list = [(i.get('vid', ''), i.get('image', '')) for i in img_url_list]
@@ -736,9 +768,16 @@ class TaoBaoLoginAndParse(Crawler):
                 # print('vid:{0}'.format(k))
                 for i in img_url_list:
                     # print(i[0])
-                    if k == i[0]:
+                    if str(k) == str(i[0]):
                         if i[1] != '':
                             img_url = 'https:' + i[1]
+                        else:
+                            continue
+                    else:
+                        continue
+
+        else:
+            pass
 
         return img_url
 
