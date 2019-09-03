@@ -56,7 +56,7 @@ class DistributedTasksProducer(AsyncCrawler):
         self.max_tasks_num = 2500
         # 休眠20s, 避免太快导致已在待更新list中的被重新读取到分布式任务中, 导致重复更新
         # 等待起码一次更新完毕!再写入新值
-        self.sleep_time = 80.
+        self.sleep_time = 35.
         self.redis_pool = RedisConnectionPool(
             host=REDIS_HOST,
             port=REDIS_PORT,

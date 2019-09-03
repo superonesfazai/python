@@ -565,7 +565,8 @@ ARTICLE_ITEM_LIST = [
         },
         'video_title': {
             'method': 'css',
-            'selector': 'h1.trans-video-tit ::text',
+            # 'selector': 'h1.trans-video-tit ::text',
+            'selector': 'div.ui-main-tit h1 ::text',
         },
         'author': {
             'method': 'css',
@@ -573,7 +574,8 @@ ARTICLE_ITEM_LIST = [
         },
         'video_author': {
             'method': 'css',
-            'selector': 'div.trans-video-mes span:nth-child(1) ::text',
+            # 'selector': 'div.trans-video-mes span:nth-child(1) ::text',
+            'selector': 'div.mes span:nth-child(1) ::text',
         },
         'head_url': None,
         'create_time': {
@@ -582,7 +584,11 @@ ARTICLE_ITEM_LIST = [
         },
         'video_create_time': {
             'method': 'css',
-            'selector': 'div.trans-video-mes span:nth-child(2) ::text',
+            # 'selector': 'div.trans-video-mes span:nth-child(2) ::text',
+            'selector': 'div.mes span:nth-child(2) ::text',
+
+            # 'method': 're',
+            # 'selector': '\"publish_time\":(\d+),',
         },
         'content': {
             'method': 'css',

@@ -233,6 +233,10 @@ class RequestClient(AsyncCrawler):
         # 图文
         # article_link = 'https://www.91mitang.com/pages/2106106'
 
+        # 梨视频
+        # article_link = 'https://www.pearvideo.com/video_1584072'
+        # article_link = 'https://www.pearvideo.com/video_1598014'
+
         # 雪球
         article_link = 'https://xueqiu.com/5157574024/130400677'
 
