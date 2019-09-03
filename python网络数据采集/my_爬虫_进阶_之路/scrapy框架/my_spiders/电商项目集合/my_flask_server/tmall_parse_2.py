@@ -34,7 +34,7 @@ from my_exceptions import (
 from fzutils.spider.async_always import *
 
 class TmallParse(Crawler):
-    def __init__(self, logger=None, is_real_times_update_call=False):
+    def __init__(self, logger=None, is_real_times_update_call=True):
         """
         :param logger:
         :param is_real_times_update_call: 是否是实时更新调用该类
@@ -388,20 +388,10 @@ class TmallParse(Crawler):
             json_str=re.compile('var _DATA_Mdskip =(.*?)</script>').findall(body)[0],
             default_res={},)
 
+        assert data0 != {}, 'data0 不为空dict!'
+        assert data1 != {}, 'data1 不为空dict!'
         # 这个必须存在, 否则报错退出!
         data0['mockData'] = data0['mock']
-        # 判断下架参数赋值(必须)
-        if data0.get('apiStack') is None:
-            data0['apiStack'] = [{
-                'value': {
-                    'trade': data0['trade'],
-                    # 'skuCore': data0['mockData'].get('skuCore', {}),
-                    # 应该取data1中的skuCore
-                    'skuCore': data1.get('skuCore', {}),
-                }
-            }]
-        else:
-            pass
 
         try:
             data0['mock'] = {}
@@ -420,6 +410,19 @@ class TmallParse(Crawler):
             pass
         # pprint(data0)
         # pprint(data1)
+
+        # 判断下架参数赋值(必须)
+        if data0.get('apiStack') is None:
+            data0['apiStack'] = [{
+                'value': {
+                    # 应该取data1中的trade来判断是否下架
+                    'trade': data1['trade'],
+                    # 'skuCore': data0['mockData'].get('skuCore', {}),
+                    # 应该取data1中的skuCore
+                    'skuCore': data1.get('skuCore', {}),
+                }}]
+        else:
+            pass
 
         data = {
             'data': data0,
@@ -515,15 +518,34 @@ class TmallParse(Crawler):
         eg: https://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.16.3a476095nAD0gh&id=541895028241&skuId=3556559472007&areaId=330700&user_id=732956498&cat_id=2&is_b=1&rn=5435e2e903312b0cf8422e9938dff7ac
         '''
         is_delete = 0
+        # todo 以下顺序不可颠倒
         # * 2017-10-16 先通过buyEnable字段来判断商品是否已经下架
         if data.get('trade', {}) != {}:
             if data.get('trade', {}).get('buyEnable', 'true') == 'false':
                 is_delete = 1
+            else:
+                pass
+        else:
+            pass
+
+        if is_delete == 0:
+            # 2019-09-03 新增: tm 2版的下架判断
+            if not data.get('trade', {}).get('buyEnable', True):
+                is_delete = 1
+            else:
+                pass
+
+        else:
+            pass
 
         if is_delete == 0:      # * 2018-6-29 加个判断防止与上面冲突(修复冲突bug)
             # * 2018-4-17 新增一个判断是否下架
             if not data.get('mockData', {}).get('trade', {}).get('buyEnable', True):
                     is_delete = 1
+            else:
+                pass
+        else:
+            pass
 
         # 2017-10-16 此处再考虑名字中显示下架的商品
         if re.compile(r'下架').findall(title) != []:
