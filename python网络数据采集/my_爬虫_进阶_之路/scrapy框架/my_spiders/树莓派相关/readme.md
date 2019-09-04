@@ -551,6 +551,39 @@ C+x 0                       关闭光标所在窗格
 C+x 4 f                     在其他窗格中打开某个文件
 ```
 
+### linux 打开文件数 too many open files 解决方法
+*之前高并发1500+时老报抓取失败, 最后发现是server.py 代理提供服务时, ulimit -n 限制所致!!!*
+
+```bash
+$ ulimit -a
+-t: cpu time (seconds)              unlimited
+-f: file size (blocks)              unlimited
+-d: data seg size (kbytes)          unlimited
+-s: stack size (kbytes)             8192
+-c: core file size (blocks)         0
+-m: resident set size (kbytes)      unlimited
+-u: processes                       29184
+-n: file descriptors                1024
+-l: locked-in-memory size (kbytes)  65536
+-v: address space (kbytes)          unlimited
+-x: file locks                      unlimited
+-i: pending signals                 29184
+-q: bytes in POSIX msg queues       819200
+-e: max nice                        0
+-r: max rt priority                 0
+-N 15:                              unlimited
+
+# 非永久
+$ ulimit -n 4096
+
+# 永久
+$ vim /etc/security/limits.conf
+# 在最后加入
+* soft nofile 4096
+* hard nofile 4096
+# 最前的 * 表示所有用户，可根据需要设置某一用户
+```
+
 ## 外网访问树莓派
 
 ### cpolar(推荐)

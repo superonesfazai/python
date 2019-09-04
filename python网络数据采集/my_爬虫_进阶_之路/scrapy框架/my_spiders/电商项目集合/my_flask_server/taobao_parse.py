@@ -55,7 +55,7 @@ class TaoBaoLoginAndParse(Crawler):
         if self.is_real_times_update_call:
             self.proxy_type = PROXY_TYPE_HTTPS
             # 不可太大，否则server采集时慢
-            self.req_num_retries = 8
+            self.req_num_retries = 7
         else:
             # 提高server首次采集成功率
             self.proxy_type = PROXY_TYPE_HTTP

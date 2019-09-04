@@ -28,6 +28,7 @@ class TmuxOps(AsyncCrawler):
         self.ip_pool_path = '~/myFiles/tri_party_agent_ip_pool'
         self.fck_run_path = '~/myFiles/python/my_flask_server/just_fuck_run'
         self.dcs_path = '~/myFiles/python/my_flask_server/distribute_jobs'
+        self.cp_path = '~/myFiles/python/my_flask_server/cp'
 
     async def _fck_run(self):
         print('开始执行tmux 命令集合...')
@@ -41,6 +42,11 @@ class TmuxOps(AsyncCrawler):
         :return:
         """
         return [
+            {
+                'page_name': 'file_ulimit_set',
+                'cmd': 'cd ~ && ulimit -n 8192',
+                'delay_time': 2,
+            },
             {
                 'page_name': 'redis_server',
                 'cmd': 'cd ~ && redis-server /etc/redis/redis.conf',
@@ -153,6 +159,14 @@ class TmuxOps(AsyncCrawler):
                 'page_name': 'zwm',
                 'cmd': 'cd {} && {} zwm_spider.py'.format(
                     self.zwm_path,
+                    self.python_version_cmd,
+                ),
+                'delay_time': 2,
+            },
+            {
+                'page_name': 'cp_goods_info_monitor',
+                'cmd': 'cd {} && {} cp_goods_info_monitor_spider.py'.format(
+                    self.cp_path,
                     self.python_version_cmd,
                 ),
                 'delay_time': 2,

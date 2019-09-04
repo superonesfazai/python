@@ -53,10 +53,10 @@ class DistributedTasksProducer(AsyncCrawler):
         self.concurrency = 10
         self.concurrent_type = CONCURRENT_TYPE
         # redis dcs最大任务数
-        self.max_tasks_num = 2500
+        self.max_tasks_num = 8000
         # 休眠20s, 避免太快导致已在待更新list中的被重新读取到分布式任务中, 导致重复更新
         # 等待起码一次更新完毕!再写入新值
-        self.sleep_time = 35.
+        self.sleep_time = 120.
         self.redis_pool = RedisConnectionPool(
             host=REDIS_HOST,
             port=REDIS_PORT,
