@@ -649,11 +649,14 @@ class TaoBaoLoginAndParse(Crawler):
             return sku2_info
 
         # pprint(data)
-        if data.get('skuBase').get('skus') is not None:
+        if data.get('skuBase', {}).get('skus') is not None:
             # 里面是所有规格的可能值[{'propPath': '20105:4209035;1627207:1710113203;5919063:3266779;122216431:28472', 'skuId': '3335554577910'}, ...]
-            skus = data['skuBase']['skus']
+            skus = data.get('skuBase', {}).get('skus', [])
             pros = data.get('skuBase', {}).get('props', [])
-            sku2_info = data['apiStack'][0].get('value').get('skuCore').get('sku2info')
+            sku2_info = data['apiStack'][0]\
+                .get('value', {})\
+                .get('skuCore', {})\
+                .get('sku2info')
             normal_sku_info = data.get('mockData', {}).get('skuCore', {}).get('sku2info', {})
             try:
                 sku2_info.pop('0')  # 此处删除总库存的值
@@ -665,7 +668,8 @@ class TaoBaoLoginAndParse(Crawler):
             # pprint(normal_sku_info)
             sku2_info = add_normal_price(normal_sku_info, sku2_info)
 
-            prop_path_list = []  # 要存储的每个标签对应规格的价格及其库存
+            # 要存储的每个标签对应规格的价格及其库存
+            prop_path_list = []
             for key, value in sku2_info.items():
                 # [{'skuId': '3335554577923', 'propPath': '20105:4209035;1627207:1710113207;5919063:3266781;122216431:28473'}]
                 tmp_prop_path_list = [item for item in skus if str(item.get('skuId')) == str(key)]
@@ -675,9 +679,8 @@ class TaoBaoLoginAndParse(Crawler):
                 prop_path = tmp_prop_path_list[0].get('propPath', '').split(';')
                 prop_path = [i.split(':') for i in prop_path]
                 # 暂存值
-                prop_path_2 = [i[1] for i in prop_path]
                 # 是每个属性对应的vid值(是按顺序来的)['4209035', '1710113207', '3266781', '28473']
-                prop_path = [j[1] for j in prop_path]
+                prop_path = prop_path_2 = [i[1] for i in prop_path]
                 # self.lg.info(str(prop_path))
                 # pprint(prop_path_2)
 
@@ -689,6 +692,8 @@ class TaoBaoLoginAndParse(Crawler):
                             # self.lg.info('{}, {}'.format(prop_path[index], j[1]))
                             if str(prop_path[index]) == str(j[1]):
                                 prop_path[index] = j[0]
+                            else:
+                                continue
 
                 # 其格式为  ['32GB', '【黑色主机】【红 /  蓝 手柄】', '套餐二', '港版']
                 # self.lg.info(str(prop_path))
@@ -704,6 +709,7 @@ class TaoBaoLoginAndParse(Crawler):
                 else:
                     # 处理短期活动预付定金, 取当前价
                     detail_price = str(float(kk['priceText']))
+
                 try:
                     rest_number = int(value['quantity'])
                     # TODO 先不跳过, 避免下次出问题, 无法排查, taobao_price, price为什么可能不同
@@ -711,14 +717,19 @@ class TaoBaoLoginAndParse(Crawler):
                     if rest_number <= 0:
                         # 跳过库存为0的
                         continue
+                    else:
+                        pass
                 except Exception:
                     self.lg.error('遇到错误:', exc_info=True)
                     continue
 
-                # tmp['sku_id'] = tmp_prop_path_list[0]['skuId']      # skuId是定位值，由于不需要就给它注释了
+                # skuId是定位值，由于不需要就给它注释了
+                # tmp['sku_id'] = tmp_prop_path_list[0]['skuId']
                 # tmp['prop_path'] = tmp_prop_path_list[0]['propPath']
 
-                img_url = self._get_spec_value_one_img_url(pros=pros, prop_path_2=prop_path_2)
+                img_url = self._get_spec_value_one_img_url(
+                    pros=pros,
+                    prop_path_2=prop_path_2)
                 tmp = {
                     'spec_value': spec_value,
                     'normal_price': value.get('normal_price', ''),
@@ -727,7 +738,9 @@ class TaoBaoLoginAndParse(Crawler):
                     'img_url': img_url,
                 }
                 prop_path_list.append(tmp)
-            # pprint(prop_path_list)                  # 其格式为  [{'sku_id': '3335554577923', 'prop_path': '32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版', 'sku_price': '2740', 'quantity': '284'}, ...]
+
+            # 其格式为  [{'sku_id': '3335554577923', 'prop_path': '32GB|【黑色主机】【红 /  蓝 手柄】|套餐二|港版', 'sku_price': '2740', 'quantity': '284'}, ...]
+            # pprint(prop_path_list)
             price_info_list = prop_path_list
         else:
             # self.lg.info(True)

@@ -286,7 +286,11 @@ class TBUpdater(AsyncCrawler):
 
         return (res, index)
 
-    async def _update_one_goods_info_in_db(self, db_goods_info_obj, index, before_goods_data, end_goods_data):
+    async def _update_one_goods_info_in_db(self,
+                                           db_goods_info_obj,
+                                           index,
+                                           before_goods_data,
+                                           end_goods_data):
         """
         更新单个goods
         :param db_goods_info_obj:
@@ -361,7 +365,7 @@ class TBUpdater(AsyncCrawler):
             index=index,
             logger=self.lg,
             db_conn_type=self.db_conn_type,
-            remainder=50)
+            remainder=25,)
         if self.sql_cli.is_connect_success:
             self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (
                 db_goods_info_obj.goods_id,

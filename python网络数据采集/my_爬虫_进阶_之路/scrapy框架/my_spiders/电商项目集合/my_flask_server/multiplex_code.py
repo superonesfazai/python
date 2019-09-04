@@ -1108,7 +1108,8 @@ def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) ->
     price_info_list = old_sku_info = db_goods_info_obj.old_sku_info
     try:
         # todo
-        #  db old_sku_info原先只有两种情况(两者都不加价与加价后的最新采集数据对比): 未加价(则is_price_change必定为1) | 已加价(变动则is_price_change=1 or 不变则=0)
+        #  db old_sku_info原先只有两种情况(两者都不加价与加价后的最新采集数据对比):
+        #  未加价(则is_price_change必定为1) | 已加价(变动则is_price_change=1 or 不变则=0)
         old_sku_info = format_price_info_list(
             price_info_list=price_info_list,
             site_id=site_id,
@@ -1147,7 +1148,7 @@ def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) ->
             new_price=add_cp_profit_2_price(data['price']),
             new_taobao_price=add_cp_profit_2_price(data['taobao_price']),
             is_price_change=data['_is_price_change'],
-            price_change_info=price_change_info)
+            price_change_info=price_change_info,)
         # print('old_taobao_price: {}, old_price: {}, new_taobao_price: {}, new_price: {}'.format(
         #     db_goods_info_obj.old_taobao_price,
         #     db_goods_info_obj.old_price,
@@ -1155,7 +1156,8 @@ def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) ->
         #     data['price'],
         # ))
         if data['_is_price_change'] == 1:
-            if old_sku_info == [] and new_sku_info == []:
+            if old_sku_info == [] \
+                    and new_sku_info == []:
                 # 单规格变动情况下, 重新记录sku_info_trans_time
                 data['sku_info_trans_time'] = str(get_shanghai_time())
             else:
