@@ -770,7 +770,12 @@ class TaoBaoLoginAndParse(Crawler):
                     # print(i[0])
                     if str(k) == str(i[0]):
                         if i[1] != '':
-                            img_url = 'https:' + i[1]
+                            try:
+                                img_url = 'https:' + i[1]
+                            except TypeError:
+                                # 捕获i[1]为None的情况
+                                # self.lg.error('遇到错误:', exc_info=True)
+                                continue
                         else:
                             continue
                     else:
@@ -1062,7 +1067,7 @@ class TaoBaoLoginAndParse(Crawler):
         :param goods_id:
         :return:
         '''
-        self.lg.info('正在尝试通过2版获取div_desc...')
+        self.lg.info('正在尝试通过2版获取div_desc[where goods_id: {}] ...'.format(goods_id))
         headers = get_random_headers(
             user_agent_type=1,
             connection_status_keep_alive=False,
@@ -1136,7 +1141,7 @@ class TaoBaoLoginAndParse(Crawler):
         :param goods_id:
         :return:
         """
-        self.lg.info('正在尝试通过3版获取div_desc...')
+        self.lg.info('正在尝试通过3版获取div_desc[where goods_id: {}] ...'.format(goods_id))
         headers = {
             'Sec-Fetch-Mode': 'no-cors',
             # 'Referer': 'https://h5.m.taobao.com/app/detail/desc.html?_isH5Des=true',

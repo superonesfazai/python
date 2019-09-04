@@ -90,6 +90,107 @@ def contraband_name_check(target_name: str) -> bool:
 
     return False
 
+def get_tm_m_body_data(goods_id,
+                       proxy_type=PROXY_TYPE_HTTP,
+                       num_retries=6,
+                       logger=None) -> dict:
+    """
+    尝试获取tm m body获取data
+    :param goods_id:
+    :return:
+    """
+    # todo 无法处理参加聚划算的商品, 因为data['skuBase']['skus'] = None
+    headers = get_random_headers(
+        user_agent_type=1,
+        connection_status_keep_alive=False,)
+    headers.update({
+        'authority': 'detail.m.tmall.com',
+        'sec-fetch-mode': 'navigate',
+        'sec-fetch-user': '?1',
+        'sec-fetch-site': 'none',
+    })
+    # 必须
+    cookies = {
+        # '_m_h5_tk': '18d7e97da9f5c7a9865ea49e46ce461d_1567496859709',
+        # '_m_h5_tk_enc': '5b40dd9750869a928ce9d15d01a29d4d',
+        '_tb_token_': '35f3ee3da748',
+        # 'cna': 'wRsVFTj6JEoCAXHXtCqXOzC7',
+        'cookie2': '180810809b5c95e08a6c2f3a496fada6',
+        # 'enc': 'NMn7zFLrgU6nMXwgPWND42Y2H3tmKu0Iel59hu%2B7DFx27uPqGw349h4yvXidY3xuFC6%2FjozpnaTic5LC7jv8CA%3D%3D',
+        # 'hng': 'CN%7Czh-CN%7CCNY%7C156',
+        # 'isg': 'BLW1ZEYgBBlRF2FYLY55p6bmxDdvMmlElPcpyDfaeix7DtUA_4HxFt2MXJKdToH8',
+        # 'l': 'cB_zn817vA2VKjZ_BOfZ-urza77O5IObzsPzaNbMiIB1tR5sYdC7nHwIPrZHd3QQE95evF-yQC4umdhyl5U_8AoVBdedKXIpB',
+        # 'lid': '%E6%88%91%E6%98%AF%E5%B7%A5%E5%8F%B79527%E6%9C%AC%E4%BA%BA',
+        't': '593a350382a4f28aa3e06c16c39febf2',
+        # 'tracknick': '%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA',
+    }
+    params = (
+        ('id', goods_id),
+        # ('skuId', '4016838121041'),
+    )
+    url = 'https://detail.m.tmall.com/item.htm'
+    body = Requests.get_url_body(
+        url=url,
+        headers=headers,
+        params=params,
+        cookies=cookies,
+        ip_pool_type=IP_POOL_TYPE,
+        proxy_type=proxy_type,
+        num_retries=num_retries,)
+    # _print(msg=str(body), logger=logger)
+    assert body != ''
+    data0 = json_2_dict(
+        json_str=re.compile('var _DATA_Detail = (.*?);</script>').findall(body)[0],
+        default_res={},
+        logger=logger,)
+    data1 = json_2_dict(
+        json_str=re.compile('var _DATA_Mdskip =(.*?)</script>').findall(body)[0],
+        default_res={},
+        logger=logger,)
+
+    assert data0 != {}, 'data0 不为空dict!'
+    assert data1 != {}, 'data1 不为空dict!'
+    # 这个必须存在, 否则报错退出!
+    data0['mockData'] = data0['mock']
+
+    try:
+        data0['mock'] = {}
+        data0['detailDesc'] = {}
+        data0['modules'] = {}
+        data0['rate'] = {}
+        data0['tags'] = {}
+        data0['jumpUrl'] = {}
+        data0['traceDatas'] = {}
+        data1['consumerProtection'] = {}
+        data1['modules'] = {}
+        data1['userInfo'] = {}
+        # 问大家
+        data1['vertical'] = {}
+    except:
+        pass
+    # pprint(data0)
+    # pprint(data1)
+
+    # 判断下架参数赋值(必须)
+    if data0.get('apiStack') is None:
+        data0['apiStack'] = [{
+            'value': {
+                # 应该取data1中的trade来判断是否下架
+                'trade': data1['trade'],
+                # 'skuCore': data0['mockData'].get('skuCore', {}),
+                # 应该取data1中的skuCore
+                'skuCore': data1.get('skuCore', {}),
+            }}]
+    else:
+        pass
+
+    data = {
+        'data': data0,
+    }
+    # pprint(data)
+
+    return data
+
 @catch_exceptions(default_res=[])
 def get_waited_2_update_db_data_from_redis_server(spider_name='tm0',
                                                   base_name='fzhook',
