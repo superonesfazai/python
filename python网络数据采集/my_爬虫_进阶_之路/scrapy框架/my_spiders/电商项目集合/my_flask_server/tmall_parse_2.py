@@ -248,9 +248,12 @@ class TmallParse(Crawler):
         # 上下架判断放在这里避免已下架的不进行taobao_price为空断言判断
         is_delete = self._get_is_delete(data=data, title=title)
 
-        # 每个标签对应值的价格及其库存
-        price_info_list = taobao._get_price_info_list(data=data, detail_value_list=detail_value_list)
         try:
+            # 每个标签对应值的价格及其库存
+            price_info_list = taobao._get_price_info_list(
+                data=data,
+                detail_value_list=detail_value_list,
+                is_delete=is_delete,)
             # 多规格进行重新赋值
             price, taobao_price = taobao._get_new_price_and_taobao_price_when_price_info_list_not_null_list(
                 price_info_list=price_info_list,

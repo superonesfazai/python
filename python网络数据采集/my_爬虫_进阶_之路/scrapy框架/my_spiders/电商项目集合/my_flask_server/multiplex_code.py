@@ -40,7 +40,8 @@ from multiprocessing import cpu_count
 from sys import path as sys_path
 from my_exceptions import (
     SqlServerConnectionException,
-    DBGetGoodsSkuInfoErrorException,)
+    DBGetGoodsSkuInfoErrorException,
+    GoodsShelvesException,)
 from sql_str_controller import (
     cm_insert_str_2,
     al_select_str_2,
@@ -138,7 +139,26 @@ def get_tm_m_body_data(goods_id,
         proxy_type=proxy_type,
         num_retries=num_retries,)
     # _print(msg=str(body), logger=logger)
-    assert body != ''
+    try:
+        assert body != ''
+    except AssertionError as e:
+        # raise e
+        # tm m站无商品找不到页面的返回html
+        # 从pc下手查看该商品是否找不到
+        pc_body = get_tm_pc_body(
+            goods_id=goods_id,
+            cookies=cookies,
+            num_retries=5,
+            logger=logger,
+            proxy_type=proxy_type,)
+        # _print(msg=str(body), logger=logger)
+        if '很抱歉，您查看的商品找不到了！' in pc_body \
+                or '此商品已下架' in pc_body:
+            raise GoodsShelvesException
+        else:
+            # 抛出原先异常!
+            raise e
+
     data0 = json_2_dict(
         json_str=re.compile('var _DATA_Detail = (.*?);</script>').findall(body)[0],
         default_res={},
@@ -190,6 +210,45 @@ def get_tm_m_body_data(goods_id,
     # pprint(data)
 
     return data
+
+def get_tm_pc_body(goods_id: str,
+                   cookies: dict,
+                   num_retries=3,
+                   logger=None,
+                   proxy_type=PROXY_TYPE_HTTP,) -> str:
+    """
+    获取tm pc body
+    :param goods_id:
+    :return:
+    """
+    _print(
+        msg='try get pc body[where goods_id: {}] ...'.format(goods_id),
+        logger=logger,)
+    headers = get_random_headers(
+        connection_status_keep_alive=False,
+        cache_control='',)
+    headers.update({
+        'authority': 'detail.tmall.com',
+        'sec-fetch-mode': 'navigate',
+        'sec-fetch-user': '?1',
+        'sec-fetch-site': 'none',
+    })
+    params = (
+        ('id', goods_id),
+    )
+    url = 'https://detail.tmall.com/item.htm'
+    body = Requests.get_url_body(
+        url=url,
+        headers=headers,
+        params=params,
+        # 必须
+        cookies=cookies,
+        ip_pool_type=IP_POOL_TYPE,
+        proxy_type=proxy_type,
+        num_retries=num_retries,)
+    assert body != ''
+
+    return body
 
 @catch_exceptions(default_res=[])
 def get_waited_2_update_db_data_from_redis_server(spider_name='tm0',

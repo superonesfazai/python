@@ -200,8 +200,11 @@ class TaoBaoLoginAndParse(Crawler):
 
         is_delete = self._get_is_delete(title=title, data=data)
 
-        price_info_list = self._get_price_info_list(data=data, detail_value_list=detail_value_list)
         try:
+            price_info_list = self._get_price_info_list(
+                data=data,
+                detail_value_list=detail_value_list,
+                is_delete=is_delete,)
             # 多规格进行重新赋值
             price, taobao_price = self._get_new_price_and_taobao_price_when_price_info_list_not_null_list(
                 price_info_list=price_info_list,
@@ -630,7 +633,7 @@ class TaoBaoLoginAndParse(Crawler):
 
         return detail_name_list, detail_value_list
 
-    def _get_price_info_list(self, data, detail_value_list):
+    def _get_price_info_list(self, data, detail_value_list, is_delete):
         '''
         得到详细规格及其价格信息
         :param data:
@@ -653,15 +656,22 @@ class TaoBaoLoginAndParse(Crawler):
             return sku2_info
 
         # pprint(data)
+        pros = data.get('skuBase', {}).get('props', [])
+        sku2_info = data['apiStack'][0] \
+            .get('value', {}) \
+            .get('skuCore', {}) \
+            .get('sku2info', {})
+        normal_sku_info = data\
+            .get('mockData', {})\
+            .get('skuCore', {})\
+            .get('sku2info', {})
         if data.get('skuBase', {}).get('skus') is not None:
             # 里面是所有规格的可能值[{'propPath': '20105:4209035;1627207:1710113203;5919063:3266779;122216431:28472', 'skuId': '3335554577910'}, ...]
             skus = data.get('skuBase', {}).get('skus', [])
-            pros = data.get('skuBase', {}).get('props', [])
-            sku2_info = data['apiStack'][0]\
-                .get('value', {})\
-                .get('skuCore', {})\
-                .get('sku2info')
-            normal_sku_info = data.get('mockData', {}).get('skuCore', {}).get('sku2info', {})
+            if skus is None:
+                skus = []
+            else:
+                pass
             try:
                 sku2_info.pop('0')  # 此处删除总库存的值
                 normal_sku_info.pop('0')
@@ -747,8 +757,44 @@ class TaoBaoLoginAndParse(Crawler):
             # pprint(prop_path_list)
             price_info_list = prop_path_list
         else:
-            # self.lg.info(True)
             price_info_list = []
+            # todo 可能是单规格的
+            # pprint(normal_sku_info)
+            # pprint(sku2_info)
+            if is_delete == 1:
+                return price_info_list
+
+            # 处理tm 2版
+            # 处于上架状态
+            if len(normal_sku_info) == 1:
+                # 判断是否为单规格(只处理单规格的)
+                normal_price = str(float(normal_sku_info.get('0', {}).get('price', {}).get('priceText', '')))
+                rest_number = int(sku2_info.get('0', {}).get('quantity', 0))
+                # 无值则为空
+                price_title = str(sku2_info.get('0', {}).get('price', {}).get('priceTitle', ''))
+                detail_price = str(float(sku2_info.get('0', {}).get('price', {}).get('priceText', '')))
+                sub_price = str(sku2_info.get('0', {}).get('subPrice', {}).get('priceText', ''))
+                if price_title != '定金':
+                    pass
+                else:
+                    if sub_price != '':
+                        detail_price = str(float(sub_price))
+                    else:
+                        pass
+
+                if rest_number == 0:
+                    return price_info_list
+
+                else:
+                    price_info_list.append({
+                        'spec_value': '',
+                        'normal_price': normal_price,
+                        'detail_price': detail_price,
+                        'rest_number': rest_number,
+                        'img_url': '',
+                    })
+            else:
+                pass
 
         return price_info_list
 
