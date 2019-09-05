@@ -245,6 +245,9 @@ class TmallParse(Crawler):
         # 商品标签属性名称,及其对应id值
         detail_name_list, detail_value_list = taobao._get_detail_name_and_value_list(data=data)
 
+        # 上下架判断放在这里避免已下架的不进行taobao_price为空断言判断
+        is_delete = self._get_is_delete(data=data, title=title)
+
         # 每个标签对应值的价格及其库存
         price_info_list = taobao._get_price_info_list(data=data, detail_value_list=detail_value_list)
         try:
@@ -252,7 +255,8 @@ class TmallParse(Crawler):
             price, taobao_price = taobao._get_new_price_and_taobao_price_when_price_info_list_not_null_list(
                 price_info_list=price_info_list,
                 price=price,
-                taobao_price=taobao_price)
+                taobao_price=taobao_price,
+                is_delete=is_delete)
         except Exception:
             self.lg.error('遇到错误[goods_id: {}]:'.format(goods_id), exc_info=True)
             return self._data_error_init()
@@ -298,12 +302,6 @@ class TmallParse(Crawler):
                 # self.lg.info(str(tmp))
                 detail_value_list.append(tmp)  # 商品标签属性对应的值
                 # pprint(detail_value_list)
-
-        is_delete = self._get_is_delete(data=data, title=title)
-        # self.lg.info('is_delete = %s' % str(is_delete))
-        if is_delete == 1:
-            # self.lg.info('@@@ 该商品{}已下架...'.format(goods_id))
-            pass
 
         # 月销量
         sell_count = '0'

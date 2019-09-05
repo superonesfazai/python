@@ -684,7 +684,7 @@ def get_proxy_rules_list(data=None, area='') -> list:
                 'method': 'dict_path',
                 'selector': data.get('port', '') if isinstance(data, dict) else '',
             },
-            'activity_time': 6 * 60,  # 官方3分钟, 此处我设置为6
+            'activity_time': 4 * 60,  # 官方1-3分钟, 此处我设置为4(不可太大, 否则采集失败率高)
             'add_white_list_url': 'https://proxy.horocn.com/api/ip/whitelist',
             'api_url_call_frequency_sleep_time': 0,
         },

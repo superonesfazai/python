@@ -44,7 +44,7 @@ class TmuxOps(AsyncCrawler):
         return [
             {
                 'page_name': 'file_ulimit_set',
-                'cmd': 'cd ~ && ulimit -n 8192',
+                'cmd': 'cd ~ && ulimit -n 65536',
                 'delay_time': 2,
             },
             {
@@ -71,7 +71,7 @@ class TmuxOps(AsyncCrawler):
                     self.ip_pool_path,
                     self.python_version_cmd,
                 ),
-                'delay_time': 20,
+                'delay_time': 25,
             },
             {
                 'page_name': 'new_my_server',
@@ -122,7 +122,7 @@ class TmuxOps(AsyncCrawler):
                 ),
                 'delay_time': 2,
             },
-            # tm 实时更新, 测试发现: 2个出错率低
+            # tm 实时更新, 测试发现: 2个出错率低(mac不跑, pi上跑2个即可(多开的多为失败, 休眠100s)!)
             {
                 'page_name': 'tm0',
                 'cmd': 'cd {} && {} tmall_real-times_update.py'.format(

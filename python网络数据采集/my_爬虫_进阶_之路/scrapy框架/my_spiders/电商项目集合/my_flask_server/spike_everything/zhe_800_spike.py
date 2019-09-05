@@ -30,18 +30,12 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from sql_str_controller import z8_select_str_5
 
-from fzutils.linux_utils import daemon_init
-from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_phantomjs import BaseDriver
-from fzutils.common_utils import json_2_dict
-from fzutils.time_utils import *
+from fzutils.spider.async_always import *
 
 class Zhe800Spike(object):
     def __init__(self):
         self.headers = self._get_pc_headers()
         self.ip_pool_type = IP_POOL_TYPE
-        self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
 
     @staticmethod
     def _get_pc_headers():
@@ -176,18 +170,38 @@ class Zhe800Spike(object):
         _data = []
         for _page in range(1, 20):
             '''per_page为20固定，其他不返回数据'''
-            tmp_url = 'https://zapi.zhe800.com/zhe800_n_api/xsq/m/session_deals?session_id={0}&page={1}&per_page=20'.format(
-                str(base_session_id),
-                _page,
+            headers = {
+                'Sec-Fetch-Mode': 'no-cors',
+                # 'Referer': 'https://g.zhe800.com/xianshiqiang/index',
+                'User-Agent': get_random_phone_ua(),
+            }
+            params = (
+                ('session_id', str(base_session_id)),
+                ('page', str(_page)),
+                ('source', 'h5'),
+                ('new_user', '0'),
+                ('per_page', '20'),
+                ('callback', 'jsonp3'),
             )
-            body = self.my_phantomjs.get_url_body(url=tmp_url,)
+            url = 'https://zapi.zhe800.com/zhe800_n_api/xsq/m/session_deals'
+            body = Requests.get_url_body(
+                url=url,
+                headers=headers,
+                params=params,
+                ip_pool_type=IP_POOL_TYPE,
+                proxy_type=PROXY_TYPE_HTTPS,
+                timeout=15,
+                num_retries=3,)
             # print(body)
             try:
-                data = json_2_dict(re.compile(r'<pre.*?>(.*)</pre>').findall(body)[0], default_res={})
+                data = json_2_dict(
+                    json_str=re.compile('jsonp3\((.*)\);').findall(body)[0],
+                    default_res={}, )
                 # pprint(data)
-            except (IndexError, Exception):
+            except IndexError:
                 sleep(.3)
                 continue
+
             # print(type(data.get('data', {}).get('has_next')))
             if data.get('msg', '') == '无效场次':
                 print('该session_id不存在，此处跳过')
@@ -296,10 +310,6 @@ class Zhe800Spike(object):
             return False
 
     def __del__(self):
-        try:
-            del self.my_phantomjs
-        except:
-            pass
         gc.collect()
 
 def just_fuck_run():

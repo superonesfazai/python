@@ -574,14 +574,37 @@ $ ulimit -a
 -N 15:                              unlimited
 
 # 非永久
-$ ulimit -n 4096
+$ ulimit -n 65536
 
 # 永久
+# 查找文件的具体的位置
+$ find / -name pam_limits.so
+/lib/arm-linux-gnueabihf/security/pam_limits.so 
+# /etc/pam.d/login 添加pam_limits.so (有时候系统默认添加)
+# 添加 session required /lib/arm-linux-gnueabihf/security/pam_limits.so 
+$ vi /etc/pam.d/login
+
 $ vim /etc/security/limits.conf
 # 在最后加入
-* soft nofile 4096
-* hard nofile 4096
-# 最前的 * 表示所有用户，可根据需要设置某一用户
+root soft nofile 65536
+root hard nofile 65536
+# root表示用户 可用*表示所有用户，可根据需要设置某一用户(eg: root), 设置的数值与硬件配置有关，别设置太大了。
+
+# 添加 echo 8061540 > /proc/sys/fs/file-max
+$ vi /etc/rc.local
+
+# 改完后注销一下就能生效。
+$ logout
+$ reboot
+```
+
+#### 查看进程文件打开数
+```bash
+# 查看所有进程的文件打开数
+$ lsof | wc -l
+30989
+# 查看某个进程打开的文件数
+$ lsof -p pid | wc -f
 ```
 
 ## 外网访问树莓派

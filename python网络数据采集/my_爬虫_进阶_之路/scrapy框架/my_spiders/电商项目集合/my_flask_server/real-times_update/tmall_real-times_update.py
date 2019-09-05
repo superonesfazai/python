@@ -531,7 +531,9 @@ if __name__ == '__main__':
 
     # 报错segmentation fault解决方案
     try:
-        cmd_str = 'ulimit -s 32768'
+        cmd_str = 'ulimit -s 65536'
+        system(cmd_str)
+        cmd_str = 'ulimit -n 65536'
         system(cmd_str)
     except Exception as e:
         print('遇到错误:', e)

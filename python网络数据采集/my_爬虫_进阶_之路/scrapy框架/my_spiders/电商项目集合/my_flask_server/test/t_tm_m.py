@@ -2,7 +2,7 @@
 
 '''
 @author = super_fazai
-@File    : test_tm_m.py
+@File    : t_tm_m.py
 @connect : superonesfazai@gmail.com
 '''
 
@@ -17,7 +17,7 @@ from multiplex_code import get_tm_m_body_data
 from tmall_parse_2 import TmallParse
 from pprint import pprint
 
-goods_id = '589363967773'
+goods_id = '561774244217'
 # data = get_tm_m_body_data(goods_id=goods_id)
 # pprint(data)
 pc_url = 'https://detail.tmall.com/item.htm?id={}'.format(goods_id)

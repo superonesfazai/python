@@ -198,13 +198,16 @@ class TaoBaoLoginAndParse(Crawler):
             self.lg.error('遇到错误:', exc_info=True)
             return self._data_error_init()
 
+        is_delete = self._get_is_delete(title=title, data=data)
+
         price_info_list = self._get_price_info_list(data=data, detail_value_list=detail_value_list)
         try:
             # 多规格进行重新赋值
             price, taobao_price = self._get_new_price_and_taobao_price_when_price_info_list_not_null_list(
                 price_info_list=price_info_list,
                 price=price,
-                taobao_price=taobao_price)
+                taobao_price=taobao_price,
+                is_delete=is_delete,)
         except Exception:
             self.lg.error('遇到错误[goods_id: {}]:'.format(goods_id), exc_info=True)
             return self._data_error_init()
@@ -240,9 +243,6 @@ class TaoBaoLoginAndParse(Crawler):
                 # self.lg.info(str(tmp))
                 detail_value_list.append(tmp)  # 商品标签属性对应的值
                 # pprint(detail_value_list)
-
-        is_delete = self._get_is_delete(title=title, data=data)
-        # self.lg.info('is_delete = %s' % str(is_delete))
 
         # 月销量
         sell_count = '0'
@@ -304,7 +304,8 @@ class TaoBaoLoginAndParse(Crawler):
     def _get_new_price_and_taobao_price_when_price_info_list_not_null_list(self,
                                                                            price_info_list: list,
                                                                            price,
-                                                                           taobao_price,) -> tuple:
+                                                                           taobao_price,
+                                                                           is_delete: int,) -> tuple:
         '''
         当price_info_list不为空list时, 重新赋值price, taobao_price
         :param price_info_list:
@@ -328,8 +329,11 @@ class TaoBaoLoginAndParse(Crawler):
             pass
 
         if isinstance(price, str):
-            assert price != '', 'price不为空str'
-            assert taobao_price != '', 'taobao_price不为空str'
+            if is_delete == 0:
+                assert price != '', 'price不为空str'
+                assert taobao_price != '', 'taobao_price不为空str'
+            else:
+                price, taobao_price = ('0.', '0.')
         else:
             pass
 
