@@ -222,7 +222,7 @@ def get_tm_pc_body(goods_id: str,
     :return:
     """
     _print(
-        msg='try get pc body[where goods_id: {}] ...'.format(goods_id),
+        msg='try get pc body[where goods_id: {}, 用于判断是否下架] ...'.format(goods_id),
         logger=logger,)
     headers = get_random_headers(
         connection_status_keep_alive=False,

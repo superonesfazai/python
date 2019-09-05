@@ -138,6 +138,7 @@ select top 4000 SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delet
 from dbo.GoodsInfoAutoGet 
 where SiteID=1 
 and MainGoodsID is not null
+-- and IsDelete=1
 -- and MainGoodsID=157097
 -- and GoodsID='561349437472'
 order by ModfiyTime asc

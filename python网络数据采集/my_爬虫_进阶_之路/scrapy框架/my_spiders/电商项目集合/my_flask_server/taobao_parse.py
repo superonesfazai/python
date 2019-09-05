@@ -91,8 +91,23 @@ class TaoBaoLoginAndParse(Crawler):
                 json_str=re.compile(r'\((.*)\)').findall(body)[0],
                 default_res={},
                 logger=self.lg)
-            # self.lg.info(str(data))
-            assert data != {}, '获取到的data为空dict!'
+            # pprint(data)
+            try:
+                if 'login.m.taobao.com' in data.get('data', {}).get('url', ''):
+                    # 第一种获取接口出错, 抛出异常(要求登录)
+                    raise AssertionError('被重定向到login_url...')
+                else:
+                    pass
+                assert data != {}, '获取到的data为空dict!'
+            except AssertionError as e:
+                # 查看是否已下架, 未下架则抛出异常
+                pc_body = self.get_tb_pc_body(goods_id=goods_id)
+                # self.lg.info(pc_body)
+                if '很抱歉，您查看的宝贝不存在，可能已下架或者被转移。' in pc_body:
+                    raise GoodsShelvesException
+                else:
+                    raise e
+
             # pprint(data)
             if data.get('data', {}).get('trade', {}).get('redirectUrl', '') != '' \
                     and data.get('data', {}).get('seller', {}).get('evaluates') is None:
@@ -282,6 +297,54 @@ class TaoBaoLoginAndParse(Crawler):
         # json_data = dumps(wait_to_send_data, ensure_ascii=False)
         # self.lg.info(json_data)
         return result
+
+    def get_tb_pc_body(self, goods_id: str, num_retries:int=3) -> str:
+        """
+        获取tb pc body
+        :param goods_id:
+        :return:
+        """
+        self.lg.info('try get pc body[where goods_id: {}, 用于判断是否下架] ...'.format(goods_id))
+        headers = get_random_headers(
+            connection_status_keep_alive=False,
+            cache_control='')
+        headers.update({
+            'authority': 'item.taobao.com',
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-user': '?1',
+            'sec-fetch-site': 'none',
+        })
+        params = (
+            ('id', goods_id),
+        )
+        # 必须
+        cookies = {
+            # '_m_h5_tk': '18d7e97da9f5c7a9865ea49e46ce461d_1567496859709',
+            # '_m_h5_tk_enc': '5b40dd9750869a928ce9d15d01a29d4d',
+            '_tb_token_': '35f3ee3da748',
+            # 'cna': '',
+            'cookie2': '180810809b5c95e08a6c2f3a496fada6',
+            # 'enc': '',
+            # 'hng': '',
+            # 'isg': '',
+            # 'l': 'c',
+            # 'lid': '',
+            't': '593a350382a4f28aa3e06c16c39febf2',
+            # 'tracknick': '',
+        }
+        url = 'https://item.taobao.com/item.htm'
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            params=params,
+            cookies=cookies,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=num_retries,
+            timeout=15,)
+        assert body != ''
+
+        return body
 
     @staticmethod
     def _wash_tb_origin_data(data) -> dict:
@@ -475,20 +538,17 @@ class TaoBaoLoginAndParse(Crawler):
         :param goods_id:
         :return:
         '''
-        params_data_1 = {
-            'id': goods_id
-        }
-        params_data_2 = {
-            'exParams': dumps(params_data_1),  # 每层里面的字典都要先转换成json
-            'itemNumId': goods_id
-        }
-        # self.lg.info(str(params_data_2))
-
         ### * 注意这是正确的url地址: right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508886442888&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%22546756179626%5C%22%7D%22%2C%22itemNumId%22%3A%22546756179626%22%7D'
         # right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508886442888&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%22546756179626%5C%22%7D%22%2C%22itemNumId%22%3A%22546756179626%22%7D'
         # right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508857184835&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%2241439519931%5C%22%7D%22%2C%22itemNumId%22%3A%2241439519931%22%7D'
         # self.lg.info(right_url)
 
+        data = dumps({
+            'exParams': dumps({
+                'id': goods_id,
+            }),
+            'itemNumId': goods_id
+        })
         params = (
             ('jsv', '2.4.8'),
             ('appKey', '12574478'),
@@ -505,7 +565,7 @@ class TaoBaoLoginAndParse(Crawler):
             ('type', 'jsonp'),
             ('dataType', 'jsonp'),
             ('callback', 'mtopjsonp1'),
-            ('data', dumps(params_data_2)),    # 每层里面的字典都要先转换成json
+            ('data', data),
         )
 
         return params
