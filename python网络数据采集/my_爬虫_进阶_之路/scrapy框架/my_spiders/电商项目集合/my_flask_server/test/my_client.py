@@ -29,7 +29,7 @@ class RequestClient(AsyncCrawler):
             ip_pool_type=IP_POOL_TYPE,
         )
         # 并发数
-        self.concurrency = 6
+        self.concurrency = 5
         # 最大请求数
         self.max_req_num = 6
         self._version = "v1"
@@ -213,7 +213,7 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://aimozhen.com/view/15960/'
 
         # 美拍
-        # article_link = 'https://www.meipai.com/media/1131644923'
+        article_link = 'https://www.meipai.com/media/1131644923'
 
         # 好看视频
         # article_link = 'https://haokan.baidu.com/v?vid=17448170737812377575&tab=shishang'
@@ -238,7 +238,7 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://www.pearvideo.com/video_1598014'
 
         # 雪球
-        article_link = 'https://xueqiu.com/5157574024/130400677'
+        # article_link = 'https://xueqiu.com/5157574024/130400677'
 
         url = article_link
 
