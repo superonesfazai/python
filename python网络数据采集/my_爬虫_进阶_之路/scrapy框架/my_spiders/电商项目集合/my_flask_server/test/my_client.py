@@ -213,7 +213,7 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://aimozhen.com/view/15960/'
 
         # 美拍
-        article_link = 'https://www.meipai.com/media/1131644923'
+        # article_link = 'https://www.meipai.com/media/1131644923'
 
         # 好看视频
         # article_link = 'https://haokan.baidu.com/v?vid=17448170737812377575&tab=shishang'
@@ -238,7 +238,7 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://www.pearvideo.com/video_1598014'
 
         # 雪球
-        # article_link = 'https://xueqiu.com/5157574024/130400677'
+        article_link = 'https://xueqiu.com/5157574024/130400677'
 
         url = article_link
 

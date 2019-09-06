@@ -2417,6 +2417,54 @@ def spider_dcs():
         data=res,)
 
 ######################################################
+LOCAL_SERVER_URL = 'http://a7659ca.cpolar.io'
+"""
+/local_info
+"""
+@app.route('/get_local_server_url', methods=['GET'])
+def get_local_server_url():
+    """
+    本地sever地址发布
+    :return:
+    """
+    global LOCAL_SERVER_URL
+
+    return '这个接口用来发布本地地址<br/>local_server_url: <a href=\"{}\" target=\"_blank\">{}</a>'.format(
+        LOCAL_SERVER_URL,
+        LOCAL_SERVER_URL,)
+
+@app.route('/set_local_server_url', methods=['GET'])
+def set_local_server_url():
+    """
+    本地sever地址发布
+    :return:
+    """
+    @catch_exceptions(
+        logger=my_lg,
+        default_res=_error_msg(
+            msg='设置new_local_server_url失败!',
+            default_res={},))
+    def get_res():
+        global LOCAL_SERVER_URL
+
+        url = req_args_dict.get('url', '')
+        assert url != ''
+        assert len(url) <= 30
+
+        LOCAL_SERVER_URL = url
+        my_lg.info('new_local_server_url: {}'.format(LOCAL_SERVER_URL))
+
+        return _success_data(
+            msg='设置new_local_server_url: {}, 成功!'.format(LOCAL_SERVER_URL),
+            data={}, )
+
+    global LOCAL_SERVER_URL
+
+    req_args_dict = request.args
+
+    return get_res()
+
+######################################################
 # wechat
 @app.route('/wechat', methods=['GET', 'POST'])
 def wechat():

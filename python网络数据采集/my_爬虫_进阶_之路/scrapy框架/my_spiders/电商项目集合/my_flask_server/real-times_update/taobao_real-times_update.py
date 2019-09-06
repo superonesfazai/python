@@ -72,6 +72,7 @@ class TBUpdater(AsyncCrawler):
         # 并发量
         self.concurrency = 100
         self.concurrent_type = CONCURRENT_TYPE
+        self.is_real_times_update_call = True
         # 0 sqlserver | 1 new_my_server | 2 redis
         self.db_res_from = 2
         if 'armv7l-with-debian' in platform.platform():
@@ -94,7 +95,9 @@ class TBUpdater(AsyncCrawler):
             else:
                 self.goods_index = 1
                 tasks_params_list = TasksParamsListObj(tasks_params_list=result, step=self.concurrency)
-                self.taobao = TaoBaoLoginAndParse(logger=self.lg, is_real_times_update_call=True)
+                self.taobao = TaoBaoLoginAndParse(
+                    logger=self.lg,
+                    is_real_times_update_call=self.is_real_times_update_call)
                 index = 1
                 while True:
                     try:
@@ -351,7 +354,9 @@ class TBUpdater(AsyncCrawler):
             except:
                 pass
             collect()
-            self.taobao = TaoBaoLoginAndParse(logger=self.lg, is_real_times_update_call=True)
+            self.taobao = TaoBaoLoginAndParse(
+                logger=self.lg,
+                is_real_times_update_call=self.is_real_times_update_call)
 
     async def _update_one_goods_info(self, db_goods_info_obj, index):
         '''

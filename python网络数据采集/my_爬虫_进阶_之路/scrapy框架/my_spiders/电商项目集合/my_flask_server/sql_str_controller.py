@@ -139,7 +139,7 @@ from dbo.GoodsInfoAutoGet
 where SiteID=1 
 and MainGoodsID is not null
 -- and IsDelete=1
--- and MainGoodsID=157097
+-- and MainGoodsID=163975
 -- and GoodsID='561349437472'
 order by ModfiyTime asc
 '''
@@ -199,7 +199,7 @@ where MainGoodsID is not null
 and (SiteID=3 or SiteID=4 or SiteID=6) 
 -- and IsDelete=1
 -- and GoodsID='557688527274'
--- and MainGoodsID=141685
+-- and MainGoodsID=163975
 order by ModfiyTime asc
 '''
 '''insert'''

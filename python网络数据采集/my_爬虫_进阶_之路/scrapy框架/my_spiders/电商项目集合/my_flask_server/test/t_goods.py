@@ -150,7 +150,7 @@ def oo_tb_m(goods_id):
         params=params,
         ip_pool_type=IP_POOL_TYPE,
         proxy_type=PROXY_TYPE_HTTPS,
-        num_retries=3,)
+        num_retries=5,)
     print(body)
 
     # _m_h5_tk, _session, body = block_get_tb_sign_and_body(
@@ -176,9 +176,9 @@ def oo_tb_m(goods_id):
     # print(body)
 
 # test_tm_m()
-test_tb()
+# test_tb()
 
 # 测试tb m
-# goods_id = '595203544939'
+goods_id = '549903923911'
 # get_tb_m_cookies(goods_id=goods_id)
-# oo_tb_m(goods_id=goods_id)
+oo_tb_m(goods_id=goods_id)
