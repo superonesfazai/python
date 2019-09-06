@@ -1,11 +1,11 @@
 # coding:utf-8
 
-'''
+"""
 @author = super_fazai
 @File    : tmall_parse_2.py
 @Time    : 2018/4/14 20:59
 @connect : superonesfazai@gmail.com
-'''
+"""
 
 from settings import (
     MY_SPIDER_LOGS_PATH,
@@ -27,6 +27,7 @@ from multiplex_code import (
     _get_right_model_data,
     from_tmall_type_get_site_id,
     get_tm_m_body_data,
+    tb_api_redirect_detect,
 )
 from my_exceptions import (
     GoodsShelvesException,
@@ -59,51 +60,24 @@ class TmallParse(Crawler):
             self.req_num_retries = 3
 
     def get_goods_data(self, goods_id):
-        '''
+        """
         得到data
         :param goods_id:
         :return: data 类型dict
-        '''
+        """
         if goods_id == []:
             return self._data_error_init()
 
         tm_type = goods_id[0]  # 天猫类型
         # self.lg.info(str(tm_type))
         goods_id = goods_id[1]  # 天猫goods_id
-        phone_url = 'https://detail.m.tmall.com/item.htm?id=' + str(goods_id)
-        # self.lg.info('------>>>| phone_url: {}'.format(phone_url))
 
         # 使用获取基础数据的方式
         get_base_data_method = 0
-        headers = get_random_headers(
-            upgrade_insecure_requests=False,
-            cache_control='',)
-        headers.update({
-            'Referer': phone_url,
-        })
-        last_url = self._get_last_url(goods_id=goods_id)
-        body = Requests.get_url_body(
-            url=last_url,
-            headers=headers,
-            timeout=self.req_timeout,
-            ip_pool_type=self.ip_pool_type,
-            proxy_type=self.proxy_type,
-            num_retries=self.req_num_retries,)
-
         try:
-            assert body != '', '获取到的body为空值, 此处跳过!'
-            data = json_2_dict(
-                json_str=re.compile('\((.*)\)').findall(body)[0],
-                default_res={},
-                logger=self.lg)
-
+            data = self.get_tm_base_data(goods_id=goods_id)
             try:
-                if 'login.m.taobao.com' in data.get('data', {}).get('url', ''):
-                    # 第一种获取接口出错, 抛出异常(要求登录)
-                    raise AssertionError('被重定向到login_url...')
-                else:
-                    pass
-                assert data != {}, 'data为空dict!'
+                tb_api_redirect_detect(data=data)
             except AssertionError:
                 # 尝试第二种获取数据方式
                 self.lg.info('trying second method to get data[where goods_id: {}] ...'.format(goods_id))
@@ -144,14 +118,7 @@ class TmallParse(Crawler):
                 goods_id))
             return self._data_error_init()
 
-        # 这是宝贝评价
-        data['data']['rate'] = ''
-        # 买家询问别人
-        data['data']['resource'] = ''
-        # 也是问和回答
-        data['data']['vertical'] = ''
-        # 宝贝描述, 卖家服务, 物流服务的评价值...
-        data['data']['seller']['evaluates'] = ''
+        data = self._wash_tm_ori_data(data=data)
         result_data = data['data']
 
         # 处理result_data['apiStack'][0]['value']
@@ -208,10 +175,10 @@ class TmallParse(Crawler):
         return result_data
 
     def deal_with_data(self):
-        '''
+        """
         得到需求数据
         :return:
-        '''
+        """
         data = self.result_data
         # pprint(data)
         if data == {}:
@@ -347,22 +314,66 @@ class TmallParse(Crawler):
         # print(json_data)
         return result
 
+    def get_tm_base_data(self, goods_id: str) -> dict:
+        """
+        获取tm 基础数据
+        :param goods_id:
+        :return:
+        """
+        phone_url = 'https://detail.m.tmall.com/item.htm?id=' + str(goods_id)
+        # self.lg.info('------>>>| phone_url: {}'.format(phone_url))
+
+        headers = get_random_headers(
+            upgrade_insecure_requests=False,
+            cache_control='', )
+        headers.update({
+            'Referer': phone_url,
+        })
+        last_url = self._get_last_url(goods_id=goods_id)
+        body = Requests.get_url_body(
+            url=last_url,
+            headers=headers,
+            timeout=self.req_timeout,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
+
+        assert body != '', '获取到的body为空值, 此处跳过!'
+        data = json_2_dict(
+            json_str=re.compile('\((.*)\)').findall(body)[0],
+            default_res={},
+            logger=self.lg)
+
+        return data
+
+    def _wash_tm_ori_data(self, data: dict) -> dict:
+        # 这是宝贝评价
+        data['data']['rate'] = ''
+        # 买家询问别人
+        data['data']['resource'] = ''
+        # 也是问和回答
+        data['data']['vertical'] = ''
+        # 宝贝描述, 卖家服务, 物流服务的评价值...
+        data['data']['seller']['evaluates'] = ''
+
+        return data
+
     def _data_error_init(self):
-        '''
+        """
         数据获取错误初始化
         :return:
-        '''
+        """
         self.result_data = {}
 
         return {}
 
     def old_tmall_goods_insert_into_new_table(self, data, pipeline):
-        '''
+        """
         老库数据规范，然后存入
         :param data:
         :param pipeline:
         :return:
-        '''
+        """
         site_id = from_tmall_type_get_site_id(type=data.get('type'))
         if site_id is False:
             self.lg.error('获取到的site_id为False!出错!请检查!出错goods_id: {0}'.format(data.get('goods_id')))
@@ -380,12 +391,12 @@ class TmallParse(Crawler):
         return result
 
     def insert_into_taoqianggou_xianshimiaosha_table(self, data, pipeline) -> bool:
-        '''
+        """
         将数据规范化插入淘抢购表
         :param data:
         :param pipeline:
         :return:
-        '''
+        """
         try:
             tmp = _get_right_model_data(data=data, site_id=28, logger=self.lg)   # 采集来源地(淘抢购)
         except:
@@ -399,12 +410,12 @@ class TmallParse(Crawler):
         return res
 
     async def _update_taoqianggou_xianshimiaosha_table(self, data, pipeline):
-        '''
+        """
         update对应表的数据
         :param data:
         :param pipeline:
         :return:
-        '''
+        """
         try:
             tmp = _get_right_model_data(data=data, site_id=28, logger=self.lg)
         except:
@@ -419,20 +430,20 @@ class TmallParse(Crawler):
         return
 
     def _get_is_delete(self, **kwargs):
-        '''
+        """
         得到is_delete
         :param kwargs:
         :return:
-        '''
+        """
         data = kwargs.get('data', {})
         title = kwargs.get('title', '')
 
         # 天猫
-        '''
+        """
         bug: 部分商品 存在一个bug, 本地抓取is_delete=0, server则为1!
         预估: 是允许配送范围的问题, server在加拿大!
         eg: https://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.16.3a476095nAD0gh&id=541895028241&skuId=3556559472007&areaId=330700&user_id=732956498&cat_id=2&is_b=1&rn=5435e2e903312b0cf8422e9938dff7ac
-        '''
+        """
         is_delete = 0
         # todo 以下顺序不可颠倒
         # * 2017-10-16 先通过buyEnable字段来判断商品是否已经下架
@@ -475,11 +486,11 @@ class TmallParse(Crawler):
         return is_delete
 
     def _get_db_insert_params(self, item):
-        '''
+        """
         得到待插入的数据
         :param item:
         :return:
-        '''
+        """
         params = [
             item['goods_id'],
             item['goods_url'],
@@ -511,11 +522,11 @@ class TmallParse(Crawler):
         return tuple(params)
 
     def _get_db_insert_taoqianggou_miaosha_params(self, item):
-        '''
+        """
         得到db待插入的数据
         :param item:
         :return:
-        '''
+        """
         params = (
             item['goods_id'],
             item['goods_url'],
@@ -545,11 +556,11 @@ class TmallParse(Crawler):
         return params
 
     async def _get_db_update_miaosha_params(self, item):
-        '''
+        """
         规范待插入数据
         :param item:
         :return:
-        '''
+        """
         params = (
             item['modify_time'],
             item['shop_name'],
@@ -570,10 +581,10 @@ class TmallParse(Crawler):
         return params
 
     def init_pull_off_shelves_goods(self, tm_type):
-        '''
+        """
         初始化下架商品的数据
         :return:
-        '''
+        """
         is_delete = 1
         result = {
             'shop_name': '',  # 店铺名称
@@ -597,12 +608,12 @@ class TmallParse(Crawler):
         return result
 
     def _wash_result_data_apiStack_value(self, goods_id, result_data_apiStack_value):
-        '''
+        """
         清洗result_data_apiStack_value
         :param goods_id:
         :param result_data_apiStack_value:
         :return:
-        '''
+        """
         try:
             result_data_apiStack_value = json_2_dict(
                 json_str=result_data_apiStack_value,
@@ -624,11 +635,11 @@ class TmallParse(Crawler):
         return result_data_apiStack_value
 
     def _set_params(self, goods_id):
-        '''
+        """
         设置params
         :param goods_id:
         :return:
-        '''
+        """
         params = (
             ('jsv', '2.4.8'),
             ('appKey', '12574478'),
@@ -647,11 +658,11 @@ class TmallParse(Crawler):
         return params
 
     def _get_last_url(self, goods_id):
-        '''
+        """
         得到组合params的last_url
         :param goods_id:
         :return:
-        '''
+        """
         params = self._set_params(goods_id=goods_id)
         tmp_url = 'https://h5api.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/'
 
@@ -663,12 +674,12 @@ class TmallParse(Crawler):
         return last_url
 
     def _from_tmall_type_get_tmall_url(self, type, goods_id):
-        '''
+        """
         根据天猫的type来获取正确的url
         :param type:
         :param goods_id:
         :return: a str
-        '''
+        """
         if type == 0:
             # 天猫常规商品
             goods_url = 'https://detail.tmall.com/item.htm?id=' + str(goods_id)
@@ -684,13 +695,14 @@ class TmallParse(Crawler):
         return goods_url
 
     def get_goods_id_from_url(self, tmall_url):
-        '''
+        """
         得到合法url的goods_id
         :param tmall_url:
         :return: a list [0, '1111111'] [2, '1111111', 'https://ssss'] 0:表示天猫常规商品, 1:表示天猫超市, 2:表示天猫国际, 返回为[]表示解析错误
-        '''
+        """
         is_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?').findall(tmall_url)
-        if is_tmall_url != []:                  # 天猫常规商品
+        if is_tmall_url != []:
+            # 天猫常规商品
             tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?id=(\d+)&{0,20}.*?').findall(tmall_url)
             if tmp_tmall_url != []:
                 is_tmp_tmp_tmall_url = re.compile(r'https://detail.tmall.com/item.htm.*?&id=(\d+)&{0,20}.*?').findall(tmall_url)
@@ -706,7 +718,8 @@ class TmallParse(Crawler):
 
         else:
             is_tmall_supermarket = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?').findall(tmall_url)
-            if is_tmall_supermarket != []:      # 天猫超市
+            if is_tmall_supermarket != []:
+                # 天猫超市
                 tmp_tmall_url = re.compile(r'https://chaoshi.detail.tmall.com/item.htm.*?id=(\d+)&.*?').findall(tmall_url)
                 if tmp_tmall_url != []:
                     goods_id = tmp_tmall_url[0]
@@ -717,8 +730,10 @@ class TmallParse(Crawler):
                 return [1, goods_id]
 
             else:
-                is_tmall_hk = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(tmall_url)      # 因为中间可能有国家的地址 如https://detail.tmall.hk/hk/item.htm?
-                if is_tmall_hk != []:           # 天猫国际， 地址中有地域的也能正确解析, 嘿嘿 -_-!!!
+                # 因为中间可能有国家的地址 如https://detail.tmall.hk/hk/item.htm?
+                is_tmall_hk = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?').findall(tmall_url)
+                if is_tmall_hk != []:
+                    # 天猫国际， 地址中有地域的也能正确解析, 嘿嘿 -_-!!!
                     tmp_tmall_url = re.compile(r'https://detail.tmall.hk/.*?item.htm.*?id=(\d+)&.*?').findall(tmall_url)
                     if tmp_tmall_url != []:
                         goods_id = tmp_tmall_url[0]

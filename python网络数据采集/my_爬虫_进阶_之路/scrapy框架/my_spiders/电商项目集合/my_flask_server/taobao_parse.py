@@ -1,11 +1,11 @@
 # coding:utf-8
 
-'''
+"""
 @author = super_fazai
 @File    : taobao_parse.py
 @Time    : 2017/10/25 07:40
 @connect : superonesfazai@gmail.com
-'''
+"""
 
 """
 可爬取淘宝, 全球购, 天天特价
@@ -29,6 +29,7 @@ from sql_str_controller import (
 from multiplex_code import (
     _handle_goods_shelves_in_auto_goods_table,
     _get_right_model_data,
+    tb_api_redirect_detect,
 )
 from my_exceptions import (
     GoodsShelvesException,
@@ -62,43 +63,20 @@ class TaoBaoLoginAndParse(Crawler):
             self.req_num_retries = 3
 
     def get_goods_data(self, goods_id):
-        '''
+        """
         模拟构造得到data的url
         :param goods_id:
         :return: data   类型dict
-        '''
+        """
         phone_url = 'https://h5.m.taobao.com/awp/core/detail.htm?id={}'.format(goods_id)
         self.msg = '------>>>| phone_url: {}'.format(phone_url)
         # self.lg.info(self.msg)
 
-        # 获取主接口的body
-        last_url = self._get_last_url(goods_id=goods_id)
-        headers = get_random_headers(
-            connection_status_keep_alive=False,
-            upgrade_insecure_requests=False,
-            cache_control='')
-        body = Requests.get_url_body(
-            url=last_url,
-            headers=headers,
-            timeout=self.req_timeout,
-            ip_pool_type=self.ip_pool_type,
-            proxy_type=self.proxy_type,
-            num_retries=self.req_num_retries,)
-
         try:
-            assert body != '', 'body不为空值!'
-            data = json_2_dict(
-                json_str=re.compile(r'\((.*)\)').findall(body)[0],
-                default_res={},
-                logger=self.lg)
+            data = self.get_tb_base_data(goods_id=goods_id)
             # pprint(data)
             try:
-                if 'login.m.taobao.com' in data.get('data', {}).get('url', ''):
-                    # 第一种获取接口出错, 抛出异常(要求登录)
-                    raise AssertionError('被重定向到login_url...')
-                else:
-                    pass
-                assert data != {}, '获取到的data为空dict!'
+                tb_api_redirect_detect(data=data)
             except AssertionError as e:
                 # 查看是否已下架, 未下架则抛出异常
                 pc_body = self.get_tb_pc_body(goods_id=goods_id)
@@ -179,14 +157,14 @@ class TaoBaoLoginAndParse(Crawler):
 
         return result_data
 
-    def deal_with_data(self, goods_id):
-        '''
+    def deal_with_data(self, goods_id: str):
+        """
         处理result_data, 返回需要的信息
         :return: 字典类型
-        '''
+        """
         data = self.result_data
         if data == {}:
-            return {}
+            return self._data_error_init()
 
         # 可能不存在shopName这个字段
         shop_name = data['seller'].get('shopName', '')
@@ -240,9 +218,9 @@ class TaoBaoLoginAndParse(Crawler):
         else:
             pass
 
-        '''
+        """
         后期处理
-        '''
+        """
         # 后期处理detail_name_list, detail_value_list
         detail_name_list = [{
             'spec_name': i[0],
@@ -297,7 +275,35 @@ class TaoBaoLoginAndParse(Crawler):
         # json_data = dumps(wait_to_send_data, ensure_ascii=False)
         # self.lg.info(json_data)
         return result
+    
+    def get_tb_base_data(self, goods_id: str) -> dict:
+        """
+        获取tb 基础数据
+        :param goods_id: 
+        :return: 
+        """
+        # 获取主接口的body
+        last_url = self._get_last_url(goods_id=goods_id)
+        headers = get_random_headers(
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='')
+        body = Requests.get_url_body(
+            url=last_url,
+            headers=headers,
+            timeout=self.req_timeout,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries, )
 
+        assert body != '', 'body不为空值!'
+        data = json_2_dict(
+            json_str=re.compile(r'\((.*)\)').findall(body)[0],
+            default_res={},
+            logger=self.lg)
+        
+        return data
+    
     def get_tb_pc_body(self, goods_id: str, num_retries:int=3) -> str:
         """
         获取tb pc body
@@ -372,13 +378,14 @@ class TaoBaoLoginAndParse(Crawler):
                                                                            price,
                                                                            taobao_price,
                                                                            is_delete: int,) -> tuple:
-        '''
+        """
         当price_info_list不为空list时, 重新赋值price, taobao_price
-        :param price_info_list:
-        :param price:
-        :param taobao_price:
+        :param price_info_list: 
+        :param price: 
+        :param taobao_price: 
+        :param is_delete: 
         :return: (str, str)
-        '''
+        """
         # pprint(price_info_list)
         if price_info_list != []:
             # 重新赋值price, taobao_price 避免规格为0的价格也在最低最高价中
@@ -406,12 +413,12 @@ class TaoBaoLoginAndParse(Crawler):
         return price, taobao_price
 
     def old_taobao_goods_insert_into_new_table(self, data, pipeline):
-        '''
+        """
         得到规范格式的data并且存入数据库
         :param data:
         :param pipeline:
         :return:
-        '''
+        """
         goods_id = data.get('goods_id', '')
         try:
             tmp = _get_right_model_data(data=data, site_id=1, logger=self.lg)
@@ -432,11 +439,11 @@ class TaoBaoLoginAndParse(Crawler):
         return result
 
     def _get_price_and_taobao_price(self, **kwargs):
-        '''
+        """
         得到price, taobao_price
         :param kwargs:
         :return:
-        '''
+        """
         data = kwargs.get('data', {})
 
         # 商品价格
@@ -468,11 +475,11 @@ class TaoBaoLoginAndParse(Crawler):
         return price, taobao_price
 
     def _get_div_desc(self, **kwargs):
-        '''
+        """
         得到div_desc
         :param kwargs:
         :return:
-        '''
+        """
         data = kwargs.get('data', {})
         goods_id = kwargs.get('goods_id')
 
@@ -488,20 +495,20 @@ class TaoBaoLoginAndParse(Crawler):
         return div_desc
 
     def _data_error_init(self):
-        '''
+        """
         数据获取错误初始化
         :return:
-        '''
+        """
         self.result_data = {}
 
         return {}
 
     def _get_db_insert_params(self, item):
-        '''
+        """
         得到db待插入的数据
         :param item:
         :return:
-        '''
+        """
         params = [
             item['goods_id'],
             item['goods_url'],
@@ -533,11 +540,11 @@ class TaoBaoLoginAndParse(Crawler):
         return tuple(params)
 
     def _set_params(self, goods_id):
-        '''
+        """
         设置params
         :param goods_id:
         :return:
-        '''
+        """
         ### * 注意这是正确的url地址: right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508886442888&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%22546756179626%5C%22%7D%22%2C%22itemNumId%22%3A%22546756179626%22%7D'
         # right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508886442888&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%22546756179626%5C%22%7D%22%2C%22itemNumId%22%3A%22546756179626%22%7D'
         # right_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?appKey=12574478&t=1508857184835&api=mtop.taobao.detail.getdetail&v=6.0&ttid=2016%40taobao_h5_2.0.0&isSec=0&ecode=0&AntiFlood=true&AntiCreep=true&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%2241439519931%5C%22%7D%22%2C%22itemNumId%22%3A%2241439519931%22%7D'
@@ -571,10 +578,10 @@ class TaoBaoLoginAndParse(Crawler):
         return params
 
     def _get_last_url(self, goods_id):
-        '''
+        """
         获取组合过params的last_url
         :return:
-        '''
+        """
         # 设置params
         params = self._set_params(goods_id=goods_id)
         tmp_url = 'https://acs.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/'
@@ -588,12 +595,12 @@ class TaoBaoLoginAndParse(Crawler):
         return last_url
 
     def _wash_result_data_apiStack_value(self, goods_id, result_data_apiStack_value):
-        '''
+        """
         清洗result_data_apiStack_value
         :param goods_id:
         :param result_data_apiStack_value:
         :return:
-        '''
+        """
         try:
             result_data_apiStack_value = json_2_dict(
                 json_str=result_data_apiStack_value,
@@ -614,11 +621,11 @@ class TaoBaoLoginAndParse(Crawler):
         return result_data_apiStack_value
 
     def _get_all_img_url(self, tmp_all_img_url):
-        '''
+        """
         获取所有示例图片
         :param tmp_all_img_url:
         :return:
-        '''
+        """
         all_img_url = []
         for item in tmp_all_img_url:
             item = 'https:' + item
@@ -627,11 +634,11 @@ class TaoBaoLoginAndParse(Crawler):
         return [{'img_url': item} for item in all_img_url]
 
     def _get_p_info(self, tmp_p_info):
-        '''
+        """
         得到 p_info
         :param tmp_p_info:
         :return:
-        '''
+        """
         p_info = []
         if tmp_p_info is not None:
             tmp_p_info = tmp_p_info[0].get('基本信息', [])
@@ -647,11 +654,11 @@ class TaoBaoLoginAndParse(Crawler):
         return p_info
 
     def _get_detail_name_and_value_list(self, data):
-        '''
+        """
         得到detail_name_list, detail_value_list
         :param data:
         :return: detail_name_list, detail_value_list
-        '''
+        """
         detail_name_list = []
         detail_value_list = []
         sku_base = data.get('skuBase')
@@ -694,12 +701,12 @@ class TaoBaoLoginAndParse(Crawler):
         return detail_name_list, detail_value_list
 
     def _get_price_info_list(self, data, detail_value_list, is_delete):
-        '''
+        """
         得到详细规格及其价格信息
         :param data:
         :param detail_value_list:
         :return:
-        '''
+        """
         def add_normal_price(normal_sku_info, sku2_info):
             """
             给原先的list的item添加原价
@@ -859,11 +866,11 @@ class TaoBaoLoginAndParse(Crawler):
         return price_info_list
 
     def _get_spec_value_one_img_url(self, **kwargs):
-        '''
+        """
         得到一个规格的img_url
         :param kwargs:
         :return: '' | xxxx
-        '''
+        """
         pros = kwargs.get('pros')
         prop_path_2 = kwargs.get('prop_path_2')
 
@@ -910,11 +917,11 @@ class TaoBaoLoginAndParse(Crawler):
         return img_url
 
     def _get_is_delete(self, **kwargs):
-        '''
+        """
         得到is_delete
         :param kwargs:
         :return:
-        '''
+        """
         title = kwargs.get('title')
         data = kwargs.get('data', {})
 
@@ -941,10 +948,10 @@ class TaoBaoLoginAndParse(Crawler):
         return is_delete
 
     def init_pull_off_shelves_goods(self):
-        '''
+        """
         状态为已下架商品的初始化
         :return:
-        '''
+        """
         is_delete = 1
         result = {
             'shop_name': '',  # 店铺名称
@@ -1000,13 +1007,13 @@ class TaoBaoLoginAndParse(Crawler):
         return True
 
     async def update_taobao_tiantiantejia_table(self, data, pipeline):
-        '''
+        """
         更新天天秒杀特价的商品信息
         :param data:
         :param pipeline:
         :param logger
         :return:
-        '''
+        """
         try:
             data['miaosha_begin_time'] = data.get('tejia_begin_time')
             data['miaosha_end_time'] = data.get('tejia_end_time')
@@ -1031,12 +1038,12 @@ class TaoBaoLoginAndParse(Crawler):
         )
 
     async def update_expired_goods_id_taobao_tiantiantejia_table(self, data, pipeline):
-        '''
+        """
         更新过期商品的信息，使其转为普通常规商品
         :param data:
         :param pipeline:
         :return:
-        '''
+        """
         try:
             data['miaosha_begin_time'] = data.get('tejia_begin_time')
             data['miaosha_end_time'] = data.get('tejia_end_time')
@@ -1050,11 +1057,11 @@ class TaoBaoLoginAndParse(Crawler):
         await pipeline.update_expired_goods_id_taobao_tiantiantejia_table(item=tmp, logger=self.lg)
 
     def _get_db_insert_tejia_params(self, item):
-        '''
+        """
         获得待插入的参数
         :param item:
         :return:
-        '''
+        """
         params = [
             item['goods_id'],
             item['goods_url'],
@@ -1087,11 +1094,11 @@ class TaoBaoLoginAndParse(Crawler):
         return tuple(params)
 
     def _get_db_update_tejia_params(self, item):
-        '''
+        """
         获取tejia的params
         :param item:
         :return:
-        '''
+        """
         params = [
             item['modify_time'],
             item['shop_name'],
@@ -1117,10 +1124,10 @@ class TaoBaoLoginAndParse(Crawler):
         return tuple(params)
 
     def get_div_from_pc_div_url(self, goods_id):
-        '''
+        """
         根据pc描述的url模拟请求获取描述的div
         :return: str
-        '''
+        """
         tmp_url = 'https://api.m.taobao.com/h5/mtop.taobao.detail.getdesc/6.0/'
         params = (
             ('appKey', '12574478'),
@@ -1185,11 +1192,11 @@ class TaoBaoLoginAndParse(Crawler):
         return div
 
     def get_div_from_pc_div_url2(self, goods_id):
-        '''
+        """
         2版获取div_desc
         :param goods_id:
         :return:
-        '''
+        """
         self.lg.info('正在尝试通过2版获取div_desc[where goods_id: {}] ...'.format(goods_id))
         headers = get_random_headers(
             user_agent_type=1,

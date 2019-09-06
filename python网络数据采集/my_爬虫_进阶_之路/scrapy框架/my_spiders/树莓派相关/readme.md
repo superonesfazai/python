@@ -607,6 +607,35 @@ $ lsof | wc -l
 $ lsof -p pid | wc -f
 ```
 
+## jupyter notebook
+[doc](https://jupyter.readthedocs.io/en/latest/running.html#running)
+
+### 运行
+```bash
+$ jupyter notebook --port 9999 --allow-root
+# 允许远程得先进行下面的设置可远程访问
+$ jupyter notebook --port 9999 --allow-root --config=/root/.jupyter/jupyter_notebook_config.py
+```
+
+### 修改密码
+```bash
+$ jupyter notebook password
+Enter password: 
+Verify password: 
+[NotebookPasswordApp] Wrote hashed password to /root/.jupyter/jupyter_notebook_config.json
+```
+
+### 设置可远程访问
+默认情况下，配置文件 ~/.jupyter/jupyter_notebook_config.py 并不存在，需要自行创建。使用下列命令生成配置文件：
+```bash
+$ jupyter notebook --generate-config --allow-root
+Writing default config to: /root/.jupyter/jupyter_notebook_config.py
+$ vi ~/.jupyter/jupyter_notebook_config.py
+# 在 jupyter_notebook_config.py 中找到下面的行，取消注释并修改。
+c.NotebookApp.ip='*'
+c.NotebookApp.password = u'sha:ce...刚才复制的那个密文 or vi /root/.jupyter/jupyter_notebook_config.json 赋值里面的信息'
+```
+
 ## 外网访问树莓派
 
 ### cpolar(推荐)

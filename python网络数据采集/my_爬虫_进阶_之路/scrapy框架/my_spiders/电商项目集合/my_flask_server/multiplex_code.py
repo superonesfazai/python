@@ -91,6 +91,19 @@ def contraband_name_check(target_name: str) -> bool:
 
     return False
 
+def tb_api_redirect_detect(data: dict):
+    """
+    tb 重定向检测
+    :param data:
+    :return:
+    """
+    if 'login.m.taobao.com' in data.get('data', {}).get('url', ''):
+        # 第一种获取接口出错, 抛出异常(要求登录)
+        raise AssertionError('被重定向到login_url...')
+    else:
+        pass
+    assert data != {}, '获取到的data为空dict!'
+
 def get_tm_m_body_data(goods_id,
                        proxy_type=PROXY_TYPE_HTTP,
                        num_retries=6,
