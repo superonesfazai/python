@@ -91,6 +91,81 @@ def contraband_name_check(target_name: str) -> bool:
 
     return False
 
+async def handle_real_times_goods_one_res(goods_type: str,
+                                          loop,
+                                          func_name_where_update_one_goods_info_in_db,
+                                          slice_params_list: list,
+                                          one_res: list,
+                                          logger=None, ):
+    """
+    实时更新goods的one_res后续处理
+    :param goods_type: eg: 'tb', 'tm'
+    :param self:
+    :param slice_params_list:
+    :param one_res:
+    :param logger:
+    :return:
+    """
+    assert goods_type in ('tb', 'tm')
+    # 获取新new_slice_params_list
+    new_slice_params_list = []
+    for item in slice_params_list:
+        goods_id = item[1]
+        for i in one_res:
+            # self.lg.info(str(i))
+            try:
+                goods_id2 = i[1]
+                index = i[2]
+                if goods_id == goods_id2:
+                    new_slice_params_list.append({
+                        'index': index,
+                        'before_goods_data': i[3],
+                        'end_goods_data': i[4],
+                        'item': item,
+                    })
+                    break
+                else:
+                    continue
+            except IndexError:
+                continue
+
+    # 阻塞方式进行存储, 避免db高并发导致大量死锁
+    tasks = []
+    for k in new_slice_params_list:
+        item = k['item']
+        index = k['index']
+        if goods_type == 'tm':
+            db_goods_info_obj = TMDbGoodsInfoObj(
+                item=item,
+                logger=logger, )
+        else:
+            db_goods_info_obj = TBDbGoodsInfoObj(
+                item=item,
+                logger=logger, )
+        msg = 'create task[where is goods_id: {}, index: {}]...'.format(
+            db_goods_info_obj.goods_id,
+            index)
+        _print(msg=msg, logger=logger, )
+        tasks.append(loop.create_task(func_name_where_update_one_goods_info_in_db(
+            db_goods_info_obj=db_goods_info_obj,
+            index=index,
+            before_goods_data=k['before_goods_data'],
+            end_goods_data=k['end_goods_data'], )))
+    one_res = await _get_async_task_result(
+        tasks=tasks,
+        logger=logger, )
+    # pprint(one_res)
+    try:
+        del new_slice_params_list
+    except:
+        pass
+    try:
+        del tasks
+    except:
+        pass
+
+    return one_res
+
 def tb_api_redirect_detect(data: dict):
     """
     tb 重定向检测
@@ -1342,6 +1417,22 @@ class BaseDbCommomGoodsInfoParamsObj(object):
         self.old_spec_trans_time = item[14]
         self.old_stock_trans_time = item[15]
         self.modify_time = item[16]
+
+class TMDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
+    def __init__(self, item: list, logger=None):
+        BaseDbCommomGoodsInfoParamsObj.__init__(
+            self,
+            item=item,
+            logger=logger,
+        )
+
+class TBDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
+    def __init__(self, item: list, logger=None):
+        BaseDbCommomGoodsInfoParamsObj.__init__(
+            self,
+            item=item,
+            logger=logger,
+        )
 
 def get_site_id_by_jd_type(jd_type) -> int:
     '''

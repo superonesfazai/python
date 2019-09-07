@@ -212,7 +212,6 @@ class ChuChuJie_9_9_Parse(Crawler):
             print('此处抓到的可能是楚楚街券所以跳过')
             return False
 
-        # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: ', tmp.get('goods_id'))
 
         params = self._get_db_insert_miaosha_params(item=tmp)
@@ -228,7 +227,6 @@ class ChuChuJie_9_9_Parse(Crawler):
             print('此处抓到的可能是楚楚街券所以跳过')
             return False
 
-        # print('------>>> | 待存储的数据信息为: |', tmp)
         print('------>>>| 待存储的数据信息为: ', tmp.get('goods_id'))
 
         params = self._get_db_update_miaosha_params(item=tmp)
@@ -248,11 +246,11 @@ class ChuChuJie_9_9_Parse(Crawler):
             item['sub_title'],
             item['price'],
             item['taobao_price'],
-            dumps(item['detail_name_list'], ensure_ascii=False),  # 把list转换为json才能正常插入数据(并设置ensure_ascii=False)
+            dumps(item['detail_name_list'], ensure_ascii=False),
             dumps(item['price_info_list'], ensure_ascii=False),
             dumps(item['all_img_url'], ensure_ascii=False),
-            dumps(item['p_info'], ensure_ascii=False),  # 存入到PropertyInfo
-            item['div_desc'],  # 存入到DetailInfo
+            dumps(item['p_info'], ensure_ascii=False),
+            item['div_desc'],
             dumps(item['miaosha_time'], ensure_ascii=False),
             item['miaosha_begin_time'],
             item['miaosha_end_time'],

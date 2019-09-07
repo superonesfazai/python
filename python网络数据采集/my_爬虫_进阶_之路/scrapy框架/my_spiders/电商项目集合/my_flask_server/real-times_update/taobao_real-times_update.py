@@ -42,10 +42,11 @@ from multiplex_code import (
     _print_db_old_data,
     to_right_and_update_tb_data,
     get_goods_info_change_data,
-    BaseDbCommomGoodsInfoParamsObj,
     get_waited_2_update_db_data_from_server,
     block_get_one_goods_info_task_by_external_type,
     get_waited_2_update_db_data_from_redis_server,
+    TBDbGoodsInfoObj,
+    handle_real_times_goods_one_res,
 )
 
 from fzutils.spider.async_always import *
@@ -75,6 +76,7 @@ class TBUpdater(AsyncCrawler):
         self.is_real_times_update_call = True
         # 0 sqlserver | 1 new_my_server | 2 redis
         self.db_res_from = 2
+        assert self.db_res_from in (0, 1, 2,), 'self.db_res_from value异常!'
         if 'armv7l-with-debian' in platform.platform():
             self.server_ip = 'http://0.0.0.0:80'
         else:
@@ -147,14 +149,12 @@ class TBUpdater(AsyncCrawler):
                     server_ip=self.server_ip,
                     _type='tb',
                     child_type=0,)
-            elif self.db_res_from == 2:
+            else:
                 # 默认拿300个, 避免前100个失败率较高的情况下, 后面能继续更新
                 result = get_waited_2_update_db_data_from_redis_server(
                     spider_name='tb0',
                     logger=self.lg,
                     slice_num=800,)
-            else:
-                raise ValueError('self.db_res_from value异常!')
 
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
@@ -197,64 +197,6 @@ class TBUpdater(AsyncCrawler):
                 self.lg,
             ]
 
-        async def handle_one_res(one_res: list):
-            """
-            one_res后续处理
-            :param one_res:
-            :return:
-            """
-            nonlocal slice_params_list
-
-            # 获取新new_slice_params_list
-            new_slice_params_list = []
-            for item in slice_params_list:
-                goods_id = item[1]
-                for i in one_res:
-                    # self.lg.info(str(i))
-                    try:
-                        goods_id2 = i[1]
-                        index = i[2]
-                        if goods_id == goods_id2:
-                            new_slice_params_list.append({
-                                'index': index,
-                                'before_goods_data': i[3],
-                                'end_goods_data': i[4],
-                                'item': item,
-                            })
-                            break
-                        else:
-                            continue
-                    except IndexError:
-                        continue
-
-            # 阻塞方式进行存储, 避免db高并发导致大量死锁
-            tasks = []
-            for k in new_slice_params_list:
-                item = k['item']
-                index = k['index']
-                db_goods_info_obj = TBDbGoodsInfoObj(item=item, logger=self.lg)
-                self.lg.info('create task[where is goods_id: {}, index: {}]...'.format(
-                    db_goods_info_obj.goods_id,
-                    index))
-                tasks.append(self.loop.create_task(self._update_one_goods_info_in_db(
-                    db_goods_info_obj=db_goods_info_obj,
-                    index=index,
-                    before_goods_data=k['before_goods_data'],
-                    end_goods_data=k['end_goods_data'],)))
-
-            # self.lg.error(str(one_res))
-            # self.lg.error(str(tasks))
-            one_res = await _get_async_task_result(
-                tasks=tasks,
-                logger=self.lg)
-            # pprint(one_res)
-            try:
-                del new_slice_params_list
-            except:
-                pass
-
-            return one_res
-
         # tasks = []
         # # method 1
         # for item in slice_params_list:
@@ -285,7 +227,13 @@ class TBUpdater(AsyncCrawler):
             concurrent_type=self.concurrent_type,
         )
         # pprint(one_res)
-        res = await handle_one_res(one_res=one_res)
+        res = await handle_real_times_goods_one_res(
+            goods_type='tb',
+            loop=self.loop,
+            func_name_where_update_one_goods_info_in_db=self._update_one_goods_info_in_db,
+            slice_params_list=slice_params_list,
+            one_res=one_res,
+            logger=self.lg,)
 
         return (res, index)
 
@@ -452,14 +400,6 @@ class TBUpdater(AsyncCrawler):
         except:
             pass
         collect()
-
-class TBDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
-    def __init__(self, item: list, logger=None):
-        BaseDbCommomGoodsInfoParamsObj.__init__(
-            self,
-            item=item,
-            logger=logger,
-        )
 
 def _fck_run():
     _ = TBUpdater()
