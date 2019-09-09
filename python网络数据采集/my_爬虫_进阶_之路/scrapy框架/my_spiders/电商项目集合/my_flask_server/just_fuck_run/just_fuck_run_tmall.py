@@ -32,13 +32,9 @@ server_file_name_list = [
 ]
 
 real_file_name_list = [
-    # server上不进行更新，放在本地更新
-    # 'tmall_real-times_update',
 ]
 
 night_run_file_name_list = [    # 只在晚上run
-    # server上不进行更新，放在本地更新
-    # 'tmall_real-times_update',
 ]
 # real-times脚本晚上运行时间
 night_run_time = ['21', '22', '23', '00', '01', '02', '03', '04', '05', '06',]

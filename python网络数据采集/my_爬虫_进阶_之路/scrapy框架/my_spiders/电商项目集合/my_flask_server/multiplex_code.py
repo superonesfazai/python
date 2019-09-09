@@ -48,6 +48,7 @@ from sql_str_controller import (
     cm_update_str_2,
     tm_update_str_1,
     tb_update_str_1,
+    jd_update_str_1,
 )
 
 from fzutils.data.list_utils import list_remove_repeat_dict_plus
@@ -701,13 +702,17 @@ def block_get_one_goods_info_task_by_external_type(external_type: str,
 
     # todo 注意: 此处返回的都是价格未加价的原始值, @@ 价格加价只会在存入db前进行
     if external_type == 'tm':
-        external_obj = TmallParse(logger=logger, is_real_times_update_call=True)
+        external_obj = TmallParse(
+            logger=logger,
+            is_real_times_update_call=True)
         site_id, _goods_id = goods_id
         before_goods_data = external_obj.get_goods_data(goods_id=goods_id)
         end_goods_data = external_obj.deal_with_data()
 
     elif external_type == 'tb':
-        external_obj = TaoBaoLoginAndParse(logger=logger, is_real_times_update_call=True)
+        external_obj = TaoBaoLoginAndParse(
+            logger=logger,
+            is_real_times_update_call=True)
         site_id, _goods_id = 1, goods_id
         before_goods_data = external_obj.get_goods_data(goods_id=goods_id)
         end_goods_data = external_obj.deal_with_data(goods_id=goods_id)
@@ -1427,6 +1432,14 @@ class TMDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
         )
 
 class TBDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
+    def __init__(self, item: list, logger=None):
+        BaseDbCommomGoodsInfoParamsObj.__init__(
+            self,
+            item=item,
+            logger=logger,
+        )
+
+class JDDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
     def __init__(self, item: list, logger=None):
         BaseDbCommomGoodsInfoParamsObj.__init__(
             self,
@@ -2523,98 +2536,40 @@ def from_tmall_type_get_site_id(type) -> (bool, int):
 
     return site_id
 
-def to_right_and_update_tm_data(data, pipeline, logger=None) -> bool:
+def from_jd_type_get_site_id(jd_type) -> (int, bool):
     """
-    更新常规tm数据
+    根据jd_type来获取对应的site_id的值
+    :param jd_type:
+    :return:
+    """
+    # 采集的来源地
+    if jd_type == 7:
+        site_id = 7     # 采集来源地(京东)
+    elif jd_type == 8:
+        site_id = 8     # 采集来源地(京东超市)
+    elif jd_type == 9:
+        site_id = 9     # 采集来源地(京东全球购)
+    elif jd_type == 10:
+        site_id = 10    # 采集来源地(京东大药房)
+    else:
+        return False
+
+    return site_id
+
+def to_right_and_update_data_by_goods_type(goods_type: str,
+                                           data,
+                                           pipeline,
+                                           logger=None) -> bool:
+    """
+    根据goods_type实时更新数据
+    :param goods_type: eg: 'tb', 'tm'
     :param data:
     :param pipeline:
     :param logger:
     :return:
     """
-    def _get_db_update_params(item):
-        """得到tm db待更新的数据"""
-        params = [
-            item['modify_time'],
-            item['shop_name'],
-            item['account'],
-            item['title'],
-            item['sub_title'],
-            item['link_name'],
-            item['price'],
-            item['taobao_price'],
-            dumps(item['price_info'], ensure_ascii=False),
-            dumps(item['detail_name_list'], ensure_ascii=False),
-            dumps(item['price_info_list'], ensure_ascii=False),
-            dumps(item['all_img_url'], ensure_ascii=False),
-            dumps(item['p_info'], ensure_ascii=False),
-            item['div_desc'],
-            item['all_sell_count'],
-            # item['delete_time'],
-            item['is_delete'],
-            item['is_price_change'],
-            dumps(item['price_change_info'], ensure_ascii=False),
-            item['sku_info_trans_time'],
-            item['is_spec_change'],
-            item['spec_trans_time'],
-            item['is_stock_change'],
-            item['stock_trans_time'],
-            dumps(item['stock_change_info'], ensure_ascii=False),
-
-            item['goods_id'],
-        ]
-        if item.get('delete_time', '') == '':
-            params.insert(-1, item['shelf_time'])
-        elif item.get('shelf_time', '') == '':
-            params.insert(-1, item['delete_time'])
-        else:
-            params.insert(-1, item['shelf_time'])
-            params.insert(-1, item['delete_time'])
-
-        return tuple(params)
-
-    site_id = from_tmall_type_get_site_id(type=data.get('type'))
-    if site_id is False:
-        _print(
-            msg='获取到的site_id为False!出错!请检查!出错goods_id: {0}'.format(data.get('goods_id')),
-            logger=logger,
-            log_level=2)
-        return False
-
-    tmp = _get_right_model_data(
-        data=data,
-        site_id=site_id,
-        logger=logger)
-    # pprint(tmp)
-
-    params = _get_db_update_params(item=tmp)
-    base_sql_str = tm_update_str_1
-    if tmp['delete_time'] == '':
-        sql_str = base_sql_str.format('shelf_time=%s', '')
-    elif tmp['shelf_time'] == '':
-        sql_str = base_sql_str.format('delete_time=%s', '')
-    else:
-        sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
-
-    res = pipeline._update_table_2(
-        sql_str=sql_str,
-        params=params,
-        logger=logger)
-
-    return res
-
-def to_right_and_update_tb_data(data, pipeline, logger=None) -> bool:
-    '''
-    实时更新数据
-    :param data:
-    :param pipeline:
-    :return:
-    '''
     def _get_db_update_params(item) -> tuple:
-        '''
-        得到db待更新的数据
-        :param item:
-        :return:
-        '''
+        """得到db待更新的数据"""
         params = [
             item['modify_time'],
             item['shop_name'],
@@ -2653,15 +2608,40 @@ def to_right_and_update_tb_data(data, pipeline, logger=None) -> bool:
 
         return tuple(params)
 
-    goods_id = data.get('goods_id')
+    if goods_type == 'tb':
+        site_id = 1
+        base_sql_str = tb_update_str_1
+    elif goods_type == 'tm':
+        site_id = from_tmall_type_get_site_id(
+            type=data.get('type'),)
+        base_sql_str = tm_update_str_1
+    elif goods_type == 'jd':
+        site_id = from_jd_type_get_site_id(
+            jd_type=data.get('jd_type',),)
+        base_sql_str = jd_update_str_1
+
+    else:
+        raise NotImplemented
+
+    goods_id = data.get('goods_id', '')
     try:
-        tmp = _get_right_model_data(data=data, site_id=1, logger=logger)
-    except:
-        logger.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(goods_id), exc_info=True)
+        assert goods_id != ''
+        # 只针对tm
+        assert site_id is not False
+        tmp = _get_right_model_data(
+            data=data,
+            site_id=site_id,
+            logger=logger)
+        # pprint(tmp)
+    except Exception as e:
+        _print(
+            msg='遇到错误, 出错goods_id: {0}'.format(goods_id),
+            logger=logger,
+            log_level=2,
+            exception=e,)
         return False
 
     params = _get_db_update_params(item=tmp)
-    base_sql_str = tb_update_str_1
     if tmp['delete_time'] == '':
         sql_str = base_sql_str.format('shelf_time=%s', '')
     elif tmp['shelf_time'] == '':
@@ -2678,7 +2658,7 @@ def to_right_and_update_tb_data(data, pipeline, logger=None) -> bool:
         res = pipeline._update_table(
             sql_str=sql_str,
             params=params,
-            logger=logger)
+            logger=logger,)
     else:
         raise TypeError('pipeline type: {}, 异常!'.format(type(pipeline)))
 

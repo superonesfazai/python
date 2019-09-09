@@ -25,8 +25,9 @@ from multiplex_code import (
     _get_new_db_conn,
     _print_db_old_data,
     get_goods_info_change_data,
-    BaseDbCommomGoodsInfoParamsObj,)
-
+    JDDbGoodsInfoObj,
+    to_right_and_update_data_by_goods_type,
+)
 from fzutils.spider.async_always import *
 
 class JDUpdater(AsyncCrawler):
@@ -67,7 +68,8 @@ class JDUpdater(AsyncCrawler):
 
     async def _get_tmp_item(self, site_id, goods_id):
         tmp_item = []
-        if site_id == 7 or site_id == 8:  # 从数据库中取出时，先转换为对应的类型
+        if site_id == 7\
+                or site_id == 8:  # 从数据库中取出时，先转换为对应的类型
             tmp_item.append(0)
         elif site_id == 9:
             tmp_item.append(1)
@@ -87,7 +89,10 @@ class JDUpdater(AsyncCrawler):
         '''
         res = False
         await self._get_new_jd_obj(index=index)
-        self.sql_cli = await _get_new_db_conn(db_obj=self.sql_cli, index=index, logger=self.lg)
+        self.sql_cli = await _get_new_db_conn(
+            db_obj=self.sql_cli,
+            index=index,
+            logger=self.lg)
         if self.sql_cli.is_connect_success:
             self.lg.info('------>>>| 正在更新的goods_id为({0}) | --------->>>@ 索引值为({1})'.format(
                 db_goods_info_obj.goods_id,
@@ -115,7 +120,11 @@ class JDUpdater(AsyncCrawler):
                     logger=self.lg,
                     data=data,
                     db_goods_info_obj=db_goods_info_obj,)
-                self.jd.to_right_and_update_data(data, pipeline=self.sql_cli)
+                res = to_right_and_update_data_by_goods_type(
+                    goods_type='jd',
+                    data=data,
+                    pipeline=self.sql_cli,
+                    logger=self.lg,)
 
             else:  # 表示返回的data值为空值
                 pass
@@ -178,16 +187,9 @@ class JDUpdater(AsyncCrawler):
         except: pass
         try:
             del self.loop
-        except:pass
+        except:
+            pass
         collect()
-
-class JDDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
-    def __init__(self, item: list, logger=None):
-        BaseDbCommomGoodsInfoParamsObj.__init__(
-            self,
-            item=item,
-            logger=logger,
-        )
 
 def _fck_run():
     # 遇到: PermissionError: [Errno 13] Permission denied: 'ghostdriver.log'
@@ -201,10 +203,6 @@ def _fck_run():
         pass
 
 def main():
-    '''
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    '''
     print('========主函数开始========')
     daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')

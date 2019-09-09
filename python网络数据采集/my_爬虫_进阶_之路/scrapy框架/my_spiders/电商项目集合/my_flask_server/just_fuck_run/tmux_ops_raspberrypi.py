@@ -108,7 +108,7 @@ class TmuxOps(AsyncCrawler):
             },
             {
                 'page_name': 'tb0',
-                'cmd': 'cd {} && {} taobao_real-times_update.py'.format(
+                'cmd': 'cd {} && {} common_goods_real-time_update.py --goods_spider_name=tb'.format(
                     self.real_path,
                     self.python_version_cmd,
                 ),
@@ -116,16 +116,16 @@ class TmuxOps(AsyncCrawler):
             },
             {
                 'page_name': 'tb1',
-                'cmd': 'cd {} && {} taobao_real-times_update.py'.format(
+                'cmd': 'cd {} && {} common_goods_real-time_update.py --goods_spider_name=tb'.format(
                     self.real_path,
                     self.python_version_cmd,
                 ),
                 'delay_time': 2,
             },
-            # tm 实时更新, 测试发现: 2个出错率低(mac不跑, pi上跑2个即可(多开的多为失败, 休眠100s)!)
+            # tm 实时更新, 测试发现: 3个出错率低(mac不跑, pi上跑3个即可(多开的多为失败, 休眠100s)!)
             {
                 'page_name': 'tm0',
-                'cmd': 'cd {} && {} tmall_real-times_update.py'.format(
+                'cmd': 'cd {} && {} common_goods_real-time_update.py --goods_spider_name=tm'.format(
                     self.real_path,
                     self.python_version_cmd,
                 ),
@@ -133,20 +133,20 @@ class TmuxOps(AsyncCrawler):
             },
             {
                 'page_name': 'tm1',
-                'cmd': 'cd {} && {} tmall_real-times_update.py'.format(
+                'cmd': 'cd {} && {} common_goods_real-time_update.py --goods_spider_name=tm'.format(
                     self.real_path,
                     self.python_version_cmd,
                 ),
                 'delay_time': 2,
             },
-            # {
-            #     'page_name': 'tm2',
-            #     'cmd': 'cd {} && {} tmall_real-times_update.py'.format(
-            #         self.real_path,
-            #         self.python_version_cmd,
-            #     ),
-            #     'delay_time': 2,
-            # },
+            {
+                'page_name': 'tm2',
+                'cmd': 'cd {} && {} common_goods_real-time_update.py --goods_spider_name=tm'.format(
+                    self.real_path,
+                    self.python_version_cmd,
+                ),
+                'delay_time': 2,
+            },
             {
                 'page_name': 'jp0',
                 'cmd': 'cd {} && {} juanpi_real-times_update.py'.format(

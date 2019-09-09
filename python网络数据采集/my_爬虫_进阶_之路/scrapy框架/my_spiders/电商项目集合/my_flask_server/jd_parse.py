@@ -1,11 +1,11 @@
 # coding:utf-8
 
-'''
+"""
 @author = super_fazai
 @File    : jd_parse.py
 @Time    : 2017/11/9 10:41
 @connect : superonesfazai@gmail.com
-'''
+"""
 
 """
 可对应爬取 京东常规商品(7)，京东超市(8)，京东生鲜，京东秒杀('miaosha'字段)，京东闪购, 京东大药房(在本地测试通过, 服务器data为空)
@@ -13,22 +13,19 @@
 """
 
 from settings import (
-    PHANTOMJS_DRIVER_PATH,
-    CHROME_DRIVER_PATH,
     MY_SPIDER_LOGS_PATH,
     IP_POOL_TYPE,)
 
 from random import randint
-
 from sql_str_controller import (
-    jd_update_str_1,
     jd_insert_str_1,
-    jd_insert_str_2,)
+    jd_insert_str_2,
+)
 
 from multiplex_code import (
     _get_right_model_data,
+    from_jd_type_get_site_id,
 )
-
 from fzutils.spider.async_always import *
 
 class JdParse(Crawler):
@@ -38,25 +35,22 @@ class JdParse(Crawler):
             log_print=True,
             logger=logger,
             log_save_path=MY_SPIDER_LOGS_PATH + '/jd/_/',
-            
-            is_use_driver=False,
-            driver_executable_path=PHANTOMJS_DRIVER_PATH,
         )
         self.result_data = {}
         self.is_real_times_update_call = is_real_times_update_call
         if self.is_real_times_update_call:
             self.proxy_type = PROXY_TYPE_HTTPS
             # 不可太大，否则server采集时慢
-            self.req_num_retries = 5
+            self.req_num_retries = 6
         else:
             self.proxy_type = PROXY_TYPE_HTTP
             self.req_num_retries = 3
 
     def _get_goods_is_delete(self, body) -> bool:
-        '''
+        """
         根据body判断商品是否下架
         :return:
-        '''
+        """
         if '暂无定价' in body \
                 or '403 Forbidden' in body\
                 or '此商品暂时售完' in body:
@@ -65,11 +59,11 @@ class JdParse(Crawler):
         return True
 
     def get_goods_data(self, goods_id):
-        '''
+        """
         新版api
         :param goods_id:
         :return:
-        '''
+        """
         self.error_record = '出错goods_id:{0}'.format(goods_id[1])
         if goods_id == []:
             self.lg.error('goods_id为空list' + self.error_record)
@@ -121,7 +115,7 @@ class JdParse(Crawler):
         if base_price_info == {}:
             return self._data_error_init()
 
-        '''p_info'''
+        """p_info"""
         # 取m站接口总是会出现无响应
         # 改为解析取pc站html
         p_info = self._get_pc_p_info(goods_id=goods_id[1])
@@ -152,11 +146,11 @@ class JdParse(Crawler):
         return all_data
 
     def deal_with_data(self, goods_id) -> dict:
-        '''
+        """
         处理数据
         :param goods_id:
         :return: {'is_delete': 1} 表示下架商品
-        '''
+        """
         data = self.result_data
         # pprint(data)
         if data == {}:
@@ -222,11 +216,11 @@ class JdParse(Crawler):
         return res
 
     def _get_base_price_info(self, _2):
-        '''
+        """
         获取基础的价格信息
         :param _2:
         :return:
-        '''
+        """
         # 获取该规格的base_price, 避免单规格获取不到价格
         base_price_info = {}
         try:
@@ -243,10 +237,10 @@ class JdParse(Crawler):
         return base_price_info
 
     def _get_all_sell_count(self, goods_id):
-        '''
+        """
         得到总好评数
         :return:
-        '''
+        """
         params = (
             ('callback', 'skuJDEvalA'),
             ('sorttype', '5'),
@@ -290,10 +284,10 @@ class JdParse(Crawler):
         return all_sell_count
 
     def _get_this_goods_all_goods_id_data(self, _1) -> list:
-        '''
+        """
         获取该商品所有的goods_id的data信息
         :return:
-        '''
+        """
         # 获取所有goods_id
         self.lg.info('------>>>| 正在获取所有goods_id的data...')
         all_goods_id_list = _1.get('item', {}).get('newColorSize', [])
@@ -325,10 +319,10 @@ class JdParse(Crawler):
         return _5
 
     def _get_price_info_list(self, data) -> list:
-        '''
+        """
         获取每个规格的详细信息
         :return:
-        '''
+        """
         _ = data.get('5', [])
         # pprint(_)
         price_info_list = []
@@ -371,9 +365,9 @@ class JdParse(Crawler):
         return _
 
     def _get_price_and_taobao_price(self, price_info_list, base_price_info):
-        '''
+        """
         最高价和最低价处理  从已经获取到的规格对应价格中筛选最高价和最低价即可
-        '''
+        """
         if price_info_list == []:
             detail_price = base_price_info.get('detail_price', '')
             price, taobao_price = detail_price, detail_price
@@ -414,22 +408,22 @@ class JdParse(Crawler):
         return self._wash_sensitive_info(data=title)
 
     def _get_sub_title(self, data) -> str:
-        '''
+        """
         获取sub_title可为空
         :param data:
         :return:
-        '''
+        """
         sub_title = data.get('2', {}).get('AdvertCount', {}).get('ad', '')
         sub_title = re.compile('<a.*?</a>').sub('', sub_title)
 
         return self._wash_sensitive_info(data=sub_title)
 
     def _get_pc_p_info(self, goods_id) -> list:
-        '''
+        """
         获取pc html的p_info
         :param goods_id:
         :return:
-        '''
+        """
         url = 'https://item.jd.com/{}.html'.format(goods_id)
         headers = get_random_headers()
         headers.update({
@@ -462,10 +456,10 @@ class JdParse(Crawler):
         return p_info
 
     def _get_p_info_ori_data(self, goods_id) -> dict:
-        '''
+        """
         获取p_info数据源
         :return:
-        '''
+        """
         params = (
             ('callback', 'commParamCallBackA'),
             ('skuid', str(goods_id)),
@@ -497,10 +491,10 @@ class JdParse(Crawler):
         return _
 
     def _get_div_desc_oir_data(self, goods_id, description_id) -> str:
-        '''
+        """
         获取div_desc数据源
         :return:
-        '''
+        """
         url = 'https://wqsitem.jd.com/detail/{}_d{}_normal.html'.format(goods_id, description_id)
         headers = get_random_headers(
             user_agent_type=1,
@@ -542,10 +536,10 @@ class JdParse(Crawler):
         return div_desc
 
     def _wash_sensitive_info(self, data):
-        '''
+        """
         清洗敏感信息
         :return:
-        '''
+        """
         replace_str_list = [
             ('京东', '优秀网'),
             ('JD', '优秀网')
@@ -560,18 +554,18 @@ class JdParse(Crawler):
             is_default_filter=True,)
 
     def _data_error_init(self):
-        '''
+        """
         错误初始化
         :return:
-        '''
+        """
         self.result_data = {}
 
         return {}
 
     def _get_jd_type(self, is_jd_market, type):
-        '''
+        """
         判断是否是京东商品类型
-        '''
+        """
         # self.lg.info(str(data.get('isJdMarket')))
         if is_jd_market:  # False不是京东超市
             self.lg.info('该链接为京东超市')
@@ -588,21 +582,21 @@ class JdParse(Crawler):
         return jd_type
 
     def _get_shop_name(self, data):
-        '''
+        """
         获取shop_name
         :param data:
         :return:
-        '''
+        """
         shop_name = data.get('_2', {}).get('stock', {}).get('self_D', {}).get('vender', '')
 
         return self._wash_sensitive_info(data=shop_name)
 
     def _get_detail_name_list(self, data):
-        '''
+        """
         获取detail_name_list
         :param data:
         :return:
-        '''
+        """
         # new
         detail_name_list = []
         sale_prop = data.get('1', {}).get('item', {}).get('saleProp', {})
@@ -625,10 +619,10 @@ class JdParse(Crawler):
         return detail_name_list
 
     def _get_one_goods_id_sku_info(self, goods_id) -> dict:
-        '''
+        """
         获取一个规格的商品信息(包括价格，规格示例图)
         :return:
-        '''
+        """
         params = (
             ('datatype', '1'),
             ('callback', 'skuInfoCBA'),
@@ -676,12 +670,13 @@ class JdParse(Crawler):
         return _
 
     def _wash_div_desc(self, wdis):
-        '''
+        """
         清洗div_desc
         :param wdis:
         :return:
-        '''
-        wdis = re.compile(r'&lt;').sub('<', wdis)  # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
+        """
+        # self.driver.page_source转码成字符串时'<','>'都被替代成&gt;&lt;此外还有其他也类似被替换
+        wdis = re.compile(r'&lt;').sub('<', wdis)  
         wdis = re.compile(r'&gt;').sub('>', wdis)
         wdis = re.compile(r'&amp;').sub('&', wdis)
         wdis = re.compile(r'&nbsp;').sub(' ', wdis)
@@ -695,37 +690,13 @@ class JdParse(Crawler):
 
         return wdis
 
-    def to_right_and_update_data(self, data, pipeline) -> bool:
-        '''
-        实时更新数据
-        :param data:
-        :param pipeline:
-        :return:
-        '''
-        site_id = self._from_jd_type_get_site_id_value(jd_type=data.get('jd_type'))
-        tmp = _get_right_model_data(data=data, site_id=site_id)
-
-        params = self.get_db_update_params(item=tmp)
-        base_sql_str = jd_update_str_1
-        if tmp['delete_time'] == '':
-            sql_str = base_sql_str.format('shelf_time=%s', '')
-        elif tmp['shelf_time'] == '':
-            sql_str = base_sql_str.format('delete_time=%s', '')
-        else:
-            sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
-
-        res = pipeline._update_table_2(sql_str=sql_str, params=params, logger=self.lg)
-
-        return res
-
     def insert_into_jd_table(self, data, pipeline):
-        site_id = self._from_jd_type_get_site_id_value(jd_type=data.get('jd_type'))
-        if site_id == 0:
+        site_id = from_jd_type_get_site_id(jd_type=data.get('jd_type'))
+        if site_id is False:
             self.lg.error('site_id获取异常, 请检查!')
             return False
 
         tmp = _get_right_model_data(data=data, site_id=site_id)
-
         self.lg.info('------>>>| 待存储的数据信息为:{0}'.format(tmp.get('goods_id')))
 
         pipeline.insert_into_jd_table(item=tmp)
@@ -733,14 +704,14 @@ class JdParse(Crawler):
         return True
 
     def old_jd_goods_insert_into_new_table(self, data, pipeline):
-        '''
+        """
         老数据转到新表
         :param data:
         :param pipeline:
         :return:
-        '''
-        site_id = self._from_jd_type_get_site_id_value(jd_type=data.get('jd_type'))
-        if site_id == 0:
+        """
+        site_id = from_jd_type_get_site_id(jd_type=data.get('jd_type'))
+        if site_id is False:
             self.lg.error('site_id获取异常, 请检查!')
             return False
 
@@ -759,11 +730,11 @@ class JdParse(Crawler):
         return result
 
     def _get_db_insert_params(self, item):
-        '''
+        """
         初始化存储参数
         :param item:
         :return:
-        '''
+        """
         params = [
             item['goods_id'],
             item['goods_url'],
@@ -794,77 +765,12 @@ class JdParse(Crawler):
 
         return tuple(params)
 
-    def get_db_update_params(self, item) -> tuple:
-        '''
-        得到db待更新参数
-        :param item:
-        :return:
-        '''
-        params = [
-            item['modify_time'],
-            item['shop_name'],
-            item['account'],
-            item['title'],
-            item['sub_title'],
-            item['link_name'],
-            item['price'],
-            item['taobao_price'],
-            dumps(item['price_info'], ensure_ascii=False),
-            dumps(item['detail_name_list'], ensure_ascii=False),
-            dumps(item['price_info_list'], ensure_ascii=False),
-            dumps(item['all_img_url'], ensure_ascii=False),
-            dumps(item['p_info'], ensure_ascii=False),
-            item['div_desc'],
-            item['all_sell_count'],
-            # item['delete_time'],
-            item['is_delete'],
-            item['is_price_change'],
-            dumps(item['price_change_info'], ensure_ascii=False),
-            item['sku_info_trans_time'],
-            item['is_spec_change'],
-            item['spec_trans_time'],
-            item['is_stock_change'],
-            item['stock_trans_time'],
-            dumps(item['stock_change_info'], ensure_ascii=False),
-
-            item['goods_id'],
-        ]
-        if item.get('delete_time', '') == '':
-            params.insert(-1, item['shelf_time'])
-        elif item.get('shelf_time', '') == '':
-            params.insert(-1, item['delete_time'])
-        else:
-            params.insert(-1, item['shelf_time'])
-            params.insert(-1, item['delete_time'])
-
-        return tuple(params)
-
-    def _from_jd_type_get_site_id_value(self, jd_type) -> int:
-        '''
-        根据jd_type来获取对应的site_id的值
-        :param jd_type:
-        :return:
-        '''
-        # 采集的来源地
-        if jd_type == 7:
-            site_id = 7     # 采集来源地(京东)
-        elif jd_type == 8:
-            site_id = 8     # 采集来源地(京东超市)
-        elif jd_type == 9:
-            site_id = 9     # 采集来源地(京东全球购)
-        elif jd_type == 10:
-            site_id = 10    # 采集来源地(京东大药房)
-        else:
-            site_id = 0     # 表示错误
-
-        return site_id
-
     def get_goods_id_from_url(self, jd_url) -> list:
-        '''
+        """
         注意: 初始地址可以直接用这个[https://item.jd.com/xxxxx.html]因为jd会给你重定向到正确地址
         :param jd_url:
         :return:
-        '''
+        """
         is_jd_url = re.compile(r'https://item.jd.com/.*?').findall(jd_url)
         if is_jd_url != []:
             goods_id = re.compile(r'https://item.jd.com/(.*?).html.*?').findall(jd_url)[0]
@@ -888,7 +794,6 @@ class JdParse(Crawler):
 
     def __del__(self):
         try:
-            del self.driver
             del self.lg
         except:
             pass
