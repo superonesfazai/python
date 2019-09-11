@@ -23,6 +23,7 @@ from multiplex_code import (
     _z8_get_parent_dir,
     _handle_goods_shelves_in_auto_goods_table,
     _get_right_model_data,
+    get_db_commom_goods_update_params,
 )
 from my_exceptions import GoodsShelvesException
 
@@ -232,7 +233,8 @@ class Zhe800Parse(Crawler):
                 is_delete = self._get_is_delete(price_info_list=price_info_list)
                 schedule, is_delete = self._get_schedule(data=data, is_delete=is_delete)
                 # pprint(schedule)
-                parent_dir = data.get('parent_dir', '')
+                parent_dir = str(data.get('parent_dir', ''))
+                all_sell_count = ''
 
             except GoodsShelvesException:
                 _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id,)
@@ -261,6 +263,7 @@ class Zhe800Parse(Crawler):
                 'schedule': schedule,                       # 商品开卖时间和结束开卖时间
                 'is_delete': is_delete,                      # 用于判断商品是否已经下架
                 'parent_dir': parent_dir,
+                'all_sell_count': all_sell_count,
             }
             # pprint(result)
             # print(result)
@@ -322,7 +325,7 @@ class Zhe800Parse(Crawler):
 
     def to_right_and_update_data(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=11)
-        params = self._get_db_update_params(item=tmp)
+        params = get_db_commom_goods_update_params(item=tmp)
         base_sql_str = z8_update_str_1
         if tmp['delete_time'] == '':
             sql_str = base_sql_str.format('shelf_time=%s', '')
@@ -627,52 +630,6 @@ class Zhe800Parse(Crawler):
         res = pipeline._update_table(sql_str=z8_update_str_2, params=params)
 
         return res
-
-    def _get_db_update_params(self, item):
-        '''
-        得到db待更新的数据
-        :param item:
-        :return:
-        '''
-        params = [
-            item['modify_time'],
-            item['shop_name'],
-            item['account'],
-            item['title'],
-            item['sub_title'],
-            item['link_name'],
-            item['price'],
-            item['taobao_price'],
-            dumps(item['price_info'], ensure_ascii=False),
-            dumps(item['detail_name_list'], ensure_ascii=False),
-            dumps(item['price_info_list'], ensure_ascii=False),
-            dumps(item['all_img_url'], ensure_ascii=False),
-            dumps(item['p_info'], ensure_ascii=False),
-            item['div_desc'],
-            # item['delete_time'],
-            item['is_delete'],
-            dumps(item['schedule'], ensure_ascii=False),
-            item['is_price_change'],
-            dumps(item['price_change_info'], ensure_ascii=False),
-            item['parent_dir'],
-            item['sku_info_trans_time'],
-            item['is_spec_change'],
-            item['spec_trans_time'],
-            item['is_stock_change'],
-            item['stock_trans_time'],
-            dumps(item['stock_change_info'], ensure_ascii=False),
-
-            item['goods_id'],
-        ]
-        if item.get('delete_time', '') == '':
-            params.insert(-1, item['shelf_time'])
-        elif item.get('shelf_time', '') == '':
-            params.insert(-1, item['delete_time'])
-        else:
-            params.insert(-1, item['shelf_time'])
-            params.insert(-1, item['delete_time'])
-
-        return tuple(params)
 
     def _get_db_insert_miaosha_params(self, item):
         params = (

@@ -21,8 +21,8 @@ from sql_str_controller import (
 
 from multiplex_code import (
     _get_right_model_data,
+    get_db_commom_goods_update_params,
 )
-
 from fzutils.spider.async_always import *
 
 '''
@@ -471,7 +471,7 @@ class VipParse(Crawler):
         :return:
         '''
         tmp = _get_right_model_data(data=data, site_id=25)
-        params = self._get_db_update_params(item=tmp)
+        params = get_db_commom_goods_update_params(item=tmp)
         base_sql_str = vip_update_str_1
         if tmp['delete_time'] == '':
             sql_str = base_sql_str.format('shelf_time=%s', '')
@@ -481,52 +481,6 @@ class VipParse(Crawler):
             sql_str = base_sql_str.format('shelf_time=%s,', 'delete_time=%s')
 
         pipeline._update_table(sql_str=sql_str, params=params)
-
-    def _get_db_update_params(self, item):
-        '''
-        得到db待更新的数据
-        :param item:
-        :return:
-        '''
-        params = [
-            item['modify_time'],
-            item['shop_name'],
-            item['account'],
-            item['title'],
-            item['sub_title'],
-            item['link_name'],
-            item['price'],
-            item['taobao_price'],
-            dumps(item['price_info'], ensure_ascii=False),
-            dumps(item['detail_name_list'], ensure_ascii=False),
-            dumps(item['price_info_list'], ensure_ascii=False),
-            dumps(item['all_img_url'], ensure_ascii=False),
-            dumps(item['p_info'], ensure_ascii=False),
-            item['div_desc'],
-            item['all_sell_count'],
-            # item['delete_time'],
-            item['is_delete'],
-            dumps(item['schedule'], ensure_ascii=False),
-            item['is_price_change'],
-            dumps(item['price_change_info'], ensure_ascii=False),
-            item['sku_info_trans_time'],
-            item['is_spec_change'],
-            item['spec_trans_time'],
-            item['is_stock_change'],
-            item['stock_trans_time'],
-            dumps(item['stock_change_info'], ensure_ascii=False),
-
-            item['goods_id'],
-        ]
-        if item.get('delete_time', '') == '':
-            params.insert(-1, item['shelf_time'])
-        elif item.get('shelf_time', '') == '':
-            params.insert(-1, item['delete_time'])
-        else:
-            params.insert(-1, item['shelf_time'])
-            params.insert(-1, item['delete_time'])
-
-        return tuple(params)
 
     def _get_detail_name_list(self, tmp_data):
         '''

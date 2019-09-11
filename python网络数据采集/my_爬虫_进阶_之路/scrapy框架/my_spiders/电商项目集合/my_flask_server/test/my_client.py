@@ -237,6 +237,9 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://www.pearvideo.com/video_1584072'
         # article_link = 'https://www.pearvideo.com/video_1598014'
 
+        # 七丽女性网
+        # article_link = 'https://i.7y7.com/hufu/84/385784.html'
+
         # 雪球
         article_link = 'https://xueqiu.com/5157574024/130400677'
 

@@ -28,6 +28,7 @@ from sql_str_controller import (
 from multiplex_code import (
     _jp_get_parent_dir,
     _get_right_model_data,
+    get_db_commom_goods_update_params,
 )
 from fzutils.spider.async_always import *
 
@@ -195,6 +196,7 @@ class JuanPiParse(Crawler):
             if price == 0 or taobao_price == 0:     # 没有获取到价格说明商品已经下架了
                 is_delete = 1
             parent_dir = data.get('parent_dir', '')
+            all_sell_count = ''
 
             result = {
                 'shop_name': shop_name,                 # 店铺名称
@@ -213,6 +215,7 @@ class JuanPiParse(Crawler):
                 'is_delete': is_delete,                 # 是否下架判断
                 'schedule': schedule,                   # 商品销售时间段
                 'parent_dir': parent_dir,
+                'all_sell_count': all_sell_count,
             }
             # pprint(result)
             # wait_to_send_data = {
@@ -244,7 +247,7 @@ class JuanPiParse(Crawler):
 
     def to_right_and_update_data(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=12)
-        params = self._get_db_update_params(item=tmp)
+        params = get_db_commom_goods_update_params(item=tmp)
         base_sql_str = jp_update_str_2
         if tmp['delete_time'] == '':
             sql_str = base_sql_str.format('shelf_time=%s', '')
@@ -542,52 +545,6 @@ class JuanPiParse(Crawler):
             pass
 
         return main_data
-
-    def _get_db_update_params(self, item):
-        '''
-        得到待更新的db数据
-        :param item:
-        :return:
-        '''
-        params = [
-            item['modify_time'],
-            item['shop_name'],
-            item['account'],
-            item['title'],
-            item['sub_title'],
-            item['link_name'],
-            item['price'],
-            item['taobao_price'],
-            dumps(item['price_info'], ensure_ascii=False),
-            dumps(item['detail_name_list'], ensure_ascii=False),
-            dumps(item['price_info_list'], ensure_ascii=False),
-            dumps(item['all_img_url'], ensure_ascii=False),
-            dumps(item['p_info'], ensure_ascii=False),
-            item['div_desc'],
-            item['is_delete'],
-            dumps(item['schedule'], ensure_ascii=False),
-            item['is_price_change'],
-            dumps(item['price_change_info'], ensure_ascii=False),
-            item['sku_info_trans_time'],
-            item['parent_dir'],
-            item['is_spec_change'],
-            item['spec_trans_time'],
-            item['is_stock_change'],
-            item['stock_trans_time'],
-            dumps(item['stock_change_info'], ensure_ascii=False),
-
-            item['goods_id'],
-        ]
-
-        if item.get('delete_time', '') == '':
-            params.insert(-1, item['shelf_time'])
-        elif item.get('shelf_time', '') == '':
-            params.insert(-1, item['delete_time'])
-        else:
-            params.insert(-1, item['shelf_time'])
-            params.insert(-1, item['delete_time'])
-
-        return tuple(params)
 
     def _get_db_insert_miaosha_params(self, item):
         params = (

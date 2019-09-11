@@ -390,7 +390,7 @@ class ArticleParser(AsyncCrawler):
                 'site_id': 30,
             },
             '7y7': {
-                'debug': False,
+                'debug': True,
                 'name': '七丽女性网',
                 'url': 'https://i.7y7.com/',
                 'obj_origin': 'i.7y7.com',

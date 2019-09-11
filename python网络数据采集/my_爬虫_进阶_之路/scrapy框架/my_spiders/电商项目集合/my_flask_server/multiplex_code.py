@@ -528,7 +528,6 @@ def _get_right_model_data(data, site_id=None, logger=None):
         tmp['div_desc'] = data_list.get('div_desc', '')  # 下方div
 
     tmp['schedule'] = data_list.get('schedule') if data_list.get('schedule') is not None else []
-
     tmp['is_delete'] = data_list.get('is_delete') if data_list.get('is_delete') is not None else 0
 
     tmp['shelf_time'] = data_list.get('shelf_time', '')
@@ -869,7 +868,7 @@ def _jp_get_parent_dir(phantomjs, goods_id):
 
     return parent_dir
 
-def _mia_get_parent_dir(p_info):
+def _mia_get_parent_dir(p_info) -> str:
     '''
     蜜芽获取parent_dir(常规, 秒杀, 拼团皆可调用)
     :param p_info:
@@ -2572,6 +2571,76 @@ def from_jd_type_get_site_id(jd_type) -> (int, bool):
 
     return site_id
 
+def get_db_commom_goods_update_params(item) -> tuple:
+    """
+    获取常规goods的params
+    :param item:
+    :return:
+    """
+    # todo 因为常规goods都会过_get_right_model_data格式化函数
+    #  导致parent_dir, schedule等都有默认值!!
+    #  所以也得相应修改update sql 语句
+    # ** 兼容处理未获取到值不添加的item
+    # 未获取到则不增加的判断字符串
+    not_add_item_str = 'fzhook:error_get_not_add_item'
+    parent_dir = item.get('parent_dir')
+    # pinduoduo
+    _schedule = item.get('schedule')
+    if parent_dir is not None \
+            and isinstance(parent_dir, str):
+        pass
+    else:
+        parent_dir = not_add_item_str
+    if _schedule is not None\
+        and isinstance(_schedule, (list,)):
+        _schedule = dumps(_schedule, ensure_ascii=False)
+    else:
+        _schedule = not_add_item_str
+
+    params = [
+        item['modify_time'],
+        item['shop_name'],
+        item['account'],
+        item['title'],
+        item['sub_title'],
+        item['link_name'],
+        item['price'],
+        item['taobao_price'],
+        dumps(item['price_info'], ensure_ascii=False),
+        dumps(item['detail_name_list'], ensure_ascii=False),
+        dumps(item['price_info_list'], ensure_ascii=False),
+        dumps(item['all_img_url'], ensure_ascii=False),
+        dumps(item['p_info'], ensure_ascii=False),
+        item['div_desc'],
+        item['all_sell_count'],
+        item['is_delete'],
+        item['is_price_change'],
+        dumps(item['price_change_info'], ensure_ascii=False),
+        item['sku_info_trans_time'],
+        item['is_spec_change'],
+        item['spec_trans_time'],
+        item['is_stock_change'],
+        item['stock_trans_time'],
+        dumps(item['stock_change_info'], ensure_ascii=False),
+        parent_dir,
+        _schedule,
+
+        item['goods_id'],
+    ]
+    while not_add_item_str in params:
+        # 删除不添加的item
+        params.remove(not_add_item_str)
+
+    if item.get('delete_time', '') == '':
+        params.insert(-1, item['shelf_time'])
+    elif item.get('shelf_time', '') == '':
+        params.insert(-1, item['delete_time'])
+    else:
+        params.insert(-1, item['shelf_time'])
+        params.insert(-1, item['delete_time'])
+
+    return tuple(params)
+
 def to_right_and_update_data_by_goods_type(goods_type: str,
                                            data,
                                            pipeline,
@@ -2584,46 +2653,6 @@ def to_right_and_update_data_by_goods_type(goods_type: str,
     :param logger:
     :return:
     """
-    def _get_db_update_params(item) -> tuple:
-        """得到db待更新的数据"""
-        params = [
-            item['modify_time'],
-            item['shop_name'],
-            item['account'],
-            item['title'],
-            item['sub_title'],
-            item['link_name'],
-            item['price'],
-            item['taobao_price'],
-            dumps(item['price_info'], ensure_ascii=False),
-            dumps(item['detail_name_list'], ensure_ascii=False),
-            dumps(item['price_info_list'], ensure_ascii=False),
-            dumps(item['all_img_url'], ensure_ascii=False),
-            dumps(item['p_info'], ensure_ascii=False),
-            item['div_desc'],
-            item['all_sell_count'],
-            item['is_delete'],
-            item['is_price_change'],
-            dumps(item['price_change_info'], ensure_ascii=False),
-            item['sku_info_trans_time'],
-            item['is_spec_change'],
-            item['spec_trans_time'],
-            item['is_stock_change'],
-            item['stock_trans_time'],
-            dumps(item['stock_change_info'], ensure_ascii=False),
-
-            item['goods_id'],
-        ]
-        if item.get('delete_time', '') == '':
-            params.insert(-1, item['shelf_time'])
-        elif item.get('shelf_time', '') == '':
-            params.insert(-1, item['delete_time'])
-        else:
-            params.insert(-1, item['shelf_time'])
-            params.insert(-1, item['delete_time'])
-
-        return tuple(params)
-
     if goods_type == 'tb':
         site_id = 1
         base_sql_str = tb_update_str_1
@@ -2657,7 +2686,7 @@ def to_right_and_update_data_by_goods_type(goods_type: str,
             exception=e,)
         return False
 
-    params = _get_db_update_params(item=tmp)
+    params = get_db_commom_goods_update_params(item=tmp)
     if tmp['delete_time'] == '':
         sql_str = base_sql_str.format('shelf_time=%s', '')
     elif tmp['shelf_time'] == '':
