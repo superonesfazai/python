@@ -29,7 +29,8 @@ from multiplex_code import (
     _get_async_task_result,
     _print_db_old_data,
     get_goods_info_change_data,
-    BaseDbCommomGoodsInfoParamsObj,)
+    ALDbGoodsInfoObj,
+)
 
 from fzutils.spider.async_always import *
 
@@ -201,17 +202,7 @@ class ALUpdater(AsyncCrawler):
             pass
         collect()
 
-class ALDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
-    def __init__(self, item: list, logger=None):
-        BaseDbCommomGoodsInfoParamsObj.__init__(
-            self,
-            item=item,
-            logger=logger,
-        )
-
 def _fck_run():
-    # 遇到: PermissionError: [Errno 13] Permission denied: 'ghostdriver.log'
-    # 解决方案: sudo touch /ghostdriver.log && sudo chmod 777 /ghostdriver.log
     _ = ALUpdater()
     loop = get_event_loop()
     loop.run_until_complete(_._update_db())
@@ -221,10 +212,6 @@ def _fck_run():
         pass
 
 def main():
-    """
-    这里的思想是将其转换为孤儿进程，然后在后台运行
-    :return:
-    """
     print('========主函数开始========')
     daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')

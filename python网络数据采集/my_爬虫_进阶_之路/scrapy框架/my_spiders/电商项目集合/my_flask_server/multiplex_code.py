@@ -1447,6 +1447,22 @@ class JDDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
             logger=logger,
         )
 
+class Z8DbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
+    def __init__(self, item: list, logger=None):
+        BaseDbCommomGoodsInfoParamsObj.__init__(
+            self,
+            item=item,
+            logger=logger,
+        )
+
+class ALDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
+    def __init__(self, item: list, logger=None):
+        BaseDbCommomGoodsInfoParamsObj.__init__(
+            self,
+            item=item,
+            logger=logger,
+        )
+
 def get_site_id_by_jd_type(jd_type) -> int:
     '''
     根据jd_type来获取对应的site_id的值

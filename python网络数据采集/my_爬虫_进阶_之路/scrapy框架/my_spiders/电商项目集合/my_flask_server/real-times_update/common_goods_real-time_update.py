@@ -89,6 +89,7 @@ class CommonGoodsRealTimeUpdater(AsyncCrawler):
         self.concurrent_type = CONCURRENT_TYPE
         self.db_res_from = DB_RES_FROM
         self.db_conn_type = DB_CONN_TYPE
+        self.sql_cli = None
         self.set_sql_cli()
         assert self.db_res_from in (0, 1, 2,), \
             'self.db_res_from value异常!'
@@ -170,7 +171,7 @@ class CommonGoodsRealTimeUpdater(AsyncCrawler):
             try:
                 # del self.lg
                 del result
-            except:
+            except Exception:
                 pass
             collect()
 
@@ -269,7 +270,7 @@ class CommonGoodsRealTimeUpdater(AsyncCrawler):
                             goods_id=tmp_item,
                             index=index, )
                         tasks.append(async_obj)
-                    except:
+                    except Exception:
                         continue
                 one_res = await _get_celery_async_results(tasks=tasks)
 
@@ -288,6 +289,10 @@ class CommonGoodsRealTimeUpdater(AsyncCrawler):
             one_res=one_res,
             logger=self.lg,
         )
+        try:
+            del slice_params_list
+        except:
+            pass
 
         return (res, index)
 
@@ -319,15 +324,19 @@ class CommonGoodsRealTimeUpdater(AsyncCrawler):
 
         return tasks_params_list
 
-    def get_tm_create_task_msg(self, k) -> str:
+    @staticmethod
+    def get_tm_create_task_msg(k) -> str:
         return 'create task[where is goods_id: {}, index: {}] ...'.format(
             k['db_goods_info_obj'].goods_id,
-            k['index'], )
+            k['index'],
+        )
 
-    def get_tb_create_task_msg(self, k) -> str:
+    @staticmethod
+    def get_tb_create_task_msg(k) -> str:
         return 'create task[where is goods_id: {}, index: {}] ...'.format(
             k['db_goods_info_obj'].goods_id,
-            k['index'], )
+            k['index'],
+        )
 
     def get_tm_now_args(self, k) -> list:
         return [
@@ -349,10 +358,10 @@ class CommonGoodsRealTimeUpdater(AsyncCrawler):
                                            db_goods_info_obj,
                                            index,
                                            before_goods_data,
-                                           end_goods_data):
+                                           end_goods_data) -> (list, tuple):
         """
         更新单个goods
-        :param item:
+        :param db_goods_info_obj:
         :param index:
         :param before_goods_data:
         :param end_goods_data:
@@ -425,7 +434,8 @@ class CommonGoodsRealTimeUpdater(AsyncCrawler):
 
         return async_obj
 
-    def get_tm_tmp_item(self, site_id, goods_id):
+    @staticmethod
+    def get_tm_tmp_item(site_id, goods_id):
         tmp_item = []
         # 从数据库中取出时，先转换为对应的类型
         if site_id == 3:
@@ -439,10 +449,12 @@ class CommonGoodsRealTimeUpdater(AsyncCrawler):
 
         return tmp_item
 
-    def get_jd_tmp_item(self, site_id, goods_id):
+    @staticmethod
+    def get_jd_tmp_item(site_id, goods_id):
         tmp_item = []
+        # 从数据库中取出时，先转换为对应的类型
         if site_id == 7 \
-                or site_id == 8:  # 从数据库中取出时，先转换为对应的类型
+                or site_id == 8:
             tmp_item.append(0)
         elif site_id == 9:
             tmp_item.append(1)
@@ -499,11 +511,18 @@ class CommonGoodsRealTimeUpdater(AsyncCrawler):
             pass
         collect()
 
+
+goods_spider_name_help = 'value in ("tb", "tm",)'
+db_res_from_help = 'value in (0 sqlserver | 1 new_my_server | 2 redis(推荐))'
+crawl_type_help = 'value in (0 asyncio | 1 celery)'
+db_conn_type_help = 'value in (1 SqlServerMyPageInfoSaveItemPipeline(推荐) | 2 SqlPools)'
+
+
 @click_command()
-@click_option('--goods_spider_name', type=str, default=None, help='value in ("tb", "tm",)')
-@click_option('--db_res_from', type=int, default=2, help='value in (0 sqlserver | 1 new_my_server | 2 redis(推荐))')
-@click_option('--crawl_type', type=int, default=0, help='value in (0 asyncio | 1 celery)')
-@click_option('--db_conn_type', type=int, default=1, help='value in (1 SqlServerMyPageInfoSaveItemPipeline(推荐) | 2 SqlPools)')
+@click_option('--goods_spider_name', type=str, default=None, help=goods_spider_name_help)
+@click_option('--db_res_from', type=int, default=2, help=db_res_from_help)
+@click_option('--crawl_type', type=int, default=0, help=crawl_type_help)
+@click_option('--db_conn_type', type=int, default=1, help=db_conn_type_help)
 def init_spider(goods_spider_name, db_res_from, crawl_type, db_conn_type):
     global GOODS_SPIDER_NAME, CONCURRENT_TYPE, DB_RES_FROM
     global CRAWL_TYPE, DB_CONN_TYPE
@@ -539,6 +558,7 @@ def init_spider(goods_spider_name, db_res_from, crawl_type, db_conn_type):
     else:
         _fck_run()
 
+
 def _fck_run():
     # 遇到: PermissionError: [Errno 13] Permission denied: 'ghostdriver.log'
     # 解决方案: sudo touch /ghostdriver.log && sudo chmod 777 /ghostdriver.log
@@ -550,11 +570,13 @@ def _fck_run():
     except:
         pass
 
+
 def main():
     print('========主函数开始========')
     daemon_init()
     print('--->>>| 孤儿进程成功被init回收成为单独进程!')
     _fck_run()
+
 
 if __name__ == '__main__':
     init_spider()

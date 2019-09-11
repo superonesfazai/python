@@ -878,7 +878,6 @@ class TaoBaoLoginAndParse(Crawler):
         # pprint(prop_path_2)
         img_url = ''
         if len(pros) >= 1:  # 得到规格示例图
-            # pprint(pros)
             # img_url_list = pros[0].get('values', [])
             img_url_list = []
             for i in pros:
@@ -892,24 +891,37 @@ class TaoBaoLoginAndParse(Crawler):
                     continue
 
             # pprint(img_url_list)
-            img_url_list = [(i.get('vid', ''), i.get('image', '')) for i in img_url_list]
+            img_url_list = [(
+                i.get('vid', ''), i.get('image', ''), i.get('name', ''))
+                for i in img_url_list]
             # pprint(img_url_list)
             for k in prop_path_2:
                 # print('vid:{0}'.format(k))
+                try:
+                    # 是否能转为int, eg: 规格实际值'花花H', 无法转为int
+                    int(k)
+                    # eg: '123'
+                    is_sku_value = False
+                except Exception:
+                    # eg: '花花H'
+                    is_sku_value = True
                 for i in img_url_list:
-                    # print(i[0])
-                    if str(k) == str(i[0]):
-                        if i[1] != '':
-                            try:
-                                img_url = 'https:' + i[1]
-                            except TypeError:
-                                # 捕获i[1]为None的情况
-                                # self.lg.error('遇到错误:', exc_info=True)
-                                continue
+                    ori_vid, ori_img_url, name = i
+                    # print('k:{}, i[0]: {}, name: {}'.format(k, i[0], name))
+                    if not is_sku_value:
+                        if str(k) == str(ori_vid):
+                            # 存在i[1]为None的情况
+                            img_url = 'https:' + ori_img_url \
+                                if isinstance(ori_img_url, str) and ori_img_url != '' else ''
                         else:
                             continue
                     else:
-                        continue
+                        if isinstance(name, str) and str(k) == str(name):
+                            # 新增 tm 2版处理img_url
+                            img_url = 'https:' + ori_img_url \
+                                if isinstance(ori_img_url, str) and ori_img_url != '' else ''
+                        else:
+                            continue
 
         else:
             pass
