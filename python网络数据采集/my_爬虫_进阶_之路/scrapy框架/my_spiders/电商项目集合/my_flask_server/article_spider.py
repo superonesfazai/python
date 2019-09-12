@@ -391,7 +391,7 @@ class ArticleParser(AsyncCrawler):
             },
             '7y7': {
                 'debug': True,
-                'name': '七丽女性网',
+                'name': '七丽女性网(部分图片无法跨域下载)',
                 'url': 'https://i.7y7.com/',
                 'obj_origin': 'i.7y7.com',
                 'site_id': 31,
@@ -1381,6 +1381,47 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
+        async def get_nfzm_api2():
+            """
+            获取二版接口
+            :return:
+            """
+            nonlocal article_id
+
+            self.lg.info('getting nfzm 2 version api ...')
+            headers = await async_get_random_headers(
+                user_agent_type=1,
+                connection_status_keep_alive=False,
+                cache_control='',
+                upgrade_insecure_requests=False,)
+            headers.update({
+                'accept': 'application/json, text/plain, */*',
+                'referer': 'http://www.infzm.com/wap/',
+                'origin': 'http://www.infzm.com',
+            })
+            params = (
+                ('version', '1.1.19'),
+                ('platform', 'wap'),
+                ('machine_id', 'aad315f2d84daf16a62f0fe74131aac0'),
+                ('user_id', '3360728'),
+                # ('token', '18f407e66d82ba5920ebe88d539f4921x97c7'),
+            )
+            api_url = 'http://api.infzm.com/mobile/contents/{}'.format(article_id)
+            body = await unblock_request(
+                url=api_url,
+                headers=headers,
+                params=params,
+                ip_pool_type=self.ip_pool_type,
+                num_retries=self.request_num_retries,
+                verify=False,
+                logger=self.lg,)
+            # self.lg.info(body)
+            assert body != '', '获取hx的body为空值!'
+            hook_target_api_data = await self.get_nfzm_hook_target_api_data(
+                body=body,)
+
+            return hook_target_api_data
+
         # 走api
         video_url = ''
         headers = await async_get_random_headers(user_agent_type=1)
@@ -1411,14 +1452,25 @@ class ArticleParser(AsyncCrawler):
             logger=self.lg,)
         # self.lg.info(body)
         assert body != '', '获取hx的body为空值!'
-        self.hook_target_api_data = json_2_dict(
+        self.hook_target_api_data = await self.get_nfzm_hook_target_api_data(
+            body=body,)
+        # pprint(self.hook_target_api_data)
+        if self.hook_target_api_data.get('content', {}).get('fulltext', '') == '':
+            # 可能是会员文章, 用另一接口
+            self.hook_target_api_data = await get_nfzm_api2()
+        else:
+            pass
+
+        return body, video_url
+
+    async def get_nfzm_hook_target_api_data(self, body) -> dict:
+        hook_target_api_data = json_2_dict(
             json_str=body,
             logger=self.lg,
             default_res={},).get('data', {})
-        assert self.hook_target_api_data != {}, 'nfzm的api data为空dict!'
-        # pprint(self.hook_target_api_data)
+        assert hook_target_api_data != {}, 'nfzm的api data为空dict!'
 
-        return body, video_url
+        return hook_target_api_data
 
     async def _get_hx_article_html(self, article_url) -> tuple:
         """
@@ -4236,6 +4288,7 @@ def main():
     # url = 'https://www.ifanr.com/1227475'
     # appSo
     # url = 'https://www.ifanr.com/app/1216511'
+    url = 'https://www.ifanr.com/app/1257907'
     # 人物
     # url = 'https://www.ifanr.com/1227137'
     # url = 'https://www.ifanr.com/1227137'
@@ -4455,6 +4508,7 @@ def main():
     # 南方周末(其中只有部分文章可用, 不推荐使用)
     # url = 'http://www.infzm.com/wap/#/content/153845'
     # url = 'http://www.infzm.com/wap/#/content/153862'
+    # url = 'http://www.infzm.com/wap/#/content/158165'
     # TODO 无法查看文章内容:
     #  1. 含有redirect为非正常url
     #  2. or 包括部分文章只能在app内打开(即标题边上有南方周末小img的，即会员才能查看), 这部分url无法处理
@@ -4621,6 +4675,7 @@ def main():
     # url = 'https://i.7y7.com/fushi/62/385562.html'
     # 护肤
     # url = 'https://i.7y7.com/hufu/35/386635.html'
+    url = 'https://i.7y7.com/hufu/37/385737.html'
     # 彩妆
     # url = 'https://i.7y7.com/caizhuang/36/386636.html'
     # 减肥
