@@ -1868,6 +1868,13 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         video_url = ''
+
+        # todo 下面这种类型手动需更改为标准的url格式
+        # article_url = 'https://focus.youth.cn/mobile/detail?id=17197839#'
+        # 标准的url: https://focus.youth.cn/mobile/detail/id/17230881#
+        article_url = re.compile('detail\?id=').sub('detail/id/', article_url)
+        # self.lg.info(article_url)
+
         headers = await async_get_random_headers(user_agent_type=1)
         headers.update({
             # 'Referer': 'https://focus.youth.cn/html/articleTop/mobile.html?type=1',
@@ -2830,7 +2837,11 @@ class ArticleParser(AsyncCrawler):
             target_obj=article_url,
             logger=self.lg)
 
-        if short_name == 'kb':
+        short_name_list2 = [
+            'kb',
+            'zq',
+        ]
+        if short_name in short_name_list2:
             if share_id == '':
                 share_id = await async_parse_field(
                     parser=parse_obj['article_id2'],
@@ -4222,6 +4233,8 @@ def main():
     # url = 'https://focus.youth.cn/mobile/detail/id/15561509#'
     # url = 'https://focus.youth.cn/mobile/detail/id/17240154#'
     # url = 'https://focus.youth.cn/mobile/detail/id/17229127#'
+    # url = 'https://focus.youth.cn/mobile/detail/id/17230881#'
+    # url = 'https://focus.youth.cn/mobile/detail?id=17197839#'
 
     # 阳光宽频网(短视频)
     # 旧版

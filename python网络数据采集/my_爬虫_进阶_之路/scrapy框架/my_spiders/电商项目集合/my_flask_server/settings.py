@@ -665,6 +665,10 @@ ARTICLE_ITEM_LIST = [
             'method': 're',
             'selector': '\/detail\/id\/(\d+)',
         },
+        'article_id2': {
+            'method': 're',
+            'selector': '\/detail\?id=(\d+)',
+        },
         'title': {
             'method': 'css',
             'selector': 'h2.rich_media_title ::text',
