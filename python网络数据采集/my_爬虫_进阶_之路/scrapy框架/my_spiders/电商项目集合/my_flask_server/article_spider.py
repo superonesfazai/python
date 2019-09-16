@@ -3869,7 +3869,16 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_zq_article_content(content) -> str:
-        content = re.compile('<img data-src=').sub('<img src=', content)
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+                ('<img data-src=', '<img src='),
+                ('data-width=\"\d+\" data-height=\"\d+\" data-src=', 'src='),
+            ],
+            add_sensitive_str_list=[],
+            is_default_filter=False,
+            is_lower=False, )
+
         content = modify_body_img_centering(content=content)
 
         return content
@@ -4212,6 +4221,7 @@ def main():
     # url = 'https://focus.youth.cn/mobile/detail/id/15547200#'
     # url = 'https://focus.youth.cn/mobile/detail/id/15561509#'
     # url = 'https://focus.youth.cn/mobile/detail/id/17240154#'
+    # url = 'https://focus.youth.cn/mobile/detail/id/17229127#'
 
     # 阳光宽频网(短视频)
     # 旧版
