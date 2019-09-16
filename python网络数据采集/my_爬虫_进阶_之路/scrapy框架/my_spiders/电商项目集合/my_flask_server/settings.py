@@ -344,25 +344,28 @@ ARTICLE_ITEM_LIST = [
             'selector': 'www\.jianshu\.com/p/(\w+)',
         },
         'title': {
-            'method': 'css',
-            'selector': 'h1.title ::text',
+            'method': 're',
+            # 'selector': 'h1.title ::text',
+            'selector': '\"public_title\":\"(.*?)\",',
         },
         'video_title': None,
         'author': {
-            'method': 'css',
-            'selector': 'div.author div.info span.name a ::text',
+            'method': 're',
+            # 'selector': 'div.author div.info span.name a ::text',
+            'selector': '\"nickname\":\"(.*?)\",'
         },
         'head_url': {
-            'method': 'css',
-            'selector': 'div.author a img ::attr("src")',               # 'https:' + xxx
+            'method': 're',
+            # 'selector': 'div.author a img ::attr("src")',               # 'https:' + xxx
+            'selector': '\"wordage\":\d+,\"avatar\":\"(.*?)\",'
         },
         'create_time': {
-            'method': 'css',
-            'selector': 'span.publish-time ::text',
+            'method': 're',
+            'selector': '\"last_updated_at\":(\d+),',
         },
         'content': {
             'method': 'css',
-            'selector': 'div.show-content',
+            'selector': 'div article',
         },
         'comment_num': {
             'method': 're',
