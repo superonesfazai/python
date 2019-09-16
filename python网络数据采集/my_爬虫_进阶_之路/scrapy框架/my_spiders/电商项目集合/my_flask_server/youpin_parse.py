@@ -23,6 +23,7 @@ from sql_str_controller import (
 from multiplex_code import (
     _get_right_model_data,
     get_db_commom_goods_update_params,
+    contraband_name_check,
 )
 
 from fzutils.spider.async_always import *
@@ -171,6 +172,11 @@ class YouPinParse(Crawler):
 
             # 商品价格和淘宝价
             price, taobao_price = data['price'], data['taobao_price']
+            if contraband_name_check(target_name=title):
+                self.lg.info('违禁物品下架...')
+                is_delete = 1
+            else:
+                pass
 
             result = {
                 'shop_name': shop_name,                 # 店铺名称

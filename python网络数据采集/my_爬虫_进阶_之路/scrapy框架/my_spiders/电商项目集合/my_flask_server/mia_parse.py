@@ -25,6 +25,7 @@ from my_exceptions import MiaSkusIsNullListException
 
 from multiplex_code import (
     _get_right_model_data,
+    contraband_name_check,
 )
 
 from fzutils.spider.async_always import *
@@ -208,6 +209,11 @@ class MiaParse(Crawler):
             is_delete = data['is_delete']
             parent_dir = data['parent_dir']
             schedule = []
+            if contraband_name_check(target_name=title):
+                print('违禁物品下架...')
+                is_delete = 1
+            else:
+                pass
 
             result = {
                 'goods_url': data['goods_url'],         # goods_url

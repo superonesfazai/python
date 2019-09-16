@@ -26,6 +26,7 @@ from sql_str_controller import (
 from multiplex_code import (
     _z8_get_parent_dir,
     _get_right_model_data,
+    contraband_name_check,
 )
 
 # from fzutils.spider.fz_phantomjs import BaseDriver
@@ -165,6 +166,11 @@ class Zhe800PintuanParse(Crawler):
                 is_delete = self._get_is_delete(data=data, schedule=schedule)
                 # print(is_delete)
                 parent_dir = data.get('parent_dir', '')
+                if contraband_name_check(target_name=title):
+                    print('违禁物品下架...')
+                    is_delete = 1
+                else:
+                    pass
             except Exception as e:
                 print('遇到错误:', e)
                 return self._data_error_init()

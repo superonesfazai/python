@@ -25,6 +25,7 @@ from sql_str_controller import (
 from multiplex_code import (
     _get_right_model_data,
     from_jd_type_get_site_id,
+    contraband_name_check,
 )
 from fzutils.spider.async_always import *
 
@@ -177,6 +178,11 @@ class JdParse(Crawler):
                 price_info_list=price_info_list,
                 base_price_info=data.get('base_price_info', {}))
             is_delete = self._get_is_delete(data=data)
+            if contraband_name_check(target_name=title):
+                self.lg.info('违禁物品下架...')
+                is_delete = 1
+            else:
+                pass
         except (AssertionError, Exception):
             self.lg.error('遇到错误:', exc_info=True)
             return self._data_error_init()

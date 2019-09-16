@@ -29,6 +29,7 @@ from multiplex_code import (
     _jp_get_parent_dir,
     _get_right_model_data,
     get_db_commom_goods_update_params,
+    contraband_name_check,
 )
 from fzutils.spider.async_always import *
 
@@ -197,6 +198,11 @@ class JuanPiParse(Crawler):
                 is_delete = 1
             parent_dir = data.get('parent_dir', '')
             all_sell_count = ''
+            if contraband_name_check(target_name=title):
+                print('违禁物品下架...')
+                is_delete = 1
+            else:
+                pass
 
             result = {
                 'shop_name': shop_name,                 # 店铺名称

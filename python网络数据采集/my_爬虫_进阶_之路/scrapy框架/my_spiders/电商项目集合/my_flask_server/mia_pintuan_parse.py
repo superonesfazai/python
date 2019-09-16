@@ -20,7 +20,9 @@ from sql_str_controller import (
 from multiplex_code import (
     _mia_get_parent_dir,
     _get_right_model_data,
-    _handle_goods_shelves_in_auto_goods_table,)
+    _handle_goods_shelves_in_auto_goods_table,
+    contraband_name_check,
+)
 from my_exceptions import MiaSkusIsNullListException
 
 from fzutils.spider.async_always import *
@@ -185,8 +187,16 @@ class MiaPintuanParse(MiaParse, Crawler):
             div_desc = data['div_desc']
             parent_dir = data['parent_dir']
             is_delete = 0
-            if price_info_list == [] or data['pintuan_time'] == {}:
+            if price_info_list == [] \
+                    or data['pintuan_time'] == {}:
                 is_delete = 1
+            else:
+                pass
+            if contraband_name_check(target_name=title):
+                print('违禁物品下架...')
+                is_delete = 1
+            else:
+                pass
 
             result = {
                 'goods_url': data['goods_url'],         # goods_url

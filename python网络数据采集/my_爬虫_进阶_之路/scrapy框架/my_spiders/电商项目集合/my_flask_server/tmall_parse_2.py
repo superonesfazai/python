@@ -28,6 +28,7 @@ from multiplex_code import (
     from_tmall_type_get_site_id,
     get_tm_m_body_data,
     tb_api_redirect_detect,
+    contraband_name_check,
 )
 from my_exceptions import (
     GoodsShelvesException,
@@ -279,6 +280,11 @@ class TmallParse(Crawler):
             sell_count = str(data.get('apiStack', [])[0].get('value', {}).get('item', {}).get('sellCount', ''))
             # self.lg.info(sell_count)
         except:
+            pass
+        if contraband_name_check(target_name=title):
+            self.lg.info('违禁物品下架...')
+            is_delete = 1
+        else:
             pass
 
         try:

@@ -24,6 +24,7 @@ from multiplex_code import (
     _handle_goods_shelves_in_auto_goods_table,
     _get_right_model_data,
     get_db_commom_goods_update_params,
+    contraband_name_check,
 )
 from my_exceptions import GoodsShelvesException
 
@@ -235,6 +236,11 @@ class Zhe800Parse(Crawler):
                 # pprint(schedule)
                 parent_dir = str(data.get('parent_dir', ''))
                 all_sell_count = ''
+                if contraband_name_check(target_name=title):
+                    print('违禁物品下架...')
+                    is_delete = 1
+                else:
+                    pass
 
             except GoodsShelvesException:
                 _handle_goods_shelves_in_auto_goods_table(goods_id=goods_id,)

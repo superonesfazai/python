@@ -30,6 +30,7 @@ from multiplex_code import (
     _handle_goods_shelves_in_auto_goods_table,
     al_judge_begin_greater_than_1,
     _get_right_model_data,
+    contraband_name_check,
 )
 
 from fzutils.spider.fz_driver import (
@@ -371,6 +372,11 @@ class ALi1688LoginAndParse(Crawler):
         detail_info = self._get_div_desc(detail_info_url) if detail_info_url != '' else ''
         # self.lg.info(str(detail_info))
         is_delete = self._get_is_delete(title=title, price_info=price_info)
+        if contraband_name_check(target_name=title):
+            self.lg.info('违禁物品下架...')
+            is_delete = 1
+        else:
+            pass
 
         result = {
             'company_name': company_name,               # 公司名称

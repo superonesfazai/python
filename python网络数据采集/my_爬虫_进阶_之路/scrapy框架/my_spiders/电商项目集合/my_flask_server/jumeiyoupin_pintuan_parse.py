@@ -23,6 +23,7 @@ from sql_str_controller import (
 
 from multiplex_code import (
     _get_right_model_data,
+    contraband_name_check,
 )
 
 from fzutils.spider.fz_aiohttp import AioHttp
@@ -200,6 +201,11 @@ class JuMeiYouPinPinTuanParse(Crawler):
             p_info = data['p_info']
             div_desc = data['div_desc']
             is_delete = data['is_delete']
+            if contraband_name_check(target_name=title):
+                self.lg.info('违禁物品下架...')
+                is_delete = 1
+            else:
+                pass
 
             result = {
                 'goods_url': data['goods_url'],         # goods_url

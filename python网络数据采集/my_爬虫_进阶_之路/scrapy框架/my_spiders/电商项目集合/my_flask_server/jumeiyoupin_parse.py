@@ -18,6 +18,7 @@ from sql_str_controller import (
 
 from multiplex_code import (
     _get_right_model_data,
+    contraband_name_check,
 )
 from fzutils.spider.async_always import *
 
@@ -180,6 +181,12 @@ class JuMeiYouPinParse(Crawler):
                 taobao_price = 0.
                 is_delete = 1
                 # return {}
+
+            if contraband_name_check(target_name=title):
+                print('违禁物品下架...')
+                is_delete = 1
+            else:
+                pass
 
             result = {
                 'shop_name': shop_name,  # 店铺名称
