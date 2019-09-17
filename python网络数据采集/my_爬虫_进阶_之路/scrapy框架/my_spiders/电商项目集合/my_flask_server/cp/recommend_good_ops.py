@@ -41,12 +41,26 @@ class RecommendGoodOps(AsyncCrawler):
             ip_pool_type=IP_POOL_TYPE,
         )
         self.request_num_retries = 6
+        self.article_type = 'zq'
         self.yx_username = input('请输入yx_username:')
         self.yx_password = input('请输入yx_passwd:')
         self.lg.info('yx_username: {}, yx_passwd: {}'.format(
             self.yx_username,
             self.yx_password))
         self.publish_url = 'https://configadmin.yiuxiu.com/Business/Index'
+        # 存储已发布的文章url的list
+        self.published_article_url_list = []
+
+    async def _fck_run(self):
+        sleep_time = 60
+        while True:
+            try:
+                await self.auto_publish_articles()
+            except Exception:
+                self.lg.info('遇到错误:', exc_info=True)
+            finally:
+                self.lg.info('休眠{}s...'.format(sleep_time))
+                await async_sleep(sleep_time)
 
     async def auto_publish_articles(self):
         """
@@ -55,13 +69,18 @@ class RecommendGoodOps(AsyncCrawler):
         """
         article_parser = ArticleParser(logger=self.lg)
         article_list = self.loop.run_until_complete(article_parser.get_article_list_by_article_type(
-            article_type='zq',))
+            article_type=self.article_type,))
         assert article_list != []
         pprint(article_list)
         try:
             del article_parser
         except:
             pass
+
+        target_article_list = self.get_target_article_list(article_list=article_list)
+        if target_article_list == []:
+            self.lg.info('待发布的target_article_list为空list, pass!')
+            return
 
         driver = BaseDriver(
             type=CHROME,
@@ -74,26 +93,47 @@ class RecommendGoodOps(AsyncCrawler):
         )
         self.login_bg(driver=driver)
         self.get_into_recommend_good_manage(driver=driver)
-        for item in article_list:
-            try:
-                title = item.get('title', '')
-                assert title != ''
-                article_url = item.get('article_url', '')
-                assert article_url != ''
-            except AssertionError:
-                self.lg.error('遇到错误:', exc_info=True)
-                continue
-
-            self.lg.info('发布ing title: {}, article_url: {}'.format(title, article_url))
+        for item in target_article_list:
+            title = item.get('title', '')
+            article_url = item.get('article_url', '')
+            self.lg.info('正在发布文章 title: {}, article_url: {} ...'.format(title, article_url))
             self.publish_one_article(
                 driver=driver,
                 article_url=article_url)
+            self.published_article_url_list.append(article_url)
 
         try:
             del driver
         except:
             pass
 
+        return
+
+    def get_target_article_list(self, article_list: list) -> list:
+        """
+        获取未被发布的item
+        :return:
+        """
+        target_article_list = []
+        for item in article_list:
+            try:
+                title = item.get('title', '')
+                assert title != ''
+                article_url = item.get('article_url', '')
+                assert article_url != ''
+                if article_url not in self.published_article_url_list:
+                    target_article_list.append(item)
+                else:
+                    # 已发布的跳过
+                    self.lg.info('该文章之前已被发布![where title: {}, url: {}]'.format(title, article_url))
+                    continue
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
+                continue
+
+        return target_article_list
+
+    @catch_exceptions_with_class_logger(default_res=None)
     def login_bg(self, driver: BaseDriver):
         """
         login
@@ -104,9 +144,10 @@ class RecommendGoodOps(AsyncCrawler):
         driver.find_element(value='input#loginName').send_keys(self.yx_username)
         driver.find_element(value='input#loginPwd').send_keys(self.yx_password)
         driver.find_element(value='button#subbut').click()
-        sleep(3.5)
+        sleep(5.)
         self.lg.info('login over!')
 
+    @catch_exceptions_with_class_logger(default_res=None)
     def get_into_recommend_good_manage(self, driver: BaseDriver):
         """
         进入荐好管理
@@ -118,6 +159,7 @@ class RecommendGoodOps(AsyncCrawler):
         # 切换到目标iframe
         driver.switch_to_frame(frame_reference=1)
 
+    @catch_exceptions_with_class_logger(default_res=None)
     def publish_one_article(self, driver: BaseDriver, article_url: str):
         """
         发布一篇图文
@@ -141,7 +183,8 @@ class RecommendGoodOps(AsyncCrawler):
         driver.find_element(value='a.layui-layer-btn0').click()
 
         self.lg.info('url: {} 发布成功!'.format(article_url))
-        sleep(1.5)
+        # 发布成功, 等待5秒, 等待页面元素置空
+        sleep(5.)
 
         return
 
