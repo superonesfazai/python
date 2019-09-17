@@ -214,7 +214,8 @@ class ArticleParser(AsyncCrawler):
         """
         def get_tasks_params_list() -> list:
             tasks_params_list = []
-            for page_num in range(1, 4):
+            for page_num in range(1, 5):
+                # 默认只有4页
                 tasks_params_list.append({
                     'page_num': page_num,
                 })
@@ -301,11 +302,16 @@ class ArticleParser(AsyncCrawler):
             try:
                 title = item.get('title', '')
                 assert title != ''
+                # 标题必须小于等于30
+                assert len(title) <= 30
                 article_id = item.get('id', '')
                 video_play_url = item.get('video_play_url', '')
                 assert article_id != ''
                 # 跳过视频文章
                 assert video_play_url == ''
+                # 跳过无图的
+                _extra = item.get('extra', [])
+                assert _extra != []
                 article_url = 'https://focus.youth.cn/mobile/detail/id/{}#'.format(article_id)
             except (AssertionError, Exception):
                 continue

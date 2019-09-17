@@ -6,10 +6,6 @@
 @connect : superonesfazai@gmail.com
 '''
 
-"""
-荐好ops
-"""
-
 from sys import path as sys_path
 sys_path.append('..')
 
@@ -32,6 +28,7 @@ from fzutils.spider.async_always import *
 nest_asyncio.apply()
 
 class RecommendGoodOps(AsyncCrawler):
+    """荐好ops"""
     def __init__(self):
         AsyncCrawler.__init__(
             self,
@@ -82,25 +79,29 @@ class RecommendGoodOps(AsyncCrawler):
             self.lg.info('待发布的target_article_list为空list, pass!')
             return
 
-        driver = BaseDriver(
-            type=CHROME,
-            load_images=True,
-            executable_path=CHROME_DRIVER_PATH,
-            logger=self.lg,
-            headless=False,
-            driver_use_proxy=False,
-            ip_pool_type=self.ip_pool_type,
-        )
-        self.login_bg(driver=driver)
-        self.get_into_recommend_good_manage(driver=driver)
-        for item in target_article_list:
-            title = item.get('title', '')
-            article_url = item.get('article_url', '')
-            self.lg.info('正在发布文章 title: {}, article_url: {} ...'.format(title, article_url))
-            self.publish_one_article(
-                driver=driver,
-                article_url=article_url)
-            self.published_article_url_list.append(article_url)
+        driver = None
+        try:
+            driver = BaseDriver(
+                type=CHROME,
+                load_images=True,
+                executable_path=CHROME_DRIVER_PATH,
+                logger=self.lg,
+                headless=False,
+                driver_use_proxy=False,
+                ip_pool_type=self.ip_pool_type,
+            )
+            self.login_bg(driver=driver)
+            self.get_into_recommend_good_manage(driver=driver)
+            for item in target_article_list:
+                title = item.get('title', '')
+                article_url = item.get('article_url', '')
+                self.lg.info('正在发布文章 title: {}, article_url: {} ...'.format(title, article_url))
+                self.publish_one_article(
+                    driver=driver,
+                    article_url=article_url)
+                self.published_article_url_list.append(article_url)
+        except Exception:
+            self.lg.error('遇到错误:', exc_info=True)
 
         try:
             del driver
@@ -133,7 +134,6 @@ class RecommendGoodOps(AsyncCrawler):
 
         return target_article_list
 
-    @catch_exceptions_with_class_logger(default_res=None)
     def login_bg(self, driver: BaseDriver):
         """
         login
@@ -147,7 +147,6 @@ class RecommendGoodOps(AsyncCrawler):
         sleep(5.)
         self.lg.info('login over!')
 
-    @catch_exceptions_with_class_logger(default_res=None)
     def get_into_recommend_good_manage(self, driver: BaseDriver):
         """
         进入荐好管理
@@ -156,21 +155,21 @@ class RecommendGoodOps(AsyncCrawler):
         """
         driver.find_element(value='span.nav-label').click()
         driver.find_element(value='a.J_menuItem').click()
-        # 切换到目标iframe
-        driver.switch_to_frame(frame_reference=1)
 
-    @catch_exceptions_with_class_logger(default_res=None)
     def publish_one_article(self, driver: BaseDriver, article_url: str):
         """
         发布一篇图文
         :param article_url:
         :return:
         """
+        # 切换到目标iframe
+        driver.switch_to_frame(frame_reference=1)
+
         # 输入待采集地址
         driver.find_element(value='input#SnatchUrl').send_keys(article_url)
         # 点击采集按钮
         driver.find_elements(value='span.input-group-btn button')[0].click()
-        self.wait_for_delete_img_appear()
+        self.wait_for_delete_img_appear(driver=driver)
         # 点击发布按钮
         driver.find_elements(value='span.input-group-btn button')[1].click()
 
@@ -183,8 +182,8 @@ class RecommendGoodOps(AsyncCrawler):
         driver.find_element(value='a.layui-layer-btn0').click()
 
         self.lg.info('url: {} 发布成功!'.format(article_url))
-        # 发布成功, 等待5秒, 等待页面元素置空
-        sleep(5.)
+        # 发布成功, 等待6.5秒, 等待页面元素置空
+        sleep(6.5)
 
         return
 
@@ -227,6 +226,8 @@ class RecommendGoodOps(AsyncCrawler):
         try:
             del self.lg
             del self.loop
+            del self.published_article_url_list
+            del self.publish_url
         except:
             pass
         collect()
@@ -234,7 +235,7 @@ class RecommendGoodOps(AsyncCrawler):
 def main():
     _ = RecommendGoodOps()
     loop = get_event_loop()
-    loop.run_until_complete(_.auto_publish_articles())
+    loop.run_until_complete(_._fck_run())
 
 if __name__ == '__main__':
     main()
