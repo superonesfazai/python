@@ -195,6 +195,134 @@ class ArticleParser(AsyncCrawler):
 
         return dict(_)
 
+    async def get_article_list_by_article_type(self, article_type: str) -> list:
+        """
+        根据文章类型获取article list
+        :param article_type:
+        :return:
+        """
+        if article_type == 'zq':
+            return await self.get_zq_article_list()
+
+        else:
+            raise NotImplemented
+
+    async def get_zq_article_list(self) -> list:
+        """
+        获取zq的article_list
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            for page_num in range(1, 4):
+                tasks_params_list.append({
+                    'page_num': page_num,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where zq: page_num: {}]...'.format(
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['page_num'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_zq_shoot_to_fame_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',
+        )
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_zq_shoot_to_fame_article_list_by_page_num(self, page_num: int) -> list:
+        """
+        根据page_num 获取zq蹿红页的article_list
+        :param page_num: 1开始
+        :return:
+        """
+        headers = get_random_headers(
+            user_agent_type=1,
+            upgrade_insecure_requests=False,
+            cache_control='',)
+        headers.update({
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin',
+            'Origin': 'https://focus.youth.cn',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Referer': 'https://focus.youth.cn/html/articleTop/mobile.html',
+            'X-Requested-With': 'XMLHttpRequest',
+        })
+        data = dumps({
+            'type': '1',
+            'page': str(page_num),
+            'catid': '0'
+        })
+        body = Requests.get_url_body(
+            method='post',
+            url='https://focus.youth.cn/WebApi/Article/top',
+            headers=headers,
+            data=data,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,)
+        assert body != ''
+        # self.lg.info(body)
+
+        data = json_2_dict(
+            json_str=body,
+            logger=self.lg,
+            default_res={},).get('data', {}).get('items', [])
+        assert data != []
+        # pprint(data)
+
+        res = []
+        for item in data:
+            try:
+                title = item.get('title', '')
+                assert title != ''
+                article_id = item.get('id', '')
+                video_play_url = item.get('video_play_url', '')
+                assert article_id != ''
+                # 跳过视频文章
+                assert video_play_url == ''
+                article_url = 'https://focus.youth.cn/mobile/detail/id/{}#'.format(article_id)
+            except (AssertionError, Exception):
+                continue
+
+            res.append({
+                'title': title,
+                'article_id': article_id,
+                'article_url': article_url,
+            })
+
+        self.lg.info('[{}] zq::page_num:{}'.format(
+            '+' if res != [] else '-',
+            page_num,
+        ))
+
+        return res
+
     @staticmethod
     async def _get_obj_origin() -> dict:
         """
@@ -2198,8 +2326,8 @@ class ArticleParser(AsyncCrawler):
                 json_str=body,
                 default_res={},
                 logger=self.lg,)
-            # pprint(data)
             assert data != {}, 'data 不管是视频或者文章都不为空值!'
+            # pprint(data)
 
             return data
 
@@ -3294,6 +3422,31 @@ class ArticleParser(AsyncCrawler):
 
                     else:
                         pass
+                    if content == '':
+                        # 第四类图文
+                        kb_attribute = self.hook_target_api_data.get('attribute', {})
+                        # eg: '<P>这个男厕的将小便池和洗手池结合的一体化设计，洗手的水顺便也能清理小便池，充分利用了水资源！</P><P><!--IMG_0--></P>'
+                        kb_content = self.hook_target_api_data\
+                            .get('content', {})\
+                            .get('text', '')
+
+                        # pprint(kb_attribute)
+                        # self.lg.info(kb_content)
+                        for key, value in kb_attribute.items():
+                            # eg: key = 'IMG_0'
+                            try:
+                                img_url = value.get('url', '')
+                                assert img_url != ''
+                                kb_content = kb_content.replace('<!--{}-->'.format(key), '<img src=\"{}\">'.format(img_url))
+                            except (AssertionError, Exception):
+                                # self.lg.error('遇到错误:', exc_info=True)
+                                continue
+
+                        # self.lg.info(str(kb_content))
+                        content = kb_content
+
+                    else:
+                        pass
                 else:
                     pass
 
@@ -3947,6 +4100,8 @@ class ArticleParser(AsyncCrawler):
                 '<span style=\"max-width: 100%;.*?\">校对：.*?</span>',
                 # 空行
                 '<p><span style=\"color: rgb\(217, 33, 66\);font-size: 14px;\"><strong><br></strong></span></p>',
+                # 空行过多, 洗掉
+                '<br>',
                 # 最下方a标签: 洗掉往期回顾 or 推荐内容
                 '<p style=\".*?\"><a href=\".*?mp.weixin.qq.com/s.*?\" target=\"_blank\" data-itemshowtype=\"0\" data-linktype=\"2\".*?>.*?</a>.*?</p>',
 
@@ -4147,9 +4302,10 @@ def main():
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1542166201&ver=1243&signature=qYsoi7Sn3*tmw9x-lXxo6sJfSYDGGyHewzZyJCjgovA8taCXuTtENN7X2d4dPnOz1TvEnO2LsYJR1W3IwozcIzLyfhcdcZgOoqyzPLhz469ssieB15ojFrdtA2y83*As&new=1'
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1564036201&ver=1749&signature=XCTMLVFytVL3FzjyURHVRICZb2bM1kLWhSpUrNeb8SGD1jvxgHkJgicFiMNBOl6W0Ow6m*Gzke*tlPVCzOJTcDx4WYv2FyOsY1FtMzB-pHIOErSsuq4H3T-yUeyMq9vg&new=1'
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1565314201&ver=1779&signature=3RxHcLiybXKqNJH95V5UekL6udEBs6tZFNnqPKCxEbXHOWcnQ2djUfXBA1hrMOerxiKAIKVyvPOYW9Frj-rwmPDpnzZE8WuiSZWZCFhIoLUKVRHD5AfsH90C1vupHvUH&new=1'
+    url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1568689203&ver=1857&signature=2ABS59Q9ciRvm27MYTS694lYxq1qsyp1KUJ9AU6oqFREk8-en2OeSbE9jLKFGwGSHIj*C9CmVeJxD6ImtYgs18bluEISV8o2rEZM-WUzwWTYCcdF*mSyQeAmleT4lwOz&new=1'
     # 含视频
     # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1563850802&ver=1745&signature=kF7BFCtTqr9OlfBzqLSgUfnD413Ig9JfMVKCc1ew8YQ8maPdhL8zFXgrctDdl5Z3HfI0ZOb7yThhKR1QHrtuUjVQE*gTTPBvBOTagAA5wN*bylpMTtwBqwv7ctFh-j5P&new=1'
-    url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1567476001&ver=1829&signature=WRtVmIbd-R3jJmAMe4ILMN2C12-Yd7QRJhZbZLLle7NmAyLSLTooaJqQPjtb0WHH288LVqanz2vvl0wmIpVNyL-iG5zNwGDsl4oZt4lXXZGXNv7*aQ7sy8ZgyS7l0kTU&new=1'
+    # url = 'https://mp.weixin.qq.com/s?src=11&timestamp=1567476001&ver=1829&signature=WRtVmIbd-R3jJmAMe4ILMN2C12-Yd7QRJhZbZLLle7NmAyLSLTooaJqQPjtb0WHH288LVqanz2vvl0wmIpVNyL-iG5zNwGDsl4oZt4lXXZGXNv7*aQ7sy8ZgyS7l0kTU&new=1'
 
     # 今日头条(视频切入到content中了)    [https://www.toutiao.com/]
     # url = 'https://www.toutiao.com/a6623290873448759815/'
@@ -4189,6 +4345,7 @@ def main():
     # url = 'https://kuaibao.qq.com/s/NEW2018120200710400?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
     # url = 'https://kuaibao.qq.com/s/20181201A0VJE800?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
     # url = 'https://kuaibao.qq.com/s/20190515A06XAW00?refer=kb_news&coral_uin=ec30afdb64e74038ca7991e4e282153af308670081f17d0ee4fc3e473b0b5dda2f&omgid=22c4ac23307a6a33267184cafd2df8b6&chlid=news_news_top&atype=0&from=groupmessage&isappinstalled=0'
+    # url = 'https://kuaibao.qq.com/s/20190908AZPIWP00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&from=groupmessage&isappinstalled=0'
     # 第二类图文文章
     # url = 'https://kuaibao.qq.com/s/20190710AZOJ0B00?from=groupmessage&isappinstalled=0'
     # 第三类图文文章(跟第二类是同一接口但是字段不同)
@@ -4216,6 +4373,7 @@ def main():
     # url = 'https://sa.sogou.com/sgsearch/sgs_tc_news.php?req=gNWjMh9kjpEtYgjReTdUXZS0Q2CO6DjsS87Col9-QZE=&user_type=wappage'
     # url = 'https://sa.sogou.com/sgsearch/sgs_tc_news.php?req=xtgTQEURkeIQnw4p57aSHd9gihe6nAvIBk6JzKMSwdJ_9aBUCJivLpPO9-B-sc3i&user_type=wappage'
     # url = 'https://sa.sogou.com/sgsearch/sgs_tc_news.php?req=SKbJyHwsObNfXcwSUF_VoWrnmpkThJtfiHZ54FsQFNk=&user_type=wappage'
+    # url = 'https://sa.sogou.com/sgsearch/sgs_tc_news.php?req=35zB-k94kWvc1SfKHhqXM1_UEnQCOA83_2msaXw6lPs=&user_type=wappage'
     # 含视频
     # url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=sf_307868465556099072&vl=http%3A%2F%2Fsofa.resource.shida.sogoucdn.com%2F114ecd2b-b876-46a1-a817-e3af5a4728ca2_1_0.mp4'
     # url = 'http://sa.sogou.com/sgsearch/sgs_video.php?mat=11&docid=286635193e7a63a24629a1956b3dde76&vl=http%3A%2F%2Fresource.yaokan.sogoucdn.com%2Fvideodown%2F4506%2F557%2Fd55cd7caceb1e60a11c8d3fff71f3c45.mp4'
@@ -4228,6 +4386,7 @@ def main():
     # url = 'https://m.baidu.com/#iact=wiseindex%2Ftabs%2Fnews%2Factivity%2Fnewsdetail%3D%257B%2522linkData%2522%253A%257B%2522name%2522%253A%2522iframe%252Fmib-iframe%2522%252C%2522id%2522%253A%2522feed%2522%252C%2522index%2522%253A0%252C%2522url%2522%253A%2522https%253A%252F%252Fmbd.baidu.com%252Fnewspage%252Fdata%252Flandingpage%253Fs_type%253Dnews%2526dsp%253Dwise%2526context%253D%25257B%252522nid%252522%25253A%252522news_8934756170017529467%252522%25257D%2526pageType%253D1%2526n_type%253D1%2526p_from%253D-1%2526innerIframe%253D1%2522%252C%2522isThird%2522%253Afalse%252C%2522title%2522%253Anull%257D%257D'
     # url = 'https://m.baidu.com/#iact=wiseindex%2Ftabs%2Fnews%2Factivity%2Fnewsdetail%3D%257B%2522linkData%2522%253A%257B%2522name%2522%253A%2522iframe%252Fmib-iframe%2522%252C%2522id%2522%253A%2522feed%2522%252C%2522index%2522%253A0%252C%2522url%2522%253A%2522https%253A%252F%252Fmbd.baidu.com%252Fnewspage%252Fdata%252Flandingpage%253Fs_type%253Dnews%2526dsp%253Dwise%2526context%253D%25257B%252522nid%252522%25253A%252522news_9292806054300264081%252522%25257D%2526pageType%253D1%2526n_type%253D1%2526p_from%253D-1%2526innerIframe%253D1%2522%252C%2522isThird%2522%253Afalse%252C%2522title%2522%253Anull%257D%257D'
     # url = 'https://m.baidu.com/#iact=wiseindex%2Ftabs%2Fnews%2Factivity%2Fnewsdetail%3D%257B%2522linkData%2522%253A%257B%2522name%2522%253A%2522iframe%252Fmib-iframe%2522%252C%2522id%2522%253A%2522feed%2522%252C%2522index%2522%253A0%252C%2522url%2522%253A%2522https%253A%252F%252Fmbd.baidu.com%252Fnewspage%252Fdata%252Flandingpage%253Fs_type%253Dnews%2526dsp%253Dwise%2526context%253D%25257B%252522nid%252522%25253A%252522news_10217781133566637087%252522%25257D%2526pageType%253D1%2526n_type%253D1%2526p_from%253D-1%2526innerIframe%253D1%2522%252C%2522isThird%2522%253Afalse%252C%2522title%2522%253Anull%257D%257D'
+    # url = 'https://m.baidu.com/#iact=wiseindex%2Ftabs%2Fnews%2Factivity%2Fnewsdetail%3D%257B%2522linkData%2522%253A%257B%2522name%2522%253A%2522iframe%252Fmib-iframe%2522%252C%2522id%2522%253A%2522feed%2522%252C%2522index%2522%253A0%252C%2522url%2522%253A%2522https%253A%252F%252Fmbd.baidu.com%252Fnewspage%252Fdata%252Flandingpage%253Fs_type%253Dnews%2526dsp%253Dwise%2526context%253D%25257B%252522nid%252522%25253A%252522news_9575607690617582637%252522%25257D%2526pageType%253D1%2526n_type%253D1%2526p_from%253D-1%2526innerIframe%253D1%2522%252C%2522title%2522%253Anull%257D%257D'
     # 含视频(好看视频)
     # url = 'https://m.baidu.com/#iact=wiseindex%2Ftabs%2Fnews%2Factivity%2Fnewsdetail%3D%257B%2522linkData%2522%253A%257B%2522name%2522%253A%2522iframe%252Fmib-iframe%2522%252C%2522id%2522%253A%2522feed%2522%252C%2522index%2522%253A0%252C%2522url%2522%253A%2522https%253A%252F%252Fhaokan.baidu.com%252Fvideoui%252Fpage%252Fsearchresult%253Fpd%253Dwise%2526vid%253D15928130604529794109%2526is_invoke%253D1%2526innerIframe%253D1%2522%252C%2522isThird%2522%253Afalse%252C%2522title%2522%253Anull%257D%257D'
     # url = 'https://m.baidu.com/#iact=wiseindex%2Ftabs%2Fnews%2Factivity%2Fnewsdetail%3D%257B%2522linkData%2522%253A%257B%2522name%2522%253A%2522iframe%252Fmib-iframe%2522%252C%2522id%2522%253A%2522feed%2522%252C%2522index%2522%253A0%252C%2522url%2522%253A%2522https%253A%252F%252Fhaokan.baidu.com%252Fvideoui%252Fpage%252Fsearchresult%253Fpd%253Dwise%2526vid%253D12574625425386503733%2526is_invoke%253D1%2526innerIframe%253D1%2522%252C%2522isThird%2522%253Afalse%252C%2522title%2522%253Anull%257D%257D'
@@ -4894,6 +5053,11 @@ def main():
     # article spiders intro
     # tmp = loop.run_until_complete(_.get_article_spiders_intro())
     # print(tmp)
+
+    # 文章列表
+    # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
+    #     article_type='zq',))
+    # pprint(tmp)
 
 if __name__ == '__main__':
     main()
