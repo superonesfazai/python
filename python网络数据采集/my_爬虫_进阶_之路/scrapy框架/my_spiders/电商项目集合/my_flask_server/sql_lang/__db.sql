@@ -546,3 +546,10 @@ create table zwm_buss_manage_records(
   approval_status int not null,           -- 审核通过0, 待审核1, 退回2
   approval_status_change_time datetime,
 );
+
+-- 创建荐好ops article_id去重表
+create table recommend_good_ops_article_id_duplicate_removal(
+  id int identity(1, 1) primary key,
+  unique_id nvarchar(100) not null unique,
+  create_time datetime,
+);

@@ -215,21 +215,38 @@ class ArticleParser(AsyncCrawler):
         def get_tasks_params_list() -> list:
             tasks_params_list = []
             for page_num in range(1, 5):
-                # 默认只有4页
+                # 蹿红页, 默认只有4页
                 tasks_params_list.append({
+                    'type': '1',
+                    'page_num': page_num,
+                })
+
+            for page_num in range(1, 2):
+                # 七天页, 默认只有1页
+                tasks_params_list.append({
+                    'type': '2',
+                    'page_num': page_num,
+                })
+
+            for page_num in range(1, 3):
+                # 总榜页, 默认只有2页
+                tasks_params_list.append({
+                    'type': '3',
                     'page_num': page_num,
                 })
 
             return tasks_params_list
 
         def get_create_task_msg(k) -> str:
-            return 'create task[where zq: page_num: {}]...'.format(
+            return 'create task[where zq: type: {}, page_num: {}]...'.format(
+                k['type'],
                 k['page_num'],
             )
 
         def get_now_args(k) -> list:
             return [
                 k['page_num'],
+                k['type'],
             ]
 
         all_res = await get_or_handle_target_data_by_task_params_list(
@@ -256,7 +273,7 @@ class ArticleParser(AsyncCrawler):
         return all_res
 
     @catch_exceptions_with_class_logger(default_res=[])
-    def get_zq_shoot_to_fame_article_list_by_page_num(self, page_num: int) -> list:
+    def get_zq_shoot_to_fame_article_list_by_page_num(self, page_num: int, _type: str) -> list:
         """
         根据page_num 获取zq蹿红页的article_list
         :param page_num: 1开始
@@ -275,9 +292,9 @@ class ArticleParser(AsyncCrawler):
             'X-Requested-With': 'XMLHttpRequest',
         })
         data = dumps({
-            'type': '1',
+            'type': _type,
             'page': str(page_num),
-            'catid': '0'
+            'catid': '0',
         })
         body = Requests.get_url_body(
             method='post',
@@ -317,13 +334,17 @@ class ArticleParser(AsyncCrawler):
                 continue
 
             res.append({
+                # db中存储的uid eg: get_uuid3('zq::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('zq', article_id)),
+                'article_type': 'zq',
                 'title': title,
-                'article_id': article_id,
+                'article_id': str(article_id),
                 'article_url': article_url,
             })
 
-        self.lg.info('[{}] zq::page_num:{}'.format(
+        self.lg.info('[{}] zq::type:{}::page_num:{}'.format(
             '+' if res != [] else '-',
+            _type,
             page_num,
         ))
 
@@ -2013,6 +2034,7 @@ class ArticleParser(AsyncCrawler):
             headers=headers,
             ip_pool_type=self.ip_pool_type,
             num_retries=self.request_num_retries,
+            proxy_type=PROXY_TYPE_HTTPS,
             logger=self.lg)
         # self.lg.info(body)
         assert body != '', '获取zq的body为空值!'

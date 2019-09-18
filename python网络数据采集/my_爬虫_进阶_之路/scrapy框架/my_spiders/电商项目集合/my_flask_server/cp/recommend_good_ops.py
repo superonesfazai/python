@@ -14,10 +14,13 @@ from settings import (
     MY_SPIDER_LOGS_PATH,
     CHROME_DRIVER_PATH,
 )
+from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from my_exceptions import SqlServerConnectionException
 from article_spider import ArticleParser
 
 import nest_asyncio
 from random import randint
+from random import sample as random_sample
 
 from fzutils.spider.fz_driver import (
     BaseDriver,
@@ -45,11 +48,15 @@ class RecommendGoodOps(AsyncCrawler):
             self.yx_username,
             self.yx_password))
         self.publish_url = 'https://configadmin.yiuxiu.com/Business/Index'
-        # 存储已发布的文章url的list
-        self.published_article_url_list = []
+        self.select_sql0 = 'SELECT unique_id FROM dbo.recommend_good_ops_article_id_duplicate_removal'
+        self.insert_sql0 = 'INSERT INTO dbo.recommend_good_ops_article_id_duplicate_removal(unique_id, create_time) values(%s, %s)'
 
     async def _fck_run(self):
-        sleep_time = 60
+        sleep_time = 30
+        self.db_article_id_list = await self.get_db_unique_id_list()
+        assert self.db_article_id_list != []
+        self.lg.info('db_article_id_list_len: {}'.format(len(self.db_article_id_list)))
+
         while True:
             try:
                 await self.auto_publish_articles()
@@ -59,56 +66,115 @@ class RecommendGoodOps(AsyncCrawler):
                 self.lg.info('休眠{}s...'.format(sleep_time))
                 await async_sleep(sleep_time)
 
+    async def get_db_unique_id_list(self) -> list:
+        """
+        获取db的unique_id_list
+        :return:
+        """
+        self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        if not self.sql_cli.is_connect_success:
+            raise SqlServerConnectionException
+
+        res = []
+        try:
+            res = self.sql_cli._select_table(
+                sql_str=self.select_sql0,
+                logger=self.lg,)
+        except Exception:
+            self.lg.error('遇到错误:', exc_info=True)
+
+        res = [] if res is None else res
+
+        return [item[0] for item in res]
+
     async def auto_publish_articles(self):
         """
         自动发布文章
         :return:
         """
-        article_parser = ArticleParser(logger=self.lg)
-        article_list = self.loop.run_until_complete(article_parser.get_article_list_by_article_type(
-            article_type=self.article_type,))
-        assert article_list != []
-        pprint(article_list)
-        try:
-            del article_parser
-        except:
+        self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        if not self.sql_cli.is_connect_success:
+            raise SqlServerConnectionException
+        else:
             pass
+
+        # article_parser = ArticleParser(logger=self.lg)
+        # article_list = self.loop.run_until_complete(article_parser.get_article_list_by_article_type(
+        #     article_type=self.article_type,))
+        # try:
+        #     del article_parser
+        # except:
+        #     pass
+
+        article_list = self.get_zq_own_create_article_id_list()
+
+        assert article_list != []
+        # pprint(article_list)
 
         target_article_list = self.get_target_article_list(article_list=article_list)
         if target_article_list == []:
             self.lg.info('待发布的target_article_list为空list, pass!')
             return
 
-        driver = None
+        driver = BaseDriver(
+            type=CHROME,
+            load_images=True,
+            executable_path=CHROME_DRIVER_PATH,
+            logger=self.lg,
+            headless=True,
+            driver_use_proxy=False,
+            ip_pool_type=self.ip_pool_type,
+        )
         try:
-            driver = BaseDriver(
-                type=CHROME,
-                load_images=True,
-                executable_path=CHROME_DRIVER_PATH,
-                logger=self.lg,
-                headless=False,
-                driver_use_proxy=False,
-                ip_pool_type=self.ip_pool_type,
-            )
             self.login_bg(driver=driver)
             self.get_into_recommend_good_manage(driver=driver)
             for item in target_article_list:
+                uid = item.get('uid', '')
                 title = item.get('title', '')
                 article_url = item.get('article_url', '')
                 self.lg.info('正在发布文章 title: {}, article_url: {} ...'.format(title, article_url))
                 self.publish_one_article(
                     driver=driver,
                     article_url=article_url)
-                self.published_article_url_list.append(article_url)
+                # 新增, 以及插入db
+                self.db_article_id_list.append(uid)
+                self.sql_cli._insert_into_table_2(
+                    sql_str=self.insert_sql0,
+                    params=(
+                        uid,
+                        get_shanghai_time(),
+                    ),
+                    logger=self.lg,)
         except Exception:
             self.lg.error('遇到错误:', exc_info=True)
-
-        try:
-            del driver
-        except:
-            pass
+        finally:
+            try:
+                del driver
+            except:
+                try:
+                    del driver
+                except:
+                    pass
 
         return
+
+    def get_zq_own_create_article_id_list(self):
+        """
+        自己create的article_id_list
+        :return:
+        """
+        article_id_list = [str(article_id) for article_id in range(17253332, 17380554)]
+        # 截取10
+        article_id_list = random_sample(article_id_list, 10)
+        res = [{
+            'uid': get_uuid3(target_str='{}::{}'.format('zq', article_id)),
+            'article_type': 'zq',
+            'title': '未知',
+            'article_id': article_id,
+            'article_url': 'https://focus.youth.cn/mobile/detail/id/{}#'.format(article_id),
+        } for article_id in article_id_list]
+
+        return res
 
     def get_target_article_list(self, article_list: list) -> list:
         """
@@ -120,9 +186,11 @@ class RecommendGoodOps(AsyncCrawler):
             try:
                 title = item.get('title', '')
                 assert title != ''
+                uid = item.get('uid', '')
+                assert uid != ''
                 article_url = item.get('article_url', '')
                 assert article_url != ''
-                if article_url not in self.published_article_url_list:
+                if uid not in self.db_article_id_list:
                     target_article_list.append(item)
                 else:
                     # 已发布的跳过
