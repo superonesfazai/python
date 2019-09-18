@@ -13,6 +13,7 @@ from settings import (
     IP_POOL_TYPE,
     MY_SPIDER_LOGS_PATH,
     CHROME_DRIVER_PATH,
+    FIREFOX_DRIVER_PATH,
 )
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_exceptions import SqlServerConnectionException
@@ -25,6 +26,7 @@ from random import sample as random_sample
 from fzutils.spider.fz_driver import (
     BaseDriver,
     CHROME,
+    FIREFOX,
 )
 from fzutils.spider.async_always import *
 
@@ -43,25 +45,36 @@ class RecommendGoodOps(AsyncCrawler):
         self.request_num_retries = 6
         self.article_type = 'zq'
         self.yx_username = input('请输入yx_username:')
-        self.yx_password = input('请输入yx_passwd:')
-        self.lg.info('yx_username: {}, yx_passwd: {}'.format(
+        self.yx_password = input('请输入yx_password:')
+        self.lg.info('yx_username: {}, yx_password: {}'.format(
             self.yx_username,
             self.yx_password))
         self.publish_url = 'https://configadmin.yiuxiu.com/Business/Index'
         self.select_sql0 = 'SELECT unique_id FROM dbo.recommend_good_ops_article_id_duplicate_removal'
         self.insert_sql0 = 'INSERT INTO dbo.recommend_good_ops_article_id_duplicate_removal(unique_id, create_time) values(%s, %s)'
+        # 敏感标题过滤
+        self.sensitive_str_tuple = (
+            '走势分析', '股票', 'A股', '上证', '深指', '大盘', '涨停', '跌停',
+        )
 
     async def _fck_run(self):
-        sleep_time = 30
+        # 休眠30s, 避免频繁发!
+        sleep_time = 0.
+        # sleep_time = 30.
         self.db_article_id_list = await self.get_db_unique_id_list()
         assert self.db_article_id_list != []
         self.lg.info('db_article_id_list_len: {}'.format(len(self.db_article_id_list)))
 
         while True:
+            if get_shanghai_time().hour == 0:
+                # 夜晚休眠
+                await async_sleep(60 * 60 * 5)
+            else:
+                pass
             try:
                 await self.auto_publish_articles()
             except Exception:
-                self.lg.info('遇到错误:', exc_info=True)
+                self.lg.error('遇到错误:', exc_info=True)
             finally:
                 self.lg.info('休眠{}s...'.format(sleep_time))
                 await async_sleep(sleep_time)
@@ -108,6 +121,16 @@ class RecommendGoodOps(AsyncCrawler):
 
         article_list = self.get_zq_own_create_article_id_list()
 
+        # 测试用
+        # article_id = '17300123'
+        # article_list = [{
+        #     'uid': get_uuid3(target_str='{}::{}'.format('zq', article_id)),
+        #     'article_type': 'zq',
+        #     'article_id': article_id,
+        #     'title': '未知',
+        #     'article_url': 'https://focus.youth.cn/mobile/detail/id/{}#'.format(article_id),
+        # }]
+
         assert article_list != []
         # pprint(article_list)
 
@@ -118,8 +141,12 @@ class RecommendGoodOps(AsyncCrawler):
 
         driver = BaseDriver(
             type=CHROME,
-            load_images=True,
             executable_path=CHROME_DRIVER_PATH,
+            # 本地老是出错
+            # type=FIREFOX,
+            # executable_path=FIREFOX_DRIVER_PATH,
+
+            load_images=True,
             logger=self.lg,
             headless=True,
             driver_use_proxy=False,
@@ -174,7 +201,32 @@ class RecommendGoodOps(AsyncCrawler):
             'article_url': 'https://focus.youth.cn/mobile/detail/id/{}#'.format(article_id),
         } for article_id in article_id_list]
 
-        return res
+        new_res = res
+
+        # 本地不检测了
+        # article_parser = ArticleParser(logger=self.lg)
+        # # article_list = self.loop.run_until_complete(article_parser.get_article_list_by_article_type(
+        # #     article_type=self.article_type,))
+        # new_res = []
+        # for item in res:
+        #     article_url = item.get('article_url', '')
+        #     try:
+        #         self.lg.info('本地检测url: {}'.format(article_url))
+        #         _ = self.loop.run_until_complete(article_parser._parse_article(
+        #             article_url=article_url,))
+        #         title = _.get('title', '')
+        #         assert title != ''
+        #         # 标题必须小于等于30
+        #         assert len(title) <= 30
+        #     except Exception:
+        #         continue
+        #
+        #     item.update({
+        #         'title': title,
+        #     })
+        #     new_res.append(item)
+
+        return new_res
 
     def get_target_article_list(self, article_list: list) -> list:
         """
@@ -238,6 +290,13 @@ class RecommendGoodOps(AsyncCrawler):
         # 点击采集按钮
         driver.find_elements(value='span.input-group-btn button')[0].click()
         self.wait_for_delete_img_appear(driver=driver)
+        # 获取输入框的值
+        title = driver.find_element(value='input#RecommendName').get_attribute('value')
+        if self.filter_title(title=title):
+            raise AssertionError('该标题包含敏感词汇, 退出发布!')
+        else:
+            pass
+
         # 点击发布按钮
         driver.find_elements(value='span.input-group-btn button')[1].click()
 
@@ -250,10 +309,29 @@ class RecommendGoodOps(AsyncCrawler):
         driver.find_element(value='a.layui-layer-btn0').click()
 
         self.lg.info('url: {} 发布成功!'.format(article_url))
-        # 发布成功, 等待6.5秒, 等待页面元素置空
-        sleep(6.5)
+        # 发布成功, 等待5.秒, 等待页面元素置空
+        sleep(5.)
 
         return
+
+    def filter_title(self, title) -> bool:
+        """
+        过滤敏感title
+        :param title:
+        :return: True 包含敏感 | False 不包含
+        """
+        res = False
+        if isinstance(title, str):
+            self.lg.info('title: {}'.format(title))
+            for item in self.sensitive_str_tuple:
+                if item in title:
+                    return True
+                else:
+                    continue
+        else:
+            pass
+
+        return res
 
     @fz_set_timeout(seconds=25)
     def wait_for_delete_img_appear(self, driver: BaseDriver):
@@ -294,7 +372,7 @@ class RecommendGoodOps(AsyncCrawler):
         try:
             del self.lg
             del self.loop
-            del self.published_article_url_list
+            del self.db_article_id_list
             del self.publish_url
         except:
             pass

@@ -4075,7 +4075,9 @@ class ArticleParser(AsyncCrawler):
                 ('<img data-src=', '<img src='),
                 ('data-width=\"\d+\" data-height=\"\d+\" data-src=', 'src='),
             ],
-            add_sensitive_str_list=[],
+            add_sensitive_str_list=[
+                '<br>',
+            ],
             is_default_filter=False,
             is_lower=False, )
 
