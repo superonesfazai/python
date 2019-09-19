@@ -58,6 +58,8 @@ class RecommendGoodOps(AsyncCrawler):
         self.sensitive_str_tuple = (
             '走势分析', '股票', 'A股', '上证', '深指', '大盘', '涨停', '跌停', '纳斯达克', '道琼斯',
         )
+        self.min_article_id = 0
+        self.max_article_id = 0
 
     async def _fck_run(self):
         # 休眠5分钟s, 避免频繁发!
@@ -113,25 +115,29 @@ class RecommendGoodOps(AsyncCrawler):
         else:
             pass
 
-        article_parser = ArticleParser(logger=self.lg)
-        article_list = self.loop.run_until_complete(article_parser.get_article_list_by_article_type(
-            article_type=self.article_type,))
-        try:
-            del article_parser
-        except:
-            pass
-        assert article_list != []
+        if self.min_article_id == 0\
+            or self.max_article_id == 0:
+            article_parser = ArticleParser(logger=self.lg)
+            article_list = self.loop.run_until_complete(article_parser.get_article_list_by_article_type(
+                article_type=self.article_type,))
+            try:
+                del article_parser
+            except:
+                pass
+            assert article_list != []
 
-        min_article_id, max_article_id = self.get_latest_max_and_min_artcile_id_from_article_list(
-            article_list=article_list,)
-        self.lg.info('最新的min_article_id: {}, max_article_id: {}'.format(
-            min_article_id,
-            max_article_id,))
+            self.min_article_id, self.max_article_id = self.get_latest_max_and_min_artcile_id_from_article_list(
+                article_list=article_list,)
+            self.lg.info('最新的min_article_id: {}, max_article_id: {}'.format(
+                self.min_article_id,
+                self.max_article_id,))
+        else:
+            pass
 
         # 创建目标集合
         article_list = self.get_zq_own_create_article_id_list(
-            min_article_id=min_article_id,
-            max_article_id=max_article_id,)
+            min_article_id=self.min_article_id,
+            max_article_id=self.max_article_id,)
 
         # 测试用
         # article_id = '17300123'
@@ -199,10 +205,9 @@ class RecommendGoodOps(AsyncCrawler):
 
     def get_latest_max_and_min_artcile_id_from_article_list(self, article_list) -> tuple:
         """
-        获取最新的最大, 最小的article_id
+        获取最新范围的article_id最大, 最小的article_id(目的动态的自己创建值)
         :return: (int, int)
         """
-        # 获取到最新范围的article_id最大值跟最小值(目的动态的自己创建值)
         latest_article_id_list = []
         for item in article_list:
             # eg: zq是'17296475'
