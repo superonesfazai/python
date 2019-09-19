@@ -244,6 +244,9 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://i.7y7.com/hufu/84/385784.html'
         # article_link = 'https://i.7y7.com/hufu/37/385737.html'
 
+        # 亲亲宝贝网
+        # article_link = 'https://m.qbaobei.com/a/1372711.html'
+
         # 雪球
         article_link = 'https://xueqiu.com/5157574024/130400677'
 

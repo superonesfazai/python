@@ -22,12 +22,14 @@ from article_spider import ArticleParser
 import nest_asyncio
 from random import randint
 from random import sample as random_sample
+from selenium.common.exceptions import NoSuchFrameException
 
 from fzutils.spider.fz_driver import (
     BaseDriver,
     CHROME,
     FIREFOX,
 )
+from fzutils.spider.selenium_always import *
 from fzutils.spider.async_always import *
 
 nest_asyncio.apply()
@@ -54,13 +56,13 @@ class RecommendGoodOps(AsyncCrawler):
         self.insert_sql0 = 'INSERT INTO dbo.recommend_good_ops_article_id_duplicate_removal(unique_id, create_time) values(%s, %s)'
         # 敏感标题过滤
         self.sensitive_str_tuple = (
-            '走势分析', '股票', 'A股', '上证', '深指', '大盘', '涨停', '跌停',
+            '走势分析', '股票', 'A股', '上证', '深指', '大盘', '涨停', '跌停', '纳斯达克', '道琼斯',
         )
 
     async def _fck_run(self):
-        # 休眠30s, 避免频繁发!
-        sleep_time = 0.
-        # sleep_time = 30.
+        # 休眠5分钟s, 避免频繁发!
+        # sleep_time = 0.
+        sleep_time = 60 * 4.
         self.db_article_id_list = await self.get_db_unique_id_list()
         assert self.db_article_id_list != []
         self.lg.info('db_article_id_list_len: {}'.format(len(self.db_article_id_list)))
@@ -111,15 +113,25 @@ class RecommendGoodOps(AsyncCrawler):
         else:
             pass
 
-        # article_parser = ArticleParser(logger=self.lg)
-        # article_list = self.loop.run_until_complete(article_parser.get_article_list_by_article_type(
-        #     article_type=self.article_type,))
-        # try:
-        #     del article_parser
-        # except:
-        #     pass
+        article_parser = ArticleParser(logger=self.lg)
+        article_list = self.loop.run_until_complete(article_parser.get_article_list_by_article_type(
+            article_type=self.article_type,))
+        try:
+            del article_parser
+        except:
+            pass
+        assert article_list != []
 
-        article_list = self.get_zq_own_create_article_id_list()
+        min_article_id, max_article_id = self.get_latest_max_and_min_artcile_id_from_article_list(
+            article_list=article_list,)
+        self.lg.info('最新的min_article_id: {}, max_article_id: {}'.format(
+            min_article_id,
+            max_article_id,))
+
+        # 创建目标集合
+        article_list = self.get_zq_own_create_article_id_list(
+            min_article_id=min_article_id,
+            max_article_id=max_article_id,)
 
         # 测试用
         # article_id = '17300123'
@@ -162,7 +174,7 @@ class RecommendGoodOps(AsyncCrawler):
                 self.lg.info('正在发布文章 title: {}, article_url: {} ...'.format(title, article_url))
                 self.publish_one_article(
                     driver=driver,
-                    article_url=article_url)
+                    article_url=article_url,)
                 # 新增, 以及插入db
                 self.db_article_id_list.append(uid)
                 self.sql_cli._insert_into_table_2(
@@ -185,12 +197,33 @@ class RecommendGoodOps(AsyncCrawler):
 
         return
 
-    def get_zq_own_create_article_id_list(self):
+    def get_latest_max_and_min_artcile_id_from_article_list(self, article_list) -> tuple:
+        """
+        获取最新的最大, 最小的article_id
+        :return: (int, int)
+        """
+        # 获取到最新范围的article_id最大值跟最小值(目的动态的自己创建值)
+        latest_article_id_list = []
+        for item in article_list:
+            # eg: zq是'17296475'
+            article_id = item.get('article_id', '')
+            if len(article_id) >= 8:
+                latest_article_id_list.append(int(article_id))
+            else:
+                continue
+
+        assert latest_article_id_list != []
+        latest_article_id_list = sorted(latest_article_id_list)
+        # pprint(latest_article_id_list)
+
+        return (latest_article_id_list[0], latest_article_id_list[-1])
+
+    def get_zq_own_create_article_id_list(self, min_article_id: int, max_article_id: int):
         """
         自己create的article_id_list
         :return:
         """
-        article_id_list = [str(article_id) for article_id in range(17253332, 17380554)]
+        article_id_list = [str(article_id) for article_id in range(min_article_id, max_article_id)]
         # 截取10
         article_id_list = random_sample(article_id_list, 10)
         res = [{
@@ -282,11 +315,24 @@ class RecommendGoodOps(AsyncCrawler):
         :param article_url:
         :return:
         """
-        # 切换到目标iframe
-        driver.switch_to_frame(frame_reference=1)
+        try:
+            # 切换到目标iframe(用index有时候不准, pass)
+            # driver.switch_to_frame(frame_reference=1)
 
+            iframe_ele_list = driver.find_elements(by=By.TAG_NAME, value='iframe')
+            # pprint(iframe_ele_list)
+            assert iframe_ele_list != []
+            target_iframe_ele = iframe_ele_list[1] if len(iframe_ele_list) > 1 else iframe_ele_list[0]
+            driver.switch_to_frame(frame_reference=target_iframe_ele)
+        except (NoSuchFrameException,) as e:
+            # 没匹配到frame(可能是原先就在目标iframe, eg: title过长的, 再切回iframe, 但是iframe_ele_list为0)
+            raise e
+
+        # 清空输入框
+        input_box_ele = driver.find_element(value='input#SnatchUrl')
+        input_box_ele.clear()
         # 输入待采集地址
-        driver.find_element(value='input#SnatchUrl').send_keys(article_url)
+        input_box_ele.send_keys(article_url)
         # 点击采集按钮
         driver.find_elements(value='span.input-group-btn button')[0].click()
         self.wait_for_delete_img_appear(driver=driver)
@@ -294,6 +340,12 @@ class RecommendGoodOps(AsyncCrawler):
         title = driver.find_element(value='input#RecommendName').get_attribute('value')
         if self.filter_title(title=title):
             raise AssertionError('该标题包含敏感词汇, 退出发布!')
+        else:
+            pass
+        if isinstance(title, str) and len(title) > 30:
+            # 标题过长则return, 不发布
+            self.lg.info('@@@ title 标题过长, 无法发布!! 跳过!')
+            return
         else:
             pass
 

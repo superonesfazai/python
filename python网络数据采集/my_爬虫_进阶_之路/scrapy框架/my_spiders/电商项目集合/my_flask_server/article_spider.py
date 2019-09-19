@@ -554,7 +554,7 @@ class ArticleParser(AsyncCrawler):
                 'site_id': 31,
             },
             'qqbb': {
-                'debug': False,
+                'debug': True,
                 'name': '亲亲宝贝网',
                 'url': 'https://m.qbaobei.com/',
                 'obj_origin': 'm.qbaobei.com',
@@ -3555,12 +3555,41 @@ class ArticleParser(AsyncCrawler):
         content = await self._wash_article_content(
             short_name=short_name,
             content=content,)
+        content = await self.unify_wash_article_content(
+            short_name=short_name,
+            content=content,)
         # hook 防盗链
         content = '<meta name=\"referrer\" content=\"never\">' + content if content != '' else ''
         print(content)
         # cp后台处理, 此处不处理
         # content = await self._wash_my_style_in_content(content=content)
         # self.lg.info(content)
+
+        return content
+
+    @staticmethod
+    async def unify_wash_article_content(short_name: str, content) -> str:
+        """
+        统一清洗
+        :param content:
+        :return:
+        """
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=None,
+            add_sensitive_str_list=[
+                '<br>',
+                '禁止转发',
+                '禁止转载',
+                '私自转载',
+                '追究法律责任',
+            ],
+            is_default_filter=False,
+            is_lower=False,)
+        if content != '':
+            content += '<br><p><strong>文章来源于网络, 如有侵权, 请联系管理员删除!</strong></p>'
+        else:
+            pass
 
         return content
 
