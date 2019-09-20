@@ -42,6 +42,7 @@ supported:
     30. 觅糖网(短视频or图文)(https://www.91mitang.com/)
     31. 雪球网(https://xueqiu.com)
     32. 5号女性网(http://m.5h.com/)
+    33. 百思不得姐(http://www.budejie.com/)
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -581,6 +582,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'm.5h.com',
                 'site_id': 35,
             },
+            'bdj': {
+                'debug': False,
+                'name': '百思不得姐',
+                'url': 'http://www.budejie.com',
+                'obj_origin': 'www.budejie.com',
+                'site_id': 36,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -924,6 +932,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == '5h':
                 return await self._get_5h_article_html(article_url=article_url)
 
+            elif article_url_type == 'bdj':
+                return await self._get_bdj_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -931,6 +942,30 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_bdj_article_html(self, article_url) -> tuple:
+        """
+        获取bdj html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+        headers = await async_get_random_headers(connection_status_keep_alive=False)
+        headers.update({
+            'Proxy-Connection': 'keep-alive',
+            'Referer': 'http://www.budejie.com/',
+        })
+        body = Requests.get_url_body(
+            url=article_url,
+            headers=headers,
+            verify=False,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,)
+        assert body != ''
+        # self.lg.info(body)
+
+        return body, video_url
 
     async def _get_5h_article_html(self, article_url) -> tuple:
         """
@@ -2723,6 +2758,7 @@ class ArticleParser(AsyncCrawler):
             'ft',
             '91mt',
             '5h',
+            'bdj',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2805,6 +2841,7 @@ class ArticleParser(AsyncCrawler):
             '91mt',
             'xq',
             '5h',
+            'bdj',
         ]
         if short_name in short_name_list2:
             pass
@@ -2845,6 +2882,7 @@ class ArticleParser(AsyncCrawler):
             'ft',
             '91mt',
             '5h',
+            'bdj',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2954,6 +2992,7 @@ class ArticleParser(AsyncCrawler):
             'qqbb',
             'ft',
             '91mt',
+            'bdj',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2990,6 +3029,10 @@ class ArticleParser(AsyncCrawler):
 
         elif short_name == 'xq':
             head_url = ''
+
+        elif short_name == 'bdj':
+            # 小头像换成原图
+            head_url = head_url.replace('_mini', '')
 
         else:
             pass
@@ -3272,6 +3315,7 @@ class ArticleParser(AsyncCrawler):
             '91mt',
             'xq',
             '5h',
+            'bdj',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -3316,6 +3360,7 @@ class ArticleParser(AsyncCrawler):
         short_name_list3 = [
             'js',
             'kd',
+            'bdj',
         ]
         if short_name == 'sg':
             if video_url != '':
@@ -3356,7 +3401,8 @@ class ArticleParser(AsyncCrawler):
         elif short_name in short_name_list3:
             if create_time != '':
                 # eg: ori_data = '1565402168'
-                create_time = str(timestamp_to_regulartime(create_time))
+                create_time = create_time[0:10] if isinstance(create_time, str) else create_time
+                create_time = str(timestamp_to_regulartime(int(create_time)))
                 # self.lg.info(create_time)
             else:
                 pass
@@ -3420,6 +3466,7 @@ class ArticleParser(AsyncCrawler):
             'ft',
             '91mt',
             '5h',
+            'bdj',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -3587,6 +3634,7 @@ class ArticleParser(AsyncCrawler):
             '91mt',
             'xq',
             '5h',
+            'bdj',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -3794,8 +3842,22 @@ class ArticleParser(AsyncCrawler):
         elif short_name == '5h':
             content = await self._wash_5h_article_content(content=content)
 
+        elif short_name == 'bdj':
+            content = await self._wash_bdj_article_content(content=content)
+
         else:
             pass
+
+        return content
+
+    @staticmethod
+    async def _wash_bdj_article_content(content: str) -> str:
+        if '<img' in content:
+            # 有图的文章, 则把文章标题过滤
+            content = re.compile('<h1>.*?</h1>').sub('', content)
+        else:
+            pass
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -5196,6 +5258,17 @@ def main():
     # 看病
     # url = 'http://m.5h.com/yl/148912.html'
     # todo 不支持专题,
+
+    # 百思不得姐
+    # url = 'http://www.budejie.com/detail-29745738.html'
+    # url = 'http://www.budejie.com/detail-29752780.html'
+    # url = 'http://www.budejie.com/detail-29752170.html'
+    # url = 'http://www.budejie.com/detail-29752481.html'
+    # url = 'http://www.budejie.com/detail-29752617.html'
+    # url = 'http://www.budejie.com/detail-29160596.html'
+    # 纯文字
+    # url = 'http://www.budejie.com/detail-29752862.html'
+    # todo 声音不支持
 
     # 文章url 测试
     print('article_url: {}'.format(url))

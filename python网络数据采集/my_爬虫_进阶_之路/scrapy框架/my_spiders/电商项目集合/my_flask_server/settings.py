@@ -1669,6 +1669,52 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num':None,
     },
+    {
+        'short_name': 'bdj',
+        'debug': True,
+        'obj_origin': 'www.budejie.com',
+        'article_id': {
+            'method': 're',
+            'selector': '/detail-(\d+).html',
+        },
+        'title': {
+            'method': 're',
+            'selector': '\"title\": \"(.*?)\",',
+        },
+        'video_title': None,
+        'author': {
+            'method': 're',
+            'selector': '\"author\": \"(.*?)\",',
+        },
+        'video_author': None,
+        'head_url': {
+            'method': 'css',
+            'selector': 'div.j-list-user div.u-img a img ::attr("data-original")',
+        },
+        'video_head_url': None,
+        'create_time': {
+            'method': 're',
+            'selector': '\"ptime\": \"(.*?)\",'
+        },
+        'video_create_time': None,
+        'content': {
+            'method': 'css',
+            'selector': 'div.j-r-list-c',
+        },
+        'video_article_content': None,
+        'comment_num': {
+            'method': 're',
+            'selector': '\"ccnt\": \"(\d+)\",'
+        },
+        'tags_list': None,
+        'video_tags_list': None,
+        'praise_num': {
+            'method': 're',
+            'selector': '\"love\": \"(\d+)\"',
+        },
+        'profile': None,
+        'fav_num':None,
+    },
 ]
 
 '''
