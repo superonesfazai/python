@@ -72,8 +72,32 @@ CONTRABAND_GOODS_KEY_TUPLE = (
     '鞭炮', '氰化钾', '砷', '有毒农药', '氯气', '有毒化学', '灭鼠', '氧化剂', '烟雾剂', '发光剂', '过氧化钠', '过氧化钾', '硝酸铵',
     '过氧化铅', '过氧醋酸', '无机氧化剂', '有机氧化剂', '过氧化物', '硫酸', '硝酸', '盐酸', '氢氧化钾', '氢氧化钠', '蓄电池',
     '放射性', '传染性', '病毒', '病原体', '刺激性', '危险', '病菌', '海洛英', '大麻', '害虫', '敌敌畏', '炸鱼', '毒鱼', '电鱼',
-    '感染', '药物', '医用', '膏药', '贴膏', '眼膜', '关节炎', '筋骨', '肩周炎', '风湿', '骨质增生', '腰肌',
+    '感染', '药物', '医用', '膏药', '贴膏', '眼膜', '关节炎', '筋骨', '肩周炎', '风湿', '骨质增生', '腰肌', '甲苯2', '硼烷',
 )
+
+# 文章标题敏感词
+ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
+    '走势分析', '股票', 'A股', '上证', '深指', '大盘', '涨停', '跌停', '纳斯达克', '道琼斯',
+    '网警', '共产党', '产党共', '共x党', '色情', '法轮功', '女优', '共狗', '十8禁', '我XX你',
+)
+
+@catch_exceptions(default_res=False)
+def article_title_sensitive_str_check(title: str) -> bool:
+    """
+    文章标题敏感词检测
+    :param title:
+    :return:
+    """
+    global ARTICLE_TITLE_SENSITIVE_STR_TUPLE
+
+    assert title != ''
+    for item in CONTRABAND_GOODS_KEY_TUPLE:
+        if item in title:
+            return True
+        else:
+            continue
+
+    return False
 
 @catch_exceptions(default_res=False)
 def contraband_name_check(target_name: str) -> bool:

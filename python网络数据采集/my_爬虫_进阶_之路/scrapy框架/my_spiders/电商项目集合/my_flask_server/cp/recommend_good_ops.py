@@ -17,7 +17,10 @@ from settings import (
 )
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_exceptions import SqlServerConnectionException
-from multiplex_code import get_new_sql_cli
+from multiplex_code import (
+    get_new_sql_cli,
+    article_title_sensitive_str_check,
+)
 from article_spider import ArticleParser
 
 import nest_asyncio
@@ -55,11 +58,6 @@ class RecommendGoodOps(AsyncCrawler):
         self.publish_url = 'https://configadmin.yiuxiu.com/Business/Index'
         self.select_sql0 = 'SELECT unique_id FROM dbo.recommend_good_ops_article_id_duplicate_removal'
         self.insert_sql0 = 'INSERT INTO dbo.recommend_good_ops_article_id_duplicate_removal(unique_id, create_time) values(%s, %s)'
-        # 敏感标题过滤
-        self.sensitive_str_tuple = (
-            '走势分析', '股票', 'A股', '上证', '深指', '大盘', '涨停', '跌停', '纳斯达克', '道琼斯',
-            '网警',
-        )
         self.min_article_id = 0
         self.max_article_id = 0
 
@@ -345,7 +343,8 @@ class RecommendGoodOps(AsyncCrawler):
         self.wait_for_delete_img_appear(driver=driver)
         # 获取输入框的值
         title = driver.find_element(value='input#RecommendName').get_attribute('value')
-        if self.filter_title(title=title):
+        self.lg.info('title: {}'.format(title))
+        if article_title_sensitive_str_check(title=title):
             raise AssertionError('该标题包含敏感词汇, 退出发布!')
         else:
             pass
@@ -372,25 +371,6 @@ class RecommendGoodOps(AsyncCrawler):
         sleep(5.)
 
         return
-
-    def filter_title(self, title) -> bool:
-        """
-        过滤敏感title
-        :param title:
-        :return: True 包含敏感 | False 不包含
-        """
-        res = False
-        if isinstance(title, str):
-            self.lg.info('title: {}'.format(title))
-            for item in self.sensitive_str_tuple:
-                if item in title:
-                    return True
-                else:
-                    continue
-        else:
-            pass
-
-        return res
 
     @fz_set_timeout(seconds=25)
     def wait_for_delete_img_appear(self, driver: BaseDriver):
