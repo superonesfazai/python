@@ -41,21 +41,21 @@ supported:
     29. 发条网(https://m.fatiao.pro/)
     30. 觅糖网(短视频or图文)(https://www.91mitang.com/)
     31. 雪球网(https://xueqiu.com)
+    32. 5号女性网(http://m.5h.com/)
     
 not supported:
-    1. 5号女性网(http://m.5h.com/)
-    2. 男人窝(https://m.nanrenwo.net/)
-    3. 爱秀美(https://m.ixiumei.com/)
-    4. yoka时尚网(http://www.yoka.com/dna/m/)
-    5. 美妆网(http://www.chinabeauty.cn/)
-    6. 新华网(http://m.xinhuanet.com)
-    7. 36氪(https://36kr.com)
-    8. 太平洋时尚网(https://www.pclady.com.cn/)
-    9. 网易新闻
-    10. cnbeta(https://m.cnbeta.com/)
-    11. 少数派(https://sspai.com/)
-    12. 经济日报(https://www.jingjiribao.cn)
-    13. 中国青年网(http://m.youth.cn/)
+    1. 男人窝(https://m.nanrenwo.net/)
+    2. 爱秀美(https://m.ixiumei.com/)
+    3. yoka时尚网(http://www.yoka.com/dna/m/)
+    4. 美妆网(http://www.chinabeauty.cn/)
+    5. 新华网(http://m.xinhuanet.com)
+    6. 36氪(https://36kr.com)
+    7. 太平洋时尚网(https://www.pclady.com.cn/)
+    8. 网易新闻
+    9. cnbeta(https://m.cnbeta.com/)
+    10. 少数派(https://sspai.com/)
+    11. 经济日报(https://www.jingjiribao.cn)
+    12. 中国青年网(http://m.youth.cn/)
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -574,6 +574,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'xueqiu.com',
                 'site_id': 34,
             },
+            '5h': {
+                'debug': False,
+                'name': '5号女性网',
+                'url': 'http://m.5h.com/',
+                'obj_origin': 'm.5h.com',
+                'site_id': 35,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -914,6 +921,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'xq':
                 return await self._get_xq_article_html(article_url=article_url)
 
+            elif article_url_type == '5h':
+                return await self._get_5h_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -921,6 +931,33 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_5h_article_html(self, article_url) -> tuple:
+        """
+        获取5h html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,)
+        headers.update({
+            'Proxy-Connection': 'keep-alive',
+            'Referer': 'http://m.5h.com/',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            verify=False,
+            num_retries=self.request_num_retries,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            logger=self.lg,)
+        assert body != ''
+        # self.lg.info(body)
+
+        return body, video_url
 
     async def _get_xq_article_html(self, article_url) -> tuple:
         """
@@ -940,6 +977,7 @@ class ArticleParser(AsyncCrawler):
             headers=headers,
             ip_pool_type=self.ip_pool_type,
             num_retries=self.request_num_retries,
+            proxy_type=PROXY_TYPE_HTTPS,
             logger=self.lg,)
         assert body != ''
         # self.lg.info(body)
@@ -2684,6 +2722,7 @@ class ArticleParser(AsyncCrawler):
             'qqbb',
             'ft',
             '91mt',
+            '5h',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2765,6 +2804,7 @@ class ArticleParser(AsyncCrawler):
             'ft',
             '91mt',
             'xq',
+            '5h',
         ]
         if short_name in short_name_list2:
             pass
@@ -2804,6 +2844,7 @@ class ArticleParser(AsyncCrawler):
             'qqbb',
             'ft',
             '91mt',
+            '5h',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -3230,6 +3271,7 @@ class ArticleParser(AsyncCrawler):
             'ft',
             '91mt',
             'xq',
+            '5h',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -3269,6 +3311,7 @@ class ArticleParser(AsyncCrawler):
             'qqbb',
             'ft',
             '91mt',
+            '5h',
         ]
         short_name_list3 = [
             'js',
@@ -3376,6 +3419,7 @@ class ArticleParser(AsyncCrawler):
             'qqbb',
             'ft',
             '91mt',
+            '5h',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -3542,6 +3586,7 @@ class ArticleParser(AsyncCrawler):
             'ft',
             '91mt',
             'xq',
+            '5h',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -3583,11 +3628,12 @@ class ArticleParser(AsyncCrawler):
                 '禁止转载',
                 '私自转载',
                 '追究法律责任',
+                '图片来源于网络，如有侵权请联系删除',
             ],
             is_default_filter=False,
             is_lower=False,)
         if content != '':
-            content += '<br><p><strong>文章来源于网络, 如有侵权, 请联系管理员删除!</strong></p>'
+            content += '<br><p><strong>免责声明: 文章来源于网络, 仅供个人研究学习, 不涉及商业盈利目的, 如有侵权请及时联系管理员删除! 谢谢!</strong></p>'
         else:
             pass
 
@@ -3745,8 +3791,27 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'xq':
             content = await self._wash_xq_article_content(content=content)
 
+        elif short_name == '5h':
+            content = await self._wash_5h_article_content(content=content)
+
         else:
             pass
+
+        return content
+
+    @staticmethod
+    async def _wash_5h_article_content(content: str) -> str:
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+                # 图片替换
+                ('<img src=\"', '<img src=\"http://www.5h.com'),
+            ],
+            add_sensitive_str_list=[],
+            is_default_filter=False,
+            is_lower=False, )
+
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -5101,6 +5166,36 @@ def main():
     # url = 'https://xueqiu.com/4828772707/130482225'
     # 保险
     # url = 'https://xueqiu.com/5157574024/130400677'
+
+    # 5号女性网
+    # url = 'http://m.5h.com/mr/161290.html'
+    # url = 'http://m.5h.com/mr/140547.html'
+    # 化妆
+    # url = 'http://m.5h.com/mr/152296.html'
+    # url = 'http://m.5h.com/mr/157448.html'
+    # 护肤
+    # url = 'http://m.5h.com/mr/152431.html'
+    # 减肥
+    # url = 'http://m.5h.com/mr/151883.html'
+    # 发型
+    # url = 'http://m.5h.com/mr/157448.html'
+    # 时尚
+    # url = 'http://m.5h.com/mr/152413.html'
+    # 情感
+    # url = 'http://m.5h.com/ys/152131.html'
+    # 亲子
+    # url = 'http://m.5h.com/qz/153147.html'
+    # 整形
+    # url = 'http://m.5h.com/mr/152342.html'
+    # 饮食
+    # url = 'http://m.5h.com/ys/152432.html'
+    # 养生
+    # url = 'http://m.5h.com/ys/153185.html'
+    # 医疗
+    # url = 'http://m.5h.com/yl/153612.html'
+    # 看病
+    # url = 'http://m.5h.com/yl/148912.html'
+    # todo 不支持专题,
 
     # 文章url 测试
     print('article_url: {}'.format(url))

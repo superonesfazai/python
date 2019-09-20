@@ -17,6 +17,7 @@ from settings import (
 )
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_exceptions import SqlServerConnectionException
+from multiplex_code import get_new_sql_cli
 from article_spider import ArticleParser
 
 import nest_asyncio
@@ -57,6 +58,7 @@ class RecommendGoodOps(AsyncCrawler):
         # 敏感标题过滤
         self.sensitive_str_tuple = (
             '走势分析', '股票', 'A股', '上证', '深指', '大盘', '涨停', '跌停', '纳斯达克', '道琼斯',
+            '网警',
         )
         self.min_article_id = 0
         self.max_article_id = 0
@@ -109,7 +111,7 @@ class RecommendGoodOps(AsyncCrawler):
         自动发布文章
         :return:
         """
-        self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        self.sql_cli = get_new_sql_cli(sql_cli=self.sql_cli)
         if not self.sql_cli.is_connect_success:
             raise SqlServerConnectionException
         else:

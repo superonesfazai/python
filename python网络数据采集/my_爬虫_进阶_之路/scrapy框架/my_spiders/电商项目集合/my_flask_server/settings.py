@@ -1632,6 +1632,43 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num':None,
     },
+    {
+        'short_name': '5h',
+        'debug': True,
+        'obj_origin': 'm.5h.com',
+        'article_id': {
+            'method': 're',
+            'selector': '/(\d+)\.html',
+        },
+        'title': {
+            'method': 're',
+            'selector': '\"title\": \"(.*?)\",',
+        },
+        'video_title': None,
+        'author': {
+            'method': 're',
+            'selector': 'Username:\"(.*?)\",',
+        },
+        'video_author': None,
+        'head_url': None,
+        'video_head_url': None,
+        'create_time': {
+            'method': 're',
+            'selector': '\"pubDate\": \"(.*?)\",'
+        },
+        'video_create_time': None,
+        'content': {
+            'method': 'css',
+            'selector': 'div.m-content',
+        },
+        'video_article_content': None,
+        'comment_num': None,
+        'tags_list': None,
+        'video_tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num':None,
+    },
 ]
 
 '''

@@ -248,7 +248,10 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://m.qbaobei.com/a/1372711.html'
 
         # 雪球
-        article_link = 'https://xueqiu.com/5157574024/130400677'
+        # article_link = 'https://xueqiu.com/5157574024/130400677'
+
+        # 5号女性网
+        article_link = 'http://m.5h.com/yl/148912.html'
 
         url = article_link
 
