@@ -33,3 +33,7 @@ class ProvinceIdNotFindException(Exception):
 class CityIdNotFindException(Exception):
     """db中city_id未找到的异常"""
     pass
+
+class ArticleTitleOverLongException(Exception):
+    """文章标题过长异常"""
+    pass

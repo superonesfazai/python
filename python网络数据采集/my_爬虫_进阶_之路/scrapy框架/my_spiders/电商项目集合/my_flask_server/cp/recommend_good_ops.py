@@ -16,7 +16,10 @@ from settings import (
     FIREFOX_DRIVER_PATH,
 )
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
-from my_exceptions import SqlServerConnectionException
+from my_exceptions import (
+    SqlServerConnectionException,
+    ArticleTitleOverLongException,
+)
 from multiplex_code import (
     get_new_sql_cli,
     article_title_sensitive_str_check,
@@ -33,6 +36,7 @@ from fzutils.spider.fz_driver import (
     CHROME,
     FIREFOX,
 )
+from fzutils.time_utils import TimeoutError as FZTimeoutError
 from fzutils.spider.selenium_always import *
 from fzutils.spider.async_always import *
 
@@ -60,6 +64,8 @@ class RecommendGoodOps(AsyncCrawler):
         self.insert_sql0 = 'INSERT INTO dbo.recommend_good_ops_article_id_duplicate_removal(unique_id, create_time) values(%s, %s)'
         self.min_article_id = 0
         self.max_article_id = 0
+        # 荐好管理label
+        self.recommend_good_label_css_selector = 'span.nav-label'
 
     async def _fck_run(self):
         # 休眠5分钟s, 避免频繁发!
@@ -77,6 +83,9 @@ class RecommendGoodOps(AsyncCrawler):
                 pass
             try:
                 await self.auto_publish_articles()
+            except (ArticleTitleOverLongException,):
+                self.lg.error('遇到错误:', exc_info=True)
+                continue
             except Exception:
                 self.lg.error('遇到错误:', exc_info=True)
             finally:
@@ -163,13 +172,11 @@ class RecommendGoodOps(AsyncCrawler):
             # 本地老是出错
             # type=FIREFOX,
             # executable_path=FIREFOX_DRIVER_PATH,
-
             load_images=True,
             logger=self.lg,
             headless=True,
             driver_use_proxy=False,
-            ip_pool_type=self.ip_pool_type,
-        )
+            ip_pool_type=self.ip_pool_type,)
         try:
             self.login_bg(driver=driver)
             self.get_into_recommend_good_manage(driver=driver)
@@ -190,6 +197,9 @@ class RecommendGoodOps(AsyncCrawler):
                         get_shanghai_time(),
                     ),
                     logger=self.lg,)
+        except (ArticleTitleOverLongException,) as e:
+            # 抛出标题过长异常
+            raise e
         except Exception:
             self.lg.error('遇到错误:', exc_info=True)
         finally:
@@ -298,12 +308,31 @@ class RecommendGoodOps(AsyncCrawler):
         :return:
         """
         self.lg.info('login ...')
-        driver.get_url_body(url=self.publish_url)
+        driver.get_url_body(
+            url=self.publish_url,
+            timeout=30,)
         driver.find_element(value='input#loginName').send_keys(self.yx_username)
         driver.find_element(value='input#loginPwd').send_keys(self.yx_password)
         driver.find_element(value='button#subbut').click()
-        sleep(5.)
-        self.lg.info('login over!')
+        self.wait_for_recommend_good_label_appear(driver=driver)
+
+    @fz_set_timeout(seconds=10.)
+    def wait_for_recommend_good_label_appear(self, driver: BaseDriver):
+        """
+        直到出现荐好管理label
+        :param driver:
+        :return:
+        """
+        while True:
+            recommend_good_label_text = driver.find_element(
+                value=self.recommend_good_label_css_selector).text
+            # self.lg.info('recommend_good_label_text: {}'.format(recommend_good_label_text))
+            if recommend_good_label_text == '荐好管理':
+                break
+            else:
+                continue
+
+        self.lg.info('login success!')
 
     def get_into_recommend_good_manage(self, driver: BaseDriver):
         """
@@ -311,7 +340,7 @@ class RecommendGoodOps(AsyncCrawler):
         :param driver:
         :return:
         """
-        driver.find_element(value='span.nav-label').click()
+        driver.find_element(value=self.recommend_good_label_css_selector).click()
         driver.find_element(value='a.J_menuItem').click()
 
     def publish_one_article(self, driver: BaseDriver, article_url: str):
@@ -351,7 +380,9 @@ class RecommendGoodOps(AsyncCrawler):
         if isinstance(title, str) and len(title) > 30:
             # 标题过长则return, 不发布
             self.lg.info('@@@ title 标题过长, 无法发布!! 跳过!')
-            return
+            # 由于标题过长后, 无法处理后续文章, 故不return, 直接抛出异常
+            # return
+            raise ArticleTitleOverLongException
         else:
             pass
 

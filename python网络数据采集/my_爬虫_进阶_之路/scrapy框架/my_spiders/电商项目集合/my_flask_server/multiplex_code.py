@@ -79,6 +79,7 @@ CONTRABAND_GOODS_KEY_TUPLE = (
 ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
     '走势分析', '股票', 'A股', '上证', '深指', '大盘', '涨停', '跌停', '纳斯达克', '道琼斯',
     '网警', '共产党', '产党共', '共x党', '色情', '法轮功', '女优', '共狗', '十8禁', '我XX你',
+    '小区介绍',
 )
 
 @catch_exceptions(default_res=False)
