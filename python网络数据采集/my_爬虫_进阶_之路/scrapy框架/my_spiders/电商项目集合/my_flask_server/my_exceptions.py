@@ -37,3 +37,7 @@ class CityIdNotFindException(Exception):
 class ArticleTitleOverLongException(Exception):
     """文章标题过长异常"""
     pass
+
+class LoginFailException(Exception):
+    """登录失败异常"""
+    pass

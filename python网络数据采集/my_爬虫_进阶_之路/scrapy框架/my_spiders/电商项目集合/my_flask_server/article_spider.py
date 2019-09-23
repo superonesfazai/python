@@ -3677,6 +3677,8 @@ class ArticleParser(AsyncCrawler):
                 '私自转载',
                 '追究法律责任',
                 '图片来源于网络，如有侵权请联系删除',
+                '图文原创',
+                '搬运必究',
             ],
             is_default_filter=False,
             is_lower=False,)

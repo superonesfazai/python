@@ -19,6 +19,7 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_exceptions import (
     SqlServerConnectionException,
     ArticleTitleOverLongException,
+    LoginFailException,
 )
 from multiplex_code import (
     get_new_sql_cli,
@@ -30,13 +31,13 @@ import nest_asyncio
 from random import randint
 from random import sample as random_sample
 from selenium.common.exceptions import NoSuchFrameException
+from selenium.common.exceptions import TimeoutException as SeleniumTimeoutException
 
 from fzutils.spider.fz_driver import (
     BaseDriver,
     CHROME,
     FIREFOX,
 )
-from fzutils.time_utils import TimeoutError as FZTimeoutError
 from fzutils.spider.selenium_always import *
 from fzutils.spider.async_always import *
 
@@ -64,6 +65,9 @@ class RecommendGoodOps(AsyncCrawler):
         self.insert_sql0 = 'INSERT INTO dbo.recommend_good_ops_article_id_duplicate_removal(unique_id, create_time) values(%s, %s)'
         self.min_article_id = 0
         self.max_article_id = 0
+        self.driver_headless = True
+        # 必须使用代理, yx限制ip频繁
+        self.driver_use_proxy = True
         # 荐好管理label
         self.recommend_good_label_css_selector = 'span.nav-label'
 
@@ -83,14 +87,15 @@ class RecommendGoodOps(AsyncCrawler):
                 pass
             try:
                 await self.auto_publish_articles()
-            except (ArticleTitleOverLongException,):
+            except (ArticleTitleOverLongException, LoginFailException):
                 self.lg.error('遇到错误:', exc_info=True)
                 continue
+
             except Exception:
                 self.lg.error('遇到错误:', exc_info=True)
-            finally:
-                self.lg.info('休眠{}s...'.format(sleep_time))
-                await async_sleep(sleep_time)
+
+            self.lg.info('休眠{}s...'.format(sleep_time))
+            await async_sleep(sleep_time)
 
     async def get_db_unique_id_list(self) -> list:
         """
@@ -174,8 +179,8 @@ class RecommendGoodOps(AsyncCrawler):
             # executable_path=FIREFOX_DRIVER_PATH,
             load_images=True,
             logger=self.lg,
-            headless=True,
-            driver_use_proxy=False,
+            headless=self.driver_headless,
+            driver_use_proxy=self.driver_use_proxy,
             ip_pool_type=self.ip_pool_type,)
         try:
             self.login_bg(driver=driver)
@@ -197,7 +202,7 @@ class RecommendGoodOps(AsyncCrawler):
                         get_shanghai_time(),
                     ),
                     logger=self.lg,)
-        except (ArticleTitleOverLongException,) as e:
+        except (ArticleTitleOverLongException, LoginFailException) as e:
             # 抛出标题过长异常
             raise e
         except Exception:
@@ -239,8 +244,8 @@ class RecommendGoodOps(AsyncCrawler):
         :return:
         """
         article_id_list = [str(article_id) for article_id in range(min_article_id, max_article_id)]
-        # 截取10
-        article_id_list = random_sample(article_id_list, 10)
+        # 截取5
+        article_id_list = random_sample(article_id_list, 5)
         res = [{
             'uid': get_uuid3(target_str='{}::{}'.format('zq', article_id)),
             'article_type': 'zq',
@@ -311,9 +316,14 @@ class RecommendGoodOps(AsyncCrawler):
         driver.get_url_body(
             url=self.publish_url,
             timeout=30,)
-        driver.find_element(value='input#loginName').send_keys(self.yx_username)
-        driver.find_element(value='input#loginPwd').send_keys(self.yx_password)
-        driver.find_element(value='button#subbut').click()
+        try:
+            driver.find_element(value='input#loginName').send_keys(self.yx_username)
+            driver.find_element(value='input#loginPwd').send_keys(self.yx_password)
+            driver.find_element(value='button#subbut').click()
+        except (NoSuchElementException, SeleniumTimeoutException):
+            # 抛出登录异常
+            raise LoginFailException
+
         self.wait_for_recommend_good_label_appear(driver=driver)
 
     @fz_set_timeout(seconds=10.)
@@ -403,7 +413,7 @@ class RecommendGoodOps(AsyncCrawler):
 
         return
 
-    @fz_set_timeout(seconds=25)
+    @fz_set_timeout(seconds=30.)
     def wait_for_delete_img_appear(self, driver: BaseDriver):
         """
         直至出现图片, 超时退出(并且避免发布无图文章)
