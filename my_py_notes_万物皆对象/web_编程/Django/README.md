@@ -6,6 +6,7 @@
     - 只需要面向对象编程，不需要面向数据库编写代码
 - 在MVC中Model中定义的类，通过ORM与关系型数据库中的表对应，对象的属性体现对象间的关系，这种关系也被映射到数据表中
 - Django框架中ORM示意图如下
-![](./images/p1_1.png)
+
+![](https://i.loli.net/2019/09/24/prGfeyMU12jsCkD.png)
 
 [深入理解django](https://lyonyang.github.io/blogs/04-Web-Framework/Django/)

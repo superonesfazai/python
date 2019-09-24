@@ -24,7 +24,9 @@ SaltStack官网文档地址：https://docs.saltstack.com
 
 ## saltstack架构
 在SaltsStack架构中服务端叫作Master，客户端叫作Minion，都是以守护进程的模式运行，一直监听配置文件中定义的ret_port（saltstack客户端与服务端通信的端口，负责接收客户端发送过来的结果，默认4506端口）和publish_port（saltstack的消息发布系统，默认4505端口）的端口。当Minion运行时会自动连接到配置文件中定义的Master地址ret_port端口进行连接认证。
-![](../../images/saltstack-flow.png)
+
+![](https://i.loli.net/2019/09/24/2B6AmgLXovWjRTG.png)
+
 1. Master：控制中心,salt命令运行和资源状态管理
 2. Minion : 需要管理的客户端机器,会主动去连接Mater端,并从Master端得到资源状态
 3. 信息,同步资源管理信息

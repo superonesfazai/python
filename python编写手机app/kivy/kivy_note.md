@@ -15,7 +15,7 @@ $ pip3 install Cython==0.28.3 kivy
 ```
 
 ## Kivy App的生命周期
-![](../images/Kivy_App_Life_Cycle.png)
+![](https://i.loli.net/2019/09/24/n7XFTOlZGvJI4Qr.png)
 
 ## kivy on android
 Kivy APK是普通的Android应用程序，你可以像任何其他人一样分发，包括Play商店等商店。它们在暂停或重新启动时表现正常，可以使用Android服务并可以访问大多数正常的Java API

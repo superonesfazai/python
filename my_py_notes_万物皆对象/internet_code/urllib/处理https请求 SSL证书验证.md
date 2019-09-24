@@ -1,7 +1,8 @@
 现在随处可见 https 开头的网站，urllib2可以为 HTTPS 请求验证SSL证书，就像web浏览器一样，如果网站的SSL证书是经过CA认证的，则能够正常访问，如：https://www.baidu.com/等...
 
 如果SSL证书验证不通过，或者操作系统不信任服务器的安全证书，比如浏览器在访问12306网站如：https://www.12306.cn/mormhweb/的时候，会警告用户证书不受信任。（据说 12306 网站证书是自己做的，没有通过CA认证）
-![](images/12306zhengshu.jpg)
+![](https://i.loli.net/2019/09/24/YKUyWn3jZGzeOFh.jpg)
+
 urllib2在访问的时候则会报出SSLError：
 ```python
 import urllib.request

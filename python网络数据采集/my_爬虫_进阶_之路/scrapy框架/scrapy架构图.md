@@ -1,5 +1,5 @@
 ## scrapy架构图(绿线事是数据的流向)
-![](./images/scrapy_all.png)
+![](https://i.loli.net/2019/09/24/E4I6B29WvijOn1z.png)
 ```html
 * Scrapy Engine(引擎): 
     负责Spider、ItemPipeline、Downloader、Scheduler中间的通讯，信号、数据传递等。

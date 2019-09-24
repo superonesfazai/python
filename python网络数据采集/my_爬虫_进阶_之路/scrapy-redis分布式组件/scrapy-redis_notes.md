@@ -19,7 +19,8 @@ Scrapy-redis提供了下面四种组件（components）：(四种组件意味着
 ```
 
 ## scrapy-redis架构
-![](./images/scrapy-redis.png)
+![](https://i.loli.net/2019/09/24/8vYsbfXln3Ch4a2.png)
+
 如上图所⽰示，scrapy-redis在scrapy的架构上增加了redis，基于redis的特性拓展了如下组件：
 
 ### Scheduler：

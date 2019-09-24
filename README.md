@@ -17,4 +17,4 @@
 
 - give me a star or a fork, my friend!
 
-![](./images/ayst.png)
+![](https://i.loli.net/2019/09/24/m4kUH1SOpj7GtD5.png)

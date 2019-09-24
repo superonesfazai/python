@@ -9,7 +9,7 @@ Beautiful Soup 3 目前已经停止开发，推荐现在的项目使用Beautiful
 
 官方文档：http://beautifulsoup.readthedocs.io/zh_CN/v4.4.0
 ```
-![](./images/tmp.png)
+![](https://i.loli.net/2019/09/24/ocPIRdwhU8FrMN4.png)
 ```
 注意：beautifulsoup还能把不规范的html文件进行规范化
 ```

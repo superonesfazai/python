@@ -1,8 +1,7 @@
 MongoDB 将数据存储为一个文档，数据结构由键值(key=>value)对组成。MongoDB 文档类似于 JSON 对象。字段值可以包含其他文档，数组及文档数组。
-![](./images/01-crud-annotated-document.png)
+![](https://i.loli.net/2019/09/24/db2h8cw1vsYBV4o.png)
 
 #### 集合
-
 文档组，类似于关系数据库中的表格。
 
 集合存在于数据库中，一个数据库可以包含很多个集合。集合没有固定的结构，这意味着你在对集合可以插入不同格式和类型的数据，但通常情况下我们插入集合的数据都会有一定的关联性。
@@ -17,13 +16,16 @@ MongoDB 将数据存储为一个文档，数据结构由键值(key=>value)对组
 
 #### 文档
 文档是一组键-值对
-![](./images/01-gongju.jpg)
+![](https://i.loli.net/2019/09/24/8zBisFW7IT1LNxZ.jpg)
 
 ## RDBMS VS MongoDB
 下面给出的表显示RDBMS(关系型数据库)术语与MongoDB的关系
-![](./images/tmp.png)
+
+![](https://i.loli.net/2019/09/24/6mDU9VsM5IYjbdp.png)
+
 通过下图实例, 我们也可以更直观的了解Mongo中的一些概念
-![](./images/Figure-1-Mapping-Table-to-Collection-1.png)
+
+![](https://i.loli.net/2019/09/24/aSGhQpnCeEOHL4B.png)
 
 #### 示例文档
 下面给出的示例显示了一个博客网站, 这是一个类似于json对象键值对文档结构

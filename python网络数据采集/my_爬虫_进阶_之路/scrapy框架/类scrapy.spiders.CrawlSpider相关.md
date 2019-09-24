@@ -138,7 +138,7 @@ page_lx = LinkExtractor(allow=('position\.php\?&start=\d+'))
 
 page_lx.extract_links(response)
 ```
-![](./images/tencent_rule.jpg)
+![](https://i.loli.net/2019/09/24/ba1p8PmnZM9Y3gj.jpg)
 ## CrawlSpider 版本
 那么，scrapy shell测试完成之后，修改以下代码
 ```python
