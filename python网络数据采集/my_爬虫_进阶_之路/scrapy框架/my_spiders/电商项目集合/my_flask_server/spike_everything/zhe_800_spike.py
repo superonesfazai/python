@@ -135,11 +135,14 @@ class Zhe800Spike(object):
                                 goods_data['sub_title'] = item.get('sub_title')
                                 # goods_data['is_baoyou'] = item.get('is_baoyou')
                                 goods_data['miaosha_time'] = item.get('miaosha_time')
-                                goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=item.get('miaosha_time'))
+                                goods_data['miaosha_begin_time'], goods_data['miaosha_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(
+                                    miaosha_time=item.get('miaosha_time'))
                                 goods_data['session_id'] = str(base_session_id)
 
                                 # print(goods_data)
-                                res = zhe_800.insert_into_zhe_800_xianshimiaosha_table(data=goods_data, pipeline=my_pipeline)
+                                res = zhe_800.insert_into_zhe_800_xianshimiaosha_table(
+                                    data=goods_data,
+                                    pipeline=my_pipeline)
                                 if res:
                                     if goods_id not in db_goods_id_list:
                                         db_goods_id_list.append(goods_id)

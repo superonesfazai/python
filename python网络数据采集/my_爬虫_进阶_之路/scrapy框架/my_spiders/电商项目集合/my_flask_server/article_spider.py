@@ -3679,6 +3679,10 @@ class ArticleParser(AsyncCrawler):
                 '图片来源于网络，如有侵权请联系删除',
                 '图文原创',
                 '搬运必究',
+                '转载此文是出于传递更多信息之目的',
+                '若有来源标注错误或侵犯了您的合法权益',
+                '请作者持权属证明与本网联系',
+                '我们将及时更正、删除，谢谢。',
             ],
             is_default_filter=False,
             is_lower=False,)

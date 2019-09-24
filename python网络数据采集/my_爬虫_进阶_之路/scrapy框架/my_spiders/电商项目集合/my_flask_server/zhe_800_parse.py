@@ -578,6 +578,7 @@ class Zhe800Parse(Crawler):
         seller_info = [seller_info_str]
         # print(seller_info)
 
+        shop_name = ''
         if seller_info != []:
             seller_info = json_2_dict(json_str=seller_info[0])
             if seller_info == {}:
@@ -586,8 +587,6 @@ class Zhe800Parse(Crawler):
 
             # pprint(seller_info)
             shop_name = seller_info.get('sellerInfo', {}).get('nickName', '')
-        else:
-            shop_name = ''
         # print(shop_name)
 
         return shop_name
@@ -599,12 +598,17 @@ class Zhe800Parse(Crawler):
         :return:
         '''
         # 将detail_price设置为秒杀价, 使其提前能购买
-        price = tmp['price']                # Decimal
-        taobao_price = tmp['taobao_price']  # Decimal
+        # Decimal
+        price = tmp['price']
+        taobao_price = tmp['taobao_price']
         price_info_list = tmp['price_info_list']
+
         for item in price_info_list:
             if float(price) == float(item.get('detail_price')):
                 item['detail_price'] = str(float(taobao_price))
+            else:
+                continue
+
         tmp['price_info_list'] = price_info_list
 
         return tmp

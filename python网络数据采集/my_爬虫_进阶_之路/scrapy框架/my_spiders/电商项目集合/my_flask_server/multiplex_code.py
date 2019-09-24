@@ -456,28 +456,34 @@ def _get_right_model_data(data, site_id=None, logger=None):
     '''
     data_list = data
     tmp = GoodsItem()
-    tmp['goods_id'] = data_list['goods_id']     # 官方商品id
+    # 官方商品id
+    tmp['goods_id'] = data_list['goods_id']
     tmp['main_goods_id'] = data_list.get('main_goods_id', '')
 
+    # 商品地址
     if data_list.get('spider_url') is not None:
-        tmp['goods_url'] = data_list['spider_url']  # 商品地址
+        tmp['goods_url'] = data_list['spider_url']
     elif data_list.get('goods_url') is not None:
-        tmp['goods_url'] = data_list['goods_url']  # 商品地址
+        tmp['goods_url'] = data_list['goods_url']
     else:
-        tmp['goods_url'] = ''       # 更新时, goods_url不传
+        # 更新时, goods_url不传
+        tmp['goods_url'] = ''
 
+    # 操作人员username
     if data_list.get('username') is not None:
-        tmp['username'] = data_list['username']     # 操作人员username
+        tmp['username'] = data_list['username']
     else:
         tmp['username'] = '18698570079'
 
     now_time = get_shanghai_time()
-    tmp['create_time'] = now_time               # 操作时间
-    tmp['modify_time'] = now_time               # 修改时间
+    # 创建时间
+    tmp['create_time'] = now_time
+    # 修改时间
+    tmp['modify_time'] = now_time
 
+    # 采集来源地
     if site_id is not None:
-        # 采集的来源地
-        tmp['site_id'] = site_id                # 采集来源地
+        tmp['site_id'] = site_id
     else:
         # my_lg.error('site_id赋值异常!请检查!出错地址:{0}'.format(tmp['goods_url']))
         _print(
@@ -487,21 +493,27 @@ def _get_right_model_data(data, site_id=None, logger=None):
         )
         raise ValueError('site_id赋值异常!')
 
+    # 公司名称
     if site_id == 2:
         tmp['shop_name'] = data_list['company_name']
     else:
-        tmp['shop_name'] = data_list['shop_name']  # 公司名称
+        tmp['shop_name'] = data_list['shop_name']
 
-    tmp['title'] = data_list['title']  # 商品名称
-    tmp['sub_title'] = data_list['sub_title'] if data_list.get('sub_title') is not None else '' # 商品子标题
+    # 商品名称
+    tmp['title'] = data_list['title']
+    # 商品子标题
+    tmp['sub_title'] = data_list['sub_title'] if data_list.get('sub_title') is not None else ''
+    # 卖家姓名
+    tmp['link_name'] = data_list['link_name'] if data_list.get('link_name') is not None else ''
+    # 掌柜名称
+    tmp['account'] = data_list['account'] if data_list.get('account') is not None else ''
 
-    tmp['link_name'] = data_list['link_name'] if data_list.get('link_name') is not None else '' # 卖家姓名
-    tmp['account'] = data_list['account'] if data_list.get('account') is not None else '' # 掌柜名称
-
+    # 总销量
     if data_list.get('all_sell_count') is not None:
-        tmp['all_sell_count'] = str(data_list['all_sell_count'])  # 总销量
+        tmp['all_sell_count'] = str(data_list['all_sell_count'])
     elif data_list.get('sell_count') is not None:
-        tmp['all_sell_count'] = str(data_list['sell_count'])        # 淘宝, 天猫月销量
+        # 淘宝, 天猫月销量
+        tmp['all_sell_count'] = str(data_list['sell_count'])
     else:
         tmp['all_sell_count'] = ''
 
@@ -522,6 +534,7 @@ def _get_right_model_data(data, site_id=None, logger=None):
     tmp['price_info'] = data_list['price_info'] \
         if data_list.get('price_info') is not None else []  # 价格信息
 
+    # 标签属性名称
     if site_id == 2:
         detail_name_list = []
         for item in data_list['sku_props']:
@@ -531,26 +544,30 @@ def _get_right_model_data(data, site_id=None, logger=None):
             })
         tmp['detail_name_list'] = detail_name_list
     else:
-        tmp['detail_name_list'] = data_list.get('detail_name_list', [])  # 标签属性名称
+        tmp['detail_name_list'] = data_list.get('detail_name_list', [])
 
+    # 每个规格对应价格及其库存
     if site_id == 2:
         price_info_list = data_list.get('sku_map', [])
     else:
-        price_info_list = data_list.get('price_info_list', [])  # 每个规格对应价格及其库存
+        price_info_list = data_list.get('price_info_list', [])
     tmp['price_info_list'] = format_price_info_list(price_info_list, site_id)
 
-    tmp['all_img_url'] = data_list.get('all_img_url')  # 所有示例图片地址
+    # 所有示例图片地址
+    tmp['all_img_url'] = data_list.get('all_img_url')
 
+    # 详细信息
     if site_id == 2:
         p_info = data_list.get('property_info', [])
     else:
-        p_info = data_list.get('p_info', [])  # 详细信息
+        p_info = data_list.get('p_info', [])
     tmp['p_info'] = format_p_info(p_info)
 
+    # 商品详情
     if site_id == 2:
         tmp['div_desc'] = data_list.get('detail_info', '')
     else:
-        tmp['div_desc'] = data_list.get('div_desc', '')  # 下方div
+        tmp['div_desc'] = data_list.get('div_desc', '')
 
     tmp['schedule'] = data_list.get('schedule') if data_list.get('schedule') is not None else []
     tmp['is_delete'] = data_list.get('is_delete') if data_list.get('is_delete') is not None else 0
