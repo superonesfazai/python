@@ -1376,37 +1376,19 @@ ARTICLE_ITEM_LIST = [
             'method': 're',
             'selector': 'vid=(\d+)',
         },
-        'title': {
-            'method': 'css',
-            'selector': 'div#content h1 ::text',
-        },
+        'title': None,
         'video_title': None,
-        'author': {
-            'method': 'css',
-            'selector': 'div.detail span.name-text ::text',
-        },
+        'author': None,
         'video_author': None,
-        'head_url': {
-            'method': 'css',
-            'selector': 'span.face-wrap img.face ::attr("src")',
-        },
+        'head_url': None,
         'video_head_url': None,
-        'create_time': {
-            'method': 're',
-            'selector': '<div class=\"c-gap-top-small c-gray date\">发布时间：(.*?)</div>'
-        },
+        'create_time': None,
         'video_create_time': None,
         'content': None,
         'video_article_content': None,
-        'comment_num': {
-            'method': 're',
-            'selector': '(\d+)人对此视频发表评论',
-        },
+        'comment_num': None,
         'tags_list': None,
-        'praise_num': {
-            'method': 're',
-            'selector': ',有(\d+)人点赞,'
-        },
+        'praise_num': None,
         'profile': None,
         'fav_num':None,
     },

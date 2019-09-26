@@ -1391,20 +1391,29 @@ class ArticleParser(AsyncCrawler):
             params=params,
             ip_pool_type=self.ip_pool_type,
             num_retries=self.request_num_retries,
+            proxy_type=PROXY_TYPE_HTTPS,
             logger=self.lg,)
-        # self.lg.info(body)
         assert body != '', '获取hk的body为空值!'
+        # self.lg.info(body)
 
-        video_url_sel = {
-            'method': 'css',
-            'selector': 'div.play1er-box video ::attr("src")',
-        }
-        video_url = await async_parse_field(
-            parser=video_url_sel,
-            target_obj=body,
+        self.hook_target_api_data = json_2_dict(
+            json_str=re.compile('window.__PRELOADED_STATE__ = (.*?); document\.querySelector').findall(body)[0],
+            default_res={},
             logger=self.lg,)
-        self.lg.info('got hk video_url: {}'.format(video_url))
+        try:
+            self.hook_target_api_data.pop('openAppInfo')
+        except:
+            pass
+        assert self.hook_target_api_data != {}
+        # pprint(self.hook_target_api_data)
+
+        video_url = self.hook_target_api_data\
+            .get('curVideoMeta', {})\
+            .get('videoInfoExt', {})\
+            .get('default', {})\
+            .get('defaultUrlHttp', '')
         assert video_url != ''
+        self.lg.info('got hk video_url: {}'.format(video_url))
 
         return body, video_url
 
@@ -1440,6 +1449,10 @@ class ArticleParser(AsyncCrawler):
             parser=video_url_sel,
             target_obj=body,
             logger=self.lg,)
+        if video_url != '' and re.compile('http').findall(video_url) == []:
+           video_url = 'https:' + video_url
+        else:
+            pass
         self.lg.info('Get mp video_url: {}'.format(video_url))
         try:
             del driver
@@ -2814,6 +2827,12 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'xq':
             author = self.hook_target_api_data.get('user', {}).get('screen_name', '')
 
+        elif short_name == 'hk':
+            author = self.hook_target_api_data\
+                .get('curVideoMeta', {})\
+                .get('mth', {})\
+                .get('author_name', '')
+
         else:
             pass
 
@@ -2937,6 +2956,11 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'xq':
             title = self.hook_target_api_data.get('title', '')
 
+        elif short_name == 'hk':
+            title = self.hook_target_api_data\
+                .get('curVideoMeta', {})\
+                .get('title', '')
+
         else:
             pass
 
@@ -3033,6 +3057,12 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'bdj':
             # 小头像换成原图
             head_url = head_url.replace('_mini', '')
+
+        elif short_name == 'hk':
+            head_url = self.hook_target_api_data\
+                .get('curVideoMeta', {})\
+                .get('mth', {})\
+                .get('author_photo', '')
 
         else:
             pass
@@ -3361,6 +3391,7 @@ class ArticleParser(AsyncCrawler):
             'js',
             'kd',
             'bdj',
+            'hk',
         ]
         if short_name == 'sg':
             if video_url != '':
@@ -3399,6 +3430,12 @@ class ArticleParser(AsyncCrawler):
                 pass
 
         elif short_name in short_name_list3:
+            if short_name == 'hk':
+                create_time = self.hook_target_api_data\
+                    .get('curVideoMeta', {})\
+                    .get('publish_time', '')
+            else:
+                pass
             if create_time != '':
                 # eg: ori_data = '1565402168'
                 create_time = create_time[0:10] if isinstance(create_time, str) else create_time
@@ -3414,14 +3451,6 @@ class ArticleParser(AsyncCrawler):
 
         elif short_name == 'ck':
             create_time = str(timestamp_to_regulartime(int(self.hook_target_api_data['publish_time'])))
-
-        elif short_name == 'hk':
-            if create_time != '':
-                # 原先'2019年7月9日'
-                create_time = create_time.replace('年', '-').replace('月', '-').replace('日', '-')
-                create_time = await parse_create_time(
-                    short_name=short_name,
-                    create_time=create_time)
 
         elif short_name == 'xq':
             try:
@@ -5032,7 +5061,6 @@ def main():
     # url = 'https://haokan.baidu.com/v?vid=4136323293933620725&tab=recommend'
     # url = 'https://haokan.baidu.com/v?vid=13905274734303307712&tab=recommend'
     # 影视
-    # url = 'https://haokan.baidu.com/v?vid=17753035492617182944&tab=yingshi'
     # 音乐
     # url = 'https://haokan.baidu.com/v?vid=15566590767854893570&tab=yinyue'
     # 搞笑
