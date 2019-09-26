@@ -12,7 +12,6 @@ sys.path.append('..')
 
 from taobao_parse import TaoBaoLoginAndParse
 
-import gc
 from settings import (
     IS_BACKGROUND_RUNNING,
     TAOBAO_REAL_TIMES_SLEEP_TIME,
@@ -34,6 +33,8 @@ from sql_str_controller import (
 
 from fzutils.log_utils import set_logger
 from fzutils.spider.async_always import *
+
+is_real_times_update_call = True
 
 class TBTTTJUpdate(AsyncCrawler):
     """
@@ -137,7 +138,9 @@ async def run_forever():
 
                 # else:       # 表示商品未被提前下架
                 lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id, str(index)))
-                taobao = TaoBaoLoginAndParse(logger=lg)
+                taobao = TaoBaoLoginAndParse(
+                    logger=lg,
+                    is_real_times_update_call=is_real_times_update_call)
                 taobao.get_goods_data(goods_id)
                 goods_data = taobao.deal_with_data(goods_id=goods_id)
                 if goods_data != {}:
@@ -197,7 +200,9 @@ async def update_expired_goods_to_normal_goods(goods_id, index, tmp_sql_server, 
     '''
     logger.info('++++++>>>| 此为过期商品, 正在更新! |<<<++++++')
     logger.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (goods_id, str(index)))
-    taobao = TaoBaoLoginAndParse(logger=logger)
+    taobao = TaoBaoLoginAndParse(
+        logger=logger,
+        is_real_times_update_call=is_real_times_update_call)
     data_before = taobao.get_goods_data(goods_id)
     if data_before.get('is_delete') == 1:  # 单独处理下架状态的商品
         data_before['goods_id'] = goods_id

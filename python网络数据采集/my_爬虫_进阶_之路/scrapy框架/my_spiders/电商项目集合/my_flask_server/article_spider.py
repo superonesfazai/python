@@ -3669,7 +3669,10 @@ class ArticleParser(AsyncCrawler):
         """
         content = wash_sensitive_info(
             data=content,
-            replace_str_list=None,
+            replace_str_list=[
+                ('今日头条', '优秀网'),
+                ('头条', '优秀'),
+            ],
             add_sensitive_str_list=[
                 '<br>',
                 '禁止转发',
@@ -3683,6 +3686,10 @@ class ArticleParser(AsyncCrawler):
                 '若有来源标注错误或侵犯了您的合法权益',
                 '请作者持权属证明与本网联系',
                 '我们将及时更正、删除，谢谢。',
+                '部分图片来自网络',
+                '转载抄袭必究',
+                '未经许可',
+                '本人原创',
             ],
             is_default_filter=False,
             is_lower=False,)

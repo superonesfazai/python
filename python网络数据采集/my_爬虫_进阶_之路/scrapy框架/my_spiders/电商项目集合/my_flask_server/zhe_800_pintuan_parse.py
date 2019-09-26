@@ -26,9 +26,10 @@ from sql_str_controller import (
 from multiplex_code import (
     _z8_get_parent_dir,
     _get_right_model_data,
-    contraband_name_check,
+    CONTRABAND_GOODS_KEY_TUPLE,
 )
 
+from fzutils.data.str_utils import target_str_contain_some_char_check
 # from fzutils.spider.fz_phantomjs import BaseDriver
 from fzutils.spider.async_always import *
 
@@ -166,7 +167,9 @@ class Zhe800PintuanParse(Crawler):
                 is_delete = self._get_is_delete(data=data, schedule=schedule)
                 # print(is_delete)
                 parent_dir = data.get('parent_dir', '')
-                if contraband_name_check(target_name=title):
+                if target_str_contain_some_char_check(
+                        target_str=title,
+                        check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                     print('违禁物品下架...')
                     is_delete = 1
                 else:

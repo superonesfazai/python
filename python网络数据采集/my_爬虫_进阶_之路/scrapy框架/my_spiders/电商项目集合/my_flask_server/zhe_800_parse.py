@@ -24,10 +24,11 @@ from multiplex_code import (
     _handle_goods_shelves_in_auto_goods_table,
     _get_right_model_data,
     get_db_commom_goods_update_params,
-    contraband_name_check,
+    CONTRABAND_GOODS_KEY_TUPLE,
 )
 from my_exceptions import GoodsShelvesException
 
+from fzutils.data.str_utils import target_str_contain_some_char_check
 from fzutils.spider.async_always import *
 
 class Zhe800Parse(Crawler):
@@ -236,7 +237,9 @@ class Zhe800Parse(Crawler):
                 # pprint(schedule)
                 parent_dir = str(data.get('parent_dir', ''))
                 all_sell_count = ''
-                if contraband_name_check(target_name=title):
+                if target_str_contain_some_char_check(
+                        target_str=title,
+                        check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                     print('违禁物品下架...')
                     is_delete = 1
                 else:

@@ -28,12 +28,12 @@ from multiplex_code import (
     from_tmall_type_get_site_id,
     get_tm_m_body_data,
     tb_api_redirect_detect,
-    contraband_name_check,
+    CONTRABAND_GOODS_KEY_TUPLE,
 )
 from my_exceptions import (
     GoodsShelvesException,
 )
-
+from fzutils.data.str_utils import target_str_contain_some_char_check
 from fzutils.spider.async_always import *
 
 class TmallParse(Crawler):
@@ -281,7 +281,9 @@ class TmallParse(Crawler):
             # self.lg.info(sell_count)
         except:
             pass
-        if contraband_name_check(target_name=title):
+        if target_str_contain_some_char_check(
+                target_str=title,
+                check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
             self.lg.info('违禁物品下架...')
             is_delete = 1
         else:

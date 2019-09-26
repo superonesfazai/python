@@ -24,8 +24,9 @@ from sql_str_controller import (
 
 from multiplex_code import (
     _get_right_model_data,
-    contraband_name_check,
+    CONTRABAND_GOODS_KEY_TUPLE
 )
+from fzutils.data.str_utils import target_str_contain_some_char_check
 from fzutils.spider.async_always import *
 
 class ChuChuJie_9_9_Parse(Crawler):
@@ -142,7 +143,9 @@ class ChuChuJie_9_9_Parse(Crawler):
             p_info = data['p_info']
             div_desc = data['div_desc']
             is_delete = data['is_delete']
-            if contraband_name_check(target_name=title):
+            if target_str_contain_some_char_check(
+                    target_str=title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 print('违禁物品下架...')
                 is_delete = 1
             else:

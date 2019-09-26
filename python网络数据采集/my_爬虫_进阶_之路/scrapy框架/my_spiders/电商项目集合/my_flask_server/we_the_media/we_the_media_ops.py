@@ -16,7 +16,6 @@ sys.path.append('..')
 from settings import IP_POOL_TYPE
 from article_spider import ArticleParser
 
-from gc import collect
 from fzutils.spider.async_always import *
 
 class WeTheMediaOps(AsyncCrawler):

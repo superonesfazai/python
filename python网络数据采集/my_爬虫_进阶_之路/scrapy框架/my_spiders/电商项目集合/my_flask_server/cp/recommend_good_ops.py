@@ -20,10 +20,11 @@ from my_exceptions import (
     SqlServerConnectionException,
     ArticleTitleOverLongException,
     LoginFailException,
+    ArticleTitleContainSensitiveWordsException,
 )
 from multiplex_code import (
     get_new_sql_cli,
-    article_title_sensitive_str_check,
+    ARTICLE_TITLE_SENSITIVE_STR_TUPLE,
 )
 from article_spider import ArticleParser
 
@@ -33,6 +34,7 @@ from random import sample as random_sample
 from selenium.common.exceptions import NoSuchFrameException
 from selenium.common.exceptions import TimeoutException as SeleniumTimeoutException
 
+from fzutils.data.str_utils import target_str_contain_some_char_check
 from fzutils.spider.fz_driver import (
     BaseDriver,
     CHROME,
@@ -87,7 +89,10 @@ class RecommendGoodOps(AsyncCrawler):
                 pass
             try:
                 await self.auto_publish_articles()
-            except (ArticleTitleOverLongException, LoginFailException):
+            except (
+                    ArticleTitleOverLongException,
+                    LoginFailException,
+                    ArticleTitleContainSensitiveWordsException):
                 self.lg.error('遇到错误:', exc_info=True)
                 continue
 
@@ -202,8 +207,11 @@ class RecommendGoodOps(AsyncCrawler):
                         get_shanghai_time(),
                     ),
                     logger=self.lg,)
-        except (ArticleTitleOverLongException, LoginFailException) as e:
-            # 抛出标题过长异常
+        except (
+                ArticleTitleOverLongException,
+                LoginFailException,
+                ArticleTitleContainSensitiveWordsException) as e:
+            # 抛出异常
             raise e
         except Exception:
             self.lg.error('遇到错误:', exc_info=True)
@@ -351,6 +359,8 @@ class RecommendGoodOps(AsyncCrawler):
         :return:
         """
         driver.find_element(value=self.recommend_good_label_css_selector).click()
+        # 等待下方标签出现
+        sleep(.5)
         driver.find_element(value='a.J_menuItem').click()
 
     def publish_one_article(self, driver: BaseDriver, article_url: str):
@@ -383,8 +393,10 @@ class RecommendGoodOps(AsyncCrawler):
         # 获取输入框的值
         title = driver.find_element(value='input#RecommendName').get_attribute('value')
         self.lg.info('title: {}'.format(title))
-        if article_title_sensitive_str_check(title=title):
-            raise AssertionError('该标题包含敏感词汇, 退出发布!')
+        if target_str_contain_some_char_check(
+                target_str=title,
+                check_char_obj=ARTICLE_TITLE_SENSITIVE_STR_TUPLE):
+            raise ArticleTitleContainSensitiveWordsException
         else:
             pass
         if isinstance(title, str) and len(title) > 30:

@@ -27,7 +27,8 @@ class YXGoodsInfoMonitorSpider(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/cp/yx_goods_monitor/',
         )
         self.req_num_retries = 5
-        self.concurrency = 100
+        # 降频
+        self.concurrency = 50
         self.concurrent_type = 1
         self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         self.init_sql_str()
@@ -52,6 +53,7 @@ class YXGoodsInfoMonitorSpider(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
         assert db_res != []
+        self.lg.info('db_res_len: {}'.format(len(db_res)))
 
         return db_res
 

@@ -29,8 +29,9 @@ from multiplex_code import (
     _jp_get_parent_dir,
     _get_right_model_data,
     get_db_commom_goods_update_params,
-    contraband_name_check,
+    CONTRABAND_GOODS_KEY_TUPLE,
 )
+from fzutils.data.str_utils import target_str_contain_some_char_check
 from fzutils.spider.async_always import *
 
 # phantomjs驱动地址
@@ -198,7 +199,9 @@ class JuanPiParse(Crawler):
                 is_delete = 1
             parent_dir = data.get('parent_dir', '')
             all_sell_count = ''
-            if contraband_name_check(target_name=title):
+            if target_str_contain_some_char_check(
+                    target_str=title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 print('违禁物品下架...')
                 is_delete = 1
             else:

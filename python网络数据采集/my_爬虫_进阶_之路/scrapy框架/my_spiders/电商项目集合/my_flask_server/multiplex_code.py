@@ -80,42 +80,10 @@ ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
     '走势分析', '股票', 'A股', '上证', '深指', '大盘', '涨停', '跌停', '纳斯达克', '道琼斯',
     '网警', '共产党', '产党共', '共x党', '色情', '法轮功', '女优', '共狗', '十8禁', '我XX你',
     '小区介绍',
+    # 过期的节日
+    '中秋', '月饼', '赏月',
+    '\d+月\d+日{0}',
 )
-
-@catch_exceptions(default_res=False)
-def article_title_sensitive_str_check(title: str) -> bool:
-    """
-    文章标题敏感词检测
-    :param title:
-    :return:
-    """
-    global ARTICLE_TITLE_SENSITIVE_STR_TUPLE
-
-    assert title != ''
-    for item in CONTRABAND_GOODS_KEY_TUPLE:
-        if item in title:
-            return True
-        else:
-            continue
-
-    return False
-
-@catch_exceptions(default_res=False)
-def contraband_name_check(target_name: str) -> bool:
-    """
-    违禁物品检测
-    :return:
-    """
-    global CONTRABAND_GOODS_KEY_TUPLE
-
-    assert target_name != ''
-    for item in CONTRABAND_GOODS_KEY_TUPLE:
-        if item in target_name:
-            return True
-        else:
-            continue
-
-    return False
 
 async def handle_real_times_goods_one_res(goods_type: str,
                                           loop,

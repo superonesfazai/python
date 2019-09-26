@@ -21,10 +21,11 @@ from multiplex_code import (
     _mia_get_parent_dir,
     _get_right_model_data,
     _handle_goods_shelves_in_auto_goods_table,
-    contraband_name_check,
+    CONTRABAND_GOODS_KEY_TUPLE,
 )
 from my_exceptions import MiaSkusIsNullListException
 
+from fzutils.data.str_utils import target_str_contain_some_char_check
 from fzutils.spider.async_always import *
 
 class MiaPintuanParse(MiaParse, Crawler):
@@ -192,7 +193,9 @@ class MiaPintuanParse(MiaParse, Crawler):
                 is_delete = 1
             else:
                 pass
-            if contraband_name_check(target_name=title):
+            if target_str_contain_some_char_check(
+                    target_str=title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 print('违禁物品下架...')
                 is_delete = 1
             else:

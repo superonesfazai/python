@@ -25,8 +25,9 @@ from sql_str_controller import (
 from multiplex_code import (
     _get_right_model_data,
     from_jd_type_get_site_id,
-    contraband_name_check,
+    CONTRABAND_GOODS_KEY_TUPLE,
 )
+from fzutils.data.str_utils import target_str_contain_some_char_check
 from fzutils.spider.async_always import *
 
 class JdParse(Crawler):
@@ -178,7 +179,9 @@ class JdParse(Crawler):
                 price_info_list=price_info_list,
                 base_price_info=data.get('base_price_info', {}))
             is_delete = self._get_is_delete(data=data)
-            if contraband_name_check(target_name=title):
+            if target_str_contain_some_char_check(
+                    target_str=title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 self.lg.info('违禁物品下架...')
                 is_delete = 1
             else:

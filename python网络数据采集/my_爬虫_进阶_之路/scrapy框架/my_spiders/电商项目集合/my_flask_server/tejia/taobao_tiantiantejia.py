@@ -41,6 +41,7 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
         self._set_main_sort()
         # 最大截止抓取页(原先是300)
         self.max_crawl_page_num = 5
+        self.is_real_times_update_call = True
 
     def _set_headers(self):
         self.headers = {
@@ -203,7 +204,9 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
         :return: index 加1
         '''
         tmp_url = 'https://item.taobao.com/item.htm?id=' + str(tmp_item.get('goods_id', ''))
-        taobao = TaoBaoLoginAndParse(logger=self.lg)
+        taobao = TaoBaoLoginAndParse(
+            logger=self.lg,
+            is_real_times_update_call=self.is_real_times_update_call)
         goods_id = taobao.get_goods_id_from_url(tmp_url)
         try:
             taobao.get_goods_data(goods_id=goods_id)

@@ -25,9 +25,10 @@ from multiplex_code import (
     _handle_goods_shelves_in_auto_goods_table,
     _get_right_model_data,
     get_db_commom_goods_update_params,
-    contraband_name_check,
+    CONTRABAND_GOODS_KEY_TUPLE,
 )
 
+from fzutils.data.str_utils import target_str_contain_some_char_check
 # from fzutils.spider.fz_phantomjs import MyPhantomjs
 from fzutils.spider.selector import parse_field
 from fzutils.spider.async_always import *
@@ -149,7 +150,9 @@ class KaoLaParse(Crawler):
 
             all_sell_count = ''
             price, taobao_price = data['price'], data['taobao_price']
-            if contraband_name_check(target_name=title):
+            if target_str_contain_some_char_check(
+                    target_str=title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 self.lg.info('违禁物品下架...')
                 is_delete = 1
             else:

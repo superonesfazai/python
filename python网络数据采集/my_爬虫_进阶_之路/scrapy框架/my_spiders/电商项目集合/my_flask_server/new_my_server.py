@@ -39,7 +39,7 @@ from my_pipeline import (
     SqlServerMyPageInfoSaveItemPipeline,
 )
 from multiplex_code import (
-    contraband_name_check,
+    CONTRABAND_GOODS_KEY_TUPLE,
 )
 from my_signature import Signature
 # from apps.search import PostDocument
@@ -121,6 +121,7 @@ from buyiju_spider import BuYiJuSpider
 from multiprocessing import Pool as MultiprocessingPool
 
 from fzutils.log_utils import set_logger
+from fzutils.data.str_utils import target_str_contain_some_char_check
 from fzutils.data.json_utils import get_new_list_by_handle_list_2_json_error
 from fzutils.spider.async_always import *
 
@@ -526,7 +527,9 @@ def get_all_data():
                 return _error_msg(msg='采集的1688商品的最小起批量, 不能大于1!!')
 
             _title = wait_to_save_data.get('title', '')
-            if contraband_name_check(target_name=_title):
+            if target_str_contain_some_char_check(
+                    target_str=_title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
                 return _error_msg(msg='违禁物品禁止上架!')
 
@@ -618,7 +621,9 @@ def get_taobao_data():
                 pass
 
             _title = wait_to_save_data.get('title', '')
-            if contraband_name_check(target_name=_title):
+            if target_str_contain_some_char_check(
+                    target_str=_title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
                 return _error_msg(msg='违禁物品禁止上架!')
 
@@ -711,7 +716,9 @@ def get_tmall_data():
                 pass
 
             _title = wait_to_save_data.get('title', '')
-            if contraband_name_check(target_name=_title):
+            if target_str_contain_some_char_check(
+                    target_str=_title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
                 return _error_msg(msg='违禁物品禁止上架!')
 
@@ -807,7 +814,9 @@ def get_jd_data():
                 pass
 
             _title = wait_to_save_data.get('title', '')
-            if contraband_name_check(target_name=_title):
+            if target_str_contain_some_char_check(
+                    target_str=_title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
                 return _error_msg(msg='违禁物品禁止上架!')
 
@@ -923,7 +932,9 @@ def get_zhe_800_data():
             )
 
             _title = wait_to_save_data.get('title', '')
-            if contraband_name_check(target_name=_title):
+            if target_str_contain_some_char_check(
+                    target_str=_title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
                 return _error_msg(msg='违禁物品禁止上架!')
 
@@ -1037,7 +1048,9 @@ def get_juanpi_data():
             )
 
             _title = wait_to_save_data.get('title', '')
-            if contraband_name_check(target_name=_title):
+            if target_str_contain_some_char_check(
+                    target_str=_title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
                 return _error_msg(msg='违禁物品禁止上架!')
 
@@ -1149,7 +1162,9 @@ def get_pinduoduo_data():
             )
 
             _title = wait_to_save_data.get('title', '')
-            if contraband_name_check(target_name=_title):
+            if target_str_contain_some_char_check(
+                    target_str=_title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
                 return _error_msg(msg='违禁物品禁止上架!')
 
@@ -1264,7 +1279,9 @@ def get_vip_data():
             )
 
             _title = wait_to_save_data.get('title', '')
-            if contraband_name_check(target_name=_title):
+            if target_str_contain_some_char_check(
+                    target_str=_title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
                 return _error_msg(msg='违禁物品禁止上架!')
 
@@ -1362,7 +1379,9 @@ def get_kaola_data():
                 pass
 
             _title = wait_to_save_data.get('title', '')
-            if contraband_name_check(target_name=_title):
+            if target_str_contain_some_char_check(
+                    target_str=_title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
                 return _error_msg(msg='违禁物品禁止上架!')
 
@@ -1458,7 +1477,9 @@ def get_yanxuan_data():
                 pass
 
             _title = wait_to_save_data.get('title', '')
-            if contraband_name_check(target_name=_title):
+            if target_str_contain_some_char_check(
+                    target_str=_title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
                 return _error_msg(msg='违禁物品禁止上架!')
 
@@ -1554,7 +1575,9 @@ def get_youpin_data():
                 pass
 
             _title = wait_to_save_data.get('title', '')
-            if contraband_name_check(target_name=_title):
+            if target_str_contain_some_char_check(
+                    target_str=_title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
                 return _error_msg(msg='违禁物品禁止上架!')
 
@@ -1649,7 +1672,9 @@ def get_mia_data():
                 pass
 
             _title = wait_to_save_data.get('title', '')
-            if contraband_name_check(target_name=_title):
+            if target_str_contain_some_char_check(
+                    target_str=_title,
+                    check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
                 my_lg.error(msg='违禁物品禁止上架, goods_name: {}'.format(_title))
                 return _error_msg(msg='违禁物品禁止上架!')
 

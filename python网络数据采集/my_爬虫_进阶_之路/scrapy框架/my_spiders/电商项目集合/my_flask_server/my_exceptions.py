@@ -41,3 +41,7 @@ class ArticleTitleOverLongException(Exception):
 class LoginFailException(Exception):
     """登录失败异常"""
     pass
+
+class ArticleTitleContainSensitiveWordsException(Exception):
+    """文章标题包含敏感词异常"""
+    pass
