@@ -38,11 +38,12 @@ supported:
     26. 百度好看视频(短视频)(https://haokan.baidu.com/)
     27. 七丽女性网(https://i.7y7.com/)
     28. 亲亲宝贝网(https://m.qbaobei.com/)
-    29. 发条网(https://m.fatiao.pro/)
+    29. 发条网(短视频or图文)(https://m.fatiao.pro/)
     30. 觅糖网(短视频or图文)(https://www.91mitang.com/)
     31. 雪球网(https://xueqiu.com)
     32. 5号女性网(http://m.5h.com/)
     33. 百思不得姐(http://www.budejie.com/)
+    34. 煎蛋网(http://jandan.net/)
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -562,8 +563,8 @@ class ArticleParser(AsyncCrawler):
                 'site_id': 32,
             },
             'ft': {
-                'debug': False,
-                'name': '发条网',
+                'debug': True,
+                'name': '发条网(短视频)',
                 'url': 'https://m.fatiao.pro/',
                 'obj_origin': 'fatiao.pro',
                 'site_id': 33,
@@ -588,6 +589,13 @@ class ArticleParser(AsyncCrawler):
                 'url': 'http://www.budejie.com',
                 'obj_origin': 'www.budejie.com',
                 'site_id': 36,
+            },
+            'jd': {
+                'debug': False,
+                'name': '煎蛋网',
+                'url': 'http://jandan.net',
+                'obj_origin': 'jandan.net',
+                'site_id': 37,
             },
         }
 
@@ -935,6 +943,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'bdj':
                 return await self._get_bdj_article_html(article_url=article_url)
 
+            elif article_url_type == 'jd':
+                return await self._get_jd_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -942,6 +953,65 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_jd_article_html(self, article_url) -> tuple:
+        """
+        获取jd的html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+
+        # 替换为m站 article_url
+        article_url = article_url.replace('http://jandan.net', 'http://i.jandan.net')
+
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='',)
+        headers.update({
+            'Proxy-Connection': 'keep-alive',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            verify=False,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        assert body != ''
+        # self.lg.info(body)
+
+        # 赋值data
+        base_data_sel = {
+            'method': 're',
+            'selector': '<script type=\"application/ld\+json\">(.*?)</script>',
+        }
+        base_data = await async_parse_field(
+            parser=base_data_sel,
+            target_obj=body,
+            logger=self.lg,)
+        assert base_data != ''
+        base_data = json_2_dict(
+            json_str=base_data,
+            default_res={},
+            logger=self.lg,)
+        assert base_data != {}
+        # pprint(base_data)
+        self.hook_target_api_data = {}
+        self.hook_target_api_data['base_data'] = base_data
+
+        # 赋值article_id
+        parse_obj = await self._get_parse_obj(article_url_type='jd')
+        article_id = await async_parse_field(
+            parser=parse_obj['article_id'],
+            target_obj=body,
+            logger=self.lg,)
+        assert article_id != ''
+        self.hook_target_api_data['article_id'] = str(article_id)
+
+        return body, video_url
 
     async def _get_bdj_article_html(self, article_url) -> tuple:
         """
@@ -955,13 +1025,14 @@ class ArticleParser(AsyncCrawler):
             'Proxy-Connection': 'keep-alive',
             'Referer': 'http://www.budejie.com/',
         })
-        body = Requests.get_url_body(
+        body = await unblock_request(
             url=article_url,
             headers=headers,
             verify=False,
             ip_pool_type=self.ip_pool_type,
             proxy_type=PROXY_TYPE_HTTPS,
-            num_retries=self.request_num_retries,)
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
         assert body != ''
         # self.lg.info(body)
 
@@ -2772,6 +2843,7 @@ class ArticleParser(AsyncCrawler):
             '91mt',
             '5h',
             'bdj',
+            'jd',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2861,6 +2933,7 @@ class ArticleParser(AsyncCrawler):
             'xq',
             '5h',
             'bdj',
+            'jd',
         ]
         if short_name in short_name_list2:
             pass
@@ -2902,6 +2975,7 @@ class ArticleParser(AsyncCrawler):
             '91mt',
             '5h',
             'bdj',
+            'jd',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2959,6 +3033,11 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'hk':
             title = self.hook_target_api_data\
                 .get('curVideoMeta', {})\
+                .get('title', '')
+
+        elif short_name == 'jd':
+            title = self.hook_target_api_data\
+                .get('base_data', {})\
                 .get('title', '')
 
         else:
@@ -3122,6 +3201,8 @@ class ArticleParser(AsyncCrawler):
             else:
                 pass
 
+        elif short_name == 'jd':
+            share_id = self.hook_target_api_data.get('article_id', '')
         else:
             pass
 
@@ -3459,6 +3540,11 @@ class ArticleParser(AsyncCrawler):
             except Exception:
                 self.lg.error('遇到错误:', exc_info=True)
 
+        elif short_name == 'jd':
+            create_time = await parse_create_time(
+                short_name=short_name,
+                create_time=self.hook_target_api_data.get('base_data', {}).get('pubDate', ''))
+
         else:
             pass
 
@@ -3496,6 +3582,7 @@ class ArticleParser(AsyncCrawler):
             '91mt',
             '5h',
             'bdj',
+            'jd',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -3633,6 +3720,17 @@ class ArticleParser(AsyncCrawler):
                 else:
                     pass
 
+        elif short_name == 'jd':
+            ori_img_url_list = self.hook_target_api_data.get('base_data', {}).get('images', [])
+            assert ori_img_url_list != []
+            article_main_img_div = ''
+            for img_url in ori_img_url_list:
+                if img_url != '':
+                    img_url = 'http:' + img_url if re.compile('http').findall(img_url) == [] else img_url
+                    article_main_img_div += '<img src=\"{}\">'.format(img_url)
+                else:
+                    continue
+            content = article_main_img_div + content
         else:
             pass
 
@@ -3664,6 +3762,7 @@ class ArticleParser(AsyncCrawler):
             'xq',
             '5h',
             'bdj',
+            'jd',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -3887,8 +3986,51 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'bdj':
             content = await self._wash_bdj_article_content(content=content)
 
+        elif short_name == 'jd':
+            content = await self._wash_jd_article_content(content=content)
+
         else:
             pass
+
+        return content
+
+    @staticmethod
+    async def _wash_jd_article_content(content: str) -> str:
+        # 把查看图片替换成img标签, 下面匹配url较为通用
+        _ = '<a target=\"_blank\" href=\"((https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|])\">\[点击查看图片\]</a>'
+        look_img_url_list = re.compile(_).findall(content)
+        # pprint(look_img_url_list)
+        for item in look_img_url_list:
+            img_url = item[0]
+            # 依次替换, img_url地址存在.html这种不处理
+            content = re.compile(_)\
+                .sub(repl='<img src=\"{}\">'.format(img_url), string=content, count=1)
+
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+                # 点赞数字清洗
+                ('<div class=\"clearfix\"></div>\d+</div>', '</div>'),
+            ],
+            add_sensitive_str_list=[
+                '<em>本文译自.*?</em>',
+                # 打赏
+                '<div class=\"shang\"><hr>.*<hr></div>',
+                # 赞
+                '<span class="zan-text">.*?</span>',
+                '<a id=\"jandan-zan-\d+\" class=\"jandan-zan\".*?></a>',
+                '<div style=\".*?\" class=\"wechat-hide\">.*?</div>',
+                '<div class=\"social-share\" data-disabled=\".*?\"></div>',
+                # 洗掉js
+                '<script.*?>.*?</script>',
+                '<link rel=\"stylesheet\" href=\".*?\">',
+                # 洗掉注释
+                '<!--.*?-->',
+            ],
+            is_default_filter=False,
+            is_lower=False, )
+
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -5310,6 +5452,35 @@ def main():
     # 纯文字
     # url = 'http://www.budejie.com/detail-29752862.html'
     # todo 声音不支持
+
+    # 煎蛋网
+    # url = 'http://i.jandan.net/2019/09/26/alcohol-facts.html'
+    # url = 'http://i.jandan.net/2019/09/27/dark-skin-2.html'
+    # 健康
+    # url = 'http://jandan.net/2019/09/27/hand-sanitizer.html'
+    # 故事
+    # url = 'http://jandan.net/2019/09/26/truck-drivers.html'
+    # url = 'http://jandan.net/2019/09/24/cockroach-milk.html'
+    # 科学
+    # url = 'http://jandan.net/2019/09/26/music-impairs.html'
+    # 技术
+    # 下方url含点击查看图片的情况
+    # url = 'http://jandan.net/2019/09/03/photorealistic-emojis.html'
+    # 脑洞
+    # url = 'http://jandan.net/2019/05/01/non-toxic-spray.html'
+    # url = 'http://jandan.net/2017/08/17/love-power.html'
+    # 人类
+    # url = 'http://jandan.net/2019/09/26/korea-angry-young.html'
+    # 折腾
+    # url = 'http://jandan.net/2019/07/13/circumcision-season.html'
+    # url = 'http://jandan.net/2019/05/02/six-pack-abs.html'
+    # 心理学
+    # url = 'http://jandan.net/2019/09/26/first-date-5.html'
+    # 走近科学
+    # url = 'http://jandan.net/2019/09/25/sinking-beach.html'
+    # todo 极客中含视频的还未处理
+    # url = 'http://jandan.net/2019/09/12/exercise-hard.html'
+    # todo 问答不采集
 
     # 文章url 测试
     print('article_url: {}'.format(url))

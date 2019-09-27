@@ -1697,6 +1697,37 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num':None,
     },
+    {
+        'short_name': 'jd',
+        'debug': True,
+        'obj_origin': 'jandan.net',
+        'article_id': {
+            'method': 'css',
+            'selector': 'div.current-post ::attr("id")',
+        },
+        'title': None,
+        'video_title': None,
+        'author': {
+            'method': 're',
+            'selector': '由译者 <a.*?>(.*?)</a> 基于创作共用协议',
+        },
+        'video_author': None,
+        'head_url': None,
+        'video_head_url': None,
+        'create_time': None,
+        'video_create_time': None,
+        'content': {
+            'method': 'css',
+            'selector': 'div.entry',
+        },
+        'video_article_content': None,
+        'comment_num': None,
+        'tags_list': None,
+        'video_tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num':None,
+    },
 ]
 
 '''

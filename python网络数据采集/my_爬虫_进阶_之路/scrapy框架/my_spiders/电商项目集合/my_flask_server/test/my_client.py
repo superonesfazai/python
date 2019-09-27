@@ -254,7 +254,10 @@ class RequestClient(AsyncCrawler):
         # article_link = 'http://m.5h.com/yl/148912.html'
 
         # 百思不得姐
-        article_link = 'http://www.budejie.com/detail-29752617.html'
+        # article_link = 'http://www.budejie.com/detail-29752617.html'
+
+        # 发条网
+        article_link = 'https://mart.fatiao.pro/detail/1522.html'
 
         url = article_link
 
