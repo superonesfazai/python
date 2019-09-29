@@ -21,7 +21,7 @@ from fzutils.spider.async_always import *
 
 def test_tm_m():
     # todo 注意部分商品预售，当前无法购买, 不更新, 待其状态正常后会更新
-    goods_id = '576472620738'
+    goods_id = '575090086713'
     # data = get_tm_m_body_data(goods_id=goods_id)
     # pprint(data)
     pc_url = 'https://detail.tmall.com/item.htm?id={}'.format(goods_id)

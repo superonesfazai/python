@@ -356,3 +356,17 @@ from dbo.goods_comment_new
 GROUP BY goods_id)
 ORDER BY comment_modify_time desc
 '''
+
+"""
+异常数据处理
+"""
+# 删除下架又上架但是状态还是下架的异常数据
+sql_str_24 = '''
+update dbo.GoodsInfoAutoGet
+set ModfiyTime=GETDATE(), delete_time=GETDATE()
+-- select count(*)
+-- from dbo.GoodsInfoAutoGet
+where MainGoodsID is not null
+and IsDelete=1
+and shelf_time > delete_time
+'''

@@ -109,6 +109,8 @@ class YXGoodsInfoMonitorSpider(AsyncCrawler):
             return
 
         # pprint(one_res)
+        # 本次变动数
+        change_count = 0
         for item in one_res:
             try:
                 goods_id = item.get('goods_id', '')
@@ -118,6 +120,9 @@ class YXGoodsInfoMonitorSpider(AsyncCrawler):
                 assert tb_price0 != 0.
                 # 优点价
                 tb_price1 = item.get('tb_price1', 0.)
+                # 常规价
+                tb_price2 = item.get('tb_price2', 0.)
+                assert tb_price2 != 0.
             except AssertionError:
                 continue
 
@@ -131,33 +136,42 @@ class YXGoodsInfoMonitorSpider(AsyncCrawler):
                     if tb_price1 != db_tb_price:
                         # 先对比会员价
                         if tb_price0 != db_tb_price:
-                            # 再对比优点价格, 两者都不同才进行修正, 否则pass(原因cp 部分会员价显示错误)
-                            now_time = get_shanghai_time()
-                            cp_url = 'https://m.yiuxiu.com/Product/Info/{}'.format(goods_id)
-                            self.lg.info('goods_id: {}, 优点价格: {}, 会员价格: {}, db_tb_price: {}, site_id: {}, modify_time: {}, cp_url: {}, goods_url: {}'.format(
-                                goods_id,
-                                tb_price1,
-                                tb_price0,
-                                db_tb_price,
-                                site_id,
-                                modify_time,
-                                cp_url,
-                                goods_url,
-                            ))
-                            self.sql_cli._update_table_2(
-                                sql_str=self.sql_tr1,
-                                params=(
-                                    now_time,
-                                    now_time,
-                                    now_time,
+                            # 再对比优点价格
+                            if tb_price2 != db_tb_price:
+                                # 再对比常规价(新人价, 无cookies显示新人价), 三者都不同才进行修正, 否则pass(原因cp 部分会员价显示错误)
+                                now_time = get_shanghai_time()
+                                cp_url = 'https://m.yiuxiu.com/Product/Info/{}'.format(goods_id)
+                                self.lg.info('goods_id: {}, 优点价格: {}, 会员价格: {}, 标题价(新人价): {}, db_tb_price: {}, site_id: {}, modify_time: {}, cp_url: {}, goods_url: {}'.format(
                                     goods_id,
-                                ),
-                                logger=self.lg,)
+                                    tb_price1,
+                                    tb_price0,
+                                    tb_price2,
+                                    db_tb_price,
+                                    site_id,
+                                    modify_time,
+                                    cp_url,
+                                    goods_url,
+                                ))
+                                self.sql_cli._update_table_2(
+                                    sql_str=self.sql_tr1,
+                                    params=(
+                                        now_time,
+                                        now_time,
+                                        now_time,
+                                        goods_id,
+                                    ),
+                                    logger=self.lg,)
+                                change_count += 1
+                            else:
+                                pass
                         else:
                             pass
                         break
                     else:
                         continue
+
+        self.lg.info('本次变动数: {}个'.format(change_count))
+        sleep(1.)
 
         return None
 
@@ -189,6 +203,12 @@ class YXGoodsInfoMonitorSpider(AsyncCrawler):
                 'method': 're',
                 'selector': '<span class=\"yiudianPrice\">\+(\d+)优点</span>'
             }
+            # 根据sharetitle的描述价, 但是由于没有cookie就会显示的是新人价(所以意义不大)
+            normal_price_sel = {
+                'method': 're',
+                # 'selector': '我在.*?(\d+\.\d+)元抢到这个超值商品',
+                'selector': 'var goodsmemberPrice = \'(.*?)\';',
+            }
             tb_price0 = parse_field(
                 parser=tb_price_sel,
                 target_obj=body, )
@@ -201,15 +221,22 @@ class YXGoodsInfoMonitorSpider(AsyncCrawler):
                 parser=yd_sel,
                 target_obj=body,)
             assert yd != ''
+            normal_price = parse_field(
+                parser=normal_price_sel,
+                target_obj=body,)
+            assert normal_price != ''
             # 会员价
             tb_price0 = float(tb_price0).__round__(2)
             # 优点价
             tb_price1 = (float(big_price) + float(yd)/100).__round__(2)
+            # 常规价
+            tb_price2 = float(normal_price).__round__(2)
 
             return {
                 'goods_id': goods_id,
                 'tb_price0': tb_price0,
                 'tb_price1': tb_price1,
+                'tb_price2': tb_price2,
             }
 
         headers = get_random_headers(
@@ -245,6 +272,7 @@ class YXGoodsInfoMonitorSpider(AsyncCrawler):
         from dbo.GoodsInfoAutoGet
         where MainGoodsID is not null
         and IsDelete=0
+        -- and MainGoodsID=143509
         '''
         self.sql_tr1 = '''
         update dbo.GoodsInfoAutoGet 

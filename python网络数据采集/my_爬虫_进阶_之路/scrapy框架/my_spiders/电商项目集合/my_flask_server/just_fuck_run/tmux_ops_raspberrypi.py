@@ -172,6 +172,14 @@ class TmuxOps(AsyncCrawler):
                 'delay_time': 2,
             },
             {
+                'page_name': 'db_timing_script',
+                'cmd': 'cd {} && {} db_timing_script.py'.format(
+                    self.cp_path,
+                    self.python_version_cmd,
+                ),
+                'delay_time': 2,
+            },
+            {
                 'page_name': 'logs',
                 'cmd': 'cd {} && {} expired_logs_deal_with.py'.format(
                     self.logs_path,

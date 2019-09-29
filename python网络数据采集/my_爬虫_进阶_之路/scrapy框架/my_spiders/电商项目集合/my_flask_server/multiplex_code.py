@@ -79,7 +79,7 @@ CONTRABAND_GOODS_KEY_TUPLE = (
 ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
     '走势分析', '股票', 'A股', '上证', '深指', '大盘', '涨停', '跌停', '纳斯达克', '道琼斯',
     '网警', '共产党', '产党共', '共x党', '色情', '法轮功', '女优', '共狗', '十8禁', '我XX你',
-    '小区介绍',
+    '小区介绍', '今日头条', '社区', '县',
     # 过期的节日
     '中秋', '月饼', '赏月',
     # eg: 9.1, 9月1日, 9月1, 9月1
@@ -224,6 +224,10 @@ def get_tm_m_body_data(goods_id,
     # _print(msg=str(body), logger=logger)
     try:
         assert body != ''
+        if '<title>您查看的页面找不到了!</title>' in body:
+            raise GoodsShelvesException
+        else:
+            pass
     except AssertionError as e:
         # raise e
         # tm m站无商品找不到页面的返回html
