@@ -21,7 +21,7 @@ class DbTimingScript(AsyncCrawler):
         AsyncCrawler.__init__(
             self,
         )
-        self.sleep_time = 1.5 * 60
+        self.sleep_time = 3 * 60
         self.init_sql_str()
 
     def init_sql_str(self):

@@ -82,8 +82,8 @@ ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
     '小区介绍', '今日头条', '社区', '县',
     # 过期的节日
     '中秋', '月饼', '赏月',
-    # eg: 9.1, 9月1日, 9月1, 9月1
-    '\d+\.{0}月{0}\d+日{0}',
+    # eg: 9.1, 9月1日, 9月1
+    '\d+[\.月]{1}\d+日{0}',
 )
 
 async def handle_real_times_goods_one_res(goods_type: str,
