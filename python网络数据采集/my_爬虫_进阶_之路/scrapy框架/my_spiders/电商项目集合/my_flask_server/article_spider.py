@@ -58,6 +58,7 @@ not supported:
     10. 少数派(https://sspai.com/)
     11. 经济日报(https://www.jingjiribao.cn)
     12. 中国青年网(http://m.youth.cn/)
+    13. 妈妈网(http://m.mama.cn/)
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -3818,6 +3819,7 @@ class ArticleParser(AsyncCrawler):
                 '转载抄袭必究',
                 '未经许可',
                 '本人原创',
+                '未经授权，请勿转载。',
             ],
             is_default_filter=False,
             is_lower=False,)
