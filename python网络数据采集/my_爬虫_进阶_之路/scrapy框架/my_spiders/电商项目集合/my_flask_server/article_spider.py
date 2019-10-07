@@ -3807,8 +3807,11 @@ class ArticleParser(AsyncCrawler):
                 '禁止转发',
                 '禁止转载',
                 '私自转载',
+                '禁止搬运',
                 '追究法律责任',
-                '图片来源于网络，如有侵权请联系删除',
+                '图片来源[于]{0}网络',
+                '如有侵权请联系删除',
+                '版权归[于]{0}原作者所有',
                 '图文原创',
                 '搬运必究',
                 '转载此文是出于传递更多信息之目的',
@@ -3826,6 +3829,7 @@ class ArticleParser(AsyncCrawler):
                 '\（点击可放大看\）',
                 '独家原创',
                 '禁止一切搬运行为',
+                '侵删',
             ],
             is_default_filter=False,
             is_lower=False,)
@@ -4778,8 +4782,6 @@ def main():
     # url = 'https://focus.youth.cn/mobile/detail/id/15547200#'
     # url = 'https://focus.youth.cn/mobile/detail/id/15561509#'
     # url = 'https://focus.youth.cn/mobile/detail/id/17240154#'
-    # url = 'https://focus.youth.cn/mobile/detail/id/17229127#'
-    # url = 'https://focus.youth.cn/mobile/detail/id/17230881#'
     # url = 'https://focus.youth.cn/mobile/detail?id=17197839#'
 
     # 阳光宽频网(短视频)

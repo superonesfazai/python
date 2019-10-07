@@ -321,14 +321,15 @@ class RecommendGoodOps(AsyncCrawler):
         :return:
         """
         self.lg.info('login ...')
-        driver.get_url_body(
+        body = driver.get_url_body(
             url=self.publish_url,
             timeout=30,)
         try:
+            assert body != ''
             driver.find_element(value='input#loginName').send_keys(self.yx_username)
             driver.find_element(value='input#loginPwd').send_keys(self.yx_password)
             driver.find_element(value='button#subbut').click()
-        except (NoSuchElementException, SeleniumTimeoutException):
+        except (NoSuchElementException, SeleniumTimeoutException, AssertionError):
             # 抛出登录异常
             raise LoginFailException
 
