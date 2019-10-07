@@ -21,6 +21,8 @@ from my_exceptions import (
     ArticleTitleOverLongException,
     LoginFailException,
     ArticleTitleContainSensitiveWordsException,
+    PublishOneArticleFailException,
+    EnterTargetPageFailException,
 )
 from multiplex_code import (
     get_new_sql_cli,
@@ -40,6 +42,7 @@ from fzutils.spider.fz_driver import (
     CHROME,
     FIREFOX,
 )
+from fzutils.time_utils import TimeoutError as FZTimeoutError
 from fzutils.spider.selenium_always import *
 from fzutils.spider.async_always import *
 
@@ -92,7 +95,9 @@ class RecommendGoodOps(AsyncCrawler):
             except (
                     ArticleTitleOverLongException,
                     LoginFailException,
-                    ArticleTitleContainSensitiveWordsException):
+                    ArticleTitleContainSensitiveWordsException,
+                    PublishOneArticleFailException,
+                    EnterTargetPageFailException,):
                 self.lg.error('遇到错误:', exc_info=True)
                 continue
 
@@ -210,7 +215,9 @@ class RecommendGoodOps(AsyncCrawler):
         except (
                 ArticleTitleOverLongException,
                 LoginFailException,
-                ArticleTitleContainSensitiveWordsException) as e:
+                ArticleTitleContainSensitiveWordsException,
+                PublishOneArticleFailException,
+                EnterTargetPageFailException,) as e:
             # 抛出异常
             raise e
         except Exception:
@@ -252,8 +259,8 @@ class RecommendGoodOps(AsyncCrawler):
         :return:
         """
         article_id_list = [str(article_id) for article_id in range(min_article_id, max_article_id)]
-        # 截取5
-        article_id_list = random_sample(article_id_list, 5)
+        # 截取3
+        article_id_list = random_sample(article_id_list, 3)
         res = [{
             'uid': get_uuid3(target_str='{}::{}'.format('zq', article_id)),
             'article_type': 'zq',
@@ -359,10 +366,14 @@ class RecommendGoodOps(AsyncCrawler):
         :param driver:
         :return:
         """
-        driver.find_element(value=self.recommend_good_label_css_selector).click()
-        # 等待下方标签出现
-        sleep(.5)
-        driver.find_element(value='a.J_menuItem').click()
+        try:
+            driver.find_element(value=self.recommend_good_label_css_selector).click()
+            # 等待下方标签出现
+            sleep(.5)
+            driver.find_element(value='a.J_menuItem').click()
+        except SeleniumTimeoutException:
+            # 进入目标页失败, 则抛出异常!
+            raise EnterTargetPageFailException
 
     def publish_one_article(self, driver: BaseDriver, article_url: str):
         """
@@ -390,7 +401,12 @@ class RecommendGoodOps(AsyncCrawler):
         input_box_ele.send_keys(article_url)
         # 点击采集按钮
         driver.find_elements(value='span.input-group-btn button')[0].click()
-        self.wait_for_delete_img_appear(driver=driver)
+        try:
+            self.wait_for_delete_img_appear(driver=driver)
+        except FZTimeoutError:
+            # 发布某文章超时失败, 则抛出发布异常
+            raise PublishOneArticleFailException
+
         # 获取输入框的值
         title = driver.find_element(value='input#RecommendName').get_attribute('value')
         self.lg.info('title: {}'.format(title))
@@ -409,8 +425,13 @@ class RecommendGoodOps(AsyncCrawler):
         else:
             pass
 
-        # 点击发布按钮
-        driver.find_elements(value='span.input-group-btn button')[1].click()
+        try:
+            # 点击发布按钮
+            driver.find_elements(value='span.input-group-btn button')[1].click()
+        except WebDriverException:
+            # 处理发布单篇异常!
+            # 处理报错: Message: unknown error: Element <iframe class="J_iframe" name="iframe0"
+            raise PublishOneArticleFailException
 
         # 切换至主页面
         driver.switch_to_default_content()

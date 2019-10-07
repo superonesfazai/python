@@ -45,3 +45,11 @@ class LoginFailException(Exception):
 class ArticleTitleContainSensitiveWordsException(Exception):
     """文章标题包含敏感词异常"""
     pass
+
+class PublishOneArticleFailException(Exception):
+    """发布单篇文章失败异常"""
+    pass
+
+class EnterTargetPageFailException(Exception):
+    """driver: 进入目标页失败异常"""
+    pass
