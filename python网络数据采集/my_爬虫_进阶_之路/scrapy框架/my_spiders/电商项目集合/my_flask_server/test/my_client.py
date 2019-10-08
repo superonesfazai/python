@@ -257,7 +257,10 @@ class RequestClient(AsyncCrawler):
         # article_link = 'http://www.budejie.com/detail-29752617.html'
 
         # 发条网
-        article_link = 'https://mart.fatiao.pro/detail/1522.html'
+        # article_link = 'https://mart.fatiao.pro/detail/1522.html'
+
+        # 来福爆笑娱乐网
+        article_link = 'http://www.laifudao.com/tupian/87109.htm?xid=tupian87109'
 
         url = article_link
 

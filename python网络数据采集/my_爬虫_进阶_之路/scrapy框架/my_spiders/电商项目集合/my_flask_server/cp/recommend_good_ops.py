@@ -77,9 +77,9 @@ class RecommendGoodOps(AsyncCrawler):
         self.recommend_good_label_css_selector = 'span.nav-label'
 
     async def _fck_run(self):
-        # 休眠5分钟s, 避免频繁发!
+        # 休眠5分钟, 避免频繁发!
         # sleep_time = 0.
-        sleep_time = 60 * 4.
+        sleep_time = 60 * 5.5
         self.db_article_id_list = await self.get_db_unique_id_list()
         assert self.db_article_id_list != []
         self.lg.info('db_article_id_list_len: {}'.format(len(self.db_article_id_list)))
@@ -200,9 +200,13 @@ class RecommendGoodOps(AsyncCrawler):
                 title = item.get('title', '')
                 article_url = item.get('article_url', '')
                 self.lg.info('正在发布文章 title: {}, article_url: {} ...'.format(title, article_url))
-                self.publish_one_article(
-                    driver=driver,
-                    article_url=article_url,)
+                try:
+                    self.publish_one_article(
+                        driver=driver,
+                        article_url=article_url,)
+                except FZTimeoutError:
+                    raise PublishOneArticleFailException
+
                 # 新增, 以及插入db
                 self.db_article_id_list.append(uid)
                 self.sql_cli._insert_into_table_2(
@@ -340,7 +344,11 @@ class RecommendGoodOps(AsyncCrawler):
             # 抛出登录异常
             raise LoginFailException
 
-        self.wait_for_recommend_good_label_appear(driver=driver)
+        try:
+            self.wait_for_recommend_good_label_appear(driver=driver)
+        except FZTimeoutError:
+            # 进入目标页失败, 则抛出异常!
+            raise EnterTargetPageFailException
 
     @fz_set_timeout(seconds=10.)
     def wait_for_recommend_good_label_appear(self, driver: BaseDriver):
@@ -375,9 +383,11 @@ class RecommendGoodOps(AsyncCrawler):
             # 进入目标页失败, 则抛出异常!
             raise EnterTargetPageFailException
 
+    @fz_set_timeout(seconds=2. * 60)
     def publish_one_article(self, driver: BaseDriver, article_url: str):
         """
         发布一篇图文
+        :param driver:
         :param article_url:
         :return:
         """
@@ -447,7 +457,7 @@ class RecommendGoodOps(AsyncCrawler):
 
         return
 
-    @fz_set_timeout(seconds=30.)
+    @fz_set_timeout(seconds=35.)
     def wait_for_delete_img_appear(self, driver: BaseDriver):
         """
         直至出现图片, 超时退出(并且避免发布无图文章)

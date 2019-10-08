@@ -44,6 +44,7 @@ supported:
     32. 5号女性网(http://m.5h.com/)
     33. 百思不得姐(http://www.budejie.com/)
     34. 煎蛋网(http://jandan.net/)
+    35. 来福岛爆笑娱乐网(http://www.laifudao.com/)
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -59,6 +60,7 @@ not supported:
     11. 经济日报(https://www.jingjiribao.cn)
     12. 中国青年网(http://m.youth.cn/)
     13. 妈妈网(http://m.mama.cn/)
+    14. 搞笑视频网(需浏览器手机模式查看)(http://www.xjnan.com/)
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -598,6 +600,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'jandan.net',
                 'site_id': 37,
             },
+            'lfd': {
+                'debug': False,
+                'name': '来福岛爆笑娱乐网',
+                'url': 'http://www.laifudao.com/',
+                'obj_origin': 'www.laifudao.com',
+                'site_id': 38,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -947,6 +956,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'jd':
                 return await self._get_jd_article_html(article_url=article_url)
 
+            elif article_url_type == 'lfd':
+                return await self._get_lfd_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -954,6 +966,40 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_lfd_article_html(self, article_url) -> tuple:
+        """
+        获取lfd html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+        headers = await async_get_random_headers()
+        xid_sel = {
+            'method': 're',
+            'selector': 'xid=(\w+)',
+        }
+        xid = await async_parse_field(
+            parser=xid_sel,
+            target_obj=article_url,
+            logger=self.lg,)
+        # xid 非必传
+        # assert xid != ''
+
+        params = (('xid', xid),) if xid != '' else None
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            params=params,
+            verify=False,
+            ip_pool_type=self.ip_pool_type,
+            # proxy_type=PROXY_TYPE_HTTPS,      # https 失败率较高
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        assert body != ''
+        # self.lg.info(body)
+
+        return body, video_url
 
     async def _get_jd_article_html(self, article_url) -> tuple:
         """
@@ -2845,6 +2891,7 @@ class ArticleParser(AsyncCrawler):
             '5h',
             'bdj',
             'jd',
+            'lfd',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -2935,6 +2982,7 @@ class ArticleParser(AsyncCrawler):
             '5h',
             'bdj',
             'jd',
+            'lfd',
         ]
         if short_name in short_name_list2:
             pass
@@ -2977,6 +3025,7 @@ class ArticleParser(AsyncCrawler):
             '5h',
             'bdj',
             'jd',
+            'lfd',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -3428,6 +3477,7 @@ class ArticleParser(AsyncCrawler):
             'xq',
             '5h',
             'bdj',
+            'lfd',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -3546,6 +3596,15 @@ class ArticleParser(AsyncCrawler):
                 short_name=short_name,
                 create_time=self.hook_target_api_data.get('base_data', {}).get('pubDate', ''))
 
+        elif short_name == 'lfd':
+            if create_time != '':
+                create_time = create_time.replace(' ', '')
+                create_time = await parse_create_time(
+                    short_name=short_name,
+                    create_time=create_time,)
+            else:
+                pass
+
         else:
             pass
 
@@ -3584,6 +3643,7 @@ class ArticleParser(AsyncCrawler):
             '5h',
             'bdj',
             'jd',
+            'lfd',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -3764,6 +3824,7 @@ class ArticleParser(AsyncCrawler):
             '5h',
             'bdj',
             'jd',
+            'lfd',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -3830,6 +3891,11 @@ class ArticleParser(AsyncCrawler):
                 '独家原创',
                 '禁止一切搬运行为',
                 '侵删',
+                '免责声明',
+                '本文部分内容来自互联网',
+                '如不慎侵害的您的权益,请告知,我们将尽快删除',
+                '\：\，\，\。',
+                '\:\,\,\.',
             ],
             is_default_filter=False,
             is_lower=False,)
@@ -4001,8 +4067,30 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'jd':
             content = await self._wash_jd_article_content(content=content)
 
+        elif short_name == 'lfd':
+            content = await self._wash_lfd_article_content(content=content)
+
         else:
             pass
+
+        return content
+
+    @staticmethod
+    async def _wash_lfd_article_content(content: str) -> str:
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+            ],
+            add_sensitive_str_list=[
+                # 洗掉二维码
+                '<section class=\"show-code\".*?><label>扫描到手机：.*?</section>'
+                '<section class=\"post-share\">.*?</section>',
+                '<section class=\"post-likes\">.*?</section>'
+            ],
+            is_default_filter=False,
+            is_lower=False, )
+
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -5491,6 +5579,19 @@ def main():
     # todo 极客中含视频的还未处理
     # url = 'http://jandan.net/2019/09/12/exercise-hard.html'
     # todo 问答不采集
+
+    # 来福岛爆笑娱乐网
+    # 图片
+    # url = 'http://www.laifudao.com/tupian/87076.htm?xid=tupian87076'
+    # url = 'http://www.laifudao.com/tupian/87080.htm?xid=tupian87080'
+    # url = 'http://www.laifudao.com/tupian/87109.htm?xid=tupian87109'
+    # url = 'http://www.laifudao.com/tupian/87108.htm?xid=tupian87108'
+    # url = 'http://www.laifudao.com/tupian/87100.htm?xid=tupian87100'
+    # url = 'http://www.laifudao.com/tupian/86778.htm'
+    # 纯文字
+    # url = 'http://www.laifudao.com/wangwen/214763.htm?xid=wangwen214763'
+    # url = 'http://www.laifudao.com/wangwen/4223.htm'
+    # todo 铃声不支持
 
     # 文章url 测试
     print('article_url: {}'.format(url))
