@@ -413,8 +413,8 @@ class RecommendGoodOps(AsyncCrawler):
         driver.find_elements(value='span.input-group-btn button')[0].click()
         try:
             self.wait_for_delete_img_appear(driver=driver)
-        except FZTimeoutError:
-            # 发布某文章超时失败, 则抛出发布异常
+        except (FZTimeoutError, NoSuchElementException):
+            # 发布某文章超时失败or无元素存在, 则抛出发布异常
             raise PublishOneArticleFailException
 
         # 获取输入框的值

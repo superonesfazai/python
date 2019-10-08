@@ -2795,8 +2795,9 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         praise_num = 0
+
         _ = await async_parse_field(
-            parser=parse_obj['praise_num'],
+            parser=parse_obj.get('praise_num'),
             target_obj=target_obj,
             logger=self.lg)
         # self.lg.info(str(_))
@@ -2814,9 +2815,10 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
-        short_name = parse_obj['short_name']
+        short_name = parse_obj.get('short_name', '')
+
         fav_num = await async_parse_field(
-            parser=parse_obj['fav_num'],
+            parser=parse_obj.get('fav_num'),
             target_obj=target_obj,
             logger=self.lg)
 
@@ -2843,10 +2845,10 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
-        short_name = parse_obj['short_name']
+        short_name = parse_obj.get('short_name', '')
 
         profile = await async_parse_field(
-            parser=parse_obj['profile'],
+            parser=parse_obj.get('profile'),
             target_obj=target_obj,
             logger=self.lg)
 
@@ -2866,8 +2868,9 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
-        short_name = parse_obj['short_name']
-        author_selector = parse_obj['author']
+        short_name = parse_obj.get('short_name', '')
+        assert short_name != ''
+        author_selector = parse_obj.get('author')
 
         short_name_list = [
             'kb',
@@ -2895,7 +2898,7 @@ class ArticleParser(AsyncCrawler):
         ]
         if short_name in short_name_list:
             if video_url != '':
-                author_selector = parse_obj['video_author']
+                author_selector = parse_obj.get('video_author')
             else:
                 pass
 
@@ -2910,13 +2913,13 @@ class ArticleParser(AsyncCrawler):
         if short_name == 'kb':
             if video_url != '':
                 if author == '':
-                    author_selector2 = parse_obj['video_author2']
+                    author_selector2 = parse_obj.get('video_author2')
                     author = await async_parse_field(
                         parser=author_selector2,
                         target_obj=target_obj,
                         logger=self.lg,)
                     if author == '':
-                        author_selector3 = parse_obj['video_author3']
+                        author_selector3 = parse_obj.get('video_author3')
                         author = await async_parse_field(
                             parser=author_selector3,
                             target_obj=target_obj,
@@ -2932,20 +2935,26 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'pp':
             if author == '':
                 # 湃客发的文章
-                author_selector2 = parse_obj['author2']
+                author_selector2 = parse_obj.get('author2')
                 author = await async_parse_field(
                     parser=author_selector2,
                     target_obj=target_obj,
                     logger=self.lg, )
+            else:
+                pass
 
         elif short_name == 'nfzm':
-            author = self.hook_target_api_data['content']['author']
+            author = self.hook_target_api_data\
+                .get('content', {})\
+                .get('author', '')
 
         elif short_name == 'ck':
-            author = self.hook_target_api_data['editor_username']
+            author = self.hook_target_api_data.get('editor_username', '')
 
         elif short_name == 'xq':
-            author = self.hook_target_api_data.get('user', {}).get('screen_name', '')
+            author = self.hook_target_api_data\
+                .get('user', {})\
+                .get('screen_name', '')
 
         elif short_name == 'hk':
             author = self.hook_target_api_data\
@@ -2998,8 +3007,10 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
-        short_name = parse_obj['short_name']
-        title_selector = parse_obj['title']
+        short_name = parse_obj.get('short_name', '')
+        assert short_name != ''
+        title_sel = parse_obj.get('title', None)
+        assert title_sel is not None
         # self.lg.info(target_obj)
 
         short_name_list = [
@@ -3029,7 +3040,7 @@ class ArticleParser(AsyncCrawler):
         ]
         if short_name in short_name_list:
             if video_url != '':
-                title_selector = parse_obj['video_title']
+                title_sel = parse_obj.get('video_title')
             else:
                 pass
         else:
@@ -3037,7 +3048,7 @@ class ArticleParser(AsyncCrawler):
 
         # self.lg.info(target_obj)
         title = await async_parse_field(
-            parser=title_selector,
+            parser=title_sel,
             target_obj=target_obj,
             logger=self.lg)
 
@@ -3045,7 +3056,7 @@ class ArticleParser(AsyncCrawler):
             if video_url != '':
                 if title == '':
                     # 情况1:
-                    title_selector2 = parse_obj['video_title2']
+                    title_selector2 = parse_obj.get('video_title2')
                     # pprint(title_selector2)
                     title = await async_parse_field(
                         parser=title_selector2,
@@ -3053,7 +3064,7 @@ class ArticleParser(AsyncCrawler):
                         logger=self.lg,)
                     if title == '':
                         # 情况2
-                        title_selector3 = parse_obj['video_title3']
+                        title_selector3 = parse_obj.get('video_title3')
                         # pprint(title_selector3)
                         title = await async_parse_field(
                             parser=title_selector3,
@@ -3066,16 +3077,18 @@ class ArticleParser(AsyncCrawler):
             else:
                 if title == '':
                     # 情况1
-                    title = self.hook_target_api_data['title']
+                    title = self.hook_target_api_data.get('title', '')
                 else:
                     pass
 
         elif short_name == 'nfzm':
             # pprint(self.hook_target_api_data)
-            title = self.hook_target_api_data['content']['subject']
+            title = self.hook_target_api_data\
+                .get('content', {})\
+                .get('subject', '')
 
         elif short_name == 'ck':
-            title = self.hook_target_api_data['title']
+            title = self.hook_target_api_data.get('title', '')
 
         elif short_name == 'xq':
             title = self.hook_target_api_data.get('title', '')
@@ -3132,8 +3145,8 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
-        short_name = parse_obj['short_name']
-        head_url_sel = parse_obj['head_url']
+        short_name = parse_obj.get('short_name', '')
+        head_url_sel = parse_obj.get('head_url')
 
         short_name_list = [
             'kb',
@@ -3149,7 +3162,7 @@ class ArticleParser(AsyncCrawler):
         ]
         if short_name in short_name_list:
             if video_url != '':
-                head_url_sel = parse_obj['video_head_url']
+                head_url_sel = parse_obj.get('video_head_url')
             else:
                 pass
         else:
@@ -3164,7 +3177,7 @@ class ArticleParser(AsyncCrawler):
         if short_name == 'kb':
             if video_url != '':
                 if head_url == '':
-                    head_url_sel2 = parse_obj['video_head_url2']
+                    head_url_sel2 = parse_obj.get('video_head_url2')
                     head_url = await async_parse_field(
                         parser=head_url_sel2,
                         target_obj=target_obj,
@@ -3238,7 +3251,7 @@ class ArticleParser(AsyncCrawler):
         if short_name in short_name_list2:
             if share_id == '':
                 share_id = await async_parse_field(
-                    parser=parse_obj['article_id2'],
+                    parser=parse_obj.get('article_id2'),
                     target_obj=article_url,
                     logger=self.lg)
             else:
@@ -3271,22 +3284,22 @@ class ArticleParser(AsyncCrawler):
             if article_url_type == item.get('short_name', ''):
                 if article_url_type == 'bd':
                     if 'haokan.baidu.com' in article_url:
-                        return item['video_id']
+                        return item.get('video_id')
 
                     elif 'sv.baidu.com' in article_url:
-                        return item['video_id2']
+                        return item.get('video_id2')
 
                     else:
                         pass
 
                 elif article_url_type == 'jm':
                     if '/video/' in article_url:
-                        return item['video_id']
+                        return item.get('video_id')
 
                 else:
                     pass
 
-                return item['article_id']
+                return item.get('article_id')
 
         raise NotImplementedError
 
@@ -3298,19 +3311,21 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         comment_num = 0
-        short_name = parse_obj['short_name']
+        short_name = parse_obj.get('short_name', '')
 
         _ = await async_parse_field(
-            parser=parse_obj['comment_num'],
+            parser=parse_obj.get('comment_num'),
             target_obj=target_obj,
             logger=self.lg)
         # self.lg.info(str(_))
 
         if short_name == 'nfzm':
-            comment_num = self.hook_target_api_data['content']['comment_count']
+            comment_num = self.hook_target_api_data\
+                .get('content', {})\
+                .get('comment_count', '')
 
         elif short_name == 'ck':
-            comment_num = self.hook_target_api_data['count_comment']
+            comment_num = self.hook_target_api_data.get('count_comment', '')
 
         elif short_name == 'kb':
             if _ == '':
@@ -3337,7 +3352,7 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
-        short_name = parse_obj['short_name']
+        short_name = parse_obj.get('short_name', '')
 
         is_first = False
         if short_name == 'kd'\
@@ -3351,10 +3366,10 @@ class ArticleParser(AsyncCrawler):
             'qqbb',
             'ft',
         ]
-        tags_list_sel = parse_obj['tags_list']
+        tags_list_sel = parse_obj.get('tags_list')
         if short_name in short_name_list:
             if video_url != '':
-                tags_list_sel = parse_obj['video_tags_list']
+                tags_list_sel = parse_obj.get('video_tags_list')
             else:
                 pass
         else:
@@ -3412,7 +3427,9 @@ class ArticleParser(AsyncCrawler):
 
         elif short_name == 'nfzm':
             tags_list = []
-            ori_tags_list = self.hook_target_api_data['content']['tags']
+            ori_tags_list = self.hook_target_api_data\
+                .get('content', {})\
+                .get('tags', [])
             for item in ori_tags_list:
                 try:
                     tag_name = item.get('title', '')
@@ -3454,8 +3471,9 @@ class ArticleParser(AsyncCrawler):
 
             return create_time
 
-        short_name = parse_obj['short_name']
-        create_time_selector = parse_obj['create_time']
+        short_name = parse_obj.get('short_name', '')
+        assert short_name != ''
+        create_time_sel = parse_obj.get('create_time')
 
         short_name_list = [
             'sg',
@@ -3481,16 +3499,16 @@ class ArticleParser(AsyncCrawler):
         ]
         if short_name in short_name_list:
             if video_url != '':
-                create_time_selector = parse_obj['video_create_time']
+                create_time_sel = parse_obj.get('video_create_time')
             else:
                 pass
 
         elif short_name == 'fh':
             if video_url != '':
-                create_time_selector = parse_obj['video_create_time']
+                create_time_sel = parse_obj.get('video_create_time')
             else:
                 if 'feng.ifeng.com' in article_url:
-                    create_time_selector = parse_obj['create_time2']
+                    create_time_sel = parse_obj.get('create_time2')
                 else:
                     pass
 
@@ -3499,7 +3517,7 @@ class ArticleParser(AsyncCrawler):
 
         # self.lg.info(target_obj)
         create_time = await async_parse_field(
-            parser=create_time_selector,
+            parser=create_time_sel,
             target_obj=target_obj,
             logger=self.lg)
         # self.lg.info(create_time)
@@ -3579,10 +3597,10 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'nfzm':
             create_time = await parse_create_time(
                 short_name=short_name,
-                create_time=self.hook_target_api_data['content']['publish_time'])
+                create_time=self.hook_target_api_data.get('content', {}).get('publish_time', ''))
 
         elif short_name == 'ck':
-            create_time = str(timestamp_to_regulartime(int(self.hook_target_api_data['publish_time'])))
+            create_time = str(timestamp_to_regulartime(int(self.hook_target_api_data.get('publish_time', ''))))
 
         elif short_name == 'xq':
             try:
@@ -3622,7 +3640,7 @@ class ArticleParser(AsyncCrawler):
         :return:
         """
         short_name = parse_obj.get('short_name', '')
-        content_selector = parse_obj['content']
+        content_sel = parse_obj.get('content')
 
         short_name_list = [
             'kb',
@@ -3647,25 +3665,25 @@ class ArticleParser(AsyncCrawler):
         ]
         if short_name in short_name_list:
             if video_url != '':
-                content_selector = parse_obj['video_article_content']
+                content_sel = parse_obj.get('video_article_content')
             else:
                 pass
 
         elif short_name == 'fh':
             if video_url != '':
-                content_selector = parse_obj['video_article_content']
+                content_sel = parse_obj.get('video_article_content')
             else:
                 if 'feng.ifeng.com' in article_url:
-                    content_selector = parse_obj['content2']
+                    content_sel = parse_obj.get('content2')
                 else:
                     pass
         else:
             pass
 
         # self.lg.info(str(target_obj))
-        # pprint(content_selector)
+        # pprint(content_sel)
         content = await async_parse_field(
-            parser=content_selector,
+            parser=content_sel,
             target_obj=target_obj,
             logger=self.lg)
 
@@ -3681,7 +3699,7 @@ class ArticleParser(AsyncCrawler):
             if video_url == '' and content != '':
                 # 加上主图
                 article_main_img_div = await async_parse_field(
-                    parser=parse_obj['article_main_img'],
+                    parser=parse_obj.get('article_main_img'),
                     target_obj=target_obj,
                     logger=self.lg)
                 content = article_main_img_div + content
@@ -3747,10 +3765,12 @@ class ArticleParser(AsyncCrawler):
                     pass
 
         elif short_name == 'nfzm':
-            content = self.hook_target_api_data['content']['fulltext']
+            content = self.hook_target_api_data\
+                .get('content', {})\
+                .get('fulltext', '')
 
         elif short_name == 'ck':
-            content = self.hook_target_api_data['content']
+            content = self.hook_target_api_data.get('content', '')
 
         elif short_name == 'xq':
             content = self.hook_target_api_data.get('text', '')
@@ -3771,7 +3791,7 @@ class ArticleParser(AsyncCrawler):
                 if content != '':
                     # 加上最上方描述div
                     desc_div = await async_parse_field(
-                        parser=parse_obj['desc_div'],
+                        parser=parse_obj.get('desc_div'),
                         target_obj=target_obj,
                         logger=self.lg)
                     if desc_div != '':
@@ -3782,7 +3802,9 @@ class ArticleParser(AsyncCrawler):
                     pass
 
         elif short_name == 'jd':
-            ori_img_url_list = self.hook_target_api_data.get('base_data', {}).get('images', [])
+            ori_img_url_list = self.hook_target_api_data\
+                .get('base_data', {})\
+                .get('images', [])
             assert ori_img_url_list != []
             article_main_img_div = ''
             for img_url in ori_img_url_list:
@@ -3883,7 +3905,8 @@ class ArticleParser(AsyncCrawler):
                 '转载抄袭必究',
                 '未经许可',
                 '本人原创',
-                '未经授权，请勿转载。',
+                '未经授权',
+                '请勿转载',
                 '声明：本文章内容或视频素材来源于网络，如有侵权请联系删除！',
                 '该文章为优秀网首发，其他平台转载必须私信作者，取得授权。',
                 '\#月薪万元\—新作者扶植计划开启\#',
@@ -3896,6 +3919,10 @@ class ArticleParser(AsyncCrawler):
                 '如不慎侵害的您的权益,请告知,我们将尽快删除',
                 '\：\，\，\。',
                 '\:\,\,\.',
+                '本文著作权归作者所有',
+                '并授权\w+独家使用',
+                '未经\w+官方许可',
+                '不得转载使用',
             ],
             is_default_filter=False,
             is_lower=False,)
