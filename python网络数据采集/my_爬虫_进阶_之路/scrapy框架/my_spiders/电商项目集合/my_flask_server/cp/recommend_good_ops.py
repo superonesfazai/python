@@ -78,7 +78,11 @@ class RecommendGoodOps(AsyncCrawler):
         # 荐好管理label
         self.recommend_good_label_css_selector = 'span.nav-label'
         # article_id 截取数
-        self.intercept_num = 3
+        self.zq_intercept_num = 2
+        self.hk_intercept_num = 1
+        self.article_parser = None
+        # 暂存好看视频list的dict
+        self.hk_cache_dict = {}
 
     async def _fck_run(self):
         # 休眠5分钟, 避免频繁发!
@@ -98,7 +102,7 @@ class RecommendGoodOps(AsyncCrawler):
                 try:
                     await async_wait_for(
                         self.auto_publish_articles(),
-                        timeout=self.intercept_num * 2.5 * 60)
+                        timeout=(self.zq_intercept_num+self.hk_intercept_num) * 2.5 * 60)
                 except AsyncTimeoutError:
                     raise PublishOneArticleFailException
 
@@ -151,13 +155,9 @@ class RecommendGoodOps(AsyncCrawler):
 
         if self.min_article_id == 0\
             or self.max_article_id == 0:
-            article_parser = ArticleParser(logger=self.lg)
-            article_list = self.loop.run_until_complete(article_parser.get_article_list_by_article_type(
+            self.article_parser = ArticleParser(logger=self.lg)
+            article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                 article_type=self.article_type,))
-            try:
-                del article_parser
-            except:
-                pass
             assert article_list != []
 
             self.min_article_id, self.max_article_id = self.get_latest_max_and_min_artcile_id_from_article_list(
@@ -169,9 +169,11 @@ class RecommendGoodOps(AsyncCrawler):
             pass
 
         # 创建目标集合
-        article_list = self.get_zq_own_create_article_id_list(
+        # zq_article_list = []
+        zq_article_list = self.get_zq_own_create_article_id_list(
             min_article_id=self.min_article_id,
             max_article_id=self.max_article_id,)
+        hk_article_list = self.get_hk_article_id_list()
 
         # 测试用
         # article_id = '17300123'
@@ -182,6 +184,9 @@ class RecommendGoodOps(AsyncCrawler):
         #     'title': '未知',
         #     'article_url': 'https://focus.youth.cn/mobile/detail/id/{}#'.format(article_id),
         # }]
+
+        # 文章在前的发布顺序, 视频在后(避免视频发过多)
+        article_list = zq_article_list + hk_article_list
 
         assert article_list != []
         # pprint(article_list)
@@ -251,6 +256,37 @@ class RecommendGoodOps(AsyncCrawler):
 
         return
 
+    def get_hk_article_id_list(self):
+        """
+        获取hk 目标article_id_list
+        :return:
+        """
+        if not isinstance(self.article_parser, ArticleParser):
+            self.article_parser = ArticleParser(logger=self.lg)
+        else:
+            pass
+
+        if self.hk_cache_dict == {}:
+            hk_article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                article_type='hk',))
+            self.hk_cache_dict['data'] = hk_article_list
+            self.hk_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+        else:
+            cache_time = self.hk_cache_dict['cache_time']
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > 12 * 60:
+                # 每过5分钟重新获取一次
+                hk_article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                    article_type='hk',))
+                self.hk_cache_dict['data'] = hk_article_list
+                self.hk_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+            else:
+                hk_article_list = self.hk_cache_dict['data']
+
+        # 截取1个(与图文穿插)
+        hk_article_list = random_sample(hk_article_list, self.hk_intercept_num)
+
+        return hk_article_list
+
     def get_latest_max_and_min_artcile_id_from_article_list(self, article_list) -> tuple:
         """
         获取最新范围的article_id最大, 最小的article_id(目的动态的自己创建值)
@@ -278,7 +314,7 @@ class RecommendGoodOps(AsyncCrawler):
         """
         article_id_list = [str(article_id) for article_id in range(min_article_id, max_article_id)]
         # 截取3
-        article_id_list = random_sample(article_id_list, self.intercept_num)
+        article_id_list = random_sample(article_id_list, self.zq_intercept_num)
         res = [{
             'uid': get_uuid3(target_str='{}::{}'.format('zq', article_id)),
             'article_type': 'zq',
@@ -473,7 +509,7 @@ class RecommendGoodOps(AsyncCrawler):
 
         return
 
-    @fz_set_timeout(seconds=40.)
+    @fz_set_timeout(seconds=50.)
     def wait_for_delete_img_appear(self, driver: BaseDriver):
         """
         直至出现图片, 超时退出(并且避免发布无图文章)
@@ -514,6 +550,8 @@ class RecommendGoodOps(AsyncCrawler):
             del self.loop
             del self.db_article_id_list
             del self.publish_url
+            del self.article_parser
+            del self.hk_cache_dict
         except:
             pass
         collect()

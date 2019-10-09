@@ -69,6 +69,9 @@ from os import getcwd
 from os.path import abspath
 from ftfy import fix_text
 from requests import session
+from random import choice as random_choice
+from random import sample as random_sample
+
 from my_items import WellRecommendArticle
 from settings import (
     ARTICLE_ITEM_LIST,
@@ -209,8 +212,162 @@ class ArticleParser(AsyncCrawler):
         if article_type == 'zq':
             return await self.get_zq_article_list()
 
+        elif article_type == 'hk':
+            return await self.get_hk_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_hk_article_list(self) -> list:
+        """
+        获取hk的article_list
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            # 分类
+            self.hk_tab_name_list = [
+                'yingshi',
+                'yinyue',
+                'gaoxiao',
+                'vlog',
+                'yule',
+                'dongman',
+                'shenghuo',
+                'xiaopin',
+                'zongyi',
+                'youxi',
+                'miaodong',
+                'jiaoyu',
+                'junshi',
+                'keji',
+                'qiche',
+                'tiyu',
+                'wenhua',
+                'qinzi',
+                'shehui',
+                'sannong',
+                'chongwu',
+                'meishi',
+                'shishang',
+            ]
+            # 随机赛选一个区间
+            _ = random_sample(self.hk_tab_name_list, 3)
+            for tab_name in _:
+                tasks_params_list.append({
+                    'tab_name': tab_name,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where hk: tab_name:{}]...'.format(
+                k['tab_name'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['tab_name'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_hk_recommend_article_list_by_tab_name,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_hk_recommend_article_list_by_tab_name(self, tab_name: str):
+        """
+        根据tab_name 获取hk推荐页的article_list
+        :param tab_name:
+        :return:
+        """
+        headers = get_random_headers(
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='',)
+        headers.update({
+            'sec-fetch-mode': 'cors',
+            'content-type': 'application/x-www-form-urlencoded',
+            'referer': 'https://haokan.baidu.com/',
+            'authority': 'haokan.baidu.com',
+            'sec-fetch-site': 'same-origin',
+        })
+        params = (
+            ('tab', tab_name),
+            ('act', 'pcFeed'),
+            ('pd', 'pc'),
+            ('num', '5'),               # 返回数
+            ('shuaxin_id', get_now_13_bit_timestamp()),
+        )
+        url = 'https://haokan.baidu.com/videoui/api/videorec'
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,)
+        assert body != ''
+        # self.lg.info(body)
+        data = json_2_dict(
+            json_str=body,
+            default_res={},
+            logger=self.lg,) \
+            .get('data', {}) \
+            .get('response', {}) \
+            .get('videos', [])
+        assert data != []
+        # pprint(data)
+
+        res = []
+        for item in data:
+            try:
+                title = item.get('title', '')
+                assert title != ''
+                # 标题必须小于等于30
+                assert len(title) <= 30
+                article_id = item.get('id', '')
+                assert article_id != ''
+                video_play_url = item.get('play_url', '')
+                # 跳过视频文章
+                assert video_play_url != ''
+                article_url = 'https://haokan.baidu.com/v?vid={}'.format(article_id)
+            except (AssertionError, Exception):
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('hk::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('hk', article_id)),
+                'article_type': 'hk',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+
+        self.lg.info('[{}] hk::tab_name:{}'.format(
+            '+' if res != [] else '-',
+            tab_name,
+        ))
+
+        return res
 
     async def get_zq_article_list(self) -> list:
         """
@@ -3895,7 +4052,7 @@ class ArticleParser(AsyncCrawler):
                 '私自转载',
                 '禁止搬运',
                 '追究法律责任',
-                '图片来源[于]{0}网络',
+                '图片来[源自]{1}[于]{0}网络',
                 '如有侵权请联系删除',
                 '版权归[于]{0}原作者所有',
                 '图文原创',
@@ -3926,6 +4083,7 @@ class ArticleParser(AsyncCrawler):
                 '并授权\w+独家使用',
                 '未经\w+官方许可',
                 '不得转载使用',
+                '本文文字为原创',
             ],
             is_default_filter=False,
             is_lower=False,)
@@ -5635,8 +5793,10 @@ def main():
     # print(tmp)
 
     # 文章列表
+    # # article_type = 'zq'
+    # article_type = 'hk'
     # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
-    #     article_type='zq',))
+    #     article_type=article_type,))
     # pprint(tmp)
 
 if __name__ == '__main__':
