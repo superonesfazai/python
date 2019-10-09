@@ -11,6 +11,7 @@ from settings import (
     MY_SPIDER_LOGS_PATH,
     IP_POOL_TYPE,)
 from urllib.parse import urlencode
+from random import choice as random_choice
 
 from taobao_parse import TaoBaoLoginAndParse
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
@@ -52,6 +53,10 @@ class TmallParse(Crawler):
         self.msg = ''
         self.is_real_times_update_call = is_real_times_update_call
         self.req_timeout = 15
+        self.enc_list = [
+            'NMn7zFLrgU6nMXwgPWND42Y2H3tmKu0Iel59hu%2B7DFx27uPqGw349h4yvXidY3xuFC6%2FjozpnaTic5LC7jv8CA%3D%3D',
+            'kxgn6u4Exjy%2FqfAJCZCOYkMadNBHPSOGR1KKmL%2FGZpJE%2F%2BSL%2FXQoVOxb0BsAyBq9kq%2F1uCGscYpaTa8Rbstc4Q%3D%3D',
+        ]
         if self.is_real_times_update_call:
             self.proxy_type = PROXY_TYPE_HTTPS
             # 不可太大，否则server采集时慢
@@ -337,10 +342,15 @@ class TmallParse(Crawler):
         headers.update({
             'Referer': phone_url,
         })
+        # 必须
+        cookies = {
+            'enc': random_choice(self.enc_list),
+        }
         last_url = self._get_last_url(goods_id=goods_id)
         body = Requests.get_url_body(
             url=last_url,
             headers=headers,
+            # cookies=cookies,                              # 先不采用第一种都走第二种方式, 因为部分特价商品还未处理
             timeout=self.req_timeout,
             ip_pool_type=self.ip_pool_type,
             proxy_type=self.proxy_type,

@@ -35,6 +35,8 @@ from random import randint
 from random import sample as random_sample
 from selenium.common.exceptions import NoSuchFrameException
 from selenium.common.exceptions import TimeoutException as SeleniumTimeoutException
+from asyncio import TimeoutError as AsyncTimeoutError
+from asyncio import wait_for as async_wait_for
 
 from fzutils.data.str_utils import target_str_contain_some_char_check
 from fzutils.spider.fz_driver import (
@@ -75,6 +77,8 @@ class RecommendGoodOps(AsyncCrawler):
         self.driver_use_proxy = True
         # 荐好管理label
         self.recommend_good_label_css_selector = 'span.nav-label'
+        # article_id 截取数
+        self.intercept_num = 3
 
     async def _fck_run(self):
         # 休眠5分钟, 避免频繁发!
@@ -87,11 +91,17 @@ class RecommendGoodOps(AsyncCrawler):
         while True:
             if get_shanghai_time().hour == 0:
                 # 夜晚休眠
-                await async_sleep(60 * 60 * 5)
+                await async_sleep(60 * 60 * 4.)
             else:
                 pass
             try:
-                await self.auto_publish_articles()
+                try:
+                    await async_wait_for(
+                        self.auto_publish_articles(),
+                        timeout=self.intercept_num * 2.5 * 60)
+                except AsyncTimeoutError:
+                    raise PublishOneArticleFailException
+
             except (
                     ArticleTitleOverLongException,
                     LoginFailException,
@@ -193,8 +203,12 @@ class RecommendGoodOps(AsyncCrawler):
             driver_use_proxy=self.driver_use_proxy,
             ip_pool_type=self.ip_pool_type,)
         try:
-            self.login_bg(driver=driver)
-            self.get_into_recommend_good_manage(driver=driver)
+            try:
+                self.login_bg(driver=driver)
+                self.get_into_recommend_good_manage(driver=driver)
+            except FZTimeoutError:
+                raise LoginFailException
+
             for item in target_article_list:
                 uid = item.get('uid', '')
                 title = item.get('title', '')
@@ -264,7 +278,7 @@ class RecommendGoodOps(AsyncCrawler):
         """
         article_id_list = [str(article_id) for article_id in range(min_article_id, max_article_id)]
         # 截取3
-        article_id_list = random_sample(article_id_list, 3)
+        article_id_list = random_sample(article_id_list, self.intercept_num)
         res = [{
             'uid': get_uuid3(target_str='{}::{}'.format('zq', article_id)),
             'article_type': 'zq',
@@ -326,6 +340,7 @@ class RecommendGoodOps(AsyncCrawler):
 
         return target_article_list
 
+    @fz_set_timeout(seconds=1.5 * 60)
     def login_bg(self, driver: BaseDriver):
         """
         login
@@ -368,6 +383,7 @@ class RecommendGoodOps(AsyncCrawler):
 
         self.lg.info('login success!')
 
+    @fz_set_timeout(seconds=60.)
     def get_into_recommend_good_manage(self, driver: BaseDriver):
         """
         进入荐好管理
@@ -457,7 +473,7 @@ class RecommendGoodOps(AsyncCrawler):
 
         return
 
-    @fz_set_timeout(seconds=35.)
+    @fz_set_timeout(seconds=40.)
     def wait_for_delete_img_appear(self, driver: BaseDriver):
         """
         直至出现图片, 超时退出(并且避免发布无图文章)

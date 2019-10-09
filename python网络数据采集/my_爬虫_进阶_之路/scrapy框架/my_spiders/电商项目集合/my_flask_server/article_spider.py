@@ -707,6 +707,9 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return: body, video_url
         """
+        # 兼容m站
+        article_url = article_url.replace('m.toutiao', 'www.toutiao')
+
         headers = await async_get_random_headers()
         headers.update({
             'authority': 'www.toutiao.com',
@@ -718,7 +721,7 @@ class ArticleParser(AsyncCrawler):
             ip_pool_type=self.ip_pool_type,
             logger=self.lg,)
         # self.lg.info(str(body))
-        assert body != '', '获取到wx的body为空值!'
+        assert body != '', '获取到tt的body为空值!'
 
         return body, ''
 
