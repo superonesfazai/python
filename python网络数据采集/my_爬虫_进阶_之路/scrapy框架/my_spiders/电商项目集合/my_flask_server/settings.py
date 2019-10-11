@@ -52,6 +52,10 @@ if SYSTEM_TYPE == 'Darwin':
     是否为后台运行
     """
     IS_BACKGROUND_RUNNING = False
+    """
+    cpolar
+    """
+    CPOLAR_PWD_INFO_PATH = '/Users/afa/myFiles/pwd/cpolar_pwd.json'
 
 else:
     # server
@@ -63,6 +67,7 @@ else:
     taobao_u_and_p_path = '/root/my_username_and_passwd.json'
     MY_SPIDER_LOGS_PATH = '/root/myFiles/my_spider_logs/电商项目'
     IS_BACKGROUND_RUNNING = True
+    CPOLAR_PWD_INFO_PATH = ''
 
 """
 zwm

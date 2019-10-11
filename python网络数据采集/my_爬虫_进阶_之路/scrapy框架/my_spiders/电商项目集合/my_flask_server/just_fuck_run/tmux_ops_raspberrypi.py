@@ -180,6 +180,21 @@ class TmuxOps(AsyncCrawler):
                 'delay_time': 2,
             },
             {
+                'page_name': 'recommend_good_ops',
+                'cmd': 'cd {}'.format(
+                    self.cp_path,
+                ),
+                'delay_time': 2,
+            },
+            {
+                'page_name': 'cpolar_controler',
+                'cmd': 'cd {} && {} cpolar_controler.py'.format(
+                    self.cp_path,
+                    self.python_version_cmd,
+                ),
+                'delay_time': 2,
+            },
+            {
                 'page_name': 'logs',
                 'cmd': 'cd {} && {} expired_logs_deal_with.py'.format(
                     self.logs_path,

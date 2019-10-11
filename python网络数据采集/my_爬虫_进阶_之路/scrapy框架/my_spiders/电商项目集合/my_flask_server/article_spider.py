@@ -232,11 +232,11 @@ class ArticleParser(AsyncCrawler):
                 'gaoxiao',
                 'vlog',
                 'yule',
-                'dongman',
+                # 'dongman',
                 'shenghuo',
                 'xiaopin',
                 'zongyi',
-                'youxi',
+                # 'youxi',
                 'miaodong',
                 'jiaoyu',
                 'junshi',
@@ -441,6 +441,17 @@ class ArticleParser(AsyncCrawler):
         :param page_num: 1开始
         :return:
         """
+        # rasp报错: Caused by SSLError(SSLError("bad handshake: Error([('SSL routines', 'ssl_choose_client_version', 'unsupported protocol')],
+        # 导致原因: 系统tls安全性提高了
+        # 解决方案: 修改协议最低版本
+        # $ vi /etc/ssl/openssl.cnf
+        # [system_default_sect]
+        # MinProtocol = TLSv1.2
+        # CipherString = DEFAULT@SECLEVEL = 2
+        # 修改为
+        # [system_default_sect]
+        # MinProtocol = TLSv1.0
+        # CipherString = DEFAULT@SECLEVEL = 1
         headers = get_random_headers(
             user_agent_type=1,
             upgrade_insecure_requests=False,
@@ -730,7 +741,7 @@ class ArticleParser(AsyncCrawler):
                 'site_id': 33,
             },
             'xq': {
-                'debug': False,
+                'debug': True,
                 'name': '雪球网',
                 'url': 'https://xueqiu.com',
                 'obj_origin': 'xueqiu.com',
@@ -3167,11 +3178,11 @@ class ArticleParser(AsyncCrawler):
         :param target_obj:
         :return:
         """
+        # self.lg.info(target_obj)
         short_name = parse_obj.get('short_name', '')
         assert short_name != ''
+        # 可为None, 因为部分走接口
         title_sel = parse_obj.get('title', None)
-        assert title_sel is not None
-        # self.lg.info(target_obj)
 
         short_name_list = [
             'df',
@@ -4044,6 +4055,8 @@ class ArticleParser(AsyncCrawler):
             replace_str_list=[
                 ('今日头条', '优秀网'),
                 ('头条', '优秀'),
+                ('\，{2}', '，'),
+                ('\。{2}', '。'),
             ],
             add_sensitive_str_list=[
                 '<br>',
@@ -4052,9 +4065,9 @@ class ArticleParser(AsyncCrawler):
                 '私自转载',
                 '禁止搬运',
                 '追究法律责任',
-                '图片来[源自]{1}[于]{0}网络',
+                '图片来[源自]{1}[于]{0,1}网络',
                 '如有侵权请联系删除',
-                '版权归[于]{0}原作者所有',
+                '版权归[于]{0,1}原作者所有',
                 '图文原创',
                 '搬运必究',
                 '转载此文是出于传递更多信息之目的',
@@ -4079,6 +4092,7 @@ class ArticleParser(AsyncCrawler):
                 '如不慎侵害的您的权益,请告知,我们将尽快删除',
                 '\：\，\，\。',
                 '\:\,\,\.',
+                '[\[\(\【]{1}[\]\)\】]{1}',
                 '本文著作权归作者所有',
                 '并授权\w+独家使用',
                 '未经\w+官方许可',
@@ -5793,8 +5807,8 @@ def main():
     # print(tmp)
 
     # 文章列表
-    # # article_type = 'zq'
-    # article_type = 'hk'
+    # article_type = 'zq'
+    # # article_type = 'hk'
     # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
     #     article_type=article_type,))
     # pprint(tmp)

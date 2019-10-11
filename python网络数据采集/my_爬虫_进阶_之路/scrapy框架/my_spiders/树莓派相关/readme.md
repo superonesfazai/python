@@ -172,6 +172,24 @@ $ pip3 install -i http://pypi.douban.com/simple/ flask flask_login --trusted-hos
 $ pip3 install -i http://pypi.douban.com/simple/ fzutils --trusted-host pypi.douban.com
 ```
 
+### 包报错处理
+
+#### requests
+
+```bash
+# rasp报错: Caused by SSLError(SSLError("bad handshake: Error([('SSL routines', 'ssl_choose_client_version', 'unsupported protocol')]
+# 导致原因: 系统tls安全性提高了
+# 解决方案: 修改协议最低版本
+# $ vi /etc/ssl/openssl.cnf
+# [system_default_sect]
+# MinProtocol = TLSv1.2
+# CipherString = DEFAULT@SECLEVEL = 2
+# 修改为
+# [system_default_sect]
+# MinProtocol = TLSv1.0
+# CipherString = DEFAULT@SECLEVEL = 1
+```
+
 ### 常用shell
 ```bash
 # 查看cpu温度

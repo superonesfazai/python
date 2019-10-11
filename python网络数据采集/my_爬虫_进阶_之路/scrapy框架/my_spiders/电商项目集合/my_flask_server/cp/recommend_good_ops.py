@@ -196,6 +196,7 @@ class RecommendGoodOps(AsyncCrawler):
             self.lg.info('待发布的target_article_list为空list, pass!')
             return
 
+        # rasp上代理模式启动chromedriver具有一定的失败率, 故还是mac
         driver = BaseDriver(
             type=CHROME,
             executable_path=CHROME_DRIVER_PATH,
@@ -267,6 +268,7 @@ class RecommendGoodOps(AsyncCrawler):
             pass
 
         if self.hk_cache_dict == {}:
+            # 首次启动
             hk_article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                 article_type='hk',))
             self.hk_cache_dict['data'] = hk_article_list
@@ -274,7 +276,7 @@ class RecommendGoodOps(AsyncCrawler):
         else:
             cache_time = self.hk_cache_dict['cache_time']
             if datetime_to_timestamp(get_shanghai_time()) - cache_time > 12 * 60:
-                # 每过5分钟重新获取一次
+                # 每过12分钟重新获取一次
                 hk_article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                     article_type='hk',))
                 self.hk_cache_dict['data'] = hk_article_list
@@ -391,7 +393,12 @@ class RecommendGoodOps(AsyncCrawler):
             driver.find_element(value='input#loginName').send_keys(self.yx_username)
             driver.find_element(value='input#loginPwd').send_keys(self.yx_password)
             driver.find_element(value='button#subbut').click()
-        except (NoSuchElementException, SeleniumTimeoutException, AssertionError):
+        except (
+                NoSuchElementException,
+                SeleniumTimeoutException,
+                AssertionError,
+                WebDriverException,
+                AttributeError,):
             # 抛出登录异常
             raise LoginFailException
 
