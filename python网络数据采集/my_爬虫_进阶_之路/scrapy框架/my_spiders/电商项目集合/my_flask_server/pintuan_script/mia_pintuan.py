@@ -43,7 +43,8 @@ class MiaPintuan(object):
         :return: None
         '''
         goods_list = []
-        for page_num in range(1, 1000):     # 0跟1返回一样，所有从1开始遍历
+        for page_num in range(1, 4):
+            # 0跟1返回一样，所有从1开始遍历
             try:
                 one_page_list = get_mia_pintuan_one_page_api_goods_info(page_num=page_num)
                 assert one_page_list != [], 'one_page_list不为空list!'
@@ -55,8 +56,6 @@ class MiaPintuan(object):
 
             for item in one_page_list:
                 goods_list.append(item)
-
-            sleep(.5)
 
         pprint(goods_list)
         self.deal_with_data(goods_list=goods_list)

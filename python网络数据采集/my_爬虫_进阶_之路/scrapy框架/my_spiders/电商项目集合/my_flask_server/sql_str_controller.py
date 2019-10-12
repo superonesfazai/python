@@ -147,11 +147,11 @@ order by ModfiyTime asc
 tb_select_str_4 = 'select goods_id, miaosha_time, goods_url, page, spider_time from dbo.tao_qianggou_xianshimiaosha where site_id=28'
 tb_select_str_5 = tb_select_str_4
 # 天天特价秒杀
-tb_select_str_6 = 'select goods_id, is_delete, tejia_end_time, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19'
+tb_select_str_6 = 'select goods_id, is_delete, miaosha_end_time, block_id, tag_id from dbo.taobao_tiantiantejia where site_id=19'
 # 天天特价实时更新
 # and GETDATE()-modfiy_time > 2
 tb_select_str_7 = '''
-select goods_id, is_delete, tejia_end_time, block_id, tag_id 
+select goods_id, is_delete, miaosha_end_time, block_id, tag_id 
 from dbo.taobao_tiantiantejia 
 where site_id=19 
 and is_delete=0 
@@ -163,7 +163,7 @@ tb_insert_str_1 = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName,
 # 不带MainGoodsID的插入
 tb_insert_str_2 = 'insert into dbo.GoodsInfoAutoGet(GoodsID, GoodsUrl, UserName, CreateTime, ModfiyTime, ShopName, Account, GoodsName, SubTitle, LinkName, Price, TaoBaoPrice, PriceInfo, SKUName, SKUInfo, ImageUrl, PropertyInfo, DetailInfo, SellCount, SiteID, IsDelete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 # 天天特价插入
-tb_insert_str_3 = 'insert into dbo.taobao_tiantiantejia(goods_id, goods_url, create_time, modfiy_time, shop_name, account, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, month_sell_count, schedule, tejia_begin_time, tejia_end_time, block_id, tag_id, father_sort, child_sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+tb_insert_str_3 = 'insert into dbo.taobao_tiantiantejia(goods_id, goods_url, create_time, modfiy_time, shop_name, account, goods_name, sub_title, price, taobao_price, sku_name, sku_Info, all_image_url, property_info, detail_info, month_sell_count, schedule, miaosha_begin_time, miaosha_end_time, block_id, tag_id, father_sort, child_sort, site_id, is_delete) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 '''update'''
 # 常规goods更新
 tb_update_str_1 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s, Account=%s, GoodsName=%s, SubTitle=%s, LinkName=%s, Price=%s, TaoBaoPrice=%s, PriceInfo=%s, SKUName=%s, SKUInfo=%s, ImageUrl=%s, PropertyInfo=%s, DetailInfo=%s, SellCount=%s, IsDelete=%s, IsPriceChange=%s, PriceChangeInfo=%s, sku_info_trans_time=%s, is_spec_change=%s, spec_trans_time=%s, is_stock_change=%s, stock_trans_time=%s, stock_change_info=%s, parent_dir=%s, Schedule=%s, {0} {1} where GoodsID = %s'
@@ -179,7 +179,7 @@ tb_update_str_5 = 'update dbo.taobao_tiantiantejia set is_delete=1, modfiy_time=
 # 淘抢购下架删除
 tb_delete_str_1 = 'delete from dbo.tao_qianggou_xianshimiaosha where goods_id=%s'
 # 天天特价过期清空
-tb_delete_str_2 = 'delete from dbo.taobao_tiantiantejia where tejia_end_time < GETDATE()-2'
+tb_delete_str_2 = 'delete from dbo.taobao_tiantiantejia where miaosha_end_time < GETDATE()-2'
 
 """
 天猫

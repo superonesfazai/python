@@ -37,6 +37,8 @@ class MiaParse(Crawler):
         )
         self._set_headers()
         self.result_data = {}
+        self.proxy_type = PROXY_TYPE_HTTPS
+        self.req_num_retries = 3
 
     def _set_headers(self):
         self.headers = {
@@ -66,7 +68,12 @@ class MiaParse(Crawler):
             # goods_url = 'https://www.mia.com/item-' + str(goods_id) + '.html'
             print('------>>>| 待抓取的地址为: ', goods_url)
 
-            body = Requests.get_url_body(url=goods_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
+            body = Requests.get_url_body(
+                url=goods_url,
+                headers=self.headers,
+                ip_pool_type=self.ip_pool_type,
+                proxy_type=self.proxy_type,
+                num_retries=self.req_num_retries,)
             # print(body)
             if body == '':
                 return self._data_error_init()
@@ -158,7 +165,9 @@ class MiaParse(Crawler):
                 headers=headers,
                 params=params,
                 cookies=None,
-                ip_pool_type=self.ip_pool_type)
+                proxy_type=self.proxy_type,
+                ip_pool_type=self.ip_pool_type,
+                num_retries=self.req_num_retries,)
             # print(body)
             data = json_2_dict(
                 json_str=re.compile('\((.*)\)').findall(body)[0],
@@ -421,7 +430,12 @@ class MiaParse(Crawler):
                 print('获取跳转的地址时出错!')
 
             if sign_direct_url != '':
-                body = Requests.get_url_body(url=sign_direct_url, headers=self.headers, ip_pool_type=self.ip_pool_type)
+                body = Requests.get_url_body(
+                    url=sign_direct_url,
+                    headers=self.headers,
+                    ip_pool_type=self.ip_pool_type,
+                    proxy_type=self.proxy_type,
+                    num_retries=self.req_num_retries,)
                 try:
                     _ = re.compile(r'://m.miyabaobei.hk/').findall(sign_direct_url)[0]
                     # 表示为全球购商品
@@ -590,6 +604,8 @@ class MiaParse(Crawler):
         # pprint(skus)
         if skus == []:
             raise MiaSkusIsNullListException
+        else:
+            pass
 
         tmp_sku_info = []
         # 先处理skus中的多规格
@@ -649,24 +665,36 @@ class MiaParse(Crawler):
 
         sku_info = []
         for item in tmp_sku_info:
+            # todo 由于mia pc站已不提供, 都被跳转到m站
             if is_hk is True:
-                tmp_url = 'https://www.miyabaobei.hk/item-' + str(goods_id) + '.html'
-            else:
-                tmp_url = 'https://www.mia.com/item-' + item.get('goods_id') + '.html'
+                # tmp_url = 'https://www.miyabaobei.hk/item-' + str(goods_id) + '.html'
+                tmp_url = 'https://m.miyabaobei.hk/item-' + str(goods_id) + '.html'
 
+            else:
+                # tmp_url = 'https://www.mia.com/item-' + item.get('goods_id') + '.html'
+                tmp_url = 'https://m.mia.com/item-' + item.get('goods_id') + '.html'
+
+            # print(tmp_url)
             tmp_body = Requests.get_url_body(
                 url=tmp_url,
                 headers=self.headers,
                 had_referer=True,
-                ip_pool_type=self.ip_pool_type)
+                ip_pool_type=self.ip_pool_type,
+                proxy_type=self.proxy_type,
+                num_retries=self.req_num_retries,)
             # print(tmp_body)
-            if sign_direct_url != '':
-                # 下面由于html不规范获取不到img_url，所以采用正则
-                # img_url = Selector(text=body).css('div.big.rel img::attr("src")').extract_first()
-                img_url = re.compile(r'<div class="big rel"><img src="(.*?)"width=').findall(tmp_body)[0]
-                # print(img_url)
-            else:
-                img_url = re.compile(r'normal_pic_src = "(.*?)"').findall(tmp_body)[0]
+
+            # 下面是pc版的匹配图
+            # if sign_direct_url != '':
+            #     # 下面由于html不规范获取不到img_url，所以采用正则
+            #     # img_url = Selector(text=body).css('div.big.rel img::attr("src")').extract_first()
+            #     img_url = re.compile(r'<div class="big rel"><img src="(.*?)"width=').findall(tmp_body)[0]
+            #     # print(img_url)
+            # else:
+            #     img_url = re.compile(r'normal_pic_src = "(.*?)"').findall(tmp_body)[0]
+
+            # 改用m站, 获取首图
+            img_url = re.compile(';var imgurl = \'(.*?)\' \|\|').findall(tmp_body)[0]
 
             sku_info.append({
                 'goods_id': item.get('goods_id'),
@@ -702,18 +730,21 @@ class MiaParse(Crawler):
         :return: True 缺货状态
         """
         headers = self._get_pc_headers()
-        data = {
+        data = dumps({
             'count': '1',
             # 'size': 'SINGLE',
             'id': goods_id,
-        }
+        })
         url = 'https://www.mia.com/instant/cart/addToCart'
         body = Requests.get_url_body(
             method='post',
             url=url,
             headers=headers,
             data=data,
-            ip_pool_type=self.ip_pool_type,)
+            proxy_type=self.proxy_type,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.req_num_retries,)
+        # print(body)
         msg = json_2_dict(
             json_str=body,
             default_res={}).get('msg', '')
@@ -757,7 +788,9 @@ class MiaParse(Crawler):
             url=tmp_url,
             headers=self.headers,
             had_referer=True,
-            ip_pool_type=self.ip_pool_type)
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
         # print(tmp_body)
 
         tmp_data = json_2_dict(json_str=tmp_body, default_res={}).get('data', [])

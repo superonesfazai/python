@@ -76,7 +76,9 @@ class MiaPintuanParse(MiaParse, Crawler):
             url=goods_url,
             headers=self._get_phone_headers(),
             # had_referer=True,
-            ip_pool_type=self.ip_pool_type)
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
         # print(body)
         if body == '':
             print('获取到的body为空值!跳过!')
@@ -343,7 +345,9 @@ class MiaPintuanParse(MiaParse, Crawler):
             url=tmp_url,
             headers=self.headers,
             had_referer=True,
-            ip_pool_type=self.ip_pool_type)
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
         # print(tmp_body)
 
         tmp_data = json_2_dict(json_str=tmp_body, default_res={}).get('data', [])

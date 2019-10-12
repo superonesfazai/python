@@ -2318,7 +2318,9 @@ def get_mia_pintuan_one_page_api_goods_info(page_num:(int, str)) -> list:
         url=tmp_url,
         headers=headers,
         had_referer=True,
-        ip_pool_type=IP_POOL_TYPE)
+        ip_pool_type=IP_POOL_TYPE,
+        proxy_type=PROXY_TYPE_HTTPS,        # 还是得https, 原因server长期采集会被封
+    )
     # print(body)
     if body == '':
         # 避免proxy异常导致返回空list, 错误下架商品

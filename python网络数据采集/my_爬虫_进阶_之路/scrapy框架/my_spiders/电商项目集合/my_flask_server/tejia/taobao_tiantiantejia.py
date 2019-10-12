@@ -338,13 +338,24 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
         if data != []:
             # 处理得到需要的数据
             try:
-                tejia_goods_list = [{
-                    'goods_id': item.get('baseinfo', {}).get('itemId', ''),
-                    'start_time': timestamp_to_regulartime(int(item.get('baseinfo', {}).get('ostime', '')[0:10])),
-                    'end_time': timestamp_to_regulartime(int(item.get('baseinfo', {}).get('oetime', '')[0:10])),
-                } for item in data]
+                for item in data:
+                    start_time = int(item.get('baseinfo', {}).get('ostime', '')[0:10])
+                    end_time = int(item.get('baseinfo', {}).get('oetime', '')[0:10])
+                    goods_id = item.get('baseinfo', {}).get('itemId', '')
+                    if end_time - start_time <= 60*60*24*5:
+                        # 只要特价时间在5天内的
+                        tejia_goods_list.append({
+                            'goods_id': goods_id,
+                            'start_time': timestamp_to_regulartime(start_time),
+                            'end_time': timestamp_to_regulartime(end_time),
+                        })
+                    else:
+                        continue
+
             except Exception as e:
                 self.lg.exception(e)
+        else:
+            pass
 
         return tejia_goods_list
 
