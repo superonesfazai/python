@@ -1512,6 +1512,10 @@ ARTICLE_ITEM_LIST = [
             'method': 're',
             'selector': '\"title\": \"(.*?)\",',
         },
+        'video_title2': {
+            'method': 'css',
+            'selector': 'section h1 ::text',
+        },
         'author': {
             'method': 'css',
             'selector': 'section.information span p ::text',

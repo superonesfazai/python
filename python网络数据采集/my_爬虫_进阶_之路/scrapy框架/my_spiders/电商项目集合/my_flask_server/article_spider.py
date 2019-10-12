@@ -61,6 +61,7 @@ not supported:
     12. 中国青年网(http://m.youth.cn/)
     13. 妈妈网(http://m.mama.cn/)
     14. 搞笑视频网(需浏览器手机模式查看)(http://www.xjnan.com/)
+    15. bilibili(https://www.bilibili.com/)
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -3274,6 +3275,18 @@ class ArticleParser(AsyncCrawler):
                 .get('base_data', {})\
                 .get('title', '')
 
+        elif short_name == 'ft':
+            if video_url != '':
+                if title == '':
+                    title_selector2 = parse_obj.get('video_title2')
+                    title = await async_parse_field(
+                        parser=title_selector2,
+                        target_obj=target_obj,
+                        logger=self.lg, )
+
+                else:
+                    pass
+
         else:
             pass
 
@@ -4060,12 +4073,11 @@ class ArticleParser(AsyncCrawler):
             ],
             add_sensitive_str_list=[
                 '<br>',
-                '禁止转发',
-                '禁止转载',
+                '禁止转[发载]{1}',
                 '私自转载',
                 '禁止搬运',
                 '追究法律责任',
-                '图片来[源自]{1}[于]{0,1}网络',
+                '图片[均]{0,1}来[源自]{1}[于]{0,1}网络',
                 '如有侵权请联系删除',
                 '版权归[于]{0,1}原作者所有',
                 '图文原创',
@@ -4076,18 +4088,16 @@ class ArticleParser(AsyncCrawler):
                 '我们将及时更正、删除，谢谢。',
                 '部分图片来自网络',
                 '转载抄袭必究',
-                '未经许可',
-                '本人原创',
-                '未经授权',
+                '未经[许授]{1}[可权]{1}',
+                '[本独]{1}[人家]{1}原创',
                 '请勿转载',
                 '声明：本文章内容或视频素材来源于网络，如有侵权请联系删除！',
                 '该文章为优秀网首发，其他平台转载必须私信作者，取得授权。',
                 '\#月薪万元\—新作者扶植计划开启\#',
                 '\（点击可放大看\）',
-                '独家原创',
                 '禁止一切搬运行为',
                 '侵删',
-                '免责声明',
+                '免责声明[\：\:]{0,1}',
                 '本文部分内容来自互联网',
                 '如不慎侵害的您的权益,请告知,我们将尽快删除',
                 '\：\，\，\。',
@@ -4098,6 +4108,8 @@ class ArticleParser(AsyncCrawler):
                 '未经\w+官方许可',
                 '不得转载使用',
                 '本文文字为原创',
+                '文字属于作者原创',
+                '欢迎大家转发关注',
             ],
             is_default_filter=False,
             is_lower=False,)
@@ -5644,6 +5656,7 @@ def main():
     # url = 'https://mlive.fatiao.pro/detail/8772.html'
     # url = 'https://mnatural.fatiao.pro/detail/4194.html'
     # url = 'https://mqtwj.fatiao.pro/detail/8937.html'
+    # url = 'https://mdiet.fatiao.pro/detail/1041.html'
     # 图文
     # url = 'https://mpet.fatiao.pro/article/7858.html'
     # url = 'https://mpet.fatiao.pro/article/1093.html'
