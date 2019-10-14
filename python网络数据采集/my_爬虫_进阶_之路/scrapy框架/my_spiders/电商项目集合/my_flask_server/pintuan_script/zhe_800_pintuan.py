@@ -52,7 +52,9 @@ class Zhe800Pintuan(object):
                 url=tmp_url,
                 headers=self.headers,
                 high_conceal=True,
-                ip_pool_type=self.ip_pool_type)
+                ip_pool_type=self.ip_pool_type,
+                proxy_type=PROXY_TYPE_HTTPS,
+                num_retries=3,)
 
             tmp_data = json_2_dict(
                 json_str=tmp_body,
@@ -111,7 +113,9 @@ class Zhe800Pintuan(object):
                         miaosha_time=goods_data.get('schedule', [])[0])
 
                     # print(goods_data)
-                    _r = zhe_800_pintuan.insert_into_zhe_800_pintuan_table(data=goods_data, pipeline=my_pipeline)
+                    _r = zhe_800_pintuan.insert_into_zhe_800_pintuan_table(
+                        data=goods_data,
+                        pipeline=my_pipeline)
                     if _r:
                         # 插入就更新
                         db_goods_id_list.append(item_goods_id)

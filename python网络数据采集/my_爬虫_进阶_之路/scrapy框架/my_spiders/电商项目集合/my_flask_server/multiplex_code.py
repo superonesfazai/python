@@ -80,7 +80,7 @@ ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
     # 股市
     '走势分析', '股[票权]{1}', '[aA牛]{1}股', '上证', '深指', '大盘', '涨停', '跌停', '纳斯达克', '道琼斯',
     # 数字币
-    '比特', '比圈', 'BTC', 'ETH', '以太坊', '火币',
+    '比特', '[比币]{1}圈', 'BTC', 'ETH', '以太坊', '火币', '加密货币',
     '共产党', '色情', '法轮功', '女优', '共狗', '天猫', '淘宝', '拼多多', '京东', '折800', '亚马逊', '电商',
     '小区介绍', '今日头条', '广告', '公示', '干部', '旧改',
     # 地区
@@ -96,6 +96,7 @@ ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
     '中秋', '月饼', '赏月', '月儿',
     '九一八',
     '国庆', '阅兵', '中国成立', '周年', '十一',
+    '重阳',
     '校长', '小学', '技工学校',
     # eg: 9.1, 9月1日, 9月1
     '\d+[\.月]{1}\d+日{0,1}',
@@ -108,8 +109,8 @@ ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
     '捷达', '法拉利', '阿尔法', '兰博基尼', '悍马', '江铃', '广汽', '特斯拉', '迈凯伦', '蔚来', '迈巴赫', '布加迪', '帕加尼',
     '思域',
     # 互联网
-    '互联网', '站外引流', '编程', '代码', 'coder{0,1}', '网警', '程序[员猿媛]{1}', 'python', 'java', 'js', 'swift', 'go',
-    'ruby', 'javascript', 'php', 'c\+\+', 'c\#', '\.net', 'rust', 'haskell', 'C', 'css', '开发工具', 'perl',
+    '互联网', '站外引流', '编程', '代码', 'coder{0,1}', '网警', '程序[员猿媛]{1}', '[Pp]ython', '[jJ]ava', 'js', '[sS]wift', '[gG]o',
+    'ruby', '[jJ]avascript', '[Pp]hp', 'c\+\+', 'c\#', '\.net', 'rust', 'haskell', 'C', 'css', '开发工具', 'perl',
     '客户端', '正式上线', '服务端', 'mysql', 'sqlserver', 'sqlite', 'oracle', 'PostgreSQL', 'DB[12]', 'Sybase', 'Access',
     'mongodb', 'Informix', 'redis', '云原生技术', '云计算', '分布式', 'istio', 'Kubernetes', 'Service Mesh', 'websocket',
     '全双工通信', 'proxy', '架构师', '死锁', '产品经理', 'UI设计', '码农', '软件测试', 'github', 'svn',
@@ -2320,6 +2321,7 @@ def get_mia_pintuan_one_page_api_goods_info(page_num:(int, str)) -> list:
         had_referer=True,
         ip_pool_type=IP_POOL_TYPE,
         proxy_type=PROXY_TYPE_HTTPS,        # 还是得https, 原因server长期采集会被封
+        num_retries=3,
     )
     # print(body)
     if body == '':

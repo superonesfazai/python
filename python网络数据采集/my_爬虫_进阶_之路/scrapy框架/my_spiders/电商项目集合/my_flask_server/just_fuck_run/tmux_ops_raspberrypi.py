@@ -190,17 +190,18 @@ class TmuxOps(AsyncCrawler):
                 ),
                 'delay_time': 2,
             },
-            {
-                'page_name': 'mia_pintuan',
-                'cmd': 'cd {} && {} mia_pintuan.py'.format(
-                    self.pintuan_path,
-                    self.python_version_cmd,
-                ),
-                'delay_time': 2,
-            },
+            # server在跑, https
+            # {
+            #     'page_name': 'mia_pintuan',
+            #     'cmd': 'cd {} && {} mia_pintuan.py'.format(
+            #         self.pintuan_path,
+            #         self.python_version_cmd,
+            #     ),
+            #     'delay_time': 2,
+            # },
             {
                 'page_name': 'mia_pintuan_update',
-                'cmd': 'cd {} && {} mia_pintuan_real-times_update'.format(
+                'cmd': 'cd {} && {} mia_pintuan_real-times_update.py'.format(
                     self.pintuan_path,
                     self.python_version_cmd,
                 ),

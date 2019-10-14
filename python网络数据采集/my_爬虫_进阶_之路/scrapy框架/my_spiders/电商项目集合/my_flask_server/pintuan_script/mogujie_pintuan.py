@@ -13,11 +13,7 @@ import sys
 sys.path.append('..')
 
 import json
-import re
 import time
-from pprint import pprint
-import gc
-from time import sleep
 
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from settings import (
@@ -32,14 +28,8 @@ from sql_str_controller import (
 )
 from multiplex_code import _get_mogujie_pintuan_price_info_list
 
-from fzutils.time_utils import (
-    get_shanghai_time,
-    timestamp_to_regulartime,
-)
-from fzutils.linux_utils import daemon_init
-from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import BaseDriver
-from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
+from fzutils.spider.async_always import *
 
 class MoGuJiePinTuan(object):
     def __init__(self):
@@ -131,15 +121,21 @@ class MoGuJiePinTuan(object):
         '''
         方法二: 通过pc端来获取拼团商品列表
         '''
-        self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
+        self.driver = BaseDriver(
+            executable_path=PHANTOMJS_DRIVER_PATH, 
+            ip_pool_type=self.ip_pool_type,)
         for key in self.fcid_dict:
             print('正在抓取的分类为: ', key)
             for index in range(1, 100):
                 if index % 5 == 0:
-                    try: del self.my_phantomjs
-                    except: pass
-                    gc.collect()
-                    self.my_phantomjs = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, ip_pool_type=self.ip_pool_type)
+                    try: 
+                        del self.driver
+                    except: 
+                        pass
+                    collect()
+                    self.driver = BaseDriver(
+                        executable_path=PHANTOMJS_DRIVER_PATH, 
+                        ip_pool_type=self.ip_pool_type,)
 
                 fcid = self.fcid_dict[key]
                 tmp_url = 'http://list.mogujie.com/search?page={0}&fcid={1}&algoKey=pc_tuan_book_pop&cKey=pc-tuan'.format(
@@ -147,7 +143,7 @@ class MoGuJiePinTuan(object):
                 )
                 # requests请求数据被过滤(起初能用)，改用phantomjs
                 # body = MyRequests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
-                body = self.my_phantomjs.get_url_body(url=tmp_url)
+                body = self.driver.get_url_body(url=tmp_url)
                 # print(body)
 
                 try:
@@ -162,10 +158,7 @@ class MoGuJiePinTuan(object):
                     break
 
                 # pprint(tmp_data)
-                # print(tmp_data)
-
                 tmp_item_list = tmp_data.get('result', {}).get('wall', {}).get('docs', [])
-                # print(tmp_item_list)
                 # pprint(tmp_item_list)
 
                 begin_time_timestamp = int(time.time())     # 开始拼团的时间戳
@@ -252,7 +245,7 @@ class MoGuJiePinTuan(object):
             del mogujie
         except:
             pass
-        gc.collect()
+        collect()
 
     def get_pintuan_end_time(self, begin_time, left_time):
         '''
@@ -291,16 +284,16 @@ class MoGuJiePinTuan(object):
         return begin_time + left_end_time_timestamp
 
     def __del__(self):
-        try: del self.my_phantomjs
+        try: del self.driver
         except: pass
-        gc.collect()
+        collect()
 
 def just_fuck_run():
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
         mogujie_pintuan = MoGuJiePinTuan()
         mogujie_pintuan.get_pintuan_goods_info()
-        gc.collect()
+        collect()
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
         sleep(5 * 60)
 
