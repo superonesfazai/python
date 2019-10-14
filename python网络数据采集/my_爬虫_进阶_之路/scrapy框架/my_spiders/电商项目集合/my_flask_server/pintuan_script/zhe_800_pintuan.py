@@ -83,7 +83,7 @@ class Zhe800Pintuan(object):
         '''
         zid_list = self._get_pintuan_goods_info()
 
-        zhe_800_pintuan = Zhe800PintuanParse()
+        zhe_800_pintuan = Zhe800PintuanParse(is_real_times_update_call=True)
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         if my_pipeline.is_connect_success:
             _ = list(my_pipeline._select_table(sql_str=z8_select_str_1))
@@ -107,7 +107,8 @@ class Zhe800Pintuan(object):
                     goods_data['spider_url'] = tmp_url
                     goods_data['username'] = '18698570079'
                     goods_data['page'] = str(item[1])
-                    goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data.get('schedule', [])[0])
+                    goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(
+                        miaosha_time=goods_data.get('schedule', [])[0])
 
                     # print(goods_data)
                     _r = zhe_800_pintuan.insert_into_zhe_800_pintuan_table(data=goods_data, pipeline=my_pipeline)

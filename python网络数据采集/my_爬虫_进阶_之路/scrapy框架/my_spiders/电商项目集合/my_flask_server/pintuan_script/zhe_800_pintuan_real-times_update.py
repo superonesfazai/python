@@ -52,7 +52,7 @@ def run_forever():
                 goods_id = item[0]
                 db_is_delete = item[1]
                 # 释放内存,在外面声明就会占用很大的，所以此处优化内存的方法是声明后再删除释放
-                zhe_800_pintuan = Zhe800PintuanParse()
+                zhe_800_pintuan = Zhe800PintuanParse(is_real_times_update_call=True)
                 sql_cli = _block_get_new_db_conn(db_obj=sql_cli, index=index, remainder=50,)
                 if index % 300 == 0:    # 每更新300个，休眠3分钟
                     sleep_time = 3 * 60

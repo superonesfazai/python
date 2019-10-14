@@ -37,14 +37,22 @@ from fzutils.spider.async_always import *
 EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
 
 class Zhe800PintuanParse(Crawler):
-    def __init__(self):
+    def __init__(self, is_real_times_update_call=False):
         super(Zhe800PintuanParse, self).__init__(
             ip_pool_type=IP_POOL_TYPE,
         )
         self._set_headers()
         self.result_data = {}
-        self.num_retries = 3
         # self.driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH)
+        self.is_real_times_update_call = is_real_times_update_call
+        if self.is_real_times_update_call:
+            self.proxy_type = PROXY_TYPE_HTTPS
+            # 不可太大，否则server采集时慢
+            self.req_num_retries = 6
+        else:
+            # 提高server首次采集成功率
+            self.proxy_type = PROXY_TYPE_HTTP
+            self.req_num_retries = 2
 
     def _set_headers(self):
         self.headers = get_random_headers(upgrade_insecure_requests=False,)
@@ -73,9 +81,9 @@ class Zhe800PintuanParse(Crawler):
             body = Requests.get_url_body(
                 url=tmp_url,
                 headers=self.headers,
-                proxy_type=PROXY_TYPE_HTTP,
+                proxy_type=self.proxy_type,
                 ip_pool_type=self.ip_pool_type,
-                num_retries=self.num_retries,)
+                num_retries=self.req_num_retries,)
             assert body != ''
             # print(body)
 
@@ -464,7 +472,13 @@ class Zhe800PintuanParse(Crawler):
         div_desc_url = 'https://pina.m.zhe800.com/nnc/product/detail_content.json?zid=' + str(goods_id)
 
         # 使用requests
-        div_desc_body = Requests.get_url_body(url=div_desc_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
+        div_desc_body = Requests.get_url_body(
+            url=div_desc_url,
+            headers=self.headers,
+            high_conceal=True,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.req_num_retries,
+            proxy_type=self.proxy_type,)
         if div_desc_body == '':
             div_desc_body = '{}'
 
@@ -499,7 +513,13 @@ class Zhe800PintuanParse(Crawler):
         :return: 返回一个list
         '''
         p_info_url = 'https://pina.m.zhe800.com/cns/products/get_product_properties_list.json?productId=' + str(goods_id)
-        p_info_body = Requests.get_url_body(url=p_info_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
+        p_info_body = Requests.get_url_body(
+            url=p_info_url,
+            headers=self.headers,
+            high_conceal=True,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
         if p_info_body == '':
             print('获取到的p_info_body为空值, 此处跳过!')
             p_info_body = '{}'
@@ -525,7 +545,13 @@ class Zhe800PintuanParse(Crawler):
         :return: 返回dict类型
         '''
         stock_info_url = 'https://pina.m.zhe800.com/cns/products/' + str(goods_id) + '/realtime_info.json'
-        stock_info_body = Requests.get_url_body(url=stock_info_url, headers=self.headers, high_conceal=True, ip_pool_type=self.ip_pool_type)
+        stock_info_body = Requests.get_url_body(
+            url=stock_info_url,
+            headers=self.headers,
+            high_conceal=True,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
         if stock_info_body == '':
             print('获取到的stock_info_body为空值!')
             stock_info_body = '{}'

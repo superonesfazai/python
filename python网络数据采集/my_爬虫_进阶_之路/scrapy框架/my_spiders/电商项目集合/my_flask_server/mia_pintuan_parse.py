@@ -29,8 +29,10 @@ from fzutils.data.str_utils import target_str_contain_some_char_check
 from fzutils.spider.async_always import *
 
 class MiaPintuanParse(MiaParse, Crawler):
-    def __init__(self):
-        super(MiaPintuanParse, self).__init__()
+    def __init__(self, is_real_times_update_call=False):
+        super(MiaPintuanParse, self).__init__(
+            is_real_times_update_call=is_real_times_update_call,
+        )
         self._set_headers()
 
     def _set_headers(self):

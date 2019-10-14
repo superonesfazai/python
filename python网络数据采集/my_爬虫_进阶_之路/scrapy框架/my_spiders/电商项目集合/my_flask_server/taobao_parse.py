@@ -1014,7 +1014,8 @@ class TaoBaoLoginAndParse(Crawler):
 
             tmp = _get_right_model_data(data=data, site_id=19)
         except Exception:
-            self.lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(data['goods_id']), exc_info=True)
+            self.lg.error('遇到错误, 先跳过处理!出错goods_id={0}'.format(
+                data['goods_id']), exc_info=True)
             return False
         self.lg.info('------>>>| 待存储的数据信息为: ' + str(tmp.get('goods_id')))
 

@@ -115,7 +115,7 @@ class MiaPintuanRealTimeUpdate(object):
                     '''
                     蜜芽拼团不对内部下架的进行操作，一律都更新未过期商品 (根据pid来进行更新多次研究发现出现商品还在拼团，误删的情况很普遍)
                     '''
-                    mia_pt = MiaPintuanParse()
+                    mia_pt = MiaPintuanParse(is_real_times_update_call=True)
                     if goods_id not in pintuan_goods_all_goods_id:
                         # 内部已经下架的
                         # 一律更新

@@ -31,14 +31,21 @@ from fzutils.data.str_utils import target_str_contain_some_char_check
 from fzutils.spider.async_always import *
 
 class MiaParse(Crawler):
-    def __init__(self):
+    def __init__(self, is_real_times_update_call=False):
         super(MiaParse, self).__init__(
             ip_pool_type=IP_POOL_TYPE,
         )
         self._set_headers()
         self.result_data = {}
-        self.proxy_type = PROXY_TYPE_HTTPS
-        self.req_num_retries = 3
+        self.is_real_times_update_call = is_real_times_update_call
+        if self.is_real_times_update_call:
+            self.proxy_type = PROXY_TYPE_HTTPS
+            # 不可太大，否则server采集时慢
+            self.req_num_retries = 5
+        else:
+            # 提高server首次采集成功率
+            self.proxy_type = PROXY_TYPE_HTTP
+            self.req_num_retries = 2
 
     def _set_headers(self):
         self.headers = {

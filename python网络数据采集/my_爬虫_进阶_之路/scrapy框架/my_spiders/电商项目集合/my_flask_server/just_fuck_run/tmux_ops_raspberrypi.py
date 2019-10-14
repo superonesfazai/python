@@ -29,6 +29,7 @@ class TmuxOps(AsyncCrawler):
         self.fck_run_path = '~/myFiles/python/my_flask_server/just_fuck_run'
         self.dcs_path = '~/myFiles/python/my_flask_server/distribute_jobs'
         self.cp_path = '~/myFiles/python/my_flask_server/cp'
+        self.tejia_path = '~/myFiles/python/my_flask_server/tejia'
 
     async def _fck_run(self):
         print('开始执行tmux 命令集合...')
@@ -151,6 +152,56 @@ class TmuxOps(AsyncCrawler):
                 'page_name': 'jp0',
                 'cmd': 'cd {} && {} juanpi_real-times_update.py'.format(
                     self.real_path,
+                    self.python_version_cmd,
+                ),
+                'delay_time': 2,
+            },
+            # tejia
+            {
+                'page_name': 'tb_tejia',
+                'cmd': 'cd {} && {} taobao_tiantiantejia.py'.format(
+                    self.tejia_path,
+                    self.python_version_cmd,
+                ),
+                'delay_time': 2,
+            },
+            {
+                'page_name': 'tb_tejia_update',
+                'cmd': 'cd {} && {} taobao_tiantiantejia_real-times_update.py'.format(
+                    self.tejia_path,
+                    self.python_version_cmd,
+                ),
+                'delay_time': 2,
+            },
+            # 拼团
+            {
+                'page_name': 'zhe_800_pintuan',
+                'cmd': 'cd {} && {} zhe_800_pintuan.py'.format(
+                    self.pintuan_path,
+                    self.python_version_cmd,
+                ),
+                'delay_time': 2,
+            },
+            {
+                'page_name': 'zhe_800_pintuan_update',
+                'cmd': 'cd {} && {} zhe_800_pintuan_real-times_update.py'.format(
+                    self.pintuan_path,
+                    self.python_version_cmd,
+                ),
+                'delay_time': 2,
+            },
+            {
+                'page_name': 'mia_pintuan',
+                'cmd': 'cd {} && {} mia_pintuan.py'.format(
+                    self.pintuan_path,
+                    self.python_version_cmd,
+                ),
+                'delay_time': 2,
+            },
+            {
+                'page_name': 'mia_pintuan_update',
+                'cmd': 'cd {} && {} mia_pintuan_real-times_update'.format(
+                    self.pintuan_path,
                     self.python_version_cmd,
                 ),
                 'delay_time': 2,

@@ -11,6 +11,13 @@ sys_path.append('..')
 from my_exceptions import (
     SqlServerConnectionException,
 )
+from sql_str_controller import (
+    tb_update_str_5,
+    z8_update_str_6,
+    z8_update_str_4,
+    mia_update_str_7,
+    jm_update_str_5,
+)
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from fzutils.memory_utils import get_current_func_info_by_traceback
 from fzutils.spider.async_always import *
@@ -21,7 +28,7 @@ class DbTimingScript(AsyncCrawler):
         AsyncCrawler.__init__(
             self,
         )
-        self.sleep_time = 3 * 60
+        self.sleep_time = 2. * 60
         self.init_sql_str()
 
     def init_sql_str(self):
@@ -64,6 +71,46 @@ class DbTimingScript(AsyncCrawler):
         set ModfiyTime=%s, shelf_time=%s
         where GoodsID=%s
         '''
+        # tb天天特价过期下架
+        self.sql_str6 = '''
+        select top 500 goods_id, site_id
+        from dbo.taobao_tiantiantejia
+        where MainGoodsID is not null
+        and is_delete=0
+        and miaosha_end_time < GETDATE()
+        '''
+        # zhe800秒杀标记下架
+        self.sql_str7 = '''
+        select top 500 goods_id, site_id
+        from dbo.zhe_800_xianshimiaosha
+        where MainGoodsID is not null
+        and is_delete=0
+        and miaosha_end_time <= GETDATE()
+        '''
+        # zhe800拼团过期下架
+        self.sql_str8 = '''
+        select top 500 goods_id, site_id
+        from dbo.zhe_800_pintuan
+        where MainGoodsID is not null
+        and is_delete=0
+        and miaosha_end_time <= GETDATE()
+        '''
+        # mia拼团
+        self.sql_str9 = '''
+        select top 500 goods_id, site_id
+        from dbo.mia_pintuan
+        where MainGoodsID is not null
+        and is_delete=0
+        and miaosha_end_time <= GETDATE()
+        '''
+        # 聚美优品拼团
+        self.sql_str10 = '''
+        select top 500 goods_id, site_id
+        from dbo.jumeiyoupin_pintuan
+        where MainGoodsID is not null
+        and is_delete=0
+        and miaosha_end_time <= GETDATE()
+        '''
 
     async def _fck_run(self):
         while True:
@@ -89,6 +136,36 @@ class DbTimingScript(AsyncCrawler):
                     select_sql_str=self.sql_str4,
                     update_sql_str=self.sql_str5,
                     func_get_params=self.get_params0,
+                )
+                # tb天天特价
+                await self.db_script0(
+                    select_sql_str=self.sql_str6,
+                    update_sql_str=tb_update_str_5,
+                    func_get_params=self.get_params2,
+                )
+                # zhe800秒杀
+                await self.db_script0(
+                    select_sql_str=self.sql_str7,
+                    update_sql_str=z8_update_str_6,
+                    func_get_params=self.get_params2,
+                )
+                # zhe800拼团
+                await self.db_script0(
+                    select_sql_str=self.sql_str8,
+                    update_sql_str=z8_update_str_4,
+                    func_get_params=self.get_params2,
+                )
+                # mia拼团
+                await self.db_script0(
+                    select_sql_str=self.sql_str9,
+                    update_sql_str=mia_update_str_7,
+                    func_get_params=self.get_params2,
+                )
+                # 聚美优品拼团
+                await self.db_script0(
+                    select_sql_str=self.sql_str10,
+                    update_sql_str=jm_update_str_5,
+                    func_get_params=self.get_params2,
                 )
             except Exception as e:
                 print(e)
@@ -133,6 +210,17 @@ class DbTimingScript(AsyncCrawler):
         ])
 
     def get_params1(self, k) -> tuple:
+        now_time = str(get_shanghai_time())
+        goods_id = k[0]
+        site_id = k[1]
+        print('goods_id: {}, site_id: {}'.format(goods_id, site_id))
+
+        return tuple([
+            now_time,
+            goods_id,
+        ])
+
+    def get_params2(self, k) -> tuple:
         now_time = str(get_shanghai_time())
         goods_id = k[0]
         site_id = k[1]

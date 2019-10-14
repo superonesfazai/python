@@ -69,7 +69,7 @@ class MiaPintuan(object):
         :param goods_list:
         :return:
         '''
-        mia = MiaPintuanParse()
+        mia = MiaPintuanParse(is_real_times_update_call=True)
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
 
         if my_pipeline.is_connect_success:

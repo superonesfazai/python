@@ -151,7 +151,7 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
                             * 处理由常规商品又转换为天天特价商品 *
                             '''
                             self.lg.info('##### 该商品由常规商品又转换为天天特价商品! #####')
-                            # 先删除，再重新插入
+                            # 先删除，再重新插入(原先已过期)
                             _ = await sql_cli.delete_taobao_tiantiantejia_expired_goods_id(
                                 goods_id=tmp_item.get('goods_id', ''),
                                 logger=self.lg)
@@ -190,6 +190,10 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
             self.lg.error('数据库连接失败!')
             pass
         collect()
+
+        # 休眠30分钟
+        self.lg.info('休眠30分钟, 避免特价数据量过大...')
+        await async_sleep(60 * 30)
 
         return True
 
@@ -231,7 +235,9 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
             goods_data['child_sort'] = ''
             # pprint(goods_data)
 
-            await taobao.insert_into_taobao_tiantiantejia_table(data=goods_data, pipeline=sql_cli)
+            await taobao.insert_into_taobao_tiantiantejia_table(
+                data=goods_data,
+                pipeline=sql_cli)
         else:
             await async_sleep(4)  # 否则休息4秒
         index += 1
@@ -321,7 +327,8 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
             default_res={},
             logger=self.lg,)
 
-        if sort_data.get('data', {}).get('data', {}).get('TjGetItems', '') == 'tejia_004 error : no items':
+        if sort_data.get('data', {}).get('data', {}).get('TjGetItems', '') \
+                == 'tejia_004 error : no items':
             return 'no items'
 
         sort_data = sort_data.get('data', {}).get('data', {}).get('itemList', [])

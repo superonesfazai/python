@@ -293,7 +293,7 @@ z8_update_str_3 = 'update dbo.zhe_800_pintuan set modfiy_time=%s, shop_name=%s, 
 z8_update_str_4 = 'update dbo.zhe_800_pintuan set is_delete=1, modfiy_time=%s where goods_id=%s'
 z8_update_str_5 = 'update dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=%s where GoodsID=%s'
 # 秒杀逻辑下架标记
-z8_update_str_6 = 'update dbo.zhe_800_xianshimiaosha set is_delete=1, modify_time=%s where goods_id=%s'
+z8_update_str_6 = 'update dbo.zhe_800_xianshimiaosha set is_delete=1, modfiy_time=%s where goods_id=%s'
 
 '''delete'''
 # 拼团过期数据清空
@@ -474,7 +474,7 @@ mia_update_str_4 = 'update dbo.GoodsInfoAutoGet set ModfiyTime = %s, ShopName=%s
 mia_update_str_5 = 'update dbo.GoodsInfoAutoGet set IsDelete=1 where GoodsID=%s'
 # 秒杀逻辑删
 mia_update_str_6 = 'update dbo.mia_xianshimiaosha set is_delete=1, modfiy_time=%s where goods_id=%s'
-mia_update_str_7 = 'update dbo.mia_pintuan set is_delete=1, modfiy_time=%s where goods_id = %s'
+mia_update_str_7 = 'update dbo.mia_pintuan set is_delete=1, modfiy_time=%s where goods_id=%s'
 '''delete'''
 # 拼团过期标记
 mia_delete_str_1 = 'delete from dbo.mia_pintuan where goods_id=%s'
