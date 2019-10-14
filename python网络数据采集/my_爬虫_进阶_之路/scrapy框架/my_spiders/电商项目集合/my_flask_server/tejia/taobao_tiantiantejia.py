@@ -18,7 +18,8 @@ from settings import (
     IS_BACKGROUND_RUNNING,
     TAOBAO_REAL_TIMES_SLEEP_TIME,
     MY_SPIDER_LOGS_PATH,
-    IP_POOL_TYPE,)
+    IP_POOL_TYPE,
+)
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from multiplex_code import _get_new_db_conn
 from taobao_parse import TaoBaoLoginAndParse

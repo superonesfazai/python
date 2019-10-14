@@ -97,7 +97,7 @@ ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
     '九一八',
     '国庆', '阅兵', '中国成立', '周年', '十一', '我和我的祖国',
     '重阳',
-    '校长', '小学', '技工学校', '专升本',
+    '校长', '小学', '技工学校', '专升本', '开学第一课',
     # eg: 9.1, 9月1日, 9月1
     '\d+[\.月]{1}\d+日{0,1}',
     # 车
@@ -117,7 +117,7 @@ ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
     # 楼
     '楼市',
     # 游戏
-    '英雄联盟', 'lol', '绝地求生', 'dnf', '地下城', 'dota', '梦幻西游', '逆水寒', '坦克世界', '守望先锋', '300英雄', '诛仙',
+    '英雄联盟', '[lL][oO][lL]', '绝地求生', '[dD][nN][fF]', '地下城', 'dota', '梦幻西游', '逆水寒', '坦克世界', '守望先锋', '300英雄', '诛仙',
     '龙之谷', '穿越火线', 'qq飞车', '流放之路', '剑灵', '跑跑卡丁车', '天涯明月刀', '热血江湖', '问道', '战舰世界', '最终幻想',
     '逆战', '暗黑破坏神', '天龙八部', '变形金刚', '传奇世界', '九阴真经', 'qq三国', '大话西游', '梦三国', '冒险岛', '劲舞团',
     '魔兽世界', '我的世界', '王者荣耀', '火影忍者', '阴阳师', '炉石传说', '问道', '元气骑士', '荒野行动', '神武', '欢乐斗地主',
@@ -126,6 +126,34 @@ ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
     '天天爱消除', '长生诀', '啪啪三国', '刀塔传奇', '波克捕鱼', '剑侠世界', '逐鹿中原', '神魔', '口袋精灵', '蜀门', '时空猎人',
     '魔法王座', '王者之剑', '混沌与秩序', '部落战争',
 )
+
+# 商品标题敏感信息清洗
+GOODS_SENSITIVE_STR_TUPLE = (
+    '折扣价\d+',
+    '下单立减\d+[元]{0,1}',
+    '满减',
+    '\【\】',
+)
+
+def wash_goods_title_sensitive_str(target_str: str) -> str:
+    """
+    清洗标题敏感字符串
+    :param target_str:
+    :return:
+    """
+    global GOODS_SENSITIVE_STR_TUPLE
+
+    try:
+        target_str = wash_sensitive_info(
+            data=target_str,
+            replace_str_list=[],
+            add_sensitive_str_list=GOODS_SENSITIVE_STR_TUPLE,
+            is_default_filter=False,
+            is_lower=False,)
+    except Exception:
+        pass
+
+    return target_str
 
 async def handle_real_times_goods_one_res(goods_type: str,
                                           loop,
@@ -514,9 +542,11 @@ def _get_right_model_data(data, site_id=None, logger=None):
         tmp['shop_name'] = data_list['shop_name']
 
     # 商品名称
-    tmp['title'] = data_list['title']
+    tmp['title'] = wash_goods_title_sensitive_str(
+        target_str=data_list['title'])
     # 商品子标题
-    tmp['sub_title'] = data_list['sub_title'] if data_list.get('sub_title') is not None else ''
+    tmp['sub_title'] = wash_goods_title_sensitive_str(
+        target_str=data_list['sub_title'] if data_list.get('sub_title') is not None else '')
     # 卖家姓名
     tmp['link_name'] = data_list['link_name'] if data_list.get('link_name') is not None else ''
     # 掌柜名称

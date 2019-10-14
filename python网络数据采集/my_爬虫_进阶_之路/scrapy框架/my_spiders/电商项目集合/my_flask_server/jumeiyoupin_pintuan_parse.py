@@ -484,7 +484,8 @@ class JuMeiYouPinPinTuanParse(Crawler):
         buy_alone_size = kwargs.get('buy_alone_size')
         size = kwargs.get('size')
         try:
-            group_single_price = re.compile(r'(\d+)').findall(kwargs.get('group_single_price'))[0]  # 单独购买价格
+            # 单独购买价格
+            group_single_price = re.compile(r'(\d+)').findall(kwargs.get('group_single_price'))[0]
         except IndexError:
             group_single_price = ''
         if size == []:
@@ -514,9 +515,14 @@ class JuMeiYouPinPinTuanParse(Crawler):
                     if item_1.get('spec_value') == item_2.get('spec_value'):
                         item_2['detail_price'] = item_1['alone_price']
 
-        else:   # 拿单独购买价来设置detail_price
+        else:
+            # 拿单独购买价来设置detail_price
             for item in true_sku_info:      # alone_size为空，表示: 单独无法购买 可能出现小于拼团价的情况 eg: http://s.h5.jumei.com/yiqituan/detail?item_id=df1803156441482p3810742&type=jumei_pop&selltype=coutuanlist&selllabel=coutuan_home
-                item['detail_price'] = '单价模式无法购买'
+                # item['detail_price'] = '单价模式无法购买'
+                item['detail_price'] = group_single_price
+
+            # # todo 为了避免cp显示异常
+            # raise AssertionError('单价模式无法购买不进行采集该商品!')
 
         return true_sku_info
 

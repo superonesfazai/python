@@ -62,6 +62,7 @@ not supported:
     12. 中国青年网(http://m.youth.cn/)
     13. 妈妈网(http://m.mama.cn/)
     14. 搞笑视频网(需浏览器手机模式查看)(http://www.xjnan.com/)
+    15. 快音视(短视频)(https://kuaiyinshi.com/hot/video/?source=kuai-shou&page=1&st=week)
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -552,18 +553,18 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'www.jianshu.com',
                 'site_id': 6,
             },
-            'kd': {
-                'debug': True,
-                'name': 'qq看点',
-                'url': '根据QQ看点中分享出的地址',
-                'obj_origin': 'post.mp.qq.com',
-                'site_id': 7,
-            },
             'kb': {
                 'debug': True,
                 'name': '天天快报',
                 'url': '根据天天快报分享出的地址',
                 'obj_origin': 'kuaibao.qq.com',
+                'site_id': 7,
+            },
+            'kd': {
+                'debug': True,
+                'name': 'qq看点',
+                'url': '根据QQ看点中分享出的地址',
+                'obj_origin': 'post.mp.qq.com',
                 'site_id': 8,
             },
             'df': {
