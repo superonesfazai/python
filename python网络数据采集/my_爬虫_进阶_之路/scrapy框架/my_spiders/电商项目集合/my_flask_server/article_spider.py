@@ -45,6 +45,7 @@ supported:
     33. 百思不得姐(http://www.budejie.com/)
     34. 煎蛋网(http://jandan.net/)
     35. 来福岛爆笑娱乐网(http://www.laifudao.com/)
+    36. bilibili(短视频)(https://www.bilibili.com/)
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -61,7 +62,6 @@ not supported:
     12. 中国青年网(http://m.youth.cn/)
     13. 妈妈网(http://m.mama.cn/)
     14. 搞笑视频网(需浏览器手机模式查看)(http://www.xjnan.com/)
-    15. bilibili(https://www.bilibili.com/)
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -776,6 +776,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'www.laifudao.com',
                 'site_id': 38,
             },
+            'blbl': {
+                'debug': False,
+                'name': 'bilibili(短视频)',
+                'url': 'https://www.bilibili.com',
+                'obj_origin': 'www.bilibili.com',
+                'site_id': 39,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -1131,6 +1138,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'lfd':
                 return await self._get_lfd_article_html(article_url=article_url)
 
+            elif article_url_type == 'blbl':
+                return await self._get_blbl_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -1138,6 +1148,61 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_blbl_article_html(self, article_url) -> tuple:
+        """
+        获取bilibili html
+        :param article_url:
+        :return:
+        """
+        parser_obj = await self._get_parse_obj(article_url_type='blbl')
+        article_id = await async_parse_field(
+            parser=parser_obj['article_id'],
+            target_obj=article_url,
+            logger=self.lg,)
+        assert article_id != ''
+
+        headers = await async_get_random_headers(user_agent_type=1)
+        headers.update({
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-User': '?1',
+            'Sec-Fetch-Site': 'same-origin',
+            'Referer': 'https://m.bilibili.com/',
+        })
+        url = 'https://m.bilibili.com/video/{}.html'.format(article_id)
+        body = await unblock_request(
+            url=url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        assert body != ''
+        # self.lg.info(body)
+
+        target_data_sel = {
+            'method': 're',
+            'selector': 'window.__INITIAL_STATE__=(.*?);if\(window',
+        }
+        self.hook_target_api_data = json_2_dict(
+            json_str=parse_field(
+                parser=target_data_sel,
+                target_obj=body,
+                logger=self.lg,),
+            default_res={},
+            logger=self.lg,)
+        # pprint(self.hook_target_api_data)
+
+        video_url = self.hook_target_api_data\
+            .get('reduxAsyncConnect', {})\
+            .get('videoInfo', {})\
+            .get('initUrl', '')
+        assert video_url != ''
+        video_url = 'https:' + video_url \
+            if re.compile('http').findall(video_url) == [] else video_url
+        self.lg.info('video_url: {}'.format(video_url))
+
+        return body, video_url
 
     async def _get_lfd_article_html(self, article_url) -> tuple:
         """
@@ -3000,6 +3065,13 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'xq':
             fav_num = self.hook_target_api_data.get('fav_count', 0)
 
+        elif short_name == 'blbl':
+            fav_num = self.hook_target_api_data\
+                .get('reduxAsyncConnect', {})\
+                .get('videoInfo', {})\
+                .get('stat', {})\
+                .get('like', 0)
+
         else:
             pass
 
@@ -3134,6 +3206,13 @@ class ArticleParser(AsyncCrawler):
                 .get('mth', {})\
                 .get('author_name', '')
 
+        elif short_name == 'blbl':
+            author = self.hook_target_api_data\
+                .get('reduxAsyncConnect', {})\
+                .get('videoInfo', {})\
+                .get('owner', {})\
+                .get('name', '')
+
         else:
             pass
 
@@ -3164,6 +3243,7 @@ class ArticleParser(AsyncCrawler):
             'bdj',
             'jd',
             'lfd',
+            'blbl',
         ]
         if short_name in short_name_list2:
             pass
@@ -3209,6 +3289,7 @@ class ArticleParser(AsyncCrawler):
             'bdj',
             'jd',
             'lfd',
+            'blbl',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -3286,6 +3367,12 @@ class ArticleParser(AsyncCrawler):
 
                 else:
                     pass
+
+        elif short_name == 'blbl':
+            title = self.hook_target_api_data\
+                .get('reduxAsyncConnect', {})\
+                .get('videoInfo', {})\
+                .get('title', '')
 
         else:
             pass
@@ -3389,6 +3476,13 @@ class ArticleParser(AsyncCrawler):
                 .get('curVideoMeta', {})\
                 .get('mth', {})\
                 .get('author_photo', '')
+
+        elif short_name == 'blbl':
+            head_url = self.hook_target_api_data\
+                .get('reduxAsyncConnect', {})\
+                .get('videoInfo', {})\
+                .get('owner', {})\
+                .get('face', '')
 
         else:
             pass
@@ -3519,6 +3613,13 @@ class ArticleParser(AsyncCrawler):
             else:
                 pass
 
+        elif short_name == 'blbl':
+            comment_num = self.hook_target_api_data\
+                .get('reduxAsyncConnect', {})\
+                .get('videoInfo', {})\
+                .get('stat', {})\
+                .get('reply', 0)
+
         else:
             pass
 
@@ -3617,6 +3718,21 @@ class ArticleParser(AsyncCrawler):
             for item in ori_tags_list:
                 try:
                     tag_name = item.get('title', '')
+                    assert tag_name != ''
+                except AssertionError:
+                    continue
+                tags_list.append({
+                    'keyword': tag_name,
+                })
+
+        elif short_name == 'blbl':
+            tags_list = []
+            ori_tags_list = self.hook_target_api_data\
+                .get('reduxAsyncConnect', {})\
+                .get('videoTag', [])
+            for item in ori_tags_list:
+                try:
+                    tag_name = item.get('tag_name', '')
                     assert tag_name != ''
                 except AssertionError:
                     continue
@@ -3726,6 +3842,7 @@ class ArticleParser(AsyncCrawler):
             'kd',
             'bdj',
             'hk',
+            'blbl',
         ]
         if short_name == 'sg':
             if video_url != '':
@@ -3768,6 +3885,11 @@ class ArticleParser(AsyncCrawler):
                 create_time = self.hook_target_api_data\
                     .get('curVideoMeta', {})\
                     .get('publish_time', '')
+            elif short_name == 'blbl':
+                create_time = self.hook_target_api_data\
+                    .get('reduxAsyncConnect', {})\
+                    .get('videoInfo', {})\
+                    .get('ctime', '')
             else:
                 pass
             if create_time != '':
@@ -3998,6 +4120,13 @@ class ArticleParser(AsyncCrawler):
                 else:
                     continue
             content = article_main_img_div + content
+
+        elif short_name == 'blbl':
+            content = self.hook_target_api_data\
+                .get('reduxAsyncConnect', {})\
+                .get('videoInfo', {})\
+                .get('desc', '')
+
         else:
             pass
 
@@ -4031,6 +4160,7 @@ class ArticleParser(AsyncCrawler):
             'bdj',
             'jd',
             'lfd',
+            'blbl',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -4284,9 +4414,16 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'lfd':
             content = await self._wash_lfd_article_content(content=content)
 
+        elif short_name == 'blbl':
+            content = await self._wash_blbl_article_content(content=content)
+
         else:
             pass
 
+        return content
+
+    @staticmethod
+    async def _wash_blbl_article_content(content: str) -> str:
         return content
 
     @staticmethod
@@ -5807,6 +5944,38 @@ def main():
     # url = 'http://www.laifudao.com/wangwen/214763.htm?xid=wangwen214763'
     # url = 'http://www.laifudao.com/wangwen/4223.htm'
     # todo 铃声不支持
+
+    # bilibili
+    # url = 'https://www.bilibili.com/video/av60965559?spm_id_from=333.334.b_62696c695f67756f636875616e67.42'
+    # 动画
+    # url = 'https://www.bilibili.com/video/av70120885?spm_id_from=333.334.b_62696c695f646f756761.3'
+    # 国产原创
+    # url = 'https://www.bilibili.com/video/av60965559?spm_id_from=333.334.b_62696c695f67756f636875616e67.42'
+    # 音乐
+    # url = 'https://www.bilibili.com/video/av50549725?spm_id_from=333.334.b_62696c695f6d75736963.3'
+    # 舞蹈
+    # url = 'https://www.bilibili.com/video/av71057920?spm_id_from=333.334.b_62696c695f64616e6365.3'
+    # 游戏
+    # url = 'https://www.bilibili.com/video/av71180658?spm_id_from=333.334.b_62696c695f67616d65.3'
+    # 科技
+    # url = 'https://www.bilibili.com/video/av48880721?spm_id_from=333.334.b_62696c695f746563686e6f6c6f6779.3'
+    # 数码
+    # url = 'https://www.bilibili.com/video/av70969651?spm_id_from=333.334.b_62696c695f6469676974616c.3'
+    # 生活
+    # url = 'https://www.bilibili.com/video/av68706390?spm_id_from=333.334.b_62696c695f6c696665.3'
+    # 鬼畜
+    # url = 'https://www.bilibili.com/video/av70836260?spm_id_from=333.334.b_62696c695f6b696368696b75.3'
+    # 时尚
+    # url = 'https://www.bilibili.com/video/av64328457?spm_id_from=333.334.b_62696c695f66617368696f6e.3'
+    # 广告
+    # url = 'https://www.bilibili.com/video/av71183384?spm_id_from=333.334.b_62696c695f6164.3'
+    # 娱乐
+    # url = 'https://www.bilibili.com/video/av67337245?spm_id_from=333.334.b_62696c695f656e74.3'
+    # 影视
+    # url = 'https://www.bilibili.com/video/av62093677?spm_id_from=333.334.b_62696c695f63696e657068696c65.3'
+    # 纪录片
+    # url = 'https://www.bilibili.com/video/av70033425?spm_id_from=333.334.b_62696c695f646f63756d656e74617279.6'
+    # todo 番剧, 国创url含'/play/'的, 漫画, 专栏图文, 电影(1-2小时), 电视剧, 直播不支持
 
     # 文章url 测试
     print('article_url: {}'.format(url))

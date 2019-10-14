@@ -33,23 +33,17 @@ from settings import PHANTOMJS_DRIVER_PATH, PINDUODUO_SLEEP_TIME
 
 from sql_str_controller import pd_select_str_3
 
-from fzutils.time_utils import (
-    get_shanghai_time,
-    timestamp_to_regulartime,
-)
-from fzutils.linux_utils import daemon_init
-from fzutils.internet_utils import get_random_pc_ua
 from fzutils.spider.fz_phantomjs import BaseDriver
-from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
-
-# phantomjs驱动地址
-EXECUTABLE_PATH = PHANTOMJS_DRIVER_PATH
+from fzutils.spider.async_always import *
 
 class PinduoduoSpike(object):
     def __init__(self):
         self._set_headers()
         self.ip_pool_type = IP_POOL_TYPE
-        self.driver = BaseDriver(executable_path=EXECUTABLE_PATH, ip_pool_type=self.ip_pool_type)
+        self.driver = BaseDriver(
+            executable_path=PHANTOMJS_DRIVER_PATH,
+            ip_pool_type=self.ip_pool_type,
+        )
 
     def _set_headers(self):
         self.headers = {

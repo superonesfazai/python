@@ -33,14 +33,7 @@ from decimal import Decimal
 
 from sql_str_controller import mg_select_str_4
 
-from fzutils.time_utils import (
-    get_shanghai_time,
-    timestamp_to_regulartime,
-)
-from fzutils.linux_utils import daemon_init
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
-from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
+from fzutils.spider.async_always import *
 
 class MoGuJieSpike(object):
     def __init__(self):

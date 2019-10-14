@@ -95,9 +95,9 @@ ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
     '七夕', '情人节',
     '中秋', '月饼', '赏月', '月儿',
     '九一八',
-    '国庆', '阅兵', '中国成立', '周年', '十一',
+    '国庆', '阅兵', '中国成立', '周年', '十一', '我和我的祖国',
     '重阳',
-    '校长', '小学', '技工学校',
+    '校长', '小学', '技工学校', '专升本',
     # eg: 9.1, 9月1日, 9月1
     '\d+[\.月]{1}\d+日{0,1}',
     # 车
@@ -113,7 +113,7 @@ ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
     'ruby', '[jJ]avascript', '[Pp]hp', 'c\+\+', 'c\#', '\.net', 'rust', 'haskell', 'C', 'css', '开发工具', 'perl',
     '客户端', '正式上线', '服务端', 'mysql', 'sqlserver', 'sqlite', 'oracle', 'PostgreSQL', 'DB[12]', 'Sybase', 'Access',
     'mongodb', 'Informix', 'redis', '云原生技术', '云计算', '分布式', 'istio', 'Kubernetes', 'Service Mesh', 'websocket',
-    '全双工通信', 'proxy', '架构师', '死锁', '产品经理', 'UI设计', '码农', '软件测试', 'github', 'svn',
+    '全双工通信', 'proxy', '架构师', '死锁', '产品经理', 'UI设计', '码农', '软件测试', 'github', 'svn', 'Activity', '生命周期',
     # 楼
     '楼市',
     # 游戏

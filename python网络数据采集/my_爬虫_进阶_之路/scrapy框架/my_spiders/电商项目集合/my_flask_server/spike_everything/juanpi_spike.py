@@ -24,15 +24,7 @@ from settings import (
 
 from sql_str_controller import jp_select_str_5
 
-from fzutils.time_utils import (
-    get_shanghai_time,
-    timestamp_to_regulartime,
-)
-from fzutils.linux_utils import daemon_init
-from fzutils.cp_utils import get_miaosha_begin_time_and_miaosha_end_time
-from fzutils.internet_utils import get_random_pc_ua
-from fzutils.spider.fz_requests import Requests
-from fzutils.common_utils import json_2_dict
+from fzutils.spider.async_always import *
 
 class JuanPiSpike(object):
     def __init__(self):

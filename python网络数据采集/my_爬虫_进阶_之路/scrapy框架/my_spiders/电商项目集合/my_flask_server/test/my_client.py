@@ -260,7 +260,10 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://mart.fatiao.pro/detail/1522.html'
 
         # 来福爆笑娱乐网
-        article_link = 'http://www.laifudao.com/tupian/87109.htm?xid=tupian87109'
+        # article_link = 'http://www.laifudao.com/tupian/87109.htm?xid=tupian87109'
+
+        # bilibili(firefox可正常打开, 但是cp server无法下载)
+        article_link = 'https://www.bilibili.com/video/av60965559?spm_id_from=333.334.b_62696c695f67756f636875616e67.42'
 
         url = article_link
 
