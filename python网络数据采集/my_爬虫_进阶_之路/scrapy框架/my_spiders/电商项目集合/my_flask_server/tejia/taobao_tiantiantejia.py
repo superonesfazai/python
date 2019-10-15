@@ -256,7 +256,6 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
         category = kwargs.get('category')
 
         base_url = 'https://h5api.m.taobao.com/h5/mtop.ju.data.get/1.0/'
-
         data = dumps({
             'bizCode': 'tejia_004',
             'currentPage': current_page,
@@ -273,7 +272,6 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
             'pageSize': 20,
             'salesSites': 9,  # 这为默认推荐
         })
-
         params = {
             "jsv": "2.4.8",
             "appKey": "12574478",
@@ -293,7 +291,8 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
             params=params,
             data=data,
             logger=self.lg,
-            ip_pool_type=self.ip_pool_type
+            ip_pool_type=self.ip_pool_type,
+            # proxy_type=PROXY_TYPE_HTTPS,
         )
         _m_h5_tk = result_1[0]
 
@@ -311,7 +310,9 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
             _m_h5_tk=_m_h5_tk,
             session=result_1[1],
             logger=self.lg,
-            ip_pool_type=self.ip_pool_type,)
+            ip_pool_type=self.ip_pool_type,
+            # proxy_type=PROXY_TYPE_HTTPS,
+        )
         body = result_2[2]
         # self.lg.info(str(body))
 

@@ -516,7 +516,7 @@ class RecommendGoodOps(AsyncCrawler):
 
         return
 
-    @fz_set_timeout(seconds=50.)
+    @fz_set_timeout(seconds=60.)
     def wait_for_delete_img_appear(self, driver: BaseDriver):
         """
         直至出现图片, 超时退出(并且避免发布无图文章)

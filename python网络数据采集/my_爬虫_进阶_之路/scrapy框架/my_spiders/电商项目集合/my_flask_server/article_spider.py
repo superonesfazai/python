@@ -4654,6 +4654,16 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_mp_article_content(content) -> str:
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[],
+            add_sensitive_str_list=[
+                '美拍',
+                'meipai',
+            ],
+            is_default_filter=False,
+            is_lower=False, )
+
         return content
 
     @staticmethod
