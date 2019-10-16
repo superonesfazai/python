@@ -46,6 +46,7 @@ supported:
     34. 煎蛋网(http://jandan.net/)
     35. 来福岛爆笑娱乐网(http://www.laifudao.com/)
     36. bilibili(短视频)(https://www.bilibili.com/)
+    37. 快音视(短视频)(https://kuaiyinshi.com/hot/video/?source=kuai-shou&page=1&st=week)
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -62,7 +63,7 @@ not supported:
     12. 中国青年网(http://m.youth.cn/)
     13. 妈妈网(http://m.mama.cn/)
     14. 搞笑视频网(需浏览器手机模式查看)(http://www.xjnan.com/)
-    15. 快音视(短视频)(https://kuaiyinshi.com/hot/video/?source=kuai-shou&page=1&st=week)
+    15. 投资界(https://m.pedaily.cn/)
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -784,6 +785,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'www.bilibili.com',
                 'site_id': 39,
             },
+            'kys': {
+                'debug': False,
+                'name': '快音视(短视频)',
+                'url': 'https://kuaiyinshi.com/hot/video/?source=kuai-shou&page=1&st=week',
+                'obj_origin': 'kuaiyinshi.com',
+                'site_id': 40,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -1142,6 +1150,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'blbl':
                 return await self._get_blbl_article_html(article_url=article_url)
 
+            elif article_url_type == 'kys':
+                return await self._get_kys_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -1149,6 +1160,39 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_kys_article_html(self, article_url) -> tuple:
+        """
+        获取kys html
+        :param article_url:
+        :return:
+        """
+        # 返回的视频播放地址加密的, 此处直接获取动态渲染结果
+        # //jsmov2.a.yximgs.com/upic/2019/07/05/13/BMjAxOTA3MDUxMzA4MTdfMTIwMDU4MjA4N18xNDgwNTM0NzQ3NV8xXzM=_b_Ba9cd9e5539759a6b73d0e2b400cc9dc9.mp4
+        # //jsmov2.a.yximgs.com/upic/2019/07/05/13/:131:125:183:171:210:181:161:149:140:125:146:153:185:128:199:171:117:125:161:206:192:179:161:157:208:125:146:153:117:128:183:171:117:126:126:162:210:180:145:187:208:126:162:145:113:129:199:187:116:126:163:162:210:190:199:161:150:143:176:163:131:148:134:205:165:105:178:159:143:153:134:139:142:105:175:122:163:106:128:206:113:149:127:204:142:150:125:183:188:105:178:167:122.mp4
+
+        body = await self._get_html_by_driver(
+            url=article_url,
+            load_images=False,
+            user_agent_type=PHONE,
+            css_selector='div#player-box video',
+            timeout=20,                         # 设置时间短点
+        )
+        assert body != ''
+
+        video_url_sel = {
+            'method': 'css',
+            'selector': 'div#player-box video ::attr("src")',
+        }
+        video_url = await async_parse_field(
+            parser=video_url_sel,
+            target_obj=body,
+            logger=self.lg,)
+        video_url = 'https:' + video_url if video_url != '' else ''
+        assert video_url != ''
+        self.lg.info('video_url: {}'.format(video_url))
+
+        return body, video_url
 
     async def _get_blbl_article_html(self, article_url) -> tuple:
         """
@@ -3245,6 +3289,7 @@ class ArticleParser(AsyncCrawler):
             'jd',
             'lfd',
             'blbl',
+            'kys',
         ]
         if short_name in short_name_list2:
             pass
@@ -3381,8 +3426,18 @@ class ArticleParser(AsyncCrawler):
         title = await self._wash_title(
             short_name=short_name,
             title=title)
-        assert title != '', '获取到的title为空值!'
         # self.lg.info(title)
+
+        short_name_list2 = [
+            'kys',
+        ]
+        if short_name in short_name_list2:
+            if video_url != '':
+                pass
+            else:
+                assert title != '', '获取到的title为空值!'
+        else:
+            assert title != '', '获取到的title为空值!'
 
         return title
 
@@ -3395,8 +3450,27 @@ class ArticleParser(AsyncCrawler):
         """
         if short_name == 'tt':
             title = await self._wash_tt_title(title=title)
+        elif short_name == 'kys':
+            title = await self._wash_kys_title(title=title)
         else:
             pass
+
+        return title
+
+    @staticmethod
+    async def _wash_kys_title(title: str) -> str:
+        title = wash_sensitive_info(
+            data=title,
+            replace_str_list=[],
+            add_sensitive_str_list=[
+                '快手',
+                '抖音',
+                '火山',
+                '美拍',
+            ],
+            is_default_filter=False,
+            is_lower=False,
+        )
 
         return title
 
@@ -4162,6 +4236,7 @@ class ArticleParser(AsyncCrawler):
             'jd',
             'lfd',
             'blbl',
+            'kys',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -4241,6 +4316,11 @@ class ArticleParser(AsyncCrawler):
                 '本文文字为原创',
                 '文字属于作者原创',
                 '欢迎大家转发关注',
+                '文字原创',
+                '如有侵权',
+                '请联系我们删除',
+                '禁止抄袭',
+                '和搬运等行为',
             ],
             is_default_filter=False,
             is_lower=False,)
@@ -5987,6 +6067,18 @@ def main():
     # 纪录片
     # url = 'https://www.bilibili.com/video/av70033425?spm_id_from=333.334.b_62696c695f646f63756d656e74617279.6'
     # todo 番剧, 国创url含'/play/'的, 漫画, 专栏图文, 电影(1-2小时), 电视剧, 直播不支持
+
+    # 快音视(全网短视频集合)
+    # 快手
+    # url = 'https://kuaiyinshi.com/?video_id=BMjAxOTA3MDUxMzA4MTdfMTIwMDU4MjA4N18xNDgwNTM0NzQ3NV8xXzM=_b_Ba9cd9e5539759a6b73d0e2b400cc9dc9&source=kuai-shou#search-form'
+    # url = 'https://kuaiyinshi.com/?video_id=BMjAxODA5MjAxODE2MjZfMTA4OTc1MDA5OV84MTA5Nzc4MDI5XzFfMw==_b_B5b668e696fc5f8fead97cbb251c4ac02&source=kuai-shou#search-form'
+    # url = 'https://kuaiyinshi.com/?video_id=BMjAxOTA2MDUwODU4MTNfOTE2MjUxOTkyXzEzNzQwNjQwMzk1XzFfMw==_b_B61fab60021d32b77d20c34cec02798ee&source=kuai-shou#search-form'
+    # 美拍(存在大量无title的)
+    # 无title
+    # url = 'https://kuaiyinshi.com/?video_id=5c3de5f1d71cb2ckucyf6p1502_H264_1_62f1d90b99edf1&source=mei-pai#search-form'
+    # url = 'https://kuaiyinshi.com/?video_id=5c3de5f1d71cb2ckucyf6p1502_H264_1_62f1d90b99edf1&source=mei-pai#search-form'
+    # 有title
+    # url = 'https://kuaiyinshi.com/?video_id=5c4b4102ab7612595&source=mei-pai#search-form'
 
     # 文章url 测试
     print('article_url: {}'.format(url))

@@ -1799,6 +1799,37 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num':None,
     },
+    {
+        'short_name': 'kys',
+        'debug': True,
+        'obj_origin': 'kuaiyinshi.com',
+        'article_id': {
+            'method': 're',
+            'selector': 'video_id=(.*?)\&',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'title ::text',
+        },
+        'video_title': None,
+        'author': {
+            'method': 'css',
+            'selector': 'p.author-name ::text',
+        },
+        'video_author': None,
+        'head_url': None,
+        'video_head_url': None,
+        'create_time': None,
+        'video_create_time': None,
+        'content': None,
+        'video_article_content': None,
+        'comment_num': None,                    # 点赞数留空
+        'tags_list': None,
+        'video_tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num':None,
+    },
 ]
 
 '''

@@ -263,7 +263,10 @@ class RequestClient(AsyncCrawler):
         # article_link = 'http://www.laifudao.com/tupian/87109.htm?xid=tupian87109'
 
         # bilibili(firefox可正常打开, 但是cp server无法下载)
-        article_link = 'https://www.bilibili.com/video/av60965559?spm_id_from=333.334.b_62696c695f67756f636875616e67.42'
+        # article_link = 'https://www.bilibili.com/video/av60965559?spm_id_from=333.334.b_62696c695f67756f636875616e67.42'
+
+        # 快音视(全网短视频)
+        article_link = 'https://kuaiyinshi.com/?video_id=BMjAxODEyMDUyMDAxNDhfNDU4NTUxMzhfOTIzMTA5NzI5OV8xXzM=_b_Bdceec3ae37b9a0a335ee1282e9c1b62c&source=kuai-shou#search-form'
 
         url = article_link
 
