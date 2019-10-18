@@ -32,6 +32,7 @@ from multiplex_code import (
     _get_right_model_data,
     tb_api_redirect_detect,
     CONTRABAND_GOODS_KEY_TUPLE,
+    get_tb_coupon_by_goods_id,
 )
 from my_exceptions import (
     GoodsShelvesException,
@@ -157,6 +158,12 @@ class TaoBaoLoginAndParse(Crawler):
                 .get('value', {})\
                 .get('trade', {})
             # pprint(result_data['trade'])
+
+        # 单独写爬虫去获取优惠券信息, 此处不操作
+        # 获取tb优惠券
+        # result_data['coupon_list'] = self.get_coupon_list(
+        #     result_data=result_data,
+        #     goods_id=goods_id,)
 
         self.result_data = result_data
         # pprint(self.result_data)
@@ -288,7 +295,39 @@ class TaoBaoLoginAndParse(Crawler):
         # json_data = dumps(wait_to_send_data, ensure_ascii=False)
         # self.lg.info(json_data)
         return result
-    
+
+    def get_coupon_list(self, result_data, goods_id) -> list:
+        """
+        获取tb优惠券
+        :param result_data:
+        :return:
+        """
+        # 获取店铺优惠券
+        ori_coupon_list = result_data \
+            .get('apiStack', [])[0] \
+            .get('value', {}) \
+            .get('resource', {}) \
+            .get('coupon', {}) \
+            .get('couponList', [])
+
+        coupon_list = []
+        if ori_coupon_list != []:
+            # 则存在店铺优惠券
+            self.lg.info('goods_id: {}, 存在店铺优惠券, getting ...'.format(goods_id))
+            try:
+                coupon_list = get_tb_coupon_by_goods_id(
+                    goods_id=goods_id,
+                    seller_id=result_data.get('seller', {}).get('userId', ''),
+                    seller_type=result_data.get('seller', {}).get('sellerType', ''),
+                    logger=self.lg,
+                    proxy_type=self.proxy_type, )
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
+        else:
+            pass
+
+        return coupon_list
+
     def get_tb_base_data(self, goods_id: str) -> dict:
         """
         获取tb 基础数据
@@ -628,7 +667,7 @@ class TaoBaoLoginAndParse(Crawler):
             result_data_apiStack_value['feature'] = ''
             result_data_apiStack_value['layout'] = ''
             result_data_apiStack_value['delivery'] = ''  # 发货地到收到地
-            result_data_apiStack_value['resource'] = ''  # 优惠券
+            # result_data_apiStack_value['resource'] = ''  # 优惠券
             # result_data_apiStack_value['item'] = ''       # 不能注释否则得不到月销量
             # pprint(result_data_apiStack_value)
         except Exception:

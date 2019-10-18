@@ -78,7 +78,7 @@ CONTRABAND_GOODS_KEY_TUPLE = (
 # 文章标题敏感词
 ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
     # 股市
-    '走势分析', '股[票权]{1}', '[aA牛]{1}股', '上证', '深指', '[大开]盘', '涨停', '跌停', '纳斯达克', '道琼斯',
+    '走势分析', '股[票权]{1}', '[aA牛]{1}股', '上证', '深指', '[大开]盘', '涨停', '跌停', '纳斯达克', '道琼斯', '离任的公告',
     # 数字币
     '比特', '[比币]{1}圈', 'BTC', 'ETH', '以太坊', '火币', '加密货币',
     '共产党', '色情', '法轮功', '女优', '共狗', '天猫', '淘宝', '拼多多', '京东', '折800', '亚马逊', '电商', '苏宁',
@@ -94,9 +94,9 @@ ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
     # 过期的节日
     '教师[节]{0,1}',
     '七夕', '情人节',
-    '中秋', '月饼', '赏月', '月儿',
+    '中秋', '月饼', '赏月', '月儿', '明月',
     '九一八',
-    '国庆', '阅兵', '中国成立', '周年', '十一', '我和我的祖国', '\d+年',
+    '国庆', '阅兵', '中国成立', '周年', '十一', '我和我的祖国', '\d+年', '省委常委', '祖国万岁',
     '重阳',
     '校长', '小学', '技工学校', '专升本', '开学第一课', '开学典礼',
     # eg: 9.1, 9月1日, 9月1
@@ -135,6 +135,135 @@ GOODS_SENSITIVE_STR_TUPLE = (
     '满减',
     '\【\】',
 )
+
+def get_tb_coupon_by_goods_id(goods_id: str,
+                              seller_id: str,
+                              seller_type: str,
+                              logger,
+                              proxy_type=PROXY_TYPE_HTTP) -> list:
+    """
+    获取tb or tm 的店铺优惠券信息
+    :param goods_id: 商品id
+    :param seller_id: 商家id
+    :param seller_type: 商家类型
+    :return:
+    """
+    assert seller_id != ''
+    assert seller_type != ''
+
+    headers = get_random_headers(
+        user_agent_type=1,
+        connection_status_keep_alive=False,
+        upgrade_insecure_requests=False,
+        cache_control='', )
+    headers.update({
+        'Sec-Fetch-Mode': 'no-cors',
+        # 'Referer': 'https://m.intl.taobao.com/detail/detail.html?id={}'.format(goods_id),
+    })
+    data = dumps({
+        'itemId': goods_id,
+        'sellerType': seller_type,
+        'sellerId': seller_id,
+        'from': 'detail',
+        'ttid': '2017@htao_h5_1.0.0'
+    })
+    params = tuple_or_list_params_2_dict_params((
+        ('jsv', '2.4.11'),
+        ('appKey', '12574478'),
+        # ('t', '1571294635630'),
+        # ('sign', 'f46c3afb5195dc5686d1f4d86abd415a'),
+        ('api', 'mtop.macao.market.activity.applycoupon.querycouponsfordetail'),
+        ('v', '1.0'),
+        ('ttid', '2017@htao_h5_1.0.0'),
+        ('type', 'jsonp'),
+        ('dataType', 'jsonp'),
+        ('callback', 'mtopjsonp5'),
+    ))
+    params['data'] = data
+    url = 'https://h5api.m.taobao.com/h5/mtop.macao.market.activity.applycoupon.querycouponsfordetail/1.0/'
+
+    # https模式下会导致大量的请求失败!!
+    result_1 = block_get_tb_sign_and_body(
+        base_url=url,
+        headers=headers,
+        params=params,
+        data=data,
+        timeout=15,
+        logger=logger,
+        ip_pool_type=IP_POOL_TYPE,
+        proxy_type=proxy_type,
+    )
+    _m_h5_tk = result_1[0]
+    assert _m_h5_tk != ''
+
+    result_2 = block_get_tb_sign_and_body(
+        base_url=url,
+        headers=headers,
+        params=params,
+        data=data,
+        timeout=15,
+        _m_h5_tk=_m_h5_tk,
+        session=result_1[1],
+        logger=logger,
+        ip_pool_type=IP_POOL_TYPE,
+        proxy_type=proxy_type,
+    )
+    body = result_2[2]
+    assert body != ''
+    # print(body)
+
+    ori_coupon_info = json_2_dict(
+        json_str=re.compile('\((.*)\)').findall(body)[0],
+        logger=logger,
+        default_res={}, ).get('data', {}).get('coupons', [])
+    # pprint(ori_coupon_info)
+
+    res = []
+    for item in ori_coupon_info:
+        item_coupon_list = item.get('couponList', [])
+        for i in item_coupon_list:
+            if i.get('enabled', 'false') == 'true':
+                use_method = ''
+                try:
+                    # 一个账户优惠券只能使用一次
+                    # 优惠券展示名称, eg: '店铺优惠券'
+                    coupon_display_name = i.get('couponDisplayName', '')
+                    assert coupon_display_name != ''
+                    # 优惠券的值, eg: 3(即优惠三元)
+                    coupon_value = str(float(i.get('title', '')).__round__(2))
+                    assert coupon_value != ''
+                    sub_titles = i.get('subtitles', [])
+                    assert sub_titles != []
+                    # 用法
+                    use_method = sub_titles[0]
+                    # 使用门槛
+                    threshold = str(float(re.compile('满(.*?)元').findall(use_method)[0]).__round__(2))
+                    begin_time = str(date_parse(
+                        target_date_str=re.compile('有效期(.*?)-').findall(sub_titles[1])[0]))
+                    end_time = str(date_parse(
+                        target_date_str=re.compile('-(.*)').findall(sub_titles[1])[0]))
+
+                    if string_to_datetime(end_time) <= get_shanghai_time():
+                        # 已过期的
+                        continue
+
+                    res.append({
+                        'coupon_display_name': coupon_display_name,
+                        'coupon_value': coupon_value,
+                        'use_method': use_method,
+                        'threshold': threshold,
+                        'begin_time': begin_time,
+                        'end_time': end_time,
+                    })
+                except AssertionError:
+                    continue
+                except Exception:
+                    logger.error('遇到错误[use_method: {}]:'.format(use_method), exc_info=True)
+                    continue
+
+    # pprint(res)
+
+    return res
 
 def wash_goods_title_sensitive_str(target_str: str) -> str:
     """
@@ -291,7 +420,7 @@ def get_tm_m_body_data(goods_id,
         ip_pool_type=IP_POOL_TYPE,
         proxy_type=proxy_type,
         num_retries=num_retries,)
-    # _print(msg=str(body), logger=logger)
+    _print(msg=str(body), logger=logger)
     try:
         assert body != ''
         if '<title>您查看的页面找不到了!</title>' in body:

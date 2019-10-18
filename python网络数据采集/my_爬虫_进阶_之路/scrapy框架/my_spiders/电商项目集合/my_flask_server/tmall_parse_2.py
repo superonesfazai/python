@@ -30,6 +30,7 @@ from multiplex_code import (
     get_tm_m_body_data,
     tb_api_redirect_detect,
     CONTRABAND_GOODS_KEY_TUPLE,
+    get_tb_coupon_by_goods_id,
 )
 from my_exceptions import (
     GoodsShelvesException,
@@ -82,6 +83,7 @@ class TmallParse(Crawler):
         get_base_data_method = 0
         try:
             data = self.get_tm_base_data(goods_id=goods_id)
+            # pprint(data)
             try:
                 tb_api_redirect_detect(data=data)
             except AssertionError:
@@ -172,6 +174,12 @@ class TmallParse(Crawler):
                 .get('value', {})\
                 .get('trade', {})
             # pprint(result_data['trade'])
+
+        # 单独写爬虫进行获取优惠券
+        # # 获取tm优惠券
+        # result_data['coupon_list'] = self.get_coupon_list(
+        #     result_data=result_data,
+        #     goods_id=goods_id,)
 
         result_data['type'] = tm_type
         result_data['goods_id'] = goods_id
@@ -326,6 +334,87 @@ class TmallParse(Crawler):
         # json_data = dumps(wait_to_send_data, ensure_ascii=False)
         # print(json_data)
         return result
+
+    def get_coupon_list(self, result_data, goods_id) -> list:
+        """
+        获取tm优惠券
+        :param result_data:
+        :return:
+        """
+        # # todo tm 优惠券信息位置跟tb不同, 故不能以tb 方式获取优惠券信息
+        # # 获取店铺优惠券
+        # ori_coupon_list = result_data \
+        #     .get('apiStack', [])[0] \
+        #     .get('value', {}) \
+        #     .get('resource', {}) \
+        #     .get('coupon', {}) \
+        #     .get('couponList', [])
+        #
+        # coupon_list = []
+        # if ori_coupon_list != []:
+        #     # 则存在店铺优惠券
+        #     self.lg.info('goods_id: {}, 存在店铺优惠券, getting ...'.format(goods_id))
+        #     try:
+        #         coupon_list = get_tb_coupon_by_goods_id(
+        #             goods_id=goods_id,
+        #             seller_id=result_data.get('seller', {}).get('userId', ''),
+        #             seller_type=result_data.get('seller', {}).get('sellerType', ''),
+        #             logger=self.lg,
+        #             proxy_type=self.proxy_type, )
+        #     except Exception:
+        #         self.lg.error('遇到错误:', exc_info=True)
+        # else:
+        #     pass
+
+        seller_dict = result_data.get('seller', {})
+        # pprint(seller_dict)
+        shop_id = seller_dict.get('shopId', '')
+        user_id = seller_dict.get('userId', '')
+        self.lg.info('shop_id: {}, user_id: {}'.format(shop_id, user_id))
+        ori_coupon_info = result_data\
+            .get('apiStack', [])[0]\
+            .get('value', {})\
+            .get('price', {})\
+            .get('shopProm', [])
+
+        res = []
+        if ori_coupon_info != []:
+            self.lg.info('goods_id: {}, 存在店铺优惠券, getting ...'.format(goods_id))
+            for i in ori_coupon_info:
+                try:
+                    # 一个账户优惠券只能使用一次
+                    # 优惠券展示名称, eg: '店铺优惠券'
+                    coupon_display_name = i.get('title', '')
+                    assert coupon_display_name != ''
+                    period = i.get('period', '')
+                    assert period != ''
+                    begin_time = str(date_parse(
+                        target_date_str=re.compile('(.*)-').findall(period)[0]))
+                    end_time = str(date_parse(
+                        target_date_str=re.compile('-(.*)').findall(period)[0]))
+
+                    # 用法
+                    use_method_list = i.get('content', [])
+                    for use_method in use_method_list:
+                        # 优惠券的值, eg: 3(即优惠三元)
+                        coupon_value = str(float(re.compile('省(.*?)元').findall(use_method)[0]).__round__(2))
+                        assert coupon_value != ''
+                        res.append({
+                            'coupon_display_name': coupon_display_name,
+                            'coupon_value': coupon_value,
+                            'use_method': use_method,
+                            'begin_time': begin_time,
+                            'end_time': end_time,
+                        })
+                except AssertionError:
+                    continue
+                except Exception:
+                    self.lg.error('遇到错误:', exc_info=True)
+                    continue
+        else:
+            pass
+
+        return res
 
     def get_tm_base_data(self, goods_id: str) -> dict:
         """
@@ -642,7 +731,7 @@ class TmallParse(Crawler):
             result_data_apiStack_value['feature'] = ''
             result_data_apiStack_value['layout'] = ''
             result_data_apiStack_value['delivery'] = ''  # 发货地到收到地
-            result_data_apiStack_value['resource'] = ''  # 优惠券
+            # result_data_apiStack_value['resource'] = ''  # 优惠券
             # result_data_apiStack_value['item'] = ''       # 不能注释否则得不到月销量
             # pprint(result_data_apiStack_value)
         except Exception:

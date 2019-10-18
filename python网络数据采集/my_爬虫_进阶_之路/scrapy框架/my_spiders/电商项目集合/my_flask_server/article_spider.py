@@ -4321,6 +4321,8 @@ class ArticleParser(AsyncCrawler):
                 '请联系我们删除',
                 '禁止抄袭',
                 '和搬运等行为',
+                '声明：。，，',
+                '声明：，，。',
             ],
             is_default_filter=False,
             is_lower=False,)

@@ -314,7 +314,10 @@ class RecommendGoodOps(AsyncCrawler):
         自己create的article_id_list
         :return:
         """
-        article_id_list = [str(article_id) for article_id in range(min_article_id, max_article_id)]
+        # 取中间值, 避免老是在发老新闻
+        middle_article_id = int((min_article_id + max_article_id) / 2)
+        self.lg.info('middle_article_id: {}'.format(middle_article_id))
+        article_id_list = [str(article_id) for article_id in range(middle_article_id, max_article_id)]
         # 截取3
         article_id_list = random_sample(article_id_list, self.zq_intercept_num)
         res = [{

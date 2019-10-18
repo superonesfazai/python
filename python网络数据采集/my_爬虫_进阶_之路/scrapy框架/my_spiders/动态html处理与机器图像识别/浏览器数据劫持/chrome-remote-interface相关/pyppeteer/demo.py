@@ -229,7 +229,9 @@ async def main():
     # 马蜂窝
     # target_url = 'https://m.mafengwo.cn/mtraffic/flightinter/list.html?departCity=%E5%8C%97%E4%BA%AC&departCode=BJS&destCity=%E6%9B%BC%E8%B0%B7&destCode=BKK&departDate=2019-07-21&destDate=&status=0&adult_nums=1&child_nums=0&baby_nums=0&followId=d17df66e43ce9f6bec3b4648f61f3394'
     # 七麦数据
-    target_url = 'https://www.qimai.cn/rank'
+    # target_url = 'https://www.qimai.cn/rank'
+    # tm 优惠券地址
+    target_url = 'https://s.click.taobao.com/sElUqyv'
 
     concurrent_num = 1
     url_list = [target_url for num in range(concurrent_num)]
