@@ -1441,7 +1441,7 @@ def _get_price_change_info(old_price, old_taobao_price, new_price, new_taobao_pr
 
     return is_price_change, price_change_info
 
-def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) -> dict:
+def get_goods_info_change_data(target_short_name: str, logger=None, sql_cli=None, **kwargs) -> dict:
     """
     获取goods要被记录的商品信息
     :param target_short_name:
@@ -1495,6 +1495,64 @@ def get_goods_info_change_data(target_short_name: str, logger=None, **kwargs) ->
         site_id=site_id,)
     # pprint(old_sku_info)
     # pprint(new_sku_info)
+
+    if target_short_name in ('tb', 'tm'):
+        # 搜索券是否可用, 并扣除相应的券值
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline() if sql_cli is None else sql_cli
+        sql_str = '''
+        select top 1 coupon_value, threshold
+        from dbo.coupon_info
+        where goods_id=%s
+        and end_time>%s
+        '''
+        db_coupon_info = []
+        try:
+            db_coupon_info = list(sql_cli._select_table(
+                sql_str=sql_str,
+                params=(
+                    db_goods_info_obj.goods_id,
+                    get_shanghai_time(),
+                ),
+                logger=logger,))
+        except Exception as e:
+            _print(msg='遇到错误:', logger=logger, exception=e, log_level=2)
+
+        if db_coupon_info != []:
+            _print(msg='该goods_id: {}, 包含优惠券'.format(db_goods_info_obj.goods_id), logger=logger,)
+            # 表示优惠券未过期
+            try:
+                # 减去优惠券价格
+                coupon_value = float(db_coupon_info[0][0]).__round__(2)
+                threshold = float(db_coupon_info[0][1]).__round__(2)
+                # old_sku_info已减去优惠券并且已加价, new_sku_info已加价但是未减去优惠券
+                # new_price, new_taobao_price都未减去优惠券
+                _new_price = float(data['price']).__round__(2)
+                _new_taobao_price = float(data['taobao_price']).__round__(2)
+                data['price'] = str(_new_price - coupon_value if _new_price >= threshold else _new_price)
+                data['taobao_price'] = str(_new_taobao_price - coupon_value if _new_taobao_price >= threshold else _new_taobao_price)
+
+                tmp_new_sku_info = []
+                for item in new_sku_info:
+                    detail_price = item.get('detail_price', '')
+                    if detail_price != '':
+                        # 还原为原价
+                        tmp_detail_price = (float(detail_price).__round__(2) * (1 - CP_PROFIT)).__round__(2)
+                        # 减去优惠券, 并加上CP_PROFIT
+                        tmp_detail_price = str(((tmp_detail_price - coupon_value if tmp_detail_price >= threshold else tmp_detail_price) * (1 + CP_PROFIT)).__round__(2))
+                        item['detail_price'] = tmp_detail_price
+
+                    else:
+                        pass
+                    tmp_new_sku_info.append(item)
+                new_sku_info = tmp_new_sku_info
+
+            except Exception as e:
+                _print(msg='遇到错误:', logger=logger, exception=e, log_level=2)
+
+        else:
+            pass
+    else:
+        pass
 
     try:
         # TODO 因此会导致二次循环后db 已加价的价格数据 与 最新采集数据进行对比，导致每次更新is_price_change都改变

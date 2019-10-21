@@ -140,7 +140,7 @@ where SiteID=1
 and MainGoodsID is not null
 -- and IsDelete=1
 -- and MainGoodsID=163975
--- and GoodsID='561349437472'
+-- and GoodsID='18773718545'
 order by ModfiyTime asc
 '''
 # 淘抢购实时更新

@@ -387,7 +387,8 @@ class CommonGoodsRealTimeUpdater(AsyncCrawler):
                     target_short_name=self.goods_spider_type,
                     logger=self.lg,
                     data=end_goods_data,
-                    db_goods_info_obj=db_goods_info_obj,)
+                    db_goods_info_obj=db_goods_info_obj,
+                    sql_cli=self.sql_cli,)
                 res = to_right_and_update_data_by_goods_type(
                     goods_type=self.goods_spider_type,
                     data=data,

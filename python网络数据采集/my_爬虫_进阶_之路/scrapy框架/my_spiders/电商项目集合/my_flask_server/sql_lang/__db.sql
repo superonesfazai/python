@@ -553,3 +553,17 @@ create table recommend_good_ops_article_id_duplicate_removal(
   unique_id nvarchar(100) not null unique,
   create_time datetime,
 );
+
+create table coupon_info(
+  id int identity(1, 1) primary key,
+  unique_id nvarchar(100) not null unique,
+  create_time datetime,
+  goods_id varchar(200) not null,
+  coupon_url nvarchar(1500) not null,
+  coupon_display_name nvarchar(1000),
+  coupon_value decimal(18, 2),
+  threshold decimal(18, 2),
+  begin_time datetime,
+  end_time datetime,
+  use_method nvarchar(2000),
+);

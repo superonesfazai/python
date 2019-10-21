@@ -7,18 +7,20 @@
 '''
 
 from termcolor import colored
-from os import system
 from websockets.exceptions import ConnectionClosed as WebsocketsConnectionClosed
 from asyncio.futures import InvalidStateError
 from queue import Queue
 from threading import Thread
 from random import uniform as random_uniform
+from decimal import Decimal
 
 from settings import (
     IP_POOL_TYPE,
     MY_SPIDER_LOGS_PATH,
 )
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
+from my_exceptions import SqlServerConnectionException
+from multiplex_code import CP_PROFIT
 
 from fzutils.spider.fz_driver import PHONE
 from fzutils.common_utils import _print
@@ -40,7 +42,8 @@ class GoodsCouponSpider(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/coupon/_/',
             headless=True,
         )
-        self.concurrency = 10
+        # 不宜过大, 官网会发现
+        self.concurrency = 20
         self.concurrency2 = 6
         self.req_num_retries = 8
         self.proxy_type = PROXY_TYPE_HTTPS
@@ -55,32 +58,17 @@ class GoodsCouponSpider(AsyncCrawler):
         :return:
         """
         while True:
-            self.db_res = await self.get_db_res()
+            try:
+                if get_shanghai_time().hour == 0:
+                    await async_sleep(60 * 60 * 3.5)
+                    continue
 
-            all_tasks_params_list_obj = await self.get_all_tasks_params_list_obj()
-            tasks_params_list_obj = TasksParamsListObj(
-                tasks_params_list=all_tasks_params_list_obj,
-                step=self.concurrency,
-                slice_start_index=0,)
-            while True:
-                try:
-                    slice_params_list = tasks_params_list_obj.__next__()
-                except AssertionError:
-                    break
+                self.db_res = await self.get_db_res()
 
-                coupon_url_list = await self.get_coupon_url_list_by_goods_id_list(
-                    slice_params_list=slice_params_list
-                )
-                # pprint(coupon_url_list)
-
-                # 测试
-                # coupon_url = 'https://uland.taobao.com/coupon/edetail?e=5M3kt6O%2FfZqa2P%2BN2ppgB2X2iX5OaVULVb9%2F1Hxlj5NQYhkEFAI5hGSlkL8%2BFO6JZSEGEhAo6u3FrE8HH4fiD8KUixUTTLeu0WMS0ZKY%2BzmLVIDjuHwzlw%3D%3D&af=1&pid=mm_55371245_39912139_149806421'
-                # coupon_url_list = [coupon_url for i in range(10)]
-
-                # 划分coupon_url_list, 避免多开使内存崩溃
+                all_tasks_params_list_obj = await self.get_all_tasks_params_list_obj()
                 tasks_params_list_obj = TasksParamsListObj(
-                    tasks_params_list=coupon_url_list,
-                    step=self.concurrency2,
+                    tasks_params_list=all_tasks_params_list_obj,
+                    step=self.concurrency,
                     slice_start_index=0,)
                 while True:
                     try:
@@ -88,20 +76,52 @@ class GoodsCouponSpider(AsyncCrawler):
                     except AssertionError:
                         break
 
-                    tasks = []
-                    for coupon_url in slice_params_list:
-                        self.lg.info('create task[where coupon_url: {}] ...'.format(coupon_url))
-                        tasks.append(self.loop.create_task(self.intercept_target_api(
-                            coupon_url=coupon_url)))
+                    coupon_url_list = await self.get_coupon_url_list_by_goods_id_list(
+                        slice_params_list=slice_params_list
+                    )
+                    # pprint(coupon_url_list)
 
-                    one_res = await async_wait_tasks_finished(tasks=tasks)
+                    # 测试
+                    # coupon_url = 'https://uland.taobao.com/coupon/edetail?e=5M3kt6O%2FfZqa2P%2BN2ppgB2X2iX5OaVULVb9%2F1Hxlj5NQYhkEFAI5hGSlkL8%2BFO6JZSEGEhAo6u3FrE8HH4fiD8KUixUTTLeu0WMS0ZKY%2BzmLVIDjuHwzlw%3D%3D&af=1&pid=mm_55371245_39912139_149806421'
+                    # coupon_url_list = [coupon_url for i in range(10)]
 
-                    # 成功总数
-                    success_count = 0
-                    for item in one_res:
-                        if item:
-                            success_count += 1
-                    self.lg.info('成功个数: {}, 成功概率: {:.3f}'.format(success_count, success_count/self.concurrency2))
+                    if coupon_url_list == []:
+                        self.lg.info('coupon_url_list为空list, 跳过!')
+                        random_sleep_time = random_uniform(3, 7)
+                        self.lg.info('休眠{}s ...'.format(random_sleep_time))
+                        await async_sleep(random_sleep_time)
+                        continue
+
+                    # 划分coupon_url_list, 避免多开使内存崩溃
+                    tasks_params_list_obj2 = TasksParamsListObj(
+                        tasks_params_list=coupon_url_list,
+                        step=self.concurrency2,
+                        slice_start_index=0,)
+                    while True:
+                        try:
+                            slice_params_list2 = tasks_params_list_obj2.__next__()
+                        except AssertionError:
+                            break
+
+                        tasks = []
+                        for coupon_url in slice_params_list2:
+                            self.lg.info('create task[where coupon_url: {}] ...'.format(coupon_url))
+                            tasks.append(self.loop.create_task(self.intercept_target_api(
+                                coupon_url=coupon_url)))
+
+                        one_res = await async_wait_tasks_finished(tasks=tasks)
+
+                        # 成功总数
+                        success_count = 0
+                        for item in one_res:
+                            if item:
+                                success_count += 1
+                        self.lg.info('成功个数: {}, 成功概率: {:.3f}'.format(success_count, success_count/self.concurrency2))
+
+                self.lg.info('一次大循环结束!!')
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
+                await async_sleep(30)
 
     async def get_all_tasks_params_list_obj(self) -> list:
         """
@@ -162,6 +182,11 @@ class GoodsCouponSpider(AsyncCrawler):
         """
         db_res = []
         try:
+            # 清除过期优惠券
+            self.sql_cli._delete_table(
+                sql_str='delete from dbo.coupon_info where GETDATE()-end_time >= 3',
+                params=None,)
+            await async_sleep(15)
             db_res = list(self.sql_cli._select_table(sql_str=self.sql_tr0,))
         except Exception:
             self.lg.error('遇到错误:', exc_info=True)
@@ -267,6 +292,8 @@ class GoodsCouponSpider(AsyncCrawler):
         :param num_retries:
         :return: 优惠券领取地址
         """
+        global goods_id_and_coupon_url_queue
+
         # todo 测试发现无需搜索, 只需把goods_id 改为领券无忧的对应的url即可查询是否有券
         # 基于领券无忧来根据商品名获取其优惠券
         # headers = get_random_headers(
@@ -400,23 +427,26 @@ class GoodsCouponSpider(AsyncCrawler):
 
         coupon_url = data.get('coupon_click_url', '')
         if coupon_url != '':
-            self.lg.info('该goods_id: {} 含 有优惠券, coupon领取地址: {}'.format(goods_id, coupon_url))
+            self.lg.info('[+] 该goods_id: {} 含 有优惠券, coupon领取地址: {}'.format(goods_id, coupon_url))
+            # 队列录值
+            goods_id_and_coupon_url_queue.put({
+                'goods_id': goods_id,
+                'coupon_url': coupon_url,
+            })
         else:
-            self.lg.info('该goods_id: {} 不含 有优惠券'.format(goods_id))
-            if '531388515851' == goods_id:
-                return 'test'
+            self.lg.info('[-] 该goods_id: {} 不含 有优惠券'.format(goods_id))
 
         return coupon_url
 
     def init_sql_str(self):
-        # SiteID=1 or
         self.sql_tr0 = '''
         select GoodsID, SiteID
         from dbo.GoodsInfoAutoGet
         where MainGoodsID is not null
         and IsDelete=0
-        and (SiteID=3 or SiteID=4 or SiteID=6)
+        and (SiteID=1 or SiteID=3 or SiteID=4 or SiteID=6)
         -- and MainGoodsID=143509
+        -- and GoodsID='18773718545'
         '''
 
     def __del__(self):
@@ -510,7 +540,7 @@ class TargetDataConsumer(Thread):
         self.args = args
 
     def run(self):
-        global coupon_queue
+        global coupon_queue, goods_id_and_coupon_url_list, unique_coupon_id_list
 
         while True:
             try:
@@ -525,6 +555,8 @@ class TargetDataConsumer(Thread):
                     coupon_list = []
                     for item in ori_coupon_list:
                         try:
+                            goods_id = str(item.get('itemId', ''))
+                            assert goods_id != ''
                             # 一个账户优惠券只能使用一次
                             # 优惠券展示名称, eg: '优惠券'
                             coupon_display_name = '优惠券'
@@ -532,32 +564,165 @@ class TargetDataConsumer(Thread):
                             ori_coupon_value = item.get('couponAmount', '')
                             assert ori_coupon_value != ''
                             coupon_value = str(float(ori_coupon_value).__round__(2))
-                            use_method = ''
                             # 使用门槛
                             ori_thresold = item.get('couponStartFee', '')
                             assert ori_thresold != ''
                             threshold = str(float(ori_thresold).__round__(2))
                             begin_time = str(timestamp_to_regulartime(int(item.get('couponEffectiveStartTime', '')[0:10])))
                             end_time = str(timestamp_to_regulartime(int(item.get('couponEffectiveEndTime', '')[0:10])))
+                            # 使用方法
+                            use_method = '满{}元, 减{}元'.format(threshold, coupon_value)
 
                             if string_to_datetime(end_time) <= get_shanghai_time():
                                 # 已过期的
                                 continue
 
+                            # todo 测试发现, 同一商品可能存在不同活动时间段的同一优惠券(但是活动时间不同), 导致一个商品有多个优惠券
+                            #  所以取值时, 按结束时间最大那个来取值
+                            # 上面还是会有问题, 导致价格重复减, 所以生成唯一id, 所以在一次转换价格后要把所有的该goods_id券都标记为1
+                            # 生成唯一id
+                            # unique_id = str(get_uuid3(
+                            #     target_str=goods_id \
+                            #                + coupon_value \
+                            #                + threshold \
+                            #                + str(datetime_to_timestamp(string_to_datetime(begin_time)))[0:10]\
+                            #                + str(datetime_to_timestamp(string_to_datetime(end_time)))[0:10]))
+
+                            # todo 根据上诉存在多张券导致价格被多次修改的情况，故表中一个goods_id，只允许存一张券, 就不会出现价格被多次修改的情况
+                            # 解释就说: 只存储优惠力度最大的券
+                            unique_id = str(get_uuid3(target_str=goods_id))
+
+                            # 领券地址
+                            coupon_url = ''
+                            for item in goods_id_and_coupon_url_list:
+                                tmp_goods_id = item['goods_id']
+                                tmp_coupon_url = item['coupon_url']
+                                if goods_id == tmp_goods_id:
+                                    coupon_url = tmp_coupon_url
+                                    break
+                                else:
+                                    continue
+                            assert coupon_url != ''
+
                             coupon_list.append({
+                                'unique_id': unique_id,
+                                'goods_id': goods_id,
+                                'coupon_url': coupon_url,
                                 'coupon_display_name': coupon_display_name,
                                 'coupon_value': coupon_value,
-                                'use_method': use_method,
                                 'threshold': threshold,
                                 'begin_time': begin_time,
                                 'end_time': end_time,
+                                'use_method': use_method,
                             })
 
                         except Exception:
                             # print(e)
                             continue
 
-                    pprint(coupon_list)
+                    # pprint(coupon_list)
+                    if coupon_list != []:
+                        # 存储
+                        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+                        if not sql_cli.is_connect_success:
+                            raise SqlServerConnectionException
+
+                        for item in coupon_list:
+                            unique_id = item['unique_id']
+                            goods_id = item['goods_id']
+                            if unique_id not in unique_coupon_id_list:
+                                save_res = sql_cli._insert_into_table(
+                                    sql_str='insert into dbo.coupon_info(unique_id, create_time, goods_id, coupon_url, coupon_display_name, coupon_value, threshold, begin_time, end_time, use_method) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                                    params=(
+                                        unique_id,
+                                        str(get_shanghai_time()),
+                                        goods_id,
+                                        item['coupon_url'],
+                                        item['coupon_display_name'],
+                                        Decimal(item['coupon_value']).__round__(2),
+                                        Decimal(item['threshold']).__round__(2),
+                                        item['begin_time'],
+                                        item['end_time'],
+                                        item['use_method'],
+                                    ),
+                                )
+                                if save_res:
+                                    # 去重
+                                    unique_coupon_id_list.append(unique_id)
+                                    # 更新常规表中的商品价格变动
+                                    sql_str = '''
+                                    select top 1 Price, TaoBaoPrice, SKUInfo
+                                    from dbo.GoodsInfoAutoGet
+                                    where GoodsID=%s
+                                    '''
+                                    db_res = []
+                                    try:
+                                        db_res = list(sql_cli._select_table(
+                                            sql_str=sql_str,
+                                            params=(
+                                                goods_id,
+                                            ),
+                                        ))
+                                    except Exception as e:
+                                        print(e)
+
+                                    if db_res != []:
+                                        # 标记常规商品由于优惠券带来的价格变动
+                                        try:
+                                            # 减去优惠券的价格
+                                            coupon_value = float(item['coupon_value']).__round__(2)
+                                            threshold = float(item['threshold']).__round__(2)
+                                            # 还原为原始价格
+                                            db_price = (float(db_res[0][0]).__round__(2) * (1 - CP_PROFIT)).__round__(2)
+                                            db_taobao_price = (float(db_res[0][1]).__round__(2) * (1 - CP_PROFIT)).__round__(2)
+                                            # 减去优惠券价, 并且加上CP_PROFIT, 得到最终待存储价格
+                                            new_price = float((db_price - coupon_value if db_price >= threshold else db_price) * (1 + CP_PROFIT)).__round__(2)
+                                            new_taobao_price = float((db_taobao_price - coupon_value if db_taobao_price >= threshold else db_taobao_price) * (1 + CP_PROFIT)).__round__(2)
+
+                                            db_sku_info = json_2_dict(
+                                                json_str=db_res[0][2],
+                                                default_res=[],)
+
+                                            new_sku_info = []
+                                            for i  in db_sku_info:
+                                                detail_price = i.get('detail_price', '')
+                                                if detail_price != '':
+                                                    # 还原为原价
+                                                    tmp_detail_price = (float(detail_price).__round__(2) * (1 - CP_PROFIT)).__round__(2)
+                                                    # 减去优惠券, 并加上CP_PROFIT
+                                                    tmp_detail_price = str(((tmp_detail_price - coupon_value if tmp_detail_price >= threshold else tmp_detail_price) * (1 + CP_PROFIT)).__round__(2))
+                                                    i['detail_price'] = tmp_detail_price
+                                                else:
+                                                    pass
+                                                new_sku_info.append(i)
+
+                                            sql_str2 = '''
+                                            update dbo.GoodsInfoAutoGet
+                                            set Price=%s, TaoBaoPrice=%s, SKUInfo=%s, ModfiyTime=%s, sku_info_trans_time=%s, IsPriceChange=1, PriceChangeInfo=SKUInfo
+                                            where GoodsID=%s 
+                                            '''
+                                            now_time = get_shanghai_time()
+                                            sql_cli._update_table(
+                                                sql_str=sql_str2,
+                                                params=(
+                                                    Decimal(new_price).__round__(2),
+                                                    Decimal(new_taobao_price).__round__(2),
+                                                    dumps(new_sku_info, ensure_ascii=False),
+                                                    now_time,
+                                                    now_time,
+                                                    goods_id,
+                                                ),
+                                            )
+                                        except Exception as e:
+                                            print(e)
+                                    else:
+                                        pass
+                                else:
+                                    continue
+
+                            else:
+                                continue
+
                 else:
                     continue
             except IndexError:
@@ -566,9 +731,71 @@ class TargetDataConsumer(Thread):
             except Exception as e:
                 print(e)
 
+class GoodsIdAndCouponUrlQueueConsumer(Thread):
+    """
+    更新goods_id_and_coupon_url_list中的item
+    """
+    def __init__(self, args: (list, tuple)=()):
+        super(GoodsIdAndCouponUrlQueueConsumer, self).__init__()
+        self.args = args
+
+    def run(self):
+        global goods_id_and_coupon_url_queue, goods_id_and_coupon_url_list
+
+        while True:
+            try:
+                if goods_id_and_coupon_url_queue.qsize() >= 1:
+                    goods_id_and_coupon_url_item = goods_id_and_coupon_url_queue.get()
+                    new_goods_id = goods_id_and_coupon_url_item['goods_id']
+                    new_coupon_url = goods_id_and_coupon_url_item['coupon_url']
+                    # goods_id是否已被更新为最新的coupon_url
+                    is_lasted = False
+
+                    new_goods_id_and_coupon_url_list = []
+                    for item in goods_id_and_coupon_url_list:
+                        goods_id = item['goods_id']
+                        coupon_url = item['coupon_url']
+                        if goods_id == new_goods_id:
+                            if coupon_url != new_coupon_url:
+                                coupon_url = new_coupon_url
+                            else:
+                                pass
+
+                            is_lasted = True
+                            new_goods_id_and_coupon_url_list.append({
+                                'goods_id': goods_id,
+                                'coupon_url': coupon_url,
+                            })
+
+                        else:
+                            # 不等的goods_id 保存原值
+                            new_goods_id_and_coupon_url_list.append(item)
+
+                    if is_lasted:
+                        # 原先goods_id_and_coupon_url_list存在该coupon_url, 进行更新对应goods_id的coupon_url
+                        goods_id_and_coupon_url_list = new_goods_id_and_coupon_url_list
+                    else:
+                        # 全局变量goods_id_and_coupon_url_list未被录入该goods_id
+                        goods_id_and_coupon_url_list.append(goods_id_and_coupon_url_item)
+
+                    try:
+                        del new_goods_id_and_coupon_url_list
+                    except:
+                        pass
+
+            except Exception as e:
+                print(e)
+
 if __name__ == '__main__':
     # 消费券队列
     coupon_queue = Queue()
+    # 存储goods_id, 领券点击地址的dict子元素的list
+    goods_id_and_coupon_url_list = []
+    # 待处理的goods_id, 对应coupon_url的子元素的队列
+    goods_id_and_coupon_url_queue = Queue()
+    # 已存储的唯一优惠券的list
+    unique_coupon_id_list = []
+
     tasks = []
     # 存储所有需要监控并重启的初始化线程对象list
     need_to_be_monitored_thread_tasks_info_list = []
@@ -582,6 +809,21 @@ if __name__ == '__main__':
         tasks.append(task)
         need_to_be_monitored_thread_tasks_info_list.append({
             'func_name': TargetDataConsumer,
+            'thread_name': thread_name,
+            'func_args': func_args,
+            'is_class': True,
+        })
+
+    for i in range(1):
+        func_args = ()
+        task = GoodsIdAndCouponUrlQueueConsumer()
+        thread_name = 'thread_task:{}:{}'.format(
+            'GoodsIdAndCouponUrlQueueConsumer',
+            get_uuid1(),)
+        task.setName(name=thread_name)
+        tasks.append(task)
+        need_to_be_monitored_thread_tasks_info_list.append({
+            'func_name': GoodsIdAndCouponUrlQueueConsumer,
             'thread_name': thread_name,
             'func_args': func_args,
             'is_class': True,
