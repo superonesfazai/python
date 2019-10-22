@@ -279,20 +279,27 @@ class GoodsCouponSpider(AsyncCrawler):
             #     body, ))
             res = True if body != '' else res
 
-        except (WebsocketsConnectionClosed, InvalidStateError) as e:
+        except (WebsocketsConnectionClosed, InvalidStateError):
             pass
-        except Exception as e:
+        except Exception:
             self.lg.error('遇到错误:', exc_info=True)
 
         try:
             del chromium_puppeteer
             del page
         except:
-            pass
+            try:
+                del chromium_puppeteer
+                del page
+            except:
+                pass
         try:
             await driver.close()
         except:
-            pass
+            try:
+                await driver.close()
+            except:
+                pass
 
         return res
 
@@ -717,8 +724,9 @@ class TargetDataConsumer(Thread):
                                         item['end_time'],
                                         item['use_method'],
                                     ),
-                                )
+                                    repeat_insert_default_res=False,)
                                 if save_res:
+                                    # todo 只更新一次价格, 避免重复更新导致价格错误
                                     # 去重
                                     unique_coupon_id_list.append(unique_id)
                                     # 更新常规表中的商品价格变动

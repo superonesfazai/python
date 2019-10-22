@@ -45,7 +45,7 @@ class TmuxOps(AsyncCrawler):
         return [
             {
                 'page_name': 'file_ulimit_set',
-                'cmd': 'cd ~ && ulimit -n 65536',
+                'cmd': 'cd ~ && ulimit -n 80000',
                 'delay_time': 2,
             },
             {

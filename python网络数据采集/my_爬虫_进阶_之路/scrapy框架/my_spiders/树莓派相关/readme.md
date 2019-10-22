@@ -604,8 +604,8 @@ $ vi /etc/pam.d/login
 
 $ vim /etc/security/limits.conf
 # 在最后加入
-root soft nofile 65536
-root hard nofile 65536
+root soft nofile 80000
+root hard nofile 80000
 # root表示用户 可用*表示所有用户，可根据需要设置某一用户(eg: root), 设置的数值与硬件配置有关，别设置太大了。
 
 # 添加 echo 8061540 > /proc/sys/fs/file-max
