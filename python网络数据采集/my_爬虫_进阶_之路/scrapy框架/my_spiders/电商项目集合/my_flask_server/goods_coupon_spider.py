@@ -13,6 +13,8 @@ from queue import Queue
 from threading import Thread
 from random import uniform as random_uniform
 from decimal import Decimal
+from asyncio import TimeoutError as AsyncTimeoutError
+from asyncio import wait_for
 
 from settings import (
     IP_POOL_TYPE,
@@ -118,7 +120,13 @@ class GoodsCouponSpider(AsyncCrawler):
                             tasks.append(self.loop.create_task(self.intercept_target_api(
                                 coupon_url=coupon_url)))
 
-                        one_res = await async_wait_tasks_finished(tasks=tasks)
+                        try:
+                            one_res = await wait_for(
+                                fut=async_wait_tasks_finished(tasks=tasks),
+                                timeout=60 * 2,)
+                        except AsyncTimeoutError:
+                            self.lg.error('遇到错误:', exc_info=True)
+                            continue
 
                         # 成功总数
                         success_count = 0
@@ -743,12 +751,10 @@ class TargetDataConsumer(Thread):
                                             new_price = float((db_price - coupon_value if db_price >= threshold else db_price) * (1 + CP_PROFIT)).__round__(2)
                                             new_taobao_price = float((db_taobao_price - coupon_value if db_taobao_price >= threshold else db_taobao_price) * (1 + CP_PROFIT)).__round__(2)
 
-                                            db_sku_info = json_2_dict(
-                                                json_str=db_res[0][2],
-                                                default_res=[],)
-
                                             new_sku_info = get_new_sku_info_from_old_sku_info_subtract_coupon_and_add_cp_profit(
-                                                old_sku_info=db_sku_info,
+                                                old_sku_info=json_2_dict(
+                                                    json_str=db_res[0][2],
+                                                    default_res=[],),
                                                 threshold=threshold,
                                                 coupon_value=coupon_value,)
 
