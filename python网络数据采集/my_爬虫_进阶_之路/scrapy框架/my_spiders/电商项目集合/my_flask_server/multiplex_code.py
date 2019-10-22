@@ -136,6 +136,31 @@ GOODS_SENSITIVE_STR_TUPLE = (
     '\【\】',
 )
 
+def get_new_sku_info_from_old_sku_info_subtract_coupon_and_add_cp_profit(old_sku_info: list,
+                                                                         threshold: float,
+                                                                         coupon_value: float) -> list:
+    """
+    原先的sku_info减去优惠券再加上公司利润
+    :param old_sku_info:
+    :param threshold:
+    :param coupon_value:
+    :return:
+    """
+    new_sku_info = []
+    for i in old_sku_info:
+        detail_price = i.get('detail_price', '')
+        if detail_price != '':
+            # 还原为原价
+            tmp_detail_price = (float(detail_price).__round__(2) * (1 - CP_PROFIT)).__round__(2)
+            # 减去优惠券, 并加上CP_PROFIT
+            tmp_detail_price = str(((tmp_detail_price - coupon_value if tmp_detail_price >= threshold else tmp_detail_price) * (1 + CP_PROFIT)).__round__(2))
+            i['detail_price'] = tmp_detail_price
+        else:
+            pass
+        new_sku_info.append(i)
+
+    return new_sku_info
+
 def get_tb_coupon_by_goods_id(goods_id: str,
                               seller_id: str,
                               seller_type: str,
@@ -1530,21 +1555,10 @@ def get_goods_info_change_data(target_short_name: str, logger=None, sql_cli=None
                 _new_taobao_price = float(data['taobao_price']).__round__(2)
                 data['price'] = str(_new_price - coupon_value if _new_price >= threshold else _new_price)
                 data['taobao_price'] = str(_new_taobao_price - coupon_value if _new_taobao_price >= threshold else _new_taobao_price)
-
-                tmp_new_sku_info = []
-                for item in new_sku_info:
-                    detail_price = item.get('detail_price', '')
-                    if detail_price != '':
-                        # 还原为原价
-                        tmp_detail_price = (float(detail_price).__round__(2) * (1 - CP_PROFIT)).__round__(2)
-                        # 减去优惠券, 并加上CP_PROFIT
-                        tmp_detail_price = str(((tmp_detail_price - coupon_value if tmp_detail_price >= threshold else tmp_detail_price) * (1 + CP_PROFIT)).__round__(2))
-                        item['detail_price'] = tmp_detail_price
-
-                    else:
-                        pass
-                    tmp_new_sku_info.append(item)
-                new_sku_info = tmp_new_sku_info
+                new_sku_info = get_new_sku_info_from_old_sku_info_subtract_coupon_and_add_cp_profit(
+                    old_sku_info=new_sku_info,
+                    threshold=threshold,
+                    coupon_value=coupon_value,)
 
             except Exception as e:
                 _print(msg='遇到错误:', logger=logger, exception=e, log_level=2)

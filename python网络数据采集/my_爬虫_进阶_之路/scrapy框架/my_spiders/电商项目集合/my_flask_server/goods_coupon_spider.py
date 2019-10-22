@@ -20,10 +20,14 @@ from settings import (
 )
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 from my_exceptions import SqlServerConnectionException
-from multiplex_code import CP_PROFIT
+from multiplex_code import (
+    CP_PROFIT,
+    get_new_sku_info_from_old_sku_info_subtract_coupon_and_add_cp_profit,
+)
 
 from fzutils.spider.fz_driver import PHONE
 from fzutils.common_utils import _print
+from fzutils.spider.selector import parse_field
 from fzutils.spider.pyppeteer_always import *
 from fzutils.spider.chrome_remote_interface import *
 from fzutils.spider.async_always import *
@@ -43,11 +47,11 @@ class GoodsCouponSpider(AsyncCrawler):
             headless=True,
         )
         # 不宜过大, 官网会发现
-        self.concurrency = 20
+        self.concurrency = 15
         self.concurrency2 = 6
         self.req_num_retries = 8
         self.proxy_type = PROXY_TYPE_HTTPS
-        self.driver_load_images=DRIVER_LOAD_IMAGES
+        self.driver_load_images = DRIVER_LOAD_IMAGES
         self.concurrent_type = 1
         self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         self.init_sql_str()
@@ -83,11 +87,16 @@ class GoodsCouponSpider(AsyncCrawler):
 
                     # 测试
                     # coupon_url = 'https://uland.taobao.com/coupon/edetail?e=5M3kt6O%2FfZqa2P%2BN2ppgB2X2iX5OaVULVb9%2F1Hxlj5NQYhkEFAI5hGSlkL8%2BFO6JZSEGEhAo6u3FrE8HH4fiD8KUixUTTLeu0WMS0ZKY%2BzmLVIDjuHwzlw%3D%3D&af=1&pid=mm_55371245_39912139_149806421'
-                    # coupon_url_list = [coupon_url for i in range(10)]
+                    # coupon_url_list = [coupon_url for i in range(6)]
+                    # # goods_id得对应上面的领券地址
+                    # goods_id_and_coupon_url_queue.put({
+                    #     'goods_id': '562016826663',
+                    #     'coupon_url': coupon_url,
+                    # })
 
                     if coupon_url_list == []:
                         self.lg.info('coupon_url_list为空list, 跳过!')
-                        random_sleep_time = random_uniform(3, 7)
+                        random_sleep_time = random_uniform(2.5, 5)
                         self.lg.info('休眠{}s ...'.format(random_sleep_time))
                         await async_sleep(random_sleep_time)
                         continue
@@ -230,13 +239,13 @@ class GoodsCouponSpider(AsyncCrawler):
                 page=page,
                 url=coupon_url,
                 options={
-                    'timeout': 1000 * 40,  # unit: ms
+                    'timeout': 1000 * 45,  # unit: ms
                     'waitUntil': [  # 页面加载完成 or 不再有网络连接
                         'domcontentloaded',
                         'networkidle0',
                     ]
                 },
-                num_retries=3,
+                num_retries=2,
             )
 
             # 全屏截图
@@ -387,45 +396,96 @@ class GoodsCouponSpider(AsyncCrawler):
         # tb
         # goods_id = '573406377569'
 
-        # 根据领券无忧接口
+        # # 根据领券无忧接口
+        # # base_url = 'www.i075.com'
+        # base_url = 'quan.mmfad.com'
+        # headers = get_random_headers(
+        #     user_agent_type=1,
+        #     connection_status_keep_alive=False,
+        #     upgrade_insecure_requests=False,
+        #     cache_control='',)
+        # headers.update({
+        #     'accept': 'application/json, text/javascript, */*; q=0.01',
+        #     'Referer': 'http://{}/item/index/iid/{}.html'.format(base_url, goods_id),
+        #     'Origin': 'http://{}'.format(base_url),
+        #     'X-Requested-With': 'XMLHttpRequest',
+        #     'Content-Type': 'application/x-www-form-urlencoded',
+        #     'Proxy-Connection': 'keep-alive',
+        # })
+        # params = (
+        #     ('rnd', str(random_uniform(0, 1))),  # eg: '0.4925945510743117'
+        # )
+        # data = {
+        #     'iid': goods_id,
+        # }
+        # body = Requests.get_url_body(
+        #     method='post',
+        #     url='http://{}/item/ajax_get_auction_code.html'.format(base_url),
+        #     headers=headers,
+        #     params=params,
+        #     data=data,
+        #     verify=False,
+        #     ip_pool_type=self.ip_pool_type,
+        #     num_retries=self.req_num_retries,
+        #     proxy_type=self.proxy_type, )
+        # assert body != ''
+        # # self.lg.info(body)
+        #
+        # data = json_2_dict(
+        #     json_str=body,
+        #     default_res={},
+        #     logger=self.lg,).get('data', {})
+        # # pprint(data)
+        # # 处理data = ''
+        # data = data if not isinstance(data, str) else {}
+        # coupon_url = data.get('coupon_click_url', '')
+
+        # 通过全优惠网(https://www.quanyoubuy.com)
         headers = get_random_headers(
-            user_agent_type=1,
             connection_status_keep_alive=False,
         )
         headers.update({
-            'Origin': 'http://www.lq5u.com',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Referer': 'http://www.lq5u.com/item/index/iid/{}.html'.format(goods_id),
-            'X-Requested-With': 'XMLHttpRequest',
+            'authority': 'www.quanyoubuy.com',
+            'upgrade-insecure-requests': '1',
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-user': '?1',
+            'sec-fetch-site': 'same-origin',
         })
-        params = (
-            ('rnd', str(random_uniform(0, 1))),  # eg: '0.4925945510743117'
-        )
-        data = {
-            'iid': goods_id
-        }
+        url = 'https://www.quanyoubuy.com/item/index/iid/{}.html'.format(goods_id)
         body = Requests.get_url_body(
-            method='post',
-            url='http://www.lq5u.com/item/ajax_get_auction_code.html',
+            url=url,
             headers=headers,
-            params=params,
-            data=data,
-            verify=False,
             ip_pool_type=self.ip_pool_type,
-            num_retries=self.req_num_retries,
-            proxy_type=self.proxy_type, )
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
         assert body != ''
         # self.lg.info(body)
 
-        data = json_2_dict(
-            json_str=body,
-            default_res={},
-            logger=self.lg,).get('data', {})
-        # pprint(data)
-        # 处理data = ''
-        data = data if not isinstance(data, str) else {}
+        qrcode_url_sel = {
+            'method': 'css',
+            'selector': 'img.getGoodsLink ::attr("src")',
+        }
+        qrcode_url = parse_field(
+            parser=qrcode_url_sel,
+            target_obj=body,
+            logger=self.lg,)
+        assert qrcode_url != ''
+        # self.lg.info(qrcode_url)
+        coupon_url_sel = {
+            'method': 're',
+            'selector': '&text=(.*)',
+        }
+        coupon_url = parse_field(
+            parser=coupon_url_sel,
+            target_obj=qrcode_url,
+            logger=self.lg,)
+        # self.lg.info(coupon_url)
+        if 'uland.taobao.com' not in coupon_url:
+            # 地址含有上诉的才为领券地址
+            coupon_url = ''
+        else:
+            pass
 
-        coupon_url = data.get('coupon_click_url', '')
         if coupon_url != '':
             self.lg.info('[+] 该goods_id: {} 含 有优惠券, coupon领取地址: {}'.format(goods_id, coupon_url))
             # 队列录值
@@ -520,7 +580,7 @@ class NetworkInterceptorTest(NetworkInterceptor):
                 try:
                     body = await response.text()
                     intercept_body = body.replace('\n', '').replace('\t', '').replace('  ', '')
-                    msg = '[{:8s}] {}'.format(colored('@-data-@', 'green'), intercept_body)
+                    msg = '[{:8s}] {}'.format(colored('@-data-@', 'green'), intercept_body[0:1000])
                     _print(msg=msg, logger=self.lg)
                     coupon_queue.put(intercept_body)
                 except (PyppeteerNetworkError, IndexError, Exception) as e:
@@ -545,12 +605,13 @@ class TargetDataConsumer(Thread):
         while True:
             try:
                 if coupon_queue.qsize() >= 1:
+                    # todo 有些领券url 为预付定金商品, 此处不处理
                     coupon_item = coupon_queue.get()
                     ori_coupon_list = json_2_dict(
                         json_str=re.compile('\((.*)\)').findall(coupon_item)[0],
                         default_res={},).get('data', {}).get('resultList', [])
                     assert ori_coupon_list != []
-                    # pprint(ori_coupon_list
+                    # pprint(ori_coupon_list)
 
                     coupon_list = []
                     for item in ori_coupon_list:
@@ -574,6 +635,7 @@ class TargetDataConsumer(Thread):
                             use_method = '满{}元, 减{}元'.format(threshold, coupon_value)
 
                             if string_to_datetime(end_time) <= get_shanghai_time():
+                                print('该券已过期[goods_id: {}]'.format(goods_id))
                                 # 已过期的
                                 continue
 
@@ -593,11 +655,13 @@ class TargetDataConsumer(Thread):
                             unique_id = str(get_uuid3(target_str=goods_id))
 
                             # 领券地址
+                            # pprint(goods_id_and_coupon_url_list)
                             coupon_url = ''
-                            for item in goods_id_and_coupon_url_list:
-                                tmp_goods_id = item['goods_id']
-                                tmp_coupon_url = item['coupon_url']
+                            for j in goods_id_and_coupon_url_list:
+                                tmp_goods_id = j['goods_id']
+                                tmp_coupon_url = j['coupon_url']
                                 if goods_id == tmp_goods_id:
+                                    print('@@@ 成功匹配到goods_id: {} 的领券地址: {}!!'.format(goods_id, tmp_coupon_url))
                                     coupon_url = tmp_coupon_url
                                     break
                                 else:
@@ -616,8 +680,8 @@ class TargetDataConsumer(Thread):
                                 'use_method': use_method,
                             })
 
-                        except Exception:
-                            # print(e)
+                        except Exception as e:
+                            print(e)
                             continue
 
                     # pprint(coupon_list)
@@ -683,18 +747,10 @@ class TargetDataConsumer(Thread):
                                                 json_str=db_res[0][2],
                                                 default_res=[],)
 
-                                            new_sku_info = []
-                                            for i  in db_sku_info:
-                                                detail_price = i.get('detail_price', '')
-                                                if detail_price != '':
-                                                    # 还原为原价
-                                                    tmp_detail_price = (float(detail_price).__round__(2) * (1 - CP_PROFIT)).__round__(2)
-                                                    # 减去优惠券, 并加上CP_PROFIT
-                                                    tmp_detail_price = str(((tmp_detail_price - coupon_value if tmp_detail_price >= threshold else tmp_detail_price) * (1 + CP_PROFIT)).__round__(2))
-                                                    i['detail_price'] = tmp_detail_price
-                                                else:
-                                                    pass
-                                                new_sku_info.append(i)
+                                            new_sku_info = get_new_sku_info_from_old_sku_info_subtract_coupon_and_add_cp_profit(
+                                                old_sku_info=db_sku_info,
+                                                threshold=threshold,
+                                                coupon_value=coupon_value,)
 
                                             sql_str2 = '''
                                             update dbo.GoodsInfoAutoGet
@@ -746,8 +802,10 @@ class GoodsIdAndCouponUrlQueueConsumer(Thread):
             try:
                 if goods_id_and_coupon_url_queue.qsize() >= 1:
                     goods_id_and_coupon_url_item = goods_id_and_coupon_url_queue.get()
+                    # print(str(goods_id_and_coupon_url_item))
                     new_goods_id = goods_id_and_coupon_url_item['goods_id']
                     new_coupon_url = goods_id_and_coupon_url_item['coupon_url']
+                    # print('@@@ 正在处理goods_id_and_coupon_url_queue中新item[where goods_id: {}, coupon_url: {}]'.format(new_goods_id, new_coupon_url))
                     # goods_id是否已被更新为最新的coupon_url
                     is_lasted = False
 
