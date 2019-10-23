@@ -60,6 +60,13 @@ class MiaPintuanRealTimeUpdate(object):
         :return:
         '''
         result = self._get_db_old_data()
+        if result is None:
+            sleep_time = 20
+            print('获取db数据失败, 休眠{}s ...'.format(sleep_time))
+            sleep(sleep_time)
+
+            return None
+
         index = 1
         for item in result:  # 实时更新数据
             goods_id = item[0]

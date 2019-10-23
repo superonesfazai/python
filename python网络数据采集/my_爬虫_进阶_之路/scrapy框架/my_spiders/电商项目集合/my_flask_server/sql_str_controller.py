@@ -140,7 +140,7 @@ where SiteID=1
 and MainGoodsID is not null
 -- and IsDelete=1
 -- and MainGoodsID=163975
--- and GoodsID='18773718545'
+-- and GoodsID='595407890185'
 order by ModfiyTime asc
 '''
 # 淘抢购实时更新
@@ -269,7 +269,9 @@ order by ModfiyTime asc
 z8_select_str_4 = '''
 select goods_id, miaosha_time, session_id 
 from dbo.zhe_800_xianshimiaosha 
-where site_id=14 and is_delete = 0
+where site_id=14 
+and is_delete = 0
+-- and goods_id='ze190902152017615094'
 '''
 # 包括下架的也要被拿到
 z8_select_str_5 = '''

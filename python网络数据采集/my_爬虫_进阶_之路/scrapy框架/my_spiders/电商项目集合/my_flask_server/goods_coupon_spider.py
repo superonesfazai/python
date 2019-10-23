@@ -628,6 +628,8 @@ class TargetDataConsumer(Thread):
                     assert ori_coupon_list != []
                     # pprint(ori_coupon_list)
 
+                    # todo: 测试发现, 返回数据中, 若有多买几件的优惠券在字段'nCouponInfoMap'中
+                    # 现只支持1件, 不支持多件的券
                     coupon_list = []
                     for item in ori_coupon_list:
                         try:
@@ -724,7 +726,8 @@ class TargetDataConsumer(Thread):
                                         item['end_time'],
                                         item['use_method'],
                                     ),
-                                    repeat_insert_default_res=False,)
+                                    repeat_insert_default_res=False,    # 避免重复改价
+                                )
                                 if save_res:
                                     # todo 只更新一次价格, 避免重复更新导致价格错误
                                     # 去重
@@ -750,14 +753,14 @@ class TargetDataConsumer(Thread):
                                         # 标记常规商品由于优惠券带来的价格变动
                                         try:
                                             # 减去优惠券的价格
-                                            coupon_value = float(item['coupon_value']).__round__(2)
-                                            threshold = float(item['threshold']).__round__(2)
+                                            coupon_value = float(item['coupon_value'])
+                                            threshold = float(item['threshold'])
                                             # 还原为原始价格
-                                            db_price = (float(db_res[0][0]).__round__(2) * (1 - CP_PROFIT)).__round__(2)
-                                            db_taobao_price = (float(db_res[0][1]).__round__(2) * (1 - CP_PROFIT)).__round__(2)
+                                            db_price = float(db_res[0][0]) * (1 - CP_PROFIT)
+                                            db_taobao_price = float(db_res[0][1]) * (1 - CP_PROFIT)
                                             # 减去优惠券价, 并且加上CP_PROFIT, 得到最终待存储价格
-                                            new_price = float((db_price - coupon_value if db_price >= threshold else db_price) * (1 + CP_PROFIT)).__round__(2)
-                                            new_taobao_price = float((db_taobao_price - coupon_value if db_taobao_price >= threshold else db_taobao_price) * (1 + CP_PROFIT)).__round__(2)
+                                            new_price = ((db_price - coupon_value if db_price >= threshold else db_price) * (1 + CP_PROFIT)).__round__(2)
+                                            new_taobao_price = ((db_taobao_price - coupon_value if db_taobao_price >= threshold else db_taobao_price) * (1 + CP_PROFIT)).__round__(2)
 
                                             new_sku_info = get_new_sku_info_from_old_sku_info_subtract_coupon_and_add_cp_profit(
                                                 old_sku_info=json_2_dict(

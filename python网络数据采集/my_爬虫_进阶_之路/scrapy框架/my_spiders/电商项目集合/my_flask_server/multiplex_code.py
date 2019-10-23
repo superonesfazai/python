@@ -1568,19 +1568,18 @@ def get_goods_info_change_data(target_short_name: str, logger=None, sql_cli=None
             # 表示优惠券未过期
             try:
                 # 减去优惠券价格
-                coupon_value = float(db_coupon_info[0][0]).__round__(2)
-                threshold = float(db_coupon_info[0][1]).__round__(2)
+                coupon_value = float(db_coupon_info[0][0])
+                threshold = float(db_coupon_info[0][1])
                 # old_sku_info已减去优惠券并且已加价, new_sku_info已加价但是未减去优惠券
                 # new_price, new_taobao_price都未减去优惠券
-                _new_price = float(data['price']).__round__(2)
-                _new_taobao_price = float(data['taobao_price']).__round__(2)
-                data['price'] = str(_new_price - coupon_value if _new_price >= threshold else _new_price)
-                data['taobao_price'] = str(_new_taobao_price - coupon_value if _new_taobao_price >= threshold else _new_taobao_price)
+                _new_price = float(data['price'])
+                _new_taobao_price = float(data['taobao_price'])
+                data['price'] = str((_new_price - coupon_value if _new_price >= threshold else _new_price).__round__(2))
+                data['taobao_price'] = str((_new_taobao_price - coupon_value if _new_taobao_price >= threshold else _new_taobao_price).__round__(2))
                 new_sku_info = get_new_sku_info_from_old_sku_info_subtract_coupon_and_add_cp_profit(
                     old_sku_info=new_sku_info,
                     threshold=threshold,
                     coupon_value=coupon_value,)
-
             except Exception as e:
                 _print(msg='遇到错误:', logger=logger, exception=e, log_level=2)
 

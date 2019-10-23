@@ -35,11 +35,17 @@ class YXGoodsInfoMonitorSpider(AsyncCrawler):
 
     async def _fck_run(self):
         while True:
-            self.db_res = await self.get_db_res()
-            await self.get_all_goods_info_and_handle_by_goods_id_list(
-                goods_id_list=[item[0] for item in self.db_res],
-            )
-            await async_sleep(10.)
+            try:
+                self.db_res = await self.get_db_res()
+                await self.get_all_goods_info_and_handle_by_goods_id_list(
+                    goods_id_list=[item[0] for item in self.db_res],
+                )
+                await async_sleep(10.)
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
+                sleep_time = 20.
+                self.lg.info('休眠{}s...'.format(sleep_time))
+                await async_sleep(sleep_time)
 
     async def get_db_res(self) -> list:
         """

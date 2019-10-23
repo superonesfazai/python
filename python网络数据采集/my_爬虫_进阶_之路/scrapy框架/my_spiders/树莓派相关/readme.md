@@ -616,6 +616,9 @@ $ logout
 $ reboot
 ```
 
+### mac 打开文件数 too many open files 解决方法
+[blog](https://blog.csdn.net/u011466175/article/details/48002179)
+
 #### 查看进程文件打开数
 ```bash
 # 查看所有进程的文件打开数
