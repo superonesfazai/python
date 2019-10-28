@@ -172,7 +172,7 @@ def get_new_sku_info_from_old_sku_info_subtract_coupon_and_add_cp_profit(old_sku
         detail_price = i.get('detail_price', '')
         if detail_price != '':
             # 还原为原价
-            tmp_detail_price = (float(detail_price).__round__(2) * (1 - CP_PROFIT)).__round__(2)
+            tmp_detail_price = float(detail_price) * (1 - CP_PROFIT)
             # 减去优惠券, 并加上CP_PROFIT
             tmp_detail_price = str(((tmp_detail_price - coupon_value if tmp_detail_price >= threshold else tmp_detail_price) * (1 + CP_PROFIT)).__round__(2))
             i['detail_price'] = tmp_detail_price

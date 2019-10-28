@@ -68,6 +68,7 @@ class CpolarControler(AsyncCrawler):
             method='get',
             url='https://dashboard.cpolar.com/login',
             headers=headers,
+            verify=False,
             proxies=Requests._get_proxies(
                 ip_pool_type=self.ip_pool_type,
                 proxy_type=PROXY_TYPE_HTTPS,),
@@ -84,10 +85,10 @@ class CpolarControler(AsyncCrawler):
         print('获取到csrf_token: {}'.format(csrf_token))
 
         # 再登录
-        login_headers = get_random_headers(
-            cache_control='', )
+        login_headers = get_random_headers()
         login_headers.update({
-            'Referer': 'https://dashboard.cpolar.com/login',
+            'Origin': 'https://dashboard.cpolar.com',
+            'referer': 'https://dashboard.cpolar.com/login',
             'Content-Type': 'application/x-www-form-urlencoded',
         })
         data = {
@@ -100,6 +101,7 @@ class CpolarControler(AsyncCrawler):
             url='https://dashboard.cpolar.com/login',
             headers=headers,
             data=data,
+            verify=False,
             proxies=Requests._get_proxies(
                 ip_pool_type=self.ip_pool_type,
                 proxy_type=PROXY_TYPE_HTTPS),
@@ -135,7 +137,8 @@ class CpolarControler(AsyncCrawler):
             ip_pool_type=self.ip_pool_type,
             num_retries=self.req_num_retries,
             proxy_type=PROXY_TYPE_HTTPS,
-            _session=self._s,)
+            _session=self._s,
+            verify=False,)
         assert body != ''
         # print(body)
 

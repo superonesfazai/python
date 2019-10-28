@@ -30,6 +30,7 @@ from multiplex_code import (
 from fzutils.spider.fz_driver import PHONE
 from fzutils.common_utils import _print
 from fzutils.spider.selector import parse_field
+from fzutils.memory_utils import get_current_func_info_by_traceback
 from fzutils.spider.pyppeteer_always import *
 from fzutils.spider.chrome_remote_interface import *
 from fzutils.spider.async_always import *
@@ -134,21 +135,36 @@ class GoodsCouponSpider(AsyncCrawler):
                             if item:
                                 success_count += 1
                         self.lg.info('成功个数: {}, 成功概率: {:.3f}'.format(success_count, success_count/self.concurrency2))
+                        collect()
 
                 self.lg.info('一次大循环结束!!')
+                collect()
+
             except Exception:
                 self.lg.error('遇到错误:', exc_info=True)
                 await async_sleep(30)
+                collect()
 
     async def get_all_tasks_params_list_obj(self) -> list:
         """
         根据db 给与的数据获取到所有的目标数据
         :return:
         """
+        global unique_coupon_id_list
+
         all_tasks_params_list_obj = []
         for item in self.db_res:
+            goods_id = item[0]
+            # 因为现在只取单件购买优惠券, 不处理多件的, 所以此处可去除已存在的
+            coupon_unique_id = str(get_uuid3(target_str=goods_id))
+            if coupon_unique_id in unique_coupon_id_list:
+                self.lg.info('coupon_info 表中已存在coupon_unique_id: {}, goods_id: {}, pass'.format(
+                    coupon_unique_id,
+                    goods_id,))
+                continue
+
             all_tasks_params_list_obj.append({
-                'goods_id': item[0],
+                'goods_id': goods_id,
                 'site_id': item[1],
             })
 
@@ -190,6 +206,8 @@ class GoodsCouponSpider(AsyncCrawler):
             if item != '':
                 res.append(item)
 
+        collect()
+
         return res
 
     async def get_db_res(self) -> list:
@@ -197,6 +215,7 @@ class GoodsCouponSpider(AsyncCrawler):
         获取目标goods_id_list
         :return:
         """
+        get_current_func_info_by_traceback(self=self, logger=self.lg)
         db_res = []
         try:
             # 清除过期优惠券
@@ -300,6 +319,7 @@ class GoodsCouponSpider(AsyncCrawler):
                 await driver.close()
             except:
                 pass
+        collect()
 
         return res
 
@@ -870,6 +890,22 @@ if __name__ == '__main__':
     goods_id_and_coupon_url_queue = Queue()
     # 已存储的唯一优惠券的list
     unique_coupon_id_list = []
+    print('正在获取db_unique_coupon_id_list ...')
+    # 从db中获取已存在的id
+    sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+    try:
+        db_res = list(sql_cli._select_table(
+            sql_str='select unique_id from dbo.coupon_info'))
+        unique_coupon_id_list = [item[0] for item in db_res]
+        print('unique_coupon_id_list_len: {}'.format(len(unique_coupon_id_list)))
+    except Exception as e:
+        print(e)
+    finally:
+        try:
+            del sql_cli
+        except:
+            pass
+    print('获取完毕!')
 
     tasks = []
     # 存储所有需要监控并重启的初始化线程对象list
