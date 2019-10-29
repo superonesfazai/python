@@ -80,9 +80,12 @@ class RecommendGoodOps(AsyncCrawler):
         # article_id 截取数
         self.zq_intercept_num = 2
         self.hk_intercept_num = 1
+        self.lfd_intercept_num = 1
         self.article_parser = None
         # 暂存好看视频list的dict
         self.hk_cache_dict = {}
+        # 暂存lfd list的dict
+        self.lfd_cache_dict = {}
 
     async def _fck_run(self):
         # 休眠5分钟, 避免频繁发!
@@ -170,10 +173,12 @@ class RecommendGoodOps(AsyncCrawler):
 
         # 创建目标集合
         # zq_article_list = []
+        # hk_article_list = []
         zq_article_list = self.get_zq_own_create_article_id_list(
             min_article_id=self.min_article_id,
             max_article_id=self.max_article_id,)
         hk_article_list = self.get_hk_article_id_list()
+        lfd_article_list = self.get_lfd_article_id_list()
 
         # 测试用
         # article_id = '17300123'
@@ -186,7 +191,7 @@ class RecommendGoodOps(AsyncCrawler):
         # }]
 
         # 文章在前的发布顺序, 视频在后(避免视频发过多)
-        article_list = zq_article_list + hk_article_list
+        article_list = zq_article_list + hk_article_list + lfd_article_list
 
         assert article_list != []
         # pprint(article_list)
@@ -257,6 +262,38 @@ class RecommendGoodOps(AsyncCrawler):
 
         return
 
+    def get_lfd_article_id_list(self):
+        """
+        获取lfd目标article_id_list
+        :return:
+        """
+        if not isinstance(self.article_parser, ArticleParser):
+            self.article_parser = ArticleParser(logger=self.lg)
+        else:
+            pass
+
+        if self.lfd_cache_dict == {}:
+            # 首次启动
+            article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                article_type='lfd',))
+            self.lfd_cache_dict['data'] = article_list
+            self.lfd_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+        else:
+            cache_time = self.lfd_cache_dict['cache_time']
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > 30 * 60:
+                # lfd 每日更新数量有限, 每过30分钟重新获取一次
+                article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                    article_type='lfd',))
+                self.lfd_cache_dict['data'] = article_list
+                self.lfd_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+            else:
+                article_list = self.lfd_cache_dict['data']
+
+        # 截取1个(与图文穿插)
+        article_list = random_sample(article_list, self.lfd_intercept_num)
+
+        return article_list
+
     def get_hk_article_id_list(self):
         """
         获取hk 目标article_id_list
@@ -269,25 +306,25 @@ class RecommendGoodOps(AsyncCrawler):
 
         if self.hk_cache_dict == {}:
             # 首次启动
-            hk_article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+            article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                 article_type='hk',))
-            self.hk_cache_dict['data'] = hk_article_list
+            self.hk_cache_dict['data'] = article_list
             self.hk_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
         else:
             cache_time = self.hk_cache_dict['cache_time']
             if datetime_to_timestamp(get_shanghai_time()) - cache_time > 12 * 60:
                 # 每过12分钟重新获取一次
-                hk_article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                     article_type='hk',))
-                self.hk_cache_dict['data'] = hk_article_list
+                self.hk_cache_dict['data'] = article_list
                 self.hk_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
             else:
-                hk_article_list = self.hk_cache_dict['data']
+                article_list = self.hk_cache_dict['data']
 
         # 截取1个(与图文穿插)
-        hk_article_list = random_sample(hk_article_list, self.hk_intercept_num)
+        article_list = random_sample(article_list, self.hk_intercept_num)
 
-        return hk_article_list
+        return article_list
 
     def get_latest_max_and_min_artcile_id_from_article_list(self, article_list) -> tuple:
         """

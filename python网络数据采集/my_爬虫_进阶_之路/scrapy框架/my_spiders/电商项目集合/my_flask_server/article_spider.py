@@ -218,8 +218,160 @@ class ArticleParser(AsyncCrawler):
         elif article_type == 'hk':
             return await self.get_hk_article_list()
 
+        elif article_type == 'lfd':
+            return await self.get_lfd_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_lfd_article_list(self) -> list:
+        """
+        获取lfd的article_list
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            for page_num in range(1, 6):
+                # lfd每日更新有限, 就获取前6页的
+                tasks_params_list.append({
+                    'page_num': page_num,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where lfd: page_num:{}]...'.format(
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['page_num'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_lfd_recommend_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_lfd_recommend_article_list_by_page_num(self, page_num: int) -> list:
+        """
+        根据page_num获取lfd首页的最新推荐article_list
+        :param page_num:
+        :return:
+        """
+        headers = get_random_headers(connection_status_keep_alive=False)
+        headers.update({
+            'Proxy-Connection': 'keep-alive',
+        })
+        url = 'http://www.laifudao.com/index_{}.html'.format(page_num)
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            verify=False,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,)
+        assert body != ''
+        # print(body)
+
+        article_div_list_sel = {
+            'method': 'css',
+            'selector': 'article',
+        }
+        article_div_list = parse_field(
+            parser=article_div_list_sel,
+            target_obj=body,
+            is_first=False,
+            logger=self.lg,)
+        assert article_div_list != []
+        # pprint(article_div_list)
+
+        # 文章有图的选择器
+        article_had_img_sel = {
+            'method': 'css',
+            'selector': 'div.post-content section.pic-content',
+        }
+        # 文章地址选择器
+        article_url_sel = {
+            'method': 'css',
+            'selector': 'article h1 a ::attr("href")',
+        }
+        article_id_sel = {
+            'method': 're',
+            'selector': '/(\d+)\.htm',
+        }
+        title_sel = {
+            'method': 'css',
+            'selector': 'article h1 a ::text',
+        }
+        res = []
+        for item in article_div_list:
+            try:
+                # 只要有图的, 纯文字无法发布
+                article_had_img = parse_field(
+                    parser=article_had_img_sel,
+                    target_obj=item,
+                    is_print_error=False,
+                    logger=self.lg,
+                )
+                assert article_had_img != ''
+                article_url = parse_field(
+                    parser=article_url_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                )
+                assert article_url != ''
+                article_url = 'http://www.laifudao.com' + article_url
+                article_id = parse_field(
+                    parser=article_id_sel,
+                    target_obj=article_url,
+                    logger=self.lg,
+                )
+                assert article_id != ''
+                title = parse_field(
+                    parser=title_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                )
+                assert title != ''
+            except AssertionError:
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('lfd::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('lfd', article_id)),
+                'article_type': 'lfd',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+
+        # pprint(article_url_list)
+        self.lg.info('[{}] lfd::page_num:{}'.format(
+            '+' if res != [] else '-',
+            page_num,
+        ))
+
+        return res
 
     async def get_hk_article_list(self) -> list:
         """
@@ -3051,6 +3203,7 @@ class ArticleParser(AsyncCrawler):
         :param article_url_type:
         :return:
         """
+        # pprint(self.obj_origin_dict)
         for item in ARTICLE_ITEM_LIST:
             if article_url_type == item.get('short_name', ''):
                 if item.get('obj_origin', '') == \
@@ -6095,8 +6248,9 @@ def main():
     # print(tmp)
 
     # 文章列表
-    # article_type = 'zq'
+    # # article_type = 'zq'
     # # article_type = 'hk'
+    # article_type = 'lfd'
     # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
     #     article_type=article_type,))
     # pprint(tmp)

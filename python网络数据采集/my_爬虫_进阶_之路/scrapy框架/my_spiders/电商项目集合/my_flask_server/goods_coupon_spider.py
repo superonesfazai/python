@@ -137,12 +137,15 @@ class GoodsCouponSpider(AsyncCrawler):
                         self.lg.info('成功个数: {}, 成功概率: {:.3f}'.format(success_count, success_count/self.concurrency2))
                         collect()
 
+                    collect()
+
                 self.lg.info('一次大循环结束!!')
-                collect()
 
             except Exception:
                 self.lg.error('遇到错误:', exc_info=True)
                 await async_sleep(30)
+
+            finally:
                 collect()
 
     async def get_all_tasks_params_list_obj(self) -> list:
