@@ -449,7 +449,7 @@ create table tao_qianggou_xianshimiaosha(
 -- 创建goods_keywords表
 create table goods_keywords(
   id int IDENTITY(1, 1) PRIMARY key,
-  keyword nvarchar(300),
+  keyword nvarchar(300) not null unique,
   is_delete INT DEFAULT 0
 )
 
