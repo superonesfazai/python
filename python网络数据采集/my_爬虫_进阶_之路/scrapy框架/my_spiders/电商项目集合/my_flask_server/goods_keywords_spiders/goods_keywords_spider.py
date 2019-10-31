@@ -102,8 +102,22 @@ class GoodsKeywordsSpider(AsyncCrawler):
             collect()
 
             for item in result:
+                keyword_id = item[0]
+                keyword = item[1]
                 # 每个关键字在True的接口都抓完, 再进行下一次
-                self.lg.info('正在处理id为{0}, 关键字为 {1} ...'.format(item[0], item[1]))
+                self.lg.info('正在处理id为{0}, 关键字为 {1} ...'.format(keyword_id, keyword))
+                # 筛选
+                if int(keyword_id) < 43:
+                    if int(keyword_id) not in (25, 26):
+                        self.lg.info('不在处理的keyword_id范围内, keyword_id: {}, keyword: {}'.format(
+                            keyword_id,
+                            keyword))
+                        continue
+                    else:
+                        pass
+                else:
+                    pass
+
                 for type, type_value in self.debugging_api.items():
                     # 遍历待抓取的电商分类
                     if type_value is False:
@@ -119,12 +133,12 @@ class GoodsKeywordsSpider(AsyncCrawler):
                         type=type,
                         keyword=item)
                     # pprint(goods_id_list)
-                    self.lg.info('关键字为{0}, 获取到的goods_id_list_num: {1}'.format(item[1], len(goods_id_list)))
+                    self.lg.info('关键字为{0}, 获取到的goods_id_list_num: {1}'.format(keyword, len(goods_id_list)))
                     '''处理goods_id_list'''
                     self._deal_with_goods_id_list(
                         type=type,
                         goods_id_list=goods_id_list,
-                        keyword_id=item[0])
+                        keyword_id=keyword_id)
                     sleep(3)
 
     @catch_exceptions_with_class_logger(default_res=[])
@@ -410,8 +424,8 @@ class GoodsKeywordsSpider(AsyncCrawler):
             res.append(goods_id)
 
         new_res = []
-        # 控制量只需要前15个(慢点 无所谓 太快 平台员工来不及操作 后期更新量也太大)
-        for goods_id in res[:15]:
+        # 控制量只需要前25个(慢点 无所谓 太快 平台员工来不及操作 后期更新量也太大)(有部分主图不能用)
+        for goods_id in res[:25]:
             self.lg.info('判断goods_id[{}]是否为tb商品ing...'.format(goods_id))
             if self.judge_qyh_is_tb_by_goods_id(goods_id=goods_id) != 0:
                 continue
@@ -575,7 +589,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
                 self.lg.error('获取天猫搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1]))
                 return []
 
-            return goods_id_list[:15]
+            return goods_id_list[:25]
 
     def _get_jd_goods_keywords_goods_id_list(self, keyword):
         '''

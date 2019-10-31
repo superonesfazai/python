@@ -821,6 +821,7 @@ class TargetDataConsumer(Thread):
 
                 else:
                     continue
+
             except IndexError:
                 # 跳过相同接口得索引异常
                 continue
