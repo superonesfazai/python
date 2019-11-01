@@ -349,91 +349,132 @@ class GoodsKeywordsSpider(AsyncCrawler):
 
         # m站搜索也得登录, 且只有第一页, cookies中的令牌1分钟内就失效
 
-        # 故采用三方领券网站的搜索
-        # 全优惠(https://www.quanyoubuy.com/)
+        # # 故采用三方领券网站的搜索
+        # # 全优惠(https://www.quanyoubuy.com/)
+        # headers = get_random_headers(
+        #     connection_status_keep_alive=False,
+        #     cache_control='',
+        # )
+        # headers.update({
+        #     'authority': 'www.quanyoubuy.com',
+        #     # 'referer': 'https://www.quanyoubuy.com/?m=search&a=index&k=%E5%A5%B3%E8%A3%85',
+        # })
+        # url = 'https://www.quanyoubuy.com/search/index/sort/hot/k/{}.html'.format(keyword[1])
+        # body = Requests.get_url_body(
+        #     url=url,
+        #     headers=headers,
+        #     ip_pool_type=self.ip_pool_type,
+        #     proxy_type=PROXY_TYPE_HTTPS,
+        #     num_retries=self.req_num_retries,)
+        # assert body != ''
+        # # self.lg.info(body)
+        #
+        # title_div_list_sel = {
+        #     'method': 'css',
+        #     'selector': 'h3.good-title a',
+        # }
+        # goods_url_sel = {
+        #     'method': 'css',
+        #     'selector': 'a ::attr("href")',
+        # }
+        # title_div_List = parse_field(
+        #     parser=title_div_list_sel,
+        #     target_obj=body,
+        #     is_first=False,
+        #     logger=self.lg,
+        # )
+        # goods_url_list = []
+        # for item in title_div_List:
+        #     try:
+        #         if '<em class=\"d-icon\"></em>' in item:
+        #             # 跳过京东优惠券
+        #             continue
+        #
+        #         goods_url = parse_field(
+        #             parser=goods_url_sel,
+        #             target_obj=item,
+        #             logger=self.lg,
+        #         )
+        #         assert goods_url != ''
+        #         goods_url_list.append(goods_url)
+        #     except AssertionError:
+        #         continue
+        #
+        # assert goods_url_list != []
+        # # pprint(goods_url_list)
+        # goods_id_sel = {
+        #     'method': 're',
+        #     'selector': '/iid/(\d+)\.html',
+        # }
+        # res = []
+        # for goods_url in goods_url_list:
+        #     try:
+        #         goods_id = parse_field(
+        #             parser=goods_id_sel,
+        #             target_obj=goods_url,
+        #             logger=self.lg,
+        #         )
+        #         assert goods_id != ''
+        #         if goods_id in self.db_existed_goods_id_list:
+        #             self.lg.info('该goods_id[{}]已存在于db'.format(goods_id))
+        #             continue
+        #     except AssertionError:
+        #         continue
+        #
+        #     res.append(goods_id)
+        #
+        # new_res = []
+        # # 控制量只需要前25个(慢点 无所谓 太快 平台员工来不及操作 后期更新量也太大)(有部分主图不能用)
+        # for goods_id in res[:25]:
+        #     self.lg.info('判断goods_id[{}]是否为tb商品ing...'.format(goods_id))
+        #     if self.judge_qyh_is_tb_by_goods_id(goods_id=goods_id) != 0:
+        #         continue
+        #
+        #     new_res.append(goods_id)
+        #
+        # self.lg.info('其中tb goods num: {}'.format(len(new_res)))
+        # collect()
+
+        # 爱淘宝pc 版搜索页(https://ai.taobao.com/)
         headers = get_random_headers(
             connection_status_keep_alive=False,
             cache_control='',
         )
         headers.update({
-            'authority': 'www.quanyoubuy.com',
-            # 'referer': 'https://www.quanyoubuy.com/?m=search&a=index&k=%E5%A5%B3%E8%A3%85',
+            'authority': 'ai.taobao.com',
+            # ori
+            # 'referer': 'https://ai.taobao.com/search/index.htm?key=%E9%A3%9F%E5%93%81&pid=mm_10011550_0_0&union_lens=recoveryid%3A201_11.131.193.65_881154_1572572691432%3Bprepvid%3A201_11.131.193.65_881154_1572572691432&prepvid=200_11.27.75.93_347_1572572705164&sort=biz30day&spm=a231o.7712113%2Fj.1003.d2',
+            'referer': 'https://ai.taobao.com/search/index.htm?key={}&sort=biz30day',
         })
-        url = 'https://www.quanyoubuy.com/search/index/sort/hot/k/{}.html'.format(keyword[1])
+        params = (
+            ('key', keyword[1]),
+            # ('pid', 'mm_10011550_0_0'),
+            # ('union_lens', 'recoveryid:201_11.131.193.65_881154_1572572691432;prepvid:201_11.131.193.65_881154_1572572691432'),
+            # ('prepvid', '200_11.27.75.94_1585_1572572718183'),
+            ('sort', 'biz30day'),
+            # ('spm', 'a231o.7712113/j.1003.d11'),
+            ('taobao', 'true'),  # 勾选仅搜索tb
+        )
+
         body = Requests.get_url_body(
-            url=url,
+            url='https://ai.taobao.com/search/index.htm',
             headers=headers,
+            params=params,
             ip_pool_type=self.ip_pool_type,
-            proxy_type=PROXY_TYPE_HTTPS,
-            num_retries=self.req_num_retries,)
+            num_retries=self.req_num_retries,
+            proxy_type=PROXY_TYPE_HTTPS, )
         assert body != ''
         # self.lg.info(body)
 
-        title_div_list_sel = {
-            'method': 'css',
-            'selector': 'h3.good-title a',
-        }
-        goods_url_sel = {
-            'method': 'css',
-            'selector': 'a ::attr("href")',
-        }
-        title_div_List = parse_field(
-            parser=title_div_list_sel,
-            target_obj=body,
-            is_first=False,
-            logger=self.lg,
-        )
-        goods_url_list = []
-        for item in title_div_List:
-            try:
-                if '<em class=\"d-icon\"></em>' in item:
-                    # 跳过京东优惠券
-                    continue
+        page_res = re.compile('var _pageResult = (.*?);</script>').findall(body)[0]
+        # self.lg.info(page_res)
+        data = json_2_dict(
+            json_str=page_res,
+            default_res={},
+            logger=self.lg,).get('result', {}).get('auction', [])
+        # pprint(data)
 
-                goods_url = parse_field(
-                    parser=goods_url_sel,
-                    target_obj=item,
-                    logger=self.lg,
-                )
-                assert goods_url != ''
-                goods_url_list.append(goods_url)
-            except AssertionError:
-                continue
-
-        assert goods_url_list != []
-        # pprint(goods_url_list)
-        goods_id_sel = {
-            'method': 're',
-            'selector': '/iid/(\d+)\.html',
-        }
-        res = []
-        for goods_url in goods_url_list:
-            try:
-                goods_id = parse_field(
-                    parser=goods_id_sel,
-                    target_obj=goods_url,
-                    logger=self.lg,
-                )
-                assert goods_id != ''
-                if goods_id in self.db_existed_goods_id_list:
-                    self.lg.info('该goods_id[{}]已存在于db'.format(goods_id))
-                    continue
-            except AssertionError:
-                continue
-
-            res.append(goods_id)
-
-        new_res = []
-        # 控制量只需要前25个(慢点 无所谓 太快 平台员工来不及操作 后期更新量也太大)(有部分主图不能用)
-        for goods_id in res[:25]:
-            self.lg.info('判断goods_id[{}]是否为tb商品ing...'.format(goods_id))
-            if self.judge_qyh_is_tb_by_goods_id(goods_id=goods_id) != 0:
-                continue
-
-            new_res.append(goods_id)
-
-        self.lg.info('其中tb goods num: {}'.format(len(new_res)))
-        collect()
+        new_res = [str(item.get('itemId', '')) for item in data if item.get('itemId', '') != ''][:20]
 
         return new_res
 

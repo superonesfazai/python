@@ -194,7 +194,7 @@ class Zhe800Spike(object):
                 ip_pool_type=IP_POOL_TYPE,
                 proxy_type=PROXY_TYPE_HTTPS,
                 timeout=15,
-                num_retries=3,)
+                num_retries=4,)
             # print(body)
             try:
                 data = json_2_dict(
@@ -243,11 +243,12 @@ class Zhe800Spike(object):
                     'miaosha_begin_time': timestamp_to_regulartime(int(str(item.get('begin_time'))[:10])),
                     'miaosha_end_time': timestamp_to_regulartime(int(str(item.get('end_time'))[:10])),
                 }
-            except ValueError:
+                # 折800商品地址
+                tmp['zid'] = item.get('zid', '')
+                assert tmp['zid'] != ''
+            except (ValueError, AssertionError):
                 continue
 
-            # 折800商品地址
-            tmp['zid'] = item.get('zid')
             # 限时秒杀的库存信息
             tmp['stock_info'] = {
                 'activity_stock': item.get('activity_stock', 0),  # activity_stock为限时抢的剩余数量

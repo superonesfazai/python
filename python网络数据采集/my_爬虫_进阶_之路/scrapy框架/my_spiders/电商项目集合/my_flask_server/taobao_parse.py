@@ -255,11 +255,42 @@ class TaoBaoLoginAndParse(Crawler):
 
         # 月销量
         sell_count = '0'
+        # pprint(data)
         try:
             sell_count = str(data.get('apiStack', [])[0].get('value', {}).get('item', {}).get('sellCount', ''))
             # self.lg.info(sell_count)
+            if sell_count == '':
+                sell_count = str(data.get('apiStack', [])[0].get('value', {}).get('item', {}).get('vagueSellCount', ''))
+            else:
+                pass
+
+            # todo 还是用原值
+            # # 太小就随即一个数值
+            # sell_count = str(get_random_int_number(500, 5000)) \
+            #     if sell_count != '' and int(sell_count) < 1000 else sell_count
+            # 清洗
+            # eg: '6000+'
+            sell_count = re.compile('\+').sub('', sell_count)
+            # eg: '2.3万'
+            if re.compile('万').findall(sell_count) != []:
+                sell_count = re.compile('万').sub('', sell_count)
+                sell_count = int(float(sell_count) * 10000)
+                # 加个随机数, 避免热销商品都是整数万, eg: '25000'
+                sell_count = str(sell_count + get_random_int_number(1000, 2000))
+            else:
+                pass
+
+            try:
+                # 避免都是整数eg: '5000'
+                if int(sell_count) % 100 == 0:
+                    sell_count = str(int(sell_count) + get_random_int_number(100, 1000))
+            except:
+                pass
+
         except:
-            pass
+            # 随机一个
+            sell_count = str(get_random_int_number(500, 5000))
+
         if target_str_contain_some_char_check(
                 target_str=title,
                 check_char_obj=CONTRABAND_GOODS_KEY_TUPLE):
