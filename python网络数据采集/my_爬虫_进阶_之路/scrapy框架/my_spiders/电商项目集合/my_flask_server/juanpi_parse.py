@@ -17,7 +17,6 @@ from settings import (
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from sql_str_controller import (
-    jp_update_str_1,
     jp_update_str_2,
     jp_insert_str_1,
     jp_update_str_3,
@@ -29,8 +28,10 @@ from multiplex_code import (
     _jp_get_parent_dir,
     _get_right_model_data,
     get_db_commom_goods_update_params,
+    _handle_goods_shelves_in_auto_goods_table,
     CONTRABAND_GOODS_KEY_TUPLE,
 )
+from my_exceptions import GoodsShelvesException
 from fzutils.data.str_utils import target_str_contain_some_char_check
 from fzutils.spider.async_always import *
 
@@ -62,10 +63,11 @@ class JuanPiParse(Crawler):
         '''
         if goods_id == '':
             return self._data_error_init()
-        else:
-            tmp_url = 'https://web.juanpi.com/pintuan/shop/' + str(goods_id)
-            print('------>>>| 得到的商品手机版的地址为: ', tmp_url)
 
+        tmp_url = 'https://web.juanpi.com/pintuan/shop/{}'.format(goods_id)
+        print('------>>>| 得到的商品手机版的地址为: ', tmp_url)
+
+        try:
             """
             2.采用phantomjs来处理，记住使用前别翻墙
             """
@@ -74,29 +76,23 @@ class JuanPiParse(Crawler):
                 # 该css为手机端标题块
                 # css_selector='div.sc-kgoBCf.bTQvTk',
                 timeout=28,)
+            assert body != ''
             # print(body)
-            if re.compile(r'<span id="t-index">页面丢失ing</span>').findall(body) != []:    # 页面为空处理
-                _ = SqlServerMyPageInfoSaveItemPipeline()
-                if _.is_connect_success:
-                    _._update_table(sql_str=jp_update_str_1, params=(goods_id,))
-                    try: del _
-                    except: pass
-                    print('@@@ 逻辑删除该商品[{0}] is_delete = 1'.format(goods_id))
-                    return self._data_error_init()
-
-            if body == '':
-                print('获取到的body为空str!请检查!')
-                return self._data_error_init()
+            if re.compile(r'<span id="t-index">页面丢失ing</span>').findall(body) != []:
+                # 页面为空处理
+                raise GoodsShelvesException
+            else:
+                pass
 
             data = re.compile(r'__PRELOADED_STATE__ = (.*);</script> <style ').findall(body)  # 贪婪匹配匹配所有
+            assert data != [], 'data为空list!'
 
             # 得到skudata
             # 卷皮原先的skudata请求地址1(官方放弃)
             # skudata_url = 'https://webservice.juanpi.com/api/getOtherInfo?goods_id=' + str(goods_id)
             # 现在卷皮skudata请求地址2
             skudata_url = 'https://webservice.juanpi.com/api/getMemberAboutInfo?goods_id=' + str(goods_id)
-
-            headers = get_random_headers(upgrade_insecure_requests=False,)
+            headers = get_random_headers(upgrade_insecure_requests=False)
             headers.update({
                 'Host': 'webservice.juanpi.com'
             })
@@ -106,54 +102,46 @@ class JuanPiParse(Crawler):
                 ip_pool_type=self.ip_pool_type,
                 proxy_type=self.proxy_type,
                 num_retries=self.req_num_retries,)
-            if skudata_body == '':
-                print('获取到的skudata_body为空str!请检查!')
-                return self._data_error_init()
+            assert skudata_body != '', '获取到的skudata_body为空str!请检查!'
+
             skudata = re.compile(r'(.*)').findall(skudata_body)  # 贪婪匹配匹配所有
+            assert skudata != [], 'skudata为空!'
+            skudata = json_2_dict(json_str=skudata[0]).get('skudata', {})
+            # pprint(skudata)
+            assert skudata != {}
 
-            if skudata != []:
-                skudata = json_2_dict(json_str=skudata[0]).get('skudata', {})
-                if skudata == {}:
-                    return self._data_error_init()
-                # pprint(skudata)
+            if skudata.get('info') is not None:
+                pass  # 说明得到正确的skudata
+            else:  # 否则跳出
+                raise AssertionError('skudata中info的key为None, 返回空dict')
 
-                try:
-                    if skudata.get('info') is not None:
-                        pass    # 说明得到正确的skudata
-                    else:       # 否则跳出
-                        print('skudata中info的key为None, 返回空dict')
-                        return self._data_error_init()
+            main_data = json_2_dict(json_str=data[0])
+            assert main_data != {}
 
-                except AttributeError as e:
-                    print('遇到错误如下(先跳过!): ', e)
-                    return self._data_error_init()
+            if main_data.get('detail') is not None:
+                main_data = self._wash_main_data(main_data.get('detail', {}))
+
+                main_data['skudata'] = skudata
+                main_data['goods_id'] = goods_id
+                main_data['parent_dir'] = _jp_get_parent_dir(
+                    phantomjs=self.driver,
+                    goods_id=goods_id)
+                self.result_data = main_data
+                # pprint(main_data)
+
+                return main_data
 
             else:
-                print('skudata为空!')
-                return self._data_error_init()
+                raise AssertionError('data中detail的key为None, 返回空dict')
 
-            if data != []:
-                main_data = json_2_dict(json_str=data[0])
-                if main_data == {}:
-                    return self._data_error_init()
+        except GoodsShelvesException:
+            _handle_goods_shelves_in_auto_goods_table(
+                goods_id=goods_id, )
+            return self._data_error_init()
 
-                if main_data.get('detail') is not None:
-                    main_data = self._wash_main_data(main_data.get('detail', {}))
-
-                    main_data['skudata'] = skudata
-                    main_data['goods_id'] = goods_id
-                    main_data['parent_dir'] = _jp_get_parent_dir(phantomjs=self.driver, goods_id=goods_id)
-                    self.result_data = main_data
-                    # pprint(main_data)
-
-                    return main_data
-
-                else:
-                    print('data中detail的key为None, 返回空dict')
-                    return self._data_error_init()
-            else:
-                print('data为空!')
-                return self._data_error_init()
+        except Exception as e:
+            print(e)
+            return self._data_error_init()
 
     def deal_with_data(self):
         '''
@@ -173,15 +161,11 @@ class JuanPiParse(Crawler):
             '''单独处理下架的情况'''
             if isinstance(detail_name_list, str):
                 if detail_name_list == 'is_delete=1':
-                    print('该商品已下架...')
-                    sql_str = jp_update_str_1
-                    params = (self.result_data.get('goods_id', ''),)
-                    _ = SqlServerMyPageInfoSaveItemPipeline()
-                    result = _._update_table(sql_str=sql_str, params=params)
-                    if result:
-                        print('### 该商品已经is_delete=1 ###')
-                    else:
-                        print('is_delete=1标记失败!')
+                    _handle_goods_shelves_in_auto_goods_table(
+                        goods_id=self.result_data.get('goods_id', ''),
+                    )
+                else:
+                    pass
 
             if detail_name_list == {}:
                 return self._data_error_init()
