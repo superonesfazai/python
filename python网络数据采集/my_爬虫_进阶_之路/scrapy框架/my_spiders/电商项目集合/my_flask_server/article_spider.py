@@ -47,6 +47,7 @@ supported:
     35. 来福岛爆笑娱乐网(http://www.laifudao.com/)
     36. bilibili(短视频)(https://www.bilibili.com/)
     37. 快音视(短视频)(https://kuaiyinshi.com/hot/video/?source=kuai-shou&page=1&st=week)
+    38. 搞笑gif图片集(https://m.gaoxiaogif.com/)
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -64,6 +65,8 @@ not supported:
     13. 妈妈网(http://m.mama.cn/)
     14. 搞笑视频网(需浏览器手机模式查看)(http://www.xjnan.com/)
     15. 投资界(https://m.pedaily.cn/)
+    16. zol笑话大全(http://xiaohua.zol.com.cn/)
+    17. 多玩搞笑囧图(http://tu.duowan.cn/bxgif)(先不做pass, 得用driver, 发布太慢, pass)
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -221,8 +224,151 @@ class ArticleParser(AsyncCrawler):
         elif article_type == 'lfd':
             return await self.get_lfd_article_list()
 
+        elif article_type == 'gxg':
+            return await self.get_gxg_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_gxg_article_list(self) -> list:
+        """
+        获取gxg的article_list
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            for page_num in range(1, 8):
+                # lfd每日更新有限, 就获取前7页的
+                tasks_params_list.append({
+                    'page_num': page_num,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where gxg: page_num:{}]...'.format(
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['page_num'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_gxg_recommend_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_gxg_recommend_article_list_by_page_num(self, page_num: int) -> list:
+        """
+        根据page_num获取首页的最新推荐article_list
+        :param page_num:
+        :return:
+        """
+        headers = get_random_headers(
+            user_agent_type=1,
+            cache_control='',
+        )
+        headers.update({
+            'Referer': 'https://m.gaoxiaogif.com/',
+        })
+        url = 'https://m.gaoxiaogif.com/index_{}.html'.format(page_num) \
+            if page_num > 1 else 'https://m.gaoxiaogif.com/index.html'
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            encoding='gbk',)
+        assert body != ''
+        # self.lg.info(body)
+
+        article_div_list_sel = {
+            'method': 'css',
+            'selector': 'div.text ul#tp_lists li.item',
+        }
+        article_div_list = parse_field(
+            parser=article_div_list_sel,
+            target_obj=body,
+            is_first=False,
+            logger=self.lg, )
+        assert article_div_list != []
+        # pprint(article_div_list)
+
+        # 文章地址选择器
+        article_url_sel = {
+            'method': 'css',
+            'selector': 'li a ::attr("href")',
+        }
+        article_id_sel = {
+            'method': 're',
+            'selector': '/(\d+)\.html',
+        }
+        title_sel = {
+            'method': 'css',
+            'selector': 'li h3 ::text',
+        }
+        res = []
+        for item in article_div_list:
+            try:
+                article_url = parse_field(
+                    parser=article_url_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                )
+                assert article_url != ''
+                article_url = 'https://m.gaoxiaogif.com' + article_url
+                article_id = parse_field(
+                    parser=article_id_sel,
+                    target_obj=article_url,
+                    logger=self.lg,
+                )
+                assert article_id != ''
+                title = parse_field(
+                    parser=title_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                )
+                assert title != ''
+            except AssertionError:
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('gxg::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('gxg', article_id)),
+                'article_type': 'gxg',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+
+        # pprint(article_url_list)
+        self.lg.info('[{}] gxg::page_num:{}'.format(
+            '+' if res != [] else '-',
+            page_num,
+        ))
+
+        return res
 
     async def get_lfd_article_list(self) -> list:
         """
@@ -944,6 +1090,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'kuaiyinshi.com',
                 'site_id': 40,
             },
+            'gxg': {
+                'debug': False,
+                'name': '搞笑gif图片集',
+                'url': 'https://m.gaoxiaogif.com',
+                'obj_origin': 'm.gaoxiaogif.com',
+                'site_id': 41,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -1305,6 +1458,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'kys':
                 return await self._get_kys_article_html(article_url=article_url)
 
+            elif article_url_type == 'gxg':
+                return await self._get_gxg_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -1312,6 +1468,32 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_gxg_article_html(self, article_url) -> tuple:
+        """
+        获取gxg html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+        headers = await async_get_random_headers(
+            user_agent_type=1,)
+        headers.update({
+            # 'Referer': 'https://m.gaoxiaogif.com/index_2.html',
+        })
+
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            proxy_type=PROXY_TYPE_HTTPS,
+            logger=self.lg,
+            encoding='gbk',)
+        assert body != ''
+        # self.lg.info(body)
+
+        return body, video_url
 
     async def _get_kys_article_html(self, article_url) -> tuple:
         """
@@ -3443,6 +3625,7 @@ class ArticleParser(AsyncCrawler):
             'lfd',
             'blbl',
             'kys',
+            'gxg',
         ]
         if short_name in short_name_list2:
             pass
@@ -4654,9 +4837,16 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'blbl':
             content = await self._wash_blbl_article_content(content=content)
 
+        elif short_name == 'gxg':
+            content = await self._wash_gxg_article_content(content=content)
+
         else:
             pass
 
+        return content
+
+    @staticmethod
+    async def _wash_gxg_article_content(content: str) -> str:
         return content
 
     @staticmethod
@@ -6236,6 +6426,11 @@ def main():
     # 有title
     # url = 'https://kuaiyinshi.com/?video_id=5c4b4102ab7612595&source=mei-pai#search-form'
 
+    # 搞笑gif图片集
+    # url = 'https://m.gaoxiaogif.com/dongwugif/12298.html'
+    # url = 'https://m.gaoxiaogif.com/zhenrengif/12297.html'
+    # url = 'https://m.gaoxiaogif.com/meinvgif/12289.html'
+
     # 文章url 测试
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(
@@ -6250,7 +6445,8 @@ def main():
     # 文章列表
     # # article_type = 'zq'
     # # article_type = 'hk'
-    # article_type = 'lfd'
+    # # article_type = 'lfd'
+    # article_type = 'gxg'
     # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
     #     article_type=article_type,))
     # pprint(tmp)

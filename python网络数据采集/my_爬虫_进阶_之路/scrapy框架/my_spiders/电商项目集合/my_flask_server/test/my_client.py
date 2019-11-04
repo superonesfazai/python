@@ -266,7 +266,10 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://www.bilibili.com/video/av60965559?spm_id_from=333.334.b_62696c695f67756f636875616e67.42'
 
         # 快音视(全网短视频)
-        article_link = 'https://kuaiyinshi.com/?video_id=BMjAxODEyMDUyMDAxNDhfNDU4NTUxMzhfOTIzMTA5NzI5OV8xXzM=_b_Bdceec3ae37b9a0a335ee1282e9c1b62c&source=kuai-shou#search-form'
+        # article_link = 'https://kuaiyinshi.com/?video_id=BMjAxODEyMDUyMDAxNDhfNDU4NTUxMzhfOTIzMTA5NzI5OV8xXzM=_b_Bdceec3ae37b9a0a335ee1282e9c1b62c&source=kuai-shou#search-form'
+
+        # 搞笑gif图片集
+        article_link = 'https://m.gaoxiaogif.com/dongwugif/12298.html'
 
         url = article_link
 
