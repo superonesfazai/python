@@ -505,7 +505,22 @@ class GoodsKeywordsSpider(AsyncCrawler):
             logger=self.lg,).get('result', {}).get('auction', [])
         # pprint(data)
 
-        new_res = [str(item.get('itemId', '')) for item in data if item.get('itemId', '') != ''][:20]
+        # 不限制数量, 因为各种条件导致数量较少, 第一页
+        new_res = []
+        for item in data:
+            item_id = str(item.get('itemId', ''))
+            if item_id != '':
+                try:
+                    this_price = float(item.get('realPrice', '0'))
+                    if this_price < 9.:
+                        self.lg.info('该goods_id: {}, this_price: {}, 售价小于9元, pass'.format(item_id, this_price))
+                        continue
+
+                except Exception:
+                    self.lg.error('遇到错误:', exc_info=True)
+                    continue
+
+                new_res.append(item_id)
 
         return new_res
 
@@ -670,22 +685,32 @@ class GoodsKeywordsSpider(AsyncCrawler):
             json_str=body,
             default_res={},
             logger=self.lg)
-        if data == {}:
-            self.lg.error('获取到的天猫搜索data为空dict! 出错关键字为{0}'.format(keyword[1]))
-            return []
-        else:
-            _ = data.get('item', [])
-            if _ is None or _ == []:
-                self.lg.error('获取天猫搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1]))
-                return []
-            try:
-                goods_id_list = [str(item.get('url', '')) for item in _]
-            except Exception as e:
-                self.lg.exception(e)
-                self.lg.error('获取天猫搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1]))
-                return []
+        assert data != {}, '获取到的天猫搜索data为空dict! 出错关键字为{0}'.format(keyword[1])
 
-            return goods_id_list[:25]
+        _ = data.get('item', [])
+        assert _ != [], '获取天猫搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1])
+        assert _ is not None, '获取天猫搜索goods_id_list为空list! 出错关键字{0}'.format(keyword[1])
+        # pprint(_)
+
+        res = []
+        for item in _:
+            try:
+                item_url = str(item.get('url', ''))
+                assert item_url != ''
+
+                item_id = str(item.get('item_id', ''))
+                this_price = float(item.get('price', '0'))
+                if this_price < 9.:
+                    self.lg.info('该goods_id: {}, this_price: {}, 售价小于9元, pass'.format(item_id, this_price))
+                    continue
+
+            except Exception:
+                self.lg.error('遇到错误[出错关键字:{}]:'.format(keyword[1]), exc_info=True)
+                continue
+
+            res.append(item_url)
+
+        return res[:25]
 
     def _get_jd_goods_keywords_goods_id_list(self, keyword):
         '''
@@ -1055,7 +1080,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
             res = False
 
         if float(target_data['taobao_price']) < 9.:
-            self.lg.info('最低价小于9 rmb不采集, pass')
+            self.lg.info('最低价小于9元不采集, pass')
             res = False
 
         return res
