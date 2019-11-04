@@ -233,13 +233,30 @@ class GoodsKeywordsSpider(AsyncCrawler):
         '''
         if type == 1:
             self.lg.info('下面是淘宝的关键字采集...')
-            goods_id_list = self._get_taobao_goods_keywords_goods_id_list(keyword=keyword)
+            goods_id_list_0 = self._get_taobao_goods_keywords_goods_id_list(
+                keyword=keyword,
+                sort_order=0,)
+            goods_id_list_1 = self._get_taobao_goods_keywords_goods_id_list(
+                keyword=keyword,
+                sort_order=1,)
+            # 理论不重复
+            goods_id_list = goods_id_list_0 + goods_id_list_1
+
         elif type == 2:
             self.lg.info('下面是阿里1688的关键字采集...')
             goods_id_list = self._get_1688_goods_keywords_goods_id_list(keyword=keyword)
         elif type == 3:
             self.lg.info('下面是天猫的关键字采集...')
-            goods_id_list = self._get_tmall_goods_keywords_goods_id_list(keyword=keyword)
+            # goods_id_list_0 = []
+            goods_id_list_0 = self._get_tmall_goods_keywords_goods_id_list(
+                keyword=keyword,
+                sort_order=0)
+            goods_id_list_1 = self._get_tmall_goods_keywords_goods_id_list(
+                keyword=keyword,
+                sort_order=1)
+            # 理论不重复
+            goods_id_list = goods_id_list_0 + goods_id_list_1
+
         elif type == 4:
             self.lg.info('下面是京东的关键字采集...')
             goods_id_list = self._get_jd_goods_keywords_goods_id_list(keyword=keyword)
@@ -273,10 +290,11 @@ class GoodsKeywordsSpider(AsyncCrawler):
         return None
 
     @catch_exceptions_with_class_logger(default_res=[])
-    def _get_taobao_goods_keywords_goods_id_list(self, keyword) -> list:
+    def _get_taobao_goods_keywords_goods_id_list(self, keyword, sort_order=0) -> list:
         '''
         获取该keywords的商品的goods_id_list
         :param keyword: (id, keyword)
+        :param sort_order: 排序方式 0 销量排序 | 1 升序排序(低到高)
         :return: a list
         '''
         # headers = get_random_headers(
@@ -446,15 +464,28 @@ class GoodsKeywordsSpider(AsyncCrawler):
             # 'referer': 'https://ai.taobao.com/search/index.htm?key=%E9%A3%9F%E5%93%81&pid=mm_10011550_0_0&union_lens=recoveryid%3A201_11.131.193.65_881154_1572572691432%3Bprepvid%3A201_11.131.193.65_881154_1572572691432&prepvid=200_11.27.75.93_347_1572572705164&sort=biz30day&spm=a231o.7712113%2Fj.1003.d2',
             'referer': 'https://ai.taobao.com/search/index.htm?key={}&sort=biz30day',
         })
-        params = (
-            ('key', keyword[1]),
-            # ('pid', 'mm_10011550_0_0'),
-            # ('union_lens', 'recoveryid:201_11.131.193.65_881154_1572572691432;prepvid:201_11.131.193.65_881154_1572572691432'),
-            # ('prepvid', '200_11.27.75.94_1585_1572572718183'),
-            ('sort', 'biz30day'),
-            # ('spm', 'a231o.7712113/j.1003.d11'),
-            ('taobao', 'true'),  # 勾选仅搜索tb
-        )
+        if sort_order == 0:
+            self.lg.info('按销量排序')
+            # 销量
+            params = (
+                ('key', keyword[1]),
+                # ('pid', 'mm_10011550_0_0'),
+                # ('union_lens', 'recoveryid:201_11.131.193.65_881154_1572572691432;prepvid:201_11.131.193.65_881154_1572572691432'),
+                # ('prepvid', '200_11.27.75.94_1585_1572572718183'),
+                ('sort', 'biz30day'),
+                # ('spm', 'a231o.7712113/j.1003.d11'),
+                ('taobao', 'true'),  # 勾选仅搜索tb
+            )
+        elif sort_order == 1:
+            # 升序
+            self.lg.info('按升序排序')
+            params = (
+                ('key', keyword[1]),
+                ('taobao', 'true'),  # 勾选仅搜索tb
+                ('sort', 'discount_price_incr'),
+            )
+        else:
+            raise NotImplemented
 
         body = Requests.get_url_body(
             url='https://ai.taobao.com/search/index.htm',
@@ -566,10 +597,11 @@ class GoodsKeywordsSpider(AsyncCrawler):
         return goods_id_list
 
     @catch_exceptions_with_class_logger(default_res=[])
-    def _get_tmall_goods_keywords_goods_id_list(self, keyword) -> list:
+    def _get_tmall_goods_keywords_goods_id_list(self, keyword, sort_order=0) -> list:
         '''
         根据keyword获取tmall销量靠前的商品
         :param keyword:
+        :param sort_order: 排序方式 0 销量 | 1 升序排序(低到高)
         :return: list eg: ['//detail.tmall.com/item.htm?id=566978017832&skuId=3606684772412', ...] 不是返回goods_id
         '''
         '''方案: tmall m站的搜索'''   # 搜索: 偶尔不稳定但是还是能用
@@ -582,23 +614,46 @@ class GoodsKeywordsSpider(AsyncCrawler):
             # 'referer': 'https://list.tmall.com/search_product.htm?q=%B0%A2%B5%CF%B4%EF%CB%B9&type=p&spm=a220m.6910245.a2227oh.d100&from=mallfp..m_1_suggest&sort=d',
             'authority': 'list.tmall.com',
         }
-        # 必须
-        # 'referer': 'https://list.tmall.com/search_product.htm?q=%B0%A2%B5%CF%B4%EF%CB%B9&type=p&spm=a220m.6910245.a2227oh.d100&from=mallfp..m_1_suggest&sort=d',
-        referer = 'https://list.tmall.com/search_product.htm?q={}&type=p&spm=a220m.6910245.a2227oh.d100&from=mallfp..m_1_suggest&sort=d'.format(
-            quote_plus('女装'))
-        # print(referer)
+        if sort_order == 0:
+            self.lg.info('按销量排序')
+            # 必须
+            # 'referer': 'https://list.tmall.com/search_product.htm?q=%B0%A2%B5%CF%B4%EF%CB%B9&type=p&spm=a220m.6910245.a2227oh.d100&from=mallfp..m_1_suggest&sort=d',
+            referer = 'https://list.tmall.com/search_product.htm?q={}&type=p&spm=a220m.6910245.a2227oh.d100&from=mallfp..m_1_suggest&sort=d'.format(
+                quote_plus(keyword[1]))
+            # print(referer)
+            params = {
+                'page_size': '20',
+                'page_no': '1',
+                'q': str(keyword[1]),
+                'type': 'p',
+                'spm': 'a220m.6910245.a2227oh.d100',
+                'from': 'mallfp..m_1_suggest',
+                'sort': 'd',
+            }
+
+        elif sort_order == 1:
+            self.lg.info('按升序排序')
+            # 必须
+            referer = 'https://list.tmall.com/search_product.htm?q={}&type=p&spm=a220m.8599659.a2227oh.d100&from=mallfp..m_1_searchbutton&searchType=default&sort=p'.format(
+                quote_plus(keyword[1]))
+            # print(referer)
+            params = (
+                ('page_size', '20'),
+                ('page_no', '1'),
+                ('q', keyword[1]),
+                ('type', 'p'),
+                ('spm', 'a220m.8599659.a2227oh.d100'),
+                ('from', 'mallfp..m_1_searchbutton'),
+                ('searchType', 'default'),
+                ('sort', 'p'),
+            )
+
+        else:
+            raise NotImplemented
+
         headers.update({
             'referer': referer
         })
-        params = {
-            'page_size': '20',
-            'page_no': '1',
-            'q': str(keyword[1]),
-            'type': 'p',
-            'spm': 'a220m.6910245.a2227oh.d100',
-            'from': 'mallfp..m_1_suggest',
-            'sort': 'd',
-        }
 
         s_url = 'https://list.tmall.com/m/search_items.htm'
         body = Requests.get_url_body(
@@ -747,6 +802,16 @@ class GoodsKeywordsSpider(AsyncCrawler):
                             data['goods_url'] = 'https://item.taobao.com/item.htm?id=' + str(goods_id)
                             data['username'] = '18698570079'
                             data['main_goods_id'] = None
+                            try:
+                                if int(data['sell_count']) < 100:
+                                    self.lg.info('该商品销量小于100, pass')
+                                    return False
+                                else:
+                                    pass
+                            except Exception:
+                                self.lg.error('遇到错误:', exc_info=True)
+                                return False
+
                             result = taobao.old_taobao_goods_insert_into_new_table(data, pipeline=self.sql_cli)
 
                         else:
@@ -888,6 +953,16 @@ class GoodsKeywordsSpider(AsyncCrawler):
                             if data['goods_url'] == '':
                                 self.lg.error('该goods_url为空值! 此处跳过!')
                                 continue
+
+                            try:
+                                if int(data['sell_count']) < 100:
+                                    self.lg.info('该商品销量小于100, pass')
+                                    return False
+                                else:
+                                    pass
+                            except Exception:
+                                self.lg.error('遇到错误:', exc_info=True)
+                                return False
 
                             result = tmall.old_tmall_goods_insert_into_new_table(data, pipeline=self.sql_cli)
                         else:
