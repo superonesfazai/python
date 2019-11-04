@@ -67,6 +67,7 @@ not supported:
     15. 投资界(https://m.pedaily.cn/)
     16. zol笑话大全(http://xiaohua.zol.com.cn/)
     17. 多玩搞笑囧图(http://tu.duowan.cn/bxgif)(先不做pass, 得用driver, 发布太慢, pass)
+    18. 嗡啪搞笑(http://wengpa.com/)
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """

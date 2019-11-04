@@ -802,14 +802,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
                             data['goods_url'] = 'https://item.taobao.com/item.htm?id=' + str(goods_id)
                             data['username'] = '18698570079'
                             data['main_goods_id'] = None
-                            try:
-                                if int(data['sell_count']) < 100:
-                                    self.lg.info('该商品销量小于100, pass')
-                                    return False
-                                else:
-                                    pass
-                            except Exception:
-                                self.lg.error('遇到错误:', exc_info=True)
+                            if not self.check_target_data_is_legal(target_data=data):
                                 return False
 
                             result = taobao.old_taobao_goods_insert_into_new_table(data, pipeline=self.sql_cli)
@@ -954,14 +947,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
                                 self.lg.error('该goods_url为空值! 此处跳过!')
                                 continue
 
-                            try:
-                                if int(data['sell_count']) < 100:
-                                    self.lg.info('该商品销量小于100, pass')
-                                    return False
-                                else:
-                                    pass
-                            except Exception:
-                                self.lg.error('遇到错误:', exc_info=True)
+                            if not self.check_target_data_is_legal(target_data=data):
                                 return False
 
                             result = tmall.old_tmall_goods_insert_into_new_table(data, pipeline=self.sql_cli)
@@ -1056,6 +1042,23 @@ class GoodsKeywordsSpider(AsyncCrawler):
         self.lg.info('该关键字的商品已经抓取完毕!')
 
         return True
+
+    @catch_exceptions_with_class_logger(default_res=False)
+    def check_target_data_is_legal(self, target_data: dict) -> bool:
+        """
+        检查被采集的数据是否合法
+        :return:
+        """
+        res = True
+        if int(target_data['sell_count']) < 50:
+            self.lg.info('该商品销量小于50, pass')
+            res = False
+
+        if float(target_data['taobao_price']) < 9.:
+            self.lg.info('最低价小于9 rmb不采集, pass')
+            res = False
+
+        return res
 
     def _insert_into_goods_id_and_keyword_middle_table(self, **kwargs):
         '''
