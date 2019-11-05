@@ -371,15 +371,10 @@ and IsDelete=1
 and shelf_time > delete_time
 '''
 
-# 批量下架敏感词商品
+# 批量下架敏感词商品(注意: 批量执行只会显示最后一次update的结果)
 sql_str_25 = '''
 DECLARE @ss VARCHAR(100)
 set @ss = '%创可贴%'
-
--- select top 10 *
-UPDATE dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=GETDATE(), delete_time=GETDATE()
-from dbo.GoodsInfoAutoGet
-where GoodsName like @ss
 
 -- select top 10 *
 UPDATE dbo.chuchujie_xianshimiaosha set is_delete=1, modfiy_time=GETDATE()
@@ -450,4 +445,20 @@ where goods_name like @ss
 UPDATE dbo.zhe_800_xianshimiaosha set is_delete=1, modfiy_time=GETDATE()
 from dbo.zhe_800_xianshimiaosha
 where goods_name like @ss
+
+-- select top 10 *
+UPDATE dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=GETDATE(), delete_time=GETDATE()
+from dbo.GoodsInfoAutoGet
+where GoodsName like @ss
+'''
+
+# 批量删除关键字中间表中不在GoodsInfoAutoGet中的数据
+sql_str_26 = '''
+-- select count(id)
+-- select top 10 id, goods_id
+delete 
+from dbo.goods_id_and_keyword_middle_table
+where goods_id not in (
+select GoodsID
+from dbo.GoodsInfoAutoGet)
 '''
