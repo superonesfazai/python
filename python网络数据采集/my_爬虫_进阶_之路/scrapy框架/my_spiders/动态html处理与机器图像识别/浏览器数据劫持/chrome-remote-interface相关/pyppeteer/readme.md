@@ -68,3 +68,12 @@ asyncio.get_event_loop().run_until_complete(main())
 chrome安装扩展puppeteer recorder
 
 [github](https://github.com/checkly/puppeteer-recorder)
+
+## 树莓派安装pyppeteer
+```bash
+$ sudo apt-get update
+$ sudo apt-get install chromium-browser chromium-codecs-ffmpeg
+$ sudo apt-get install npm
+# 记住执行路径必须改为/usr/bin/chromium-browser
+# 脚本详见test_rasp_pyppeteer.py
+```

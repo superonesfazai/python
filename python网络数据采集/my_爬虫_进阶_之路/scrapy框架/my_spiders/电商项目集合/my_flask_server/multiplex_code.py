@@ -112,7 +112,7 @@ ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
     '思域',
     # 互联网
     '互联网', '站外引流', '编程', '代码', 'coder{0,1}', '网警', '程序[员猿媛]{1}', '[Pp]ython', '[jJ]ava', 'js', '[sS]wift', '[gG]o',
-    'ruby', '[jJ]avascript', '[Pp]hp', 'c\+\+', 'c\#', '\.net', 'rust', 'haskell', 'C', 'css', '开发工具', 'perl',
+    'ruby', '[jJ]avascript', '[Pp]hp', 'PHP', 'c\+\+', 'c\#', '\.net', 'rust', 'haskell', 'C', 'css', '开发工具', 'perl',
     '客户端', '正式上线', '服务端', 'mysql', 'sqlserver', 'sqlite', 'oracle', 'PostgreSQL', 'DB[12]', 'Sybase', 'Access',
     'mongodb', 'Informix', 'redis', '云原生技术', '云计算', '分布式', 'istio', 'Kubernetes', 'Service Mesh', 'websocket',
     '全双工通信', 'proxy', '架构师', '死锁', '产品经理', 'UI设计', '码农', '软件测试', 'github', 'svn', 'Activity', '生命周期',
