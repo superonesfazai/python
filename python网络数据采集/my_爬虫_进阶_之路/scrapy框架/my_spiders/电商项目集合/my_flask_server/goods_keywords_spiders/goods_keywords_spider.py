@@ -505,14 +505,13 @@ class GoodsKeywordsSpider(AsyncCrawler):
             logger=self.lg,).get('result', {}).get('auction', [])
         # pprint(data)
 
-        # 不限制数量, 因为各种条件导致数量较少, 第一页
         new_res = []
         for item in data:
             item_id = str(item.get('itemId', ''))
             if item_id != '':
                 try:
                     this_price = float(item.get('realPrice', '0'))
-                    if this_price < 9.:
+                    if this_price < 8.8:
                         self.lg.info('该goods_id: {}, this_price: {}, 售价小于9元, pass'.format(item_id, this_price))
                         continue
 
@@ -522,7 +521,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
 
                 new_res.append(item_id)
 
-        return new_res
+        return new_res[:25]
 
     @catch_exceptions_with_class_logger(default_res=-1)
     def judge_qyh_is_tb_by_goods_id(self, goods_id):
@@ -700,8 +699,13 @@ class GoodsKeywordsSpider(AsyncCrawler):
 
                 item_id = str(item.get('item_id', ''))
                 this_price = float(item.get('price', '0'))
-                if this_price < 9.:
+                if this_price < 8.8:
                     self.lg.info('该goods_id: {}, this_price: {}, 售价小于9元, pass'.format(item_id, this_price))
+                    continue
+
+                post_fee = float(item.get('post_fee', '0'))
+                if post_fee > 0:
+                    self.lg.info('该goods_id: {}不包邮, 邮费: {}, pass'.format(item_id, post_fee))
                     continue
 
             except Exception:
@@ -1079,7 +1083,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
             self.lg.info('该商品销量小于50, pass')
             res = False
 
-        if float(target_data['taobao_price']) < 9.:
+        if float(target_data['taobao_price']) < 8.8:
             self.lg.info('最低价小于9元不采集, pass')
             res = False
 

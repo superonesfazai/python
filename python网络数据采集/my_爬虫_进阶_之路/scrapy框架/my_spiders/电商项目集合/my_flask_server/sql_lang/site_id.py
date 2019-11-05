@@ -370,3 +370,84 @@ where MainGoodsID is not null
 and IsDelete=1
 and shelf_time > delete_time
 '''
+
+# 批量下架敏感词商品
+sql_str_25 = '''
+DECLARE @ss VARCHAR(100)
+set @ss = '%创可贴%'
+
+-- select top 10 *
+UPDATE dbo.GoodsInfoAutoGet set IsDelete=1, ModfiyTime=GETDATE(), delete_time=GETDATE()
+from dbo.GoodsInfoAutoGet
+where GoodsName like @ss
+
+-- select top 10 *
+UPDATE dbo.chuchujie_xianshimiaosha set is_delete=1, modfiy_time=GETDATE()
+from dbo.chuchujie_xianshimiaosha
+where goods_name like @ss
+
+-- select top 10 *
+UPDATE dbo.juanpi_pintuan set is_delete=1, modfiy_time=GETDATE()
+from dbo.juanpi_pintuan
+where goods_name like @ss
+
+-- select top 10 *
+UPDATE dbo.juanpi_xianshimiaosha set is_delete=1, modfiy_time=GETDATE()
+from dbo.juanpi_xianshimiaosha
+where goods_name like @ss
+
+-- select top 10 *
+UPDATE dbo.jumeiyoupin_pintuan set is_delete=1, modfiy_time=GETDATE()
+from dbo.jumeiyoupin_pintuan
+where goods_name like @ss
+
+-- select top 10 *
+UPDATE dbo.jumeiyoupin_xianshimiaosha set is_delete=1, modfiy_time=GETDATE()
+from dbo.jumeiyoupin_xianshimiaosha
+where goods_name like @ss
+
+-- select top 10 *
+UPDATE dbo.mia_pintuan set is_delete=1, modfiy_time=GETDATE()
+from dbo.mia_pintuan
+where goods_name like @ss
+
+-- select top 10 *
+UPDATE dbo.mia_xianshimiaosha set is_delete=1, modfiy_time=GETDATE()
+from dbo.mia_xianshimiaosha
+where goods_name like @ss
+
+-- select top 10 *
+UPDATE dbo.mogujie_pintuan set is_delete=1, modfiy_time=GETDATE()
+from dbo.mogujie_pintuan
+where goods_name like @ss
+
+-- select top 10 *
+UPDATE dbo.mogujie_xianshimiaosha set is_delete=1, modfiy_time=GETDATE()
+from dbo.mogujie_xianshimiaosha
+where goods_name like @ss
+
+-- select top 10 *
+UPDATE dbo.pinduoduo_xianshimiaosha set is_delete=1, modfiy_time=GETDATE()
+from dbo.pinduoduo_xianshimiaosha
+where goods_name like @ss
+
+-- select top 10 *
+UPDATE dbo.tao_qianggou_xianshimiaosha set is_delete=1, modfiy_time=GETDATE()
+from dbo.tao_qianggou_xianshimiaosha
+where goods_name like @ss
+
+-- select top 10 *
+UPDATE dbo.taobao_tiantiantejia set is_delete=1, modfiy_time=GETDATE()
+from dbo.taobao_tiantiantejia
+where goods_name like @ss
+
+-- -- select top 10 *
+UPDATE dbo.zhe_800_pintuan set is_delete=1, modfiy_time=GETDATE()
+from dbo.zhe_800_pintuan
+where goods_name like @ss
+
+-- select top 10 *
+UPDATE dbo.zhe_800_xianshimiaosha set is_delete=1, modfiy_time=GETDATE()
+from dbo.zhe_800_xianshimiaosha
+where goods_name like @ss
+'''
