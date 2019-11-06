@@ -172,3 +172,10 @@ class ZWMBusinessManageRecordItem(Item):
     is_non_contact = Field()                # 是否开通非接, 0 否 1是
     approval_status = Field()               # 审核状态, 审核通过0, 待审核1, 退回2
     approval_status_change_time = Field()   # 审核状态变动记录时间点
+
+class AskQuestionsResultItem(Item):
+    """
+    搜题结果item
+    """
+    question_desc = Field()
+    answer = Field()

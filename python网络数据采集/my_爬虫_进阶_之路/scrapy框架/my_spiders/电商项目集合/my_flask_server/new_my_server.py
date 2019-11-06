@@ -117,6 +117,7 @@ from sql_str_controller import (
 
 from article_spider import ArticleParser
 from buyiju_spider import BuYiJuSpider
+from search_for_questions_spider import SearchForQuestionsSpider
 
 from multiprocessing import Pool as MultiprocessingPool
 
@@ -1991,6 +1992,86 @@ def get_goods_link(**kwargs):
 
     else:
         _ = request.form.get('goods_link', '')
+
+    return _
+
+######################################################
+"""
+/api/search_questions
+"""
+@app.route('/api/search_questions', methods=['GET'])
+def search_questions():
+    """
+    搜题接口(支持并发)
+    :return:
+    """
+    ori_k = get_question_key(request=request)
+    my_lg.info('获取到的k: {}'.format(str(ori_k)))
+    # todo 确实可以变成非阻塞
+    #  但是: 不可这样, 由于一个loop已在执行的同时, 其他请求到来, 会抛出(RuntimeError: Cannot run the event loop while another loop is running)异常
+    #  导致其他的同时的请求全部失败!
+    gevent_monkey.patch_all()
+
+    search_res = get_search_questions_res(
+        k=ori_k,
+    )
+    if search_res == []:
+        return _error_msg(msg='问题抓取失败!')
+
+    return _success_data(msg='问题抓取成功!', data=search_res)
+
+def get_search_questions_res(k: str):
+    """
+    获取采集问题结果
+    :param k:
+    :return:
+    """
+    ask_spider = SearchForQuestionsSpider(logger=my_lg)
+    try:
+        # # success! 非阻塞!
+        nest_asyncio.apply()
+        # # 无上方一行时, 报错: 'RuntimeError: This event loop is already running'
+    except Exception:
+        my_lg.error('遇到错误:', exc_info=True)
+
+    loop = get_event_loop()
+    search_res = []
+    try:
+        search_res = loop.run_until_complete(
+            ask_spider._search(k=k))
+    except Exception:
+        my_lg.error('遇到错误:', exc_info=True)
+
+    try:
+        del ask_spider
+    except:
+        pass
+    try:
+        del loop
+    except:
+        pass
+    collect()
+
+    return search_res
+
+def get_question_key(**kwargs):
+    """
+    从cli得到问题字符串
+    :param kwargs:
+    :return:
+    """
+    request = kwargs.get('request')
+
+    _ = ''
+    try:
+        if request.method == 'GET':
+                _ = dict(request.args).get('k', '')[0]
+        else:
+            _ = request.form.get('k', '')
+
+        assert _ != ''
+    except (IndexError, AssertionError):
+        my_lg.error('获取k时IndexError!')
 
     return _
 
