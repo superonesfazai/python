@@ -17,6 +17,10 @@
 4. 上学吧(https://m.shangxueba.com)(充值会员, 且登录存在加减验证码, 一个账号一天只可在3个ip登录, 否则封, pass)(小程序要求看视频才能搜索一次, pass)
 5. 作业在线(https://m.yourbin.com/)(大学题经常搜不到, pass)
 6. 小猿搜题(拍照搜题, 签名认证)
+7. 大白搜题(http://chati.naxuefen.com/#/login)(只返回一个, pass)
+8. 搜题狗(http://www.etkz.cn/search.php?mod=forum&mobile=2)(多个答案, 但是专业性较强的搜不到(eg: c语言))
+9. 安艾希搜题网(https://www.dlsqb.com/question/search.html?word=社会主义)(可以设计为: 先搜索返回问题列表, 再让其点击查看答案, 再去采集对应页的答案)(但是网站极其不稳定, pass)
+10. 水桶搜题(https://chati.xuanxiu365.com/index.php)(只返回一个, pass)
 """
 
 from settings import (
@@ -126,11 +130,14 @@ class SearchForQuestionsSpider(AsyncCrawler):
         headers = get_random_headers(cache_control='')
         headers.update({
             # 'Referer': 'https://www.finerit.com/tiku/search/?q=%E7%A4%BE%E4%BC%9A%E4%B8%BB%E4%B9%89&p=0',
+            'Referer': 'https://www.finerit.com/',
         })
         params = (
             ('q', k),
             ('p', str(page_num)),
+            # ('s_type', 'erya'),
         )
+        # todo 他们网站也许也有人在用, 偶尔会无响应
         body = Requests.get_url_body(
             url='https://www.finerit.com/tiku/search/',
             headers=headers,
@@ -139,7 +146,8 @@ class SearchForQuestionsSpider(AsyncCrawler):
             ip_pool_type=self.ip_pool_type,
             proxy_type=PROXY_TYPE_HTTPS,
             num_retries=self.req_num_retries,
-            timeout=12,)
+            timeout=10,         #  测试发现10s速度较快, 且成功率可以
+        )
         assert body != ''
         # self.lg.info(body)
 

@@ -462,3 +462,18 @@ where goods_id not in (
 select GoodsID
 from dbo.GoodsInfoAutoGet)
 '''
+
+# 批量清空指定时间区间未被转换的热销商品
+sql_str_27 = '''
+delete 
+-- select top 10 CreateTime
+from dbo.GoodsInfoAutoGet
+where MainGoodsID is null
+and (CreateTime >= '2019-11-05 00:00:00' and CreateTime <= '2019-11-07 23:00:00')
+
+delete 
+from dbo.goods_id_and_keyword_middle_table
+where goods_id not in (
+select GoodsID
+from dbo.GoodsInfoAutoGet)
+'''

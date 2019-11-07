@@ -441,7 +441,9 @@ mia_select_str_1 = 'select goods_id, miaosha_time, pid from dbo.mia_pintuan wher
 mia_select_str_2 = '''
 select top 1500 goods_id, miaosha_time, pid 
 from dbo.mia_pintuan 
-where site_id=21 and is_delete=0
+where site_id=21 
+and is_delete=0
+-- and MainGoodsID=177079
 order by modfiy_time asc
 '''
 # 秒杀实时更新
