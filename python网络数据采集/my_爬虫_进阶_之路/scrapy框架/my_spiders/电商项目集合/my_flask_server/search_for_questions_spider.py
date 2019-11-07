@@ -60,8 +60,8 @@ class SearchForQuestionsSpider(AsyncCrawler):
         """
         async def get_tasks_params_list():
             tasks_params_list = []
-            for page_num in range(0, 5):
-                # 默认只返回前两页, 测试发现无限制
+            for page_num in range(0, 3):
+                # 默认只返回前两页, 测试发现无限制, 自己设置返回3个避免时间过长
                 tasks_params_list.append({
                     'k': k,
                     'page_num': page_num
