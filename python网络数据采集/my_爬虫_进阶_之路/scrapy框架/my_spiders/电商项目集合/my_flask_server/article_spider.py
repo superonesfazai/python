@@ -1057,7 +1057,7 @@ class ArticleParser(AsyncCrawler):
                 'site_id': 35,
             },
             'bdj': {
-                'debug': False,
+                'debug': True,
                 'name': '百思不得姐',
                 'url': 'http://www.budejie.com',
                 'obj_origin': 'www.budejie.com',
@@ -3233,10 +3233,12 @@ class ArticleParser(AsyncCrawler):
                     timeout=25,)
                 # 点击播放按钮
                 try:
+                    self.lg.info('执行第一类播放点击ing...')
                     # 第一类
                     driver.find_element(value='div.play-btn').click()
                 except Exception:
                     self.lg.error('遇到错误:', exc_info=True)
+                    self.lg.info('执行第二类播放点击ing...')
                     # 第二类
                     driver.find_element(value='txpdiv.txp_btn_play').click()
                 sleep(2.)
@@ -5622,6 +5624,7 @@ def main():
     # url = 'https://kuaibao.qq.com/s/20190505V0FMTX00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&from=groupmessage&isappinstalled=0'
     # url = 'https://kuaibao.qq.com/s/20190509V0JOTG00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&from=groupmessage&isappinstalled=0'
     # url = 'https://kuaibao.qq.com/s/20190328V0E9OX00?refer=kb_news&amp;titleFlag=2&amp;omgid=7a157262f3d303c6f2d089446406d22e&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&from=groupmessage&isappinstalled=0'
+    # url = 'https://kuaibao.qq.com/s/20191016V04YLD00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&from=groupmessage&isappinstalled=0'
 
     # 东方头条新闻
     # url = 'https://mini.eastday.com/mobile/190505214138491.html?qid=null&idx=1&recommendtype=crb_a579c9a168dd382c_1_1_0_&ishot=1&fr=toutiao&pgnum=1&suptop=0'

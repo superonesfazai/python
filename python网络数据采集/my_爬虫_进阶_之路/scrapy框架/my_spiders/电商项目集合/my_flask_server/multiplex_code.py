@@ -133,6 +133,7 @@ ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
 # 商品标题敏感信息清洗
 GOODS_SENSITIVE_STR_TUPLE = (
     '买\d+送\d+',
+    '领券[立]{0,1}减\d+[元]{0,1}',
     '\d+\.\d+包邮',
     '【直营】',
     '购机赠礼',

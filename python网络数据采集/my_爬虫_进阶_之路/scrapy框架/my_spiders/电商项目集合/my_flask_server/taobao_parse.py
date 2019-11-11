@@ -708,6 +708,7 @@ class TaoBaoLoginAndParse(Crawler):
 
         return result_data_apiStack_value
 
+    @catch_exceptions_with_class_logger(default_res=[])
     def _get_all_img_url(self, tmp_all_img_url):
         """
         获取所有示例图片
@@ -719,7 +720,10 @@ class TaoBaoLoginAndParse(Crawler):
             item = 'https:' + item
             all_img_url.append(item)
 
-        return [{'img_url': item} for item in all_img_url]
+        all_img_url = [{'img_url': item} for item in all_img_url]
+        # assert all_img_url != []
+
+        return all_img_url
 
     def _get_p_info(self, tmp_p_info):
         """
