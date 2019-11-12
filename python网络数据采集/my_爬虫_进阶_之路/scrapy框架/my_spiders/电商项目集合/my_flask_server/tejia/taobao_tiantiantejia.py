@@ -41,7 +41,7 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
         self.msg = ''
         self._set_main_sort()
         # 最大截止抓取页(原先是300)
-        self.max_crawl_page_num = 5
+        self.max_crawl_page_num = 8
         self.is_real_times_update_call = True
 
     def _set_headers(self):
@@ -56,10 +56,11 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
         }
 
     def _set_main_sort(self):
+        # boss说天天特价 服装类先不要, 纠纷比较多
         self.main_sort = {
-            '495000': ['时尚女装', 'mtopjsonp2'],
-            '496000': ['潮流男装', 'mtopjsonp4'],
-            '499000': ['性感内衣', 'mtopjsonp5'],
+            # '495000': ['时尚女装', 'mtopjsonp2'],
+            # '496000': ['潮流男装', 'mtopjsonp4'],
+            # '499000': ['性感内衣', 'mtopjsonp5'],
             '508000': ['家居百货', 'mtopjsonp6'],
             '502000': ['品质母婴', 'mtopjsonp7'],
             '503000': ['食品饮料', 'mtopjsonp8'],

@@ -521,7 +521,9 @@ class GoodsKeywordsSpider(AsyncCrawler):
 
                 new_res.append(item_id)
 
-        return new_res[:25]
+        # boss说同一关键字重复太多, 取10个 此处取15个
+
+        return new_res[:15]
 
     @catch_exceptions_with_class_logger(default_res=-1)
     def judge_qyh_is_tb_by_goods_id(self, goods_id):
@@ -714,7 +716,9 @@ class GoodsKeywordsSpider(AsyncCrawler):
 
             res.append(item_url)
 
-        return res[:25]
+        # boss说同一关键字重复太多, 取10个 此处取15个
+
+        return res[:15]
 
     def _get_jd_goods_keywords_goods_id_list(self, keyword):
         '''
