@@ -133,7 +133,12 @@ ARTICLE_TITLE_SENSITIVE_STR_TUPLE = (
 # 商品标题敏感信息清洗
 GOODS_SENSITIVE_STR_TUPLE = (
     '买\d+送\d+',
+    '买[1一]{1,}送[二三四]{1,}',
     '领券[立]{0,1}减\d+[元]{0,1}',
+    '下单选赠品',
+    '直播特惠',
+    '第[2二]{1,}件\d+\.{0,1}\d+元',
+    '第[2二]{1,}件\d+元',
     '\d+\.\d+包邮',
     '【直营】',
     '购机赠礼',
@@ -844,7 +849,7 @@ def add_cp_profit_2_price(target_price) -> (str, Decimal):
         nonlocal target_price
         return str((float(target_price) * (1 + CP_PROFIT)).__round__(2))
 
-    if isinstance(target_price, (str, float)):
+    if isinstance(target_price, (str, float, int)):
         if target_price != '':
             target_price = oo()
         else:
@@ -1602,6 +1607,7 @@ def get_goods_info_change_data(target_short_name: str, logger=None, sql_cli=None
 
         # 处理单规格的情况
         # _price_change_info这个字段不进行记录, 还是记录到price, taobao_price
+        # print(data['price'], data['taobao_price'])
         data['_is_price_change'], data['_price_change_info'] = _get_price_change_info(
             # 原先价格两种情况: 未加价 or 已加价 (都与最新采集价格(已加价)进行对比)
             old_price=db_goods_info_obj.old_price,

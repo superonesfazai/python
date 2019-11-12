@@ -339,7 +339,9 @@ class Zhe800PintuanParse(Crawler):
         return (price_info_list, price, taobao_price)
 
     def _get_all_img_url(self, data):
-        return [{'img_url': item} for item in data.get('shop_images', [])]
+        return [{
+            'img_url': item.replace('http:', 'https:'),
+        } for item in data.get('shop_images', [])]
 
     def _get_p_info(self, data):
         return data.get('p_info', [])

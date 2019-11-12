@@ -318,6 +318,7 @@ select SiteID, GoodsID, IsDelete, Price, TaoBaoPrice, shelf_time, delete_time, S
 from dbo.GoodsInfoAutoGet 
 where SiteID=12 
 and MainGoodsID is not null
+-- and GoodsID='56238580'
 -- and IsDelete=0
 order by ModfiyTime asc
 '''

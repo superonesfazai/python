@@ -66,7 +66,6 @@ class JuanPiParse(Crawler):
 
         tmp_url = 'https://web.juanpi.com/pintuan/shop/{}'.format(goods_id)
         print('------>>>| 得到的商品手机版的地址为: ', tmp_url)
-
         try:
             """
             2.采用phantomjs来处理，记住使用前别翻墙
@@ -181,6 +180,9 @@ class JuanPiParse(Crawler):
             is_delete = self._get_is_delete(data=data, schedule=schedule)
             if price == 0 or taobao_price == 0:     # 没有获取到价格说明商品已经下架了
                 is_delete = 1
+            else:
+                pass
+
             parent_dir = data.get('parent_dir', '')
             all_sell_count = ''
             if target_str_contain_some_char_check(

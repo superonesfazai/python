@@ -107,16 +107,17 @@ class GoodsKeywordsSpider(AsyncCrawler):
                 # 每个关键字在True的接口都抓完, 再进行下一次
                 self.lg.info('正在处理id为{0}, 关键字为 {1} ...'.format(keyword_id, keyword))
                 # 筛选
-                if int(keyword_id) < 43:
-                    if int(keyword_id) not in (25, 26):
-                        self.lg.info('不在处理的keyword_id范围内, keyword_id: {}, keyword: {}'.format(
-                            keyword_id,
-                            keyword))
-                        continue
-                    else:
-                        pass
-                else:
-                    pass
+                # 低价也要, 所以此处放开
+                # if int(keyword_id) < 43:
+                #     if int(keyword_id) not in (25, 26):
+                #         self.lg.info('不在处理的keyword_id范围内, keyword_id: {}, keyword: {}'.format(
+                #             keyword_id,
+                #             keyword))
+                #         continue
+                #     else:
+                #         pass
+                # else:
+                #     pass
 
                 for type, type_value in self.debugging_api.items():
                     # 遍历待抓取的电商分类

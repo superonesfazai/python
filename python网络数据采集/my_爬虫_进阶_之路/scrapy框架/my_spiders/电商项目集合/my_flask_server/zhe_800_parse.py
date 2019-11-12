@@ -463,8 +463,16 @@ class Zhe800Parse(Crawler):
         return p_info
 
     def _get_all_img_url(self, tmp_all_img_url):
+        all_img_url = []
         try:
-            all_img_url = [{'img_url': item['big']} for item in tmp_all_img_url]
+            for item in tmp_all_img_url:
+                img_url = item.get('big', '')
+                img_url = img_url.replace('http:', 'https:')
+                if img_url != '':
+                    all_img_url.append({
+                        'img_url': img_url,
+                    })
+
         except TypeError:
             raise GoodsShelvesException
 
