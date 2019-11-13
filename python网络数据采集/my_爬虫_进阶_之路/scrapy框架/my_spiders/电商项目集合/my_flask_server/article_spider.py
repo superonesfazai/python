@@ -228,8 +228,158 @@ class ArticleParser(AsyncCrawler):
         elif article_type == 'gxg':
             return await self.get_gxg_article_list()
 
+        elif article_type == 'pp':
+            return await self.get_pp_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_pp_article_list(self) -> list:
+        """
+        获取pp的最新视频article_list
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            for page_num in range(1, 6):
+                # pp视频每日更新有限, 就获取前几页的
+                tasks_params_list.append({
+                    'page_num': page_num,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where pp: page_num:{}]...'.format(
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['page_num'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_pp_recommend_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_pp_recommend_article_list_by_page_num(self, page_num: int) -> list:
+        """
+        根据page_num获取pc视频页的最新推荐article_list
+        :param page_num:
+        :return:
+        """
+        # 来源(https://www.thepaper.cn/) 点击视频
+        headers = get_random_headers(
+            upgrade_insecure_requests=False,
+            cache_control='',
+        )
+        headers.update({
+            'accept': 'text/html, */*; q=0.01',
+            'X-Requested-With': 'XMLHttpRequest',
+            # 'Referer': 'https://www.thepaper.cn/channel_26916',
+        })
+        params = (
+            # ('channelID', '26916'),
+            ('channelID', ''),
+            ('pageidx', str(page_num)),
+        )
+        body = Requests.get_url_body(
+            url='https://www.thepaper.cn/load_video_chosen.jsp',
+            headers=headers,
+            params=params,
+            # cookies=cookies,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            proxy_type=PROXY_TYPE_HTTPS,)
+        assert body != ''
+        # self.lg.info(body)
+
+        article_div_list_sel = {
+            'method': 'css',
+            'selector': 'li.video_news',
+        }
+        article_div_list = parse_field(
+            parser=article_div_list_sel,
+            target_obj=body,
+            is_first=False,
+            logger=self.lg,)
+        assert article_div_list != []
+        # pprint(article_div_list)
+
+        # 文章地址选择器
+        article_url_sel = {
+            'method': 'css',
+            'selector': 'div.video_list_pic a ::attr("href")',
+        }
+        article_id_sel = {
+            'method': 're',
+            'selector': 'newsDetail_forward_(\d+)',
+        }
+        title_sel = {
+            'method': 'css',
+            'selector': 'div.video_title ::text',
+        }
+        res = []
+        for item in article_div_list:
+            try:
+                article_url = parse_field(
+                    parser=article_url_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                )
+                assert article_url != ''
+                article_url = 'https://m.thepaper.cn/{}'.format(article_url)
+                article_id = parse_field(
+                    parser=article_id_sel,
+                    target_obj=article_url,
+                    logger=self.lg,
+                )
+                assert article_id != ''
+                title = parse_field(
+                    parser=title_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                )
+                assert title != ''
+            except AssertionError:
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('pp::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('pp', article_id)),
+                'article_type': 'pp',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+
+        # pprint(article_url_list)
+        self.lg.info('[{}] pp::page_num:{}'.format(
+            '+' if res != [] else '-',
+            page_num,
+        ))
+
+        return res
 
     async def get_gxg_article_list(self) -> list:
         """
@@ -2309,6 +2459,7 @@ class ArticleParser(AsyncCrawler):
             params=params,
             ip_pool_type=self.ip_pool_type,
             num_retries=self.request_num_retries,
+            proxy_type=PROXY_TYPE_HTTPS,
             logger=self.lg,)
         # self.lg.info(body)
         assert body != '', '获取hx的body为空值!'
@@ -2507,6 +2658,7 @@ class ArticleParser(AsyncCrawler):
             headers=headers,
             ip_pool_type=self.ip_pool_type,
             num_retries=self.request_num_retries,
+            proxy_type=PROXY_TYPE_HTTPS,
             logger=self.lg, )
         # self.lg.info(body)
         assert body != '', '获取if的body为空值!'
@@ -6029,13 +6181,15 @@ def main():
     # 游戏
     # url = 'http://m.qdaily.com/mobile/articles/64050.html'
 
-    # 场库
+    # 场库(cp服务器无法上传视频)
     # url = 'https://www.vmovier.com/57050?from=index_new_title'
     # url = 'https://www.vmovier.com/57057?from=index_new_title'
     # url = 'https://www.vmovier.com/57035?from=index_new_title'
     # url = 'https://www.vmovier.com/56985?from=index_hot_week_title'
     # url = 'https://www.vmovier.com/57028?from=index_hot_week_title'
     # url = 'https://www.vmovier.com/56442?from=index_rand_title'
+    # url = 'https://www.vmovier.com/57696?from=index_new_title'
+    # url = 'https://www.vmovier.com/57669?from=index_new_img'
 
     # 梨视频
     # url = 'https://www.pearvideo.com/video_1584072'
@@ -6069,7 +6223,7 @@ def main():
     # todo 直播不采集
     # url = 'https://www.pearvideo.com/living_1583854'
 
-    # 艾墨镇
+    # 艾墨镇(视频是iframe)
     # url = 'https://aimozhen.com/view/15994/'
     # url = 'https://aimozhen.com/view/15770/'
     # url = 'https://aimozhen.com/view/15537/'
@@ -6452,7 +6606,8 @@ def main():
     # # article_type = 'zq'
     # # article_type = 'hk'
     # # article_type = 'lfd'
-    # article_type = 'gxg'
+    # # article_type = 'gxg'
+    # article_type = 'pp'
     # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
     #     article_type=article_type,))
     # pprint(tmp)
