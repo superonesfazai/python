@@ -177,6 +177,8 @@ class RecommendGoodOps(AsyncCrawler):
         else:
             pass
 
+        # todo shadow模式下老是登录失败, 建议关闭shadow, 不使用其 or lantern or 使用shadow其全局代理模式即可
+
         # 创建目标集合
         # zq_article_list = []
         # hk_article_list = []
@@ -671,11 +673,14 @@ class RecommendGoodOps(AsyncCrawler):
         :return:
         """
         while True:
-            try:
-                delete_btn_text = driver.find_element(value='div.deletebut').text
-            except NoSuchElementException:
-                # 处理这个异常, 并继续等待
-                continue
+            # 不宜用下面方式 长期跑电脑卡死
+            # try:
+            #     delete_btn_text = driver.find_element(value='div.deletebut').text
+            # except NoSuchElementException:
+            #     # 处理这个异常, 并继续等待
+            #     continue
+
+            delete_btn_text = driver.find_element(value='div.deletebut').text
 
             # self.lg.info('delete_btn_text: {}'.format(delete_btn_text))
             if delete_btn_text == '删除':

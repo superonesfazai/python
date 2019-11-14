@@ -51,7 +51,8 @@ class GoodsCouponSpider(AsyncCrawler):
         )
         # 不宜过大, 官网会发现
         self.concurrency = 15
-        self.concurrency2 = 6
+        # 不可太大 电脑卡死
+        self.concurrency2 = 5
         self.req_num_retries = 8
         self.proxy_type = PROXY_TYPE_HTTPS
         self.driver_load_images = DRIVER_LOAD_IMAGES
@@ -314,14 +315,21 @@ class GoodsCouponSpider(AsyncCrawler):
                 del chromium_puppeteer
                 del page
             except:
-                pass
+                try:
+                    del chromium_puppeteer
+                    del page
+                except:
+                    pass
         try:
             await driver.close()
         except:
             try:
                 await driver.close()
             except:
-                pass
+                try:
+                    await driver.close()
+                except:
+                    pass
         collect()
 
         return res
