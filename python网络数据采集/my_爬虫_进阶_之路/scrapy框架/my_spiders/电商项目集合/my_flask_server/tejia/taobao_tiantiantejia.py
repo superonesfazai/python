@@ -230,12 +230,17 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
                 'begin_time': tmp_item.get('start_time', ''),
                 'end_time': tmp_item.get('end_time', ''),
             }]
-            goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(miaosha_time=goods_data.get('schedule', [])[0])
+            goods_data['tejia_begin_time'], goods_data['tejia_end_time'] = get_miaosha_begin_time_and_miaosha_end_time(
+                miaosha_time=goods_data.get('schedule', [])[0])
             goods_data['block_id'] = str(category)
             goods_data['tag_id'] = str(current_page)
             goods_data['father_sort'] = self.main_sort[category][0]
             goods_data['child_sort'] = ''
             # pprint(goods_data)
+
+            if len(goods_data['all_img_url']) <= 1:
+                self.lg.info('[goods_id: {}]主图个数<=1, pass'.format(goods_id))
+                return index
 
             await taobao.insert_into_taobao_tiantiantejia_table(
                 data=goods_data,

@@ -199,7 +199,7 @@ where MainGoodsID is not null
 and (SiteID=3 or SiteID=4 or SiteID=6) 
 -- and IsDelete=1
 -- and GoodsID='584273440557'
--- and MainGoodsID=163975
+-- and MainGoodsID=165596
 order by ModfiyTime asc
 '''
 '''insert'''

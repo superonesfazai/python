@@ -68,6 +68,8 @@ not supported:
     16. zol笑话大全(http://xiaohua.zol.com.cn/)
     17. 多玩搞笑囧图(http://tu.duowan.cn/bxgif)(先不做pass, 得用driver, 发布太慢, pass)
     18. 嗡啪搞笑(http://wengpa.com/)
+    19. 微短视频网(https://www.wdace.com/)(视频为iframe内切, 先不做)
+    20. 酷燃视频(https://krcom.cn/)
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -231,8 +233,208 @@ class ArticleParser(AsyncCrawler):
         elif article_type == 'pp':
             return await self.get_pp_article_list()
 
+        elif article_type == 'kr':
+            return await self.get_kr_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_kr_article_list(self) -> list:
+        """
+        获取kr pc首页最新推荐视频article_list
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            for page_num in range(1, 7):
+                # kr视频每日更新有限, 就获取前几页的
+                tasks_params_list.append({
+                    'page_num': page_num,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where kr: page_num:{}]...'.format(
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['page_num'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_kr_recommend_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_kr_recommend_article_list_by_page_num(self, page_num: int) -> list:
+        """
+        根据page_num获取pc视频页的最新推荐article_list
+        :param page_num:
+        :return:
+        """
+        headers = get_random_headers(
+            upgrade_insecure_requests=False,
+            cache_control='', )
+        headers.update({
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'accept': '*/*',
+            'referer': 'https://krcom.cn/',
+        })
+        now_time = get_shanghai_time()
+        # 格式: '5;2019111409'
+        cursor = '{};{}{}{}{}'.format(
+            page_num * 5,
+            now_time.year,
+            now_time.month,
+            now_time.day,
+            now_time.hour, )
+        params = (
+            ('ajwvr', '6'),
+            ('cursor', cursor),
+            ('op', '4427060390002831'),
+            ('__rnd', str(get_now_13_bit_timestamp())),
+        )
+
+        body = Requests.get_url_body(
+            url='https://krcom.cn/aj/home/Recomalbum',
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,)
+        data = Requests._wash_html(json_2_dict(
+            json_str=body,
+            default_res={},
+            logger=self.lg,).get('data', ''))
+        # print(data)
+
+        # 组合生成url
+        # 原生url
+        # https://krcom.cn/1638781994/episodes/2358773:4259607863075356
+        # channel_id=1504145281&vid=2358773:4326964350123027
+        # https://krcom.cn/1504145281/episodes/2358773:4326964350123027
+
+        article_div_list_sel = {
+            'method': 'css',
+            'selector': 'div.V_list_a',
+        }
+        article_div_list = parse_field(
+            parser=article_div_list_sel,
+            target_obj=data,
+            logger=self.lg,
+            is_first=False, )
+        assert article_div_list != []
+        # pprint(article_div_list)
+
+        # 文章地址选择器
+        article_url_sel = {
+            'method': 'css',
+            'selector': 'div.V_list_a ::attr("action-data")',
+        }
+        article_id_sel = {
+            'method': 're',
+            'selector': 'vid=(\d+\:\w+)',
+        }
+        channel_id_sel = {
+            'method': 're',
+            'selector': 'channel_id=(\d+)',
+        }
+        title_sel = {
+            'method': 'css',
+            'selector': 'h3 ::text',
+        }
+        # 电影时长
+        video_duration_sel = {
+            'method': 'css',
+            'selector': 'span.time ::text',
+        }
+        res = []
+        for item in article_div_list:
+            try:
+                article_url = parse_field(
+                    parser=article_url_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert article_url != ''
+                article_id = parse_field(
+                    parser=article_id_sel,
+                    target_obj=article_url,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert article_id != ''
+                channel_id = parse_field(
+                    parser=channel_id_sel,
+                    target_obj=article_url,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert channel_id != ''
+                article_url = 'https://krcom.cn/{}/episodes/{}'.format(channel_id, article_id)
+                title = parse_field(
+                    parser=title_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert title != ''
+                if len(title) >= 30:
+                    continue
+
+                video_duration = parse_field(
+                    parser=video_duration_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert video_duration != ''
+                video_duration_minute, video_duration_second = video_duration.split(':')
+                if (int(video_duration_minute) * 60 + int(video_duration_second)) >= 5 * 60:
+                    # 5分钟以上不要
+                    continue
+
+            except (AssertionError, Exception):
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('kr::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('kr', article_id)),
+                'article_type': 'kr',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+
+        self.lg.info('[{}] kr::page_num:{}'.format(
+            '+' if res != [] else '-',
+            page_num,
+        ))
+
+        return res
 
     async def get_pp_article_list(self) -> list:
         """
@@ -1248,6 +1450,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'm.gaoxiaogif.com',
                 'site_id': 41,
             },
+            'kr': {
+                'debug': False,
+                'name': '酷燃视频',
+                'url': 'https://krcom.cn',
+                'obj_origin': 'krcom.cn',
+                'site_id': 42,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -1612,6 +1821,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'gxg':
                 return await self._get_gxg_article_html(article_url=article_url)
 
+            elif article_url_type == 'kr':
+                return await self._get_kr_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -1619,6 +1831,97 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_kr_article_html(self, article_url) -> tuple:
+        """
+        获取kr html
+        :param article_url:
+        :return:
+        """
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+        )
+        headers.update({
+            'Referer': 'https://krcom.cn/',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            proxy_type=PROXY_TYPE_HTTPS,)
+        assert body != ''
+        # self.lg.info(body)
+
+        video_info_sel = {
+            'method': 're',
+            'selector': '\$CONFIG\[\'video_info\'\]=(.*?);</script>',
+        }
+        video_info = unquote_plus(await async_parse_field(
+            parser=video_info_sel,
+            target_obj=body,
+            logger=self.lg,))
+        assert video_info != ''
+        # self.lg.info(video_info)
+
+        # 此处json解码失败, 但是还是解码部分, 还是处理
+        video_info = json_2_dict(
+            json_str=video_info,
+            default_res={},
+            logger=self.lg,)
+        assert video_info != {}
+        # pprint(video_info)
+
+        video_url_sel = {
+            'method': 're',
+            'selector': '\"mp4_720p_mp4\":\"(.*?)\",',
+        }
+        video_url = await async_parse_field(
+            parser=video_url_sel,
+            target_obj=video_info,
+            logger=self.lg,)
+        if video_url == '':
+            # 存在没有720p的, 取hd
+            video_url_sel = {
+                'method': 're',
+                'selector': '\"mp4_hd_mp4\":\"(.*?)\",',
+            }
+            video_url = await async_parse_field(
+                parser=video_url_sel,
+                target_obj=video_info,
+                logger=self.lg,)
+            if video_url == '':
+                video_url_sel = {
+                    'method': 're',
+                    'selector': '\"mp4_ld_mp4\":\"(.*?)\",',
+                }
+                video_url = await async_parse_field(
+                    parser=video_url_sel,
+                    target_obj=video_info,
+                    logger=self.lg, )
+            else:
+                pass
+        else:
+            pass
+
+        assert video_url != ''
+        self.lg.info('video_url: {}'.format(video_url))
+
+        title_sel = {
+            'method': 're',
+            'selector': '\"video_title\":\"(.*?)\",',
+        }
+        title = await async_parse_field(
+            parser=title_sel,
+            target_obj=video_info,
+            logger=self.lg, )
+        # self.lg.info(title)
+        assert title != ''
+
+        self.hook_target_api_data = {}
+        self.hook_target_api_data['title'] = title
+
+        return body, video_url
 
     async def _get_gxg_article_html(self, article_url) -> tuple:
         """
@@ -3781,6 +4084,7 @@ class ArticleParser(AsyncCrawler):
             'blbl',
             'kys',
             'gxg',
+            'kr',
         ]
         if short_name in short_name_list2:
             pass
@@ -3911,6 +4215,9 @@ class ArticleParser(AsyncCrawler):
                 .get('videoInfo', {})\
                 .get('title', '')
 
+        elif short_name == 'kr':
+            title = self.hook_target_api_data.get('title', '')
+
         else:
             pass
 
@@ -3943,8 +4250,26 @@ class ArticleParser(AsyncCrawler):
             title = await self._wash_tt_title(title=title)
         elif short_name == 'kys':
             title = await self._wash_kys_title(title=title)
+        elif short_name == 'kr':
+            title = await self._wash_kr_title(title=title)
+
         else:
             pass
+
+        return title
+
+    @staticmethod
+    async def _wash_kr_title(title: str) -> str:
+        title = wash_sensitive_info(
+            data=title,
+            replace_str_list=[],
+            add_sensitive_str_list=[
+                # 洗掉eg: '20180824期'
+                '\d+期',
+            ],
+            is_default_filter=False,
+            is_lower=False,
+        )
 
         return title
 
@@ -4728,6 +5053,7 @@ class ArticleParser(AsyncCrawler):
             'lfd',
             'blbl',
             'kys',
+            'kr',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -4809,6 +5135,7 @@ class ArticleParser(AsyncCrawler):
                 '不得转载使用',
                 '本文文字为原创',
                 '文字属于作者原创',
+                '配图来源[于]{0,1}网络',
                 '欢迎大家转发关注',
                 '文字原创',
                 '如有侵权',
@@ -4997,9 +5324,16 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'gxg':
             content = await self._wash_gxg_article_content(content=content)
 
+        elif short_name == 'kr':
+            content = await self._wash_kr_article_content(content=content)
+
         else:
             pass
 
+        return content
+
+    @staticmethod
+    async def _wash_kr_article_content(content: str) -> str:
         return content
 
     @staticmethod
@@ -6591,6 +6925,13 @@ def main():
     # url = 'https://m.gaoxiaogif.com/zhenrengif/12297.html'
     # url = 'https://m.gaoxiaogif.com/meinvgif/12289.html'
 
+    # 酷燃视频
+    # url = 'https://krcom.cn/6357210927/episodes/2358773:4435230858126303'
+    # url = 'https://krcom.cn/6056657061/episodes/2358773:4415767190436583'
+    # url = 'https://krcom.cn/6135166906/episodes/2358773:4275862502049689'
+    # url = 'https://krcom.cn/1729930211/episodes/2358773:4276593313415601'
+    # url = 'https://krcom.cn/6511520515/episodes/2358773:673bb576ece8d9291562459596cee095'
+
     # 文章url 测试
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(
@@ -6607,7 +6948,8 @@ def main():
     # # article_type = 'hk'
     # # article_type = 'lfd'
     # # article_type = 'gxg'
-    # article_type = 'pp'
+    # # article_type = 'pp'
+    # article_type = 'kr'
     # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
     #     article_type=article_type,))
     # pprint(tmp)

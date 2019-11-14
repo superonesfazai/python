@@ -839,6 +839,10 @@ class GoodsKeywordsSpider(AsyncCrawler):
                             if not self.check_target_data_is_legal(target_data=data):
                                 return False
 
+                            if len(data['all_img_url']) <= 1:
+                                self.lg.info('[goods_id: {}]主图个数<=1, pass'.format(goods_id))
+                                return False
+
                             result = taobao.old_taobao_goods_insert_into_new_table(data, pipeline=self.sql_cli)
 
                         else:
@@ -982,6 +986,10 @@ class GoodsKeywordsSpider(AsyncCrawler):
                                 continue
 
                             if not self.check_target_data_is_legal(target_data=data):
+                                return False
+
+                            if len(data['all_img_url']) <= 1:
+                                self.lg.info('[goods_id: {}]主图个数<=1, pass'.format(goods_id))
                                 return False
 
                             result = tmall.old_tmall_goods_insert_into_new_table(data, pipeline=self.sql_cli)

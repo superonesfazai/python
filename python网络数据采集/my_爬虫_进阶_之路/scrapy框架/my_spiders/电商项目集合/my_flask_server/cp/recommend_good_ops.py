@@ -67,7 +67,8 @@ class RecommendGoodOps(AsyncCrawler):
         self.lg.info('yx_username: {}, yx_password: {}'.format(
             self.yx_username,
             self.yx_password))
-        self.publish_url = 'https://configadmin.yiuxiu.com/Business/Index'
+        # 不支持https了, 原先支持
+        self.publish_url = 'http://configadmin.yiuxiu.com/Business/Index'
         self.select_sql0 = 'SELECT unique_id FROM dbo.recommend_good_ops_article_id_duplicate_removal'
         self.insert_sql0 = 'INSERT INTO dbo.recommend_good_ops_article_id_duplicate_removal(unique_id, create_time) values(%s, %s)'
         self.min_article_id = 0
@@ -83,20 +84,19 @@ class RecommendGoodOps(AsyncCrawler):
         self.lfd_intercept_num = 1
         self.gxg_intercept_num = 1
         self.pp_intercept_num = 2
+        self.kr_intercept_num = 1
         self.article_parser = None
         # 暂存好看视频list的dict
         self.hk_cache_dict = {}
-        # 暂存lfd list的dict
         self.lfd_cache_dict = {}
-        # 暂存gxg list的dict
         self.gxg_cache_dict = {}
-        # 暂存pp list的dict
         self.pp_cache_dict = {}
+        self.kr_cache_dict = {}
 
     async def _fck_run(self):
-        # 休眠5分钟, 避免频繁发!
+        # 休眠7.5分钟, 避免频繁发!(5分钟还是太快, 删不过来)(增加较多视频, 失败率较高故还是5分钟)
         # sleep_time = 0.
-        sleep_time = 60 * 5.5
+        sleep_time = 60 * 5.
         self.db_article_id_list = await self.get_db_unique_id_list()
         assert self.db_article_id_list != []
         self.lg.info('db_article_id_list_len: {}'.format(len(self.db_article_id_list)))
@@ -111,7 +111,7 @@ class RecommendGoodOps(AsyncCrawler):
                 try:
                     await async_wait_for(
                         self.auto_publish_articles(),
-                        timeout=(self.zq_intercept_num+self.hk_intercept_num+self.lfd_intercept_num+self.gxg_intercept_num+self.pp_intercept_num) * 2. * 60)
+                        timeout=(self.zq_intercept_num +self.hk_intercept_num+self.lfd_intercept_num+self.gxg_intercept_num+self.pp_intercept_num + self.kr_intercept_num) * 2.5 * 60)
                 except AsyncTimeoutError:
                     raise PublishOneArticleFailException
 
@@ -182,6 +182,7 @@ class RecommendGoodOps(AsyncCrawler):
         # hk_article_list = []
         # lfd_article_list = []
         # gxg_article_list = []
+        # pp_article_list = []
         zq_article_list = self.get_zq_own_create_article_id_list(
             min_article_id=self.min_article_id,
             max_article_id=self.max_article_id,)
@@ -189,6 +190,7 @@ class RecommendGoodOps(AsyncCrawler):
         lfd_article_list = self.get_lfd_article_id_list()
         gxg_article_list = self.get_gxg_article_id_list()
         pp_article_list = self.get_pp_article_id_list()
+        kr_article_list = self.get_kr_article_id_list()
 
         # 测试用
         # article_id = '17300123'
@@ -201,7 +203,7 @@ class RecommendGoodOps(AsyncCrawler):
         # }]
 
         # 文章在前的发布顺序, 视频在后(避免视频发过多)
-        article_list = zq_article_list + hk_article_list + lfd_article_list + gxg_article_list + pp_article_list
+        article_list = zq_article_list + pp_article_list + kr_article_list + hk_article_list + lfd_article_list + gxg_article_list
 
         assert article_list != []
         # pprint(article_list)
@@ -271,6 +273,38 @@ class RecommendGoodOps(AsyncCrawler):
                     pass
 
         return
+
+    def get_kr_article_id_list(self):
+        """
+        获取kr 目标article_id_list
+        :return:
+        """
+        if not isinstance(self.article_parser, ArticleParser):
+            self.article_parser = ArticleParser(logger=self.lg)
+        else:
+            pass
+
+        if self.kr_cache_dict == {}:
+            # 首次启动
+            article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                article_type='kr',))
+            self.kr_cache_dict['data'] = article_list
+            self.kr_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+        else:
+            cache_time = self.kr_cache_dict['cache_time']
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > 30 * 60:
+                # pp 每日更新数量有限, 每过30分钟重新获取一次
+                article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                    article_type='kr',))
+                self.kr_cache_dict['data'] = article_list
+                self.kr_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+            else:
+                article_list = self.kr_cache_dict['data']
+
+        # 截取1个(与图文穿插)
+        article_list = random_sample(article_list, self.kr_intercept_num)
+
+        return article_list
 
     def get_pp_article_id_list(self):
         """
@@ -556,7 +590,7 @@ class RecommendGoodOps(AsyncCrawler):
             # 进入目标页失败, 则抛出异常!
             raise EnterTargetPageFailException
 
-    @fz_set_timeout(seconds=2. * 60)
+    @fz_set_timeout(seconds=2.5 * 60)
     def publish_one_article(self, driver: BaseDriver, article_url: str):
         """
         发布一篇图文
@@ -625,19 +659,24 @@ class RecommendGoodOps(AsyncCrawler):
         driver.find_element(value='a.layui-layer-btn0').click()
 
         self.lg.info('url: {} 发布成功!'.format(article_url))
-        # 发布成功, 等待5.秒, 等待页面元素置空
-        sleep(5.)
+        # 发布成功, 等待8.5秒, 等待页面元素置空
+        sleep(8.5)
 
         return
 
-    @fz_set_timeout(seconds=60.)
+    @fz_set_timeout(seconds=70.)
     def wait_for_delete_img_appear(self, driver: BaseDriver):
         """
         直至出现图片, 超时退出(并且避免发布无图文章)
         :return:
         """
         while True:
-            delete_btn_text = driver.find_element(value='div.deletebut').text
+            try:
+                delete_btn_text = driver.find_element(value='div.deletebut').text
+            except NoSuchElementException:
+                # 处理这个异常, 并继续等待
+                continue
+
             # self.lg.info('delete_btn_text: {}'.format(delete_btn_text))
             if delete_btn_text == '删除':
                 break
