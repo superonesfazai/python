@@ -54,6 +54,8 @@ class SearchForQuestionsSpider(AsyncCrawler):
             log_save_path=MY_SPIDER_LOGS_PATH + '/搜题/_/',
         )
         self.req_num_retries = 3
+        # 单次请求超时
+        self.req_timeout = 8.5
 
     async def _fck_run(self):
         k = '社会主义核心价值观'
@@ -200,7 +202,7 @@ class SearchForQuestionsSpider(AsyncCrawler):
             ip_pool_type=self.ip_pool_type,
             # proxy_type=PROXY_TYPE_HTTPS,          # 不支持https, 因此偶尔高并发会无数据
             num_retries=self.req_num_retries,
-            timeout=10,)
+            timeout=self.req_timeout,)
         assert body != ''
         # self.lg.info(body)
 
@@ -443,7 +445,7 @@ class SearchForQuestionsSpider(AsyncCrawler):
             ip_pool_type=self.ip_pool_type,
             num_retries=self.req_num_retries,
             proxy_type=PROXY_TYPE_HTTPS,
-            timeout=10,
+            timeout=self.req_timeout,
         )
         assert body != ''
         # self.lg.info(body)
@@ -559,7 +561,7 @@ class SearchForQuestionsSpider(AsyncCrawler):
             ip_pool_type=self.ip_pool_type,
             num_retries=self.req_num_retries,
             proxy_type=PROXY_TYPE_HTTPS,
-            timeout=10)
+            timeout=self.req_timeout)
         assert body != ''
         # self.lg.info(body)
 
@@ -624,7 +626,7 @@ class SearchForQuestionsSpider(AsyncCrawler):
             ip_pool_type=self.ip_pool_type,
             proxy_type=PROXY_TYPE_HTTPS,
             num_retries=self.req_num_retries,
-            timeout=10)
+            timeout=self.req_timeout)
         assert body != ''
         # self.lg.info(body)
         
@@ -697,7 +699,7 @@ class SearchForQuestionsSpider(AsyncCrawler):
             ip_pool_type=self.ip_pool_type,
             proxy_type=PROXY_TYPE_HTTPS,
             num_retries=self.req_num_retries,
-            timeout=10,)
+            timeout=self.req_timeout,)
         assert body != ''
         # self.lg.info(body)
 
@@ -885,7 +887,7 @@ class SearchForQuestionsSpider(AsyncCrawler):
             ip_pool_type=self.ip_pool_type,
             proxy_type=PROXY_TYPE_HTTPS,
             num_retries=self.req_num_retries,
-            timeout=10,         #  测试发现10s速度较快, 且成功率可以
+            timeout=self.req_timeout,         #  测试发现10s速度较快, 且成功率可以
         )
         assert body != ''
         # self.lg.info(body)

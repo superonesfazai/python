@@ -6,6 +6,7 @@
 @connect : superonesfazai@gmail.com
 '''
 
+from platform import platform
 from termcolor import colored
 from websockets.exceptions import ConnectionClosed as WebsocketsConnectionClosed
 from asyncio.futures import InvalidStateError
@@ -35,8 +36,11 @@ from fzutils.spider.pyppeteer_always import *
 from fzutils.spider.chrome_remote_interface import *
 from fzutils.spider.async_always import *
 
-PYPPETEER_CHROMIUM_DRIVER_PATH = '/Users/afa/myFiles/tools/pyppeteer_driver/mac/chrome-mac/Chromium.app/Contents/MacOS/Chromium'
 DRIVER_LOAD_IMAGES = False
+if 'armv7l-with-debian' in platform():
+    PYPPETEER_CHROMIUM_DRIVER_PATH = '/usr/bin/chromium-browser'
+else:
+    PYPPETEER_CHROMIUM_DRIVER_PATH = '/Users/afa/myFiles/tools/pyppeteer_driver/mac/chrome-mac/Chromium.app/Contents/MacOS/Chromium'
 
 class GoodsCouponSpider(AsyncCrawler):
     def __init__(self):
@@ -52,7 +56,7 @@ class GoodsCouponSpider(AsyncCrawler):
         # 不宜过大, 官网会发现
         self.concurrency = 15
         # 不可太大 电脑卡死
-        self.concurrency2 = 5
+        self.concurrency2 = 4
         self.req_num_retries = 8
         self.proxy_type = PROXY_TYPE_HTTPS
         self.driver_load_images = DRIVER_LOAD_IMAGES

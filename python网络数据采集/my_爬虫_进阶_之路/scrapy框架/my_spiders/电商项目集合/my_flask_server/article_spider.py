@@ -241,7 +241,7 @@ class ArticleParser(AsyncCrawler):
 
     async def get_kr_article_list(self) -> list:
         """
-        获取kr pc首页最新推荐视频article_list
+        获取kr pc首页(https://krcom.cn)最新推荐视频article_list
         :return:
         """
         def get_tasks_params_list() -> list:
@@ -303,13 +303,16 @@ class ArticleParser(AsyncCrawler):
             'referer': 'https://krcom.cn/',
         })
         now_time = get_shanghai_time()
+        # self.lg.info(now_time)
         # 格式: '5;2019111409'
         cursor = '{};{}{}{}{}'.format(
             page_num * 5,
-            now_time.year,
-            now_time.month,
-            now_time.day,
-            now_time.hour, )
+            str(now_time)[0:4],
+            str(now_time)[5:7],
+            str(now_time)[8:10],
+            str(now_time)[11:13],
+        )
+        # self.lg.info(cursor)
         params = (
             ('ajwvr', '6'),
             ('cursor', cursor),

@@ -265,14 +265,22 @@ class RecommendGoodOps(AsyncCrawler):
             raise e
         except Exception:
             self.lg.error('遇到错误:', exc_info=True)
+
         finally:
             try:
-                del driver
+                # ** 注意: 不可直接del driver, 测试发现浏览器未被正确关闭, 还存在!!
+                # del driver
+                # 关闭浏览器
+                driver.driver.quit()
+                # 只关闭当前窗口, 不关闭浏览器
+                # driver.driver.close()
+                self.lg.info('driver 释放成功!')
             except:
                 try:
-                    del driver
+                    driver.driver.quit()
                 except:
                     pass
+            collect()
 
         return
 
@@ -303,8 +311,9 @@ class RecommendGoodOps(AsyncCrawler):
             else:
                 article_list = self.kr_cache_dict['data']
 
-        # 截取1个(与图文穿插)
-        article_list = random_sample(article_list, self.kr_intercept_num)
+        if article_list != []:
+            # 截取1个(与图文穿插)
+            article_list = random_sample(article_list, self.kr_intercept_num)
 
         return article_list
 
@@ -335,8 +344,9 @@ class RecommendGoodOps(AsyncCrawler):
             else:
                 article_list = self.pp_cache_dict['data']
 
-        # 截取1个(与图文穿插)
-        article_list = random_sample(article_list, self.pp_intercept_num)
+        if article_list != []:
+            # 截取1个(与图文穿插)
+            article_list = random_sample(article_list, self.pp_intercept_num)
 
         return article_list
 
@@ -367,8 +377,9 @@ class RecommendGoodOps(AsyncCrawler):
             else:
                 article_list = self.gxg_cache_dict['data']
 
-        # 截取1个(与图文穿插)
-        article_list = random_sample(article_list, self.gxg_intercept_num)
+        if article_list != []:
+            # 截取1个(与图文穿插)
+            article_list = random_sample(article_list, self.gxg_intercept_num)
 
         return article_list
 
@@ -399,8 +410,9 @@ class RecommendGoodOps(AsyncCrawler):
             else:
                 article_list = self.lfd_cache_dict['data']
 
-        # 截取1个(与图文穿插)
-        article_list = random_sample(article_list, self.lfd_intercept_num)
+        if article_list != []:
+            # 截取1个(与图文穿插)
+            article_list = random_sample(article_list, self.lfd_intercept_num)
 
         return article_list
 
@@ -431,8 +443,9 @@ class RecommendGoodOps(AsyncCrawler):
             else:
                 article_list = self.hk_cache_dict['data']
 
-        # 截取1个(与图文穿插)
-        article_list = random_sample(article_list, self.hk_intercept_num)
+        if article_list != []:
+            # 截取1个(与图文穿插)
+            article_list = random_sample(article_list, self.hk_intercept_num)
 
         return article_list
 
@@ -465,6 +478,7 @@ class RecommendGoodOps(AsyncCrawler):
         middle_article_id = int((min_article_id + max_article_id) / 2)
         self.lg.info('middle_article_id: {}'.format(middle_article_id))
         article_id_list = [str(article_id) for article_id in range(middle_article_id, max_article_id)]
+
         # 截取3
         article_id_list = random_sample(article_id_list, self.zq_intercept_num)
         res = [{
@@ -673,14 +687,16 @@ class RecommendGoodOps(AsyncCrawler):
         :return:
         """
         while True:
-            # 不宜用下面方式 长期跑电脑卡死
-            # try:
-            #     delete_btn_text = driver.find_element(value='div.deletebut').text
-            # except NoSuchElementException:
-            #     # 处理这个异常, 并继续等待
-            #     continue
+            # 改用 不宜用下面方式 长期跑电脑卡死
+            try:
+                delete_btn_text = driver.find_element(value='div.deletebut').text
+            except NoSuchElementException:
+                # 处理这个异常, 并继续等待
+                sleep(.3)
+                continue
 
-            delete_btn_text = driver.find_element(value='div.deletebut').text
+            # 原先 但是老是发布失败!!
+            # delete_btn_text = driver.find_element(value='div.deletebut').text
 
             # self.lg.info('delete_btn_text: {}'.format(delete_btn_text))
             if delete_btn_text == '删除':
