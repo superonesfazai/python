@@ -352,9 +352,11 @@ class MiaPintuanParse(MiaParse, Crawler):
             num_retries=self.req_num_retries,)
         # print(tmp_body)
 
-        tmp_data = json_2_dict(json_str=tmp_body, default_res={}).get('data', [])
-        # pprint(tmp_data)
+        tmp_data = json_2_dict(
+            json_str=tmp_body,
+            default_res={}).get('data', [])
         assert tmp_data != [], 'tmp_data不为空list'
+        # pprint(tmp_data)
 
         true_sku_info = []
         pintuan_time = {}
