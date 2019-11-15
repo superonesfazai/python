@@ -15,7 +15,8 @@ from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
 from settings import (
     IS_BACKGROUND_RUNNING,
-    MY_SPIDER_LOGS_PATH,)
+    MY_SPIDER_LOGS_PATH,
+)
 
 from sql_str_controller import z8_select_str_3
 from multiplex_code import (

@@ -7,6 +7,10 @@
 @connect : superonesfazai@gmail.com
 '''
 
+"""
+vip 不再维护
+"""
+
 import sys
 sys.path.append('..')
 

@@ -23,13 +23,14 @@ from settings import (
 
 from sql_str_controller import (
     kl_select_str_1,
-    kl_update_str_2,)
+    kl_update_str_2,
+)
 from multiplex_code import (
     _block_print_db_old_data,
     _block_get_new_db_conn,
     _handle_goods_shelves_in_auto_goods_table,
     get_goods_info_change_data,
-    BaseDbCommomGoodsInfoParamsObj,
+    KLDbGoodsInfoObj,
 )
 
 from fzutils.log_utils import set_logger
@@ -130,14 +131,6 @@ def run_forever():
         else:
             sleep(60)
         collect()
-
-class KLDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
-    def __init__(self, item, logger=None):
-        BaseDbCommomGoodsInfoParamsObj.__init__(
-            self,
-            item=item,
-            logger=logger,
-        )
 
 def main():
     print('========主函数开始========')

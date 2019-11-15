@@ -257,12 +257,14 @@ class TaoBaoLoginAndParse(Crawler):
         sell_count = '0'
         # pprint(data)
         try:
-            sell_count = str(data.get('apiStack', [])[0].get('value', {}).get('item', {}).get('sellCount', ''))
-            # self.lg.info(sell_count)
+            ori_sell_count_item = data.get('apiStack', [])[0].get('value', {}).get('item', {})
+            sell_count = str(ori_sell_count_item.get('sellCount', ''))
+            # self.lg.info('sellCount: {}'.format(sell_count))
             if sell_count == '':
-                sell_count = str(data.get('apiStack', [])[0].get('value', {}).get('item', {}).get('vagueSellCount', ''))
+                sell_count = str(ori_sell_count_item.get('vagueSellCount', ''))
             else:
                 pass
+            # self.lg.info('vagueSellCount: {}'.format(sell_count))
 
             # todo 还是用原值
             # # 太小就随即一个数值
@@ -271,6 +273,7 @@ class TaoBaoLoginAndParse(Crawler):
             # 清洗
             # eg: '6000+'
             sell_count = re.compile('\+').sub('', sell_count)
+            # self.lg.info(sell_count)
             # eg: '2.3万'
             if re.compile('万').findall(sell_count) != []:
                 sell_count = re.compile('万').sub('', sell_count)
@@ -282,14 +285,18 @@ class TaoBaoLoginAndParse(Crawler):
 
             try:
                 # 避免都是整数eg: '5000'
-                if int(sell_count) % 100 == 0:
+                if int(sell_count) != 0 \
+                        and int(sell_count) % 100 == 0:
                     sell_count = str(int(sell_count) + get_random_int_number(100, 1000))
             except:
                 pass
 
-        except:
+        except Exception:
+            self.lg.error('遇到错误:', exc_info=True)
             # 随机一个
             sell_count = str(get_random_int_number(500, 5000))
+
+        # self.lg.info('sell_count: {}'.format(sell_count))
 
         if target_str_contain_some_char_check(
                 target_str=title,

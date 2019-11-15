@@ -71,6 +71,8 @@ class GoodsItem(Item):              # Item属性固定，无法外在添加属�
     is_stock_change = Field()       # 纯库存变化标记
     stock_trans_time = Field()      # 纯库存变动时间点
     stock_change_info = Field()     # 纯库存变动记录的信息
+    is_sku_name_change = Field()    # sku_name是否变动
+    sku_name_change_time = Field()  # sku_name变动记录下的时间点
 
 class CommentItem(Item):
     """

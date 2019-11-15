@@ -24,12 +24,13 @@ from settings import (
 
 from sql_str_controller import (
     yp_select_str_1,
-    yp_update_str_2,)
+    yp_update_str_2,
+)
 from multiplex_code import (
     _block_print_db_old_data,
     _block_get_new_db_conn,
     _handle_goods_shelves_in_auto_goods_table,
-    BaseDbCommomGoodsInfoParamsObj,
+    YPDbGoodsInfoObj,
     get_goods_info_change_data,
 )
 
@@ -118,14 +119,6 @@ def run_forever():
         else:
             sleep(1 * 60)
         collect()
-
-class YPDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
-    def __init__(self, item: list, logger=None):
-        BaseDbCommomGoodsInfoParamsObj.__init__(
-            self,
-            item=item,
-            logger=logger,
-        )
 
 def main():
     print('========主函数开始========')

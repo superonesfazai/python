@@ -30,7 +30,8 @@ from multiplex_code import (
     _block_get_new_db_conn,
     _handle_goods_shelves_in_auto_goods_table,
     get_goods_info_change_data,
-    BaseDbCommomGoodsInfoParamsObj,)
+    MIADbGoodsInfoObj,
+)
 
 from fzutils.log_utils import set_logger
 from fzutils.time_utils import (
@@ -117,14 +118,6 @@ def run_forever():
         except:
             pass
         collect()
-
-class MIADbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
-    def __init__(self, item: list, logger=None):
-        BaseDbCommomGoodsInfoParamsObj.__init__(
-            self,
-            item=item,
-            logger=logger,
-        )
 
 def main():
     print('========主函数开始========')

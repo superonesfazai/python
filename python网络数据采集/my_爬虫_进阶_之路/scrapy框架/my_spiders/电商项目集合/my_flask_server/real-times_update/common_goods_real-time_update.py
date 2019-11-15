@@ -24,8 +24,6 @@ try:
 except:
     pass
 
-from tmall_parse_2 import TmallParse
-from taobao_parse import TaoBaoLoginAndParse
 from my_pipeline import (
     SqlServerMyPageInfoSaveItemPipeline,
     SqlPools,
@@ -34,8 +32,6 @@ from my_pipeline import (
 from settings import (
     IS_BACKGROUND_RUNNING,
     MY_SPIDER_LOGS_PATH,
-    TMALL_REAL_TIMES_SLEEP_TIME,
-    TAOBAO_REAL_TIMES_SLEEP_TIME,
 )
 from sql_str_controller import (
     tm_select_str_3,
@@ -238,6 +234,7 @@ class CommonGoodsRealTimeUpdater(AsyncCrawler):
             else:
                 raise NotImplemented
 
+            # pprint(tasks_params_list)
             one_res = await get_or_handle_target_data_by_task_params_list(
                 loop=self.loop,
                 tasks_params_list=tasks_params_list,

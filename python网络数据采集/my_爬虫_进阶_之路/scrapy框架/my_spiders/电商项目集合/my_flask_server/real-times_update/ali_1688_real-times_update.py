@@ -156,7 +156,9 @@ class ALUpdater(AsyncCrawler):
                 pass
             else:
                 self.goods_index = 1
-                tasks_params_list = TasksParamsListObj(tasks_params_list=result, step=self.concurrency)
+                tasks_params_list = TasksParamsListObj(
+                    tasks_params_list=result,
+                    step=self.concurrency)
                 self.ali_1688 = ALi1688LoginAndParse(logger=self.lg)
                 index = 1
                 while True:

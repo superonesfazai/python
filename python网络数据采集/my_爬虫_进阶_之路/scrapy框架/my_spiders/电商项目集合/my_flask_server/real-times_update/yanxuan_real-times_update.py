@@ -29,7 +29,7 @@ from multiplex_code import (
     _block_get_new_db_conn,
     _block_print_db_old_data,
     get_goods_info_change_data,
-    BaseDbCommomGoodsInfoParamsObj,
+    YXDbGoodsInfoObj,
 )
 
 from fzutils.log_utils import set_logger
@@ -116,14 +116,6 @@ def run_forever():
         else:
             sleep(60)
         collect()
-
-class YXDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
-    def __init__(self, item: list, logger=None):
-        BaseDbCommomGoodsInfoParamsObj.__init__(
-            self,
-            item=item,
-            logger=logger,
-        )
 
 def main():
     '''

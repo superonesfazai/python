@@ -23,7 +23,7 @@ from multiplex_code import (
     _get_new_db_conn,
     _print_db_old_data,
     get_goods_info_change_data,
-    BaseDbCommomGoodsInfoParamsObj,
+    JPDbGoodsInfoObj,
 )
 
 from fzutils.spider.async_always import *
@@ -149,14 +149,6 @@ class JPUpdater(AsyncCrawler):
         except:
             pass
         collect()
-
-class JPDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
-    def __init__(self, item: list, logger=None):
-        BaseDbCommomGoodsInfoParamsObj.__init__(
-            self,
-            item=item,
-            logger=logger,
-        )
 
 def _fck_run():
     # 遇到: PermissionError: [Errno 13] Permission denied: 'ghostdriver.log'

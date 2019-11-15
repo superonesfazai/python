@@ -88,7 +88,7 @@ class TmuxOps(AsyncCrawler):
                     self.fck_run_path,
                     self.python_version_cmd,
                 ),
-                'delay_time': 2,
+                'delay_time': 8,
             },
             # 已在just_fck_run_raspberrypi.py 中监控
             # {

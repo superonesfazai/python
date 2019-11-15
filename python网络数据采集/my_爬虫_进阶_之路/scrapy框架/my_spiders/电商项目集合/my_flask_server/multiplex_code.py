@@ -836,6 +836,8 @@ def _get_right_model_data(data, site_id=None, logger=None):
     tmp['is_stock_change'] = data_list.get('is_stock_change', 0)
     tmp['stock_trans_time'] = data_list.get('stock_trans_time', '')
     tmp['stock_change_info'] = data_list.get('stock_change_info', '')
+    tmp['is_sku_name_change'] = data_list.get('is_sku_name_change', 0)
+    tmp['sku_name_change_time'] = data_list.get('sku_name_change_time', '')
 
     return tmp
 
@@ -1356,6 +1358,40 @@ def _get_spec_trans_record(old_sku_info:list, new_sku_info:list, is_spec_change,
 
     return is_spec_change, old_spec_trans_time
 
+def _get_sku_name_trans_record(old_sku_name_list: list, new_sku_name_list: list, is_sku_name_change, old_sku_name_change_time):
+    """
+    商品的纯规格变动需要记录的东西
+    :param old_sku_name_list:
+    :param new_sku_name_list:
+    :param is_sku_name_change:
+    :param old_sku_name_change_time:
+    :return:
+    """
+    now_time = str(get_shanghai_time())
+    is_sku_name_change = is_sku_name_change if isinstance(is_sku_name_change, int) else 0
+    # 处理原生sql getdate()函数带来的转换异常!
+    try:
+        old_sku_name_change_time = str(timestamp_to_regulartime(datetime_to_timestamp(old_sku_name_change_time)))
+    except AttributeError:
+        pass
+    old_sku_name_change_time = str(old_sku_name_change_time) \
+        if old_sku_name_change_time is not None else now_time
+    if is_sku_name_change == 1:
+        # 避免再次更新更改未被后台同步的数据
+        return is_sku_name_change, old_sku_name_change_time
+
+    try:
+        old_unique_id_list = sorted([get_uuid3(item.get('spec_name', '')) for item in old_sku_name_list])
+        new_unique_id_list = sorted([get_uuid3(item.get('spec_name', '')) for item in new_sku_name_list])
+    except Exception:
+        return 1, now_time
+
+    if old_unique_id_list != new_unique_id_list:
+        # 规格变动
+        return 1, now_time
+
+    return is_sku_name_change, old_sku_name_change_time
+
 def _get_stock_trans_record(old_sku_info:list,
                             new_sku_info:list,
                             is_stock_change,
@@ -1550,6 +1586,17 @@ def get_goods_info_change_data(target_short_name: str, logger=None, sql_cli=None
     # pprint(old_sku_info)
     # pprint(new_sku_info)
 
+    # 获取最新的new_sku_name_list
+    if target_short_name == 'al':
+        new_sku_name_list = []
+        for item in data['sku_props']:
+            new_sku_name_list.append({
+                'spec_name': item.get('prop'),
+                'img_here': item.get('img_here', 0),
+            })
+    else:
+        new_sku_name_list = data.get('detail_name_list', [])
+
     if target_short_name in ('tb', 'tm'):
         # 搜索券是否可用, 并扣除相应的券值
         sql_cli = SqlServerMyPageInfoSaveItemPipeline() if sql_cli is None else sql_cli
@@ -1648,7 +1695,7 @@ def get_goods_info_change_data(target_short_name: str, logger=None, sql_cli=None
                 msg='{:10s} [{}]'.format(
                     'specs changed!',
                     db_goods_info_obj.goods_id),
-                logger=logger, )
+                logger=logger,)
 
         # 监控纯库存变动
         data['is_stock_change'], data['stock_trans_time'], data['stock_change_info'] = _get_stock_trans_record(
@@ -1663,6 +1710,19 @@ def get_goods_info_change_data(target_short_name: str, logger=None, sql_cli=None
                     'stock changed!',
                     db_goods_info_obj.goods_id),
                 logger=logger, )
+
+        # 监控规格名称变动
+        data['is_sku_name_change'], data['sku_name_change_time'] = _get_sku_name_trans_record(
+            old_sku_name_list=db_goods_info_obj.sku_name,
+            new_sku_name_list=new_sku_name_list,
+            is_sku_name_change=db_goods_info_obj.is_sku_name_change,
+            old_sku_name_change_time=db_goods_info_obj.sku_name_change_time,)
+        if data['is_sku_name_change'] == 1:
+            _print(
+                msg='{:10s} [{}]'.format(
+                    'sku_name changed!',
+                    db_goods_info_obj.goods_id),
+                logger=logger,)
 
     except Exception as e:
         # 记录goods_id, 并抛出异常!
@@ -1738,8 +1798,14 @@ class BaseDbCommomGoodsInfoParamsObj(object):
         self.old_spec_trans_time = item[14]
         self.old_stock_trans_time = item[15]
         self.modify_time = item[16]
+        self.sku_name = json_2_dict(
+            json_str=item[17],
+            default_res=[],
+            logger=logger)
+        self.is_sku_name_change = item[18]
+        self.sku_name_change_time = item[19]
 
-class TMDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
+class ALDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
     def __init__(self, item: list, logger=None):
         BaseDbCommomGoodsInfoParamsObj.__init__(
             self,
@@ -1755,6 +1821,14 @@ class TBDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
             logger=logger,
         )
 
+class TMDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
+    def __init__(self, item: list, logger=None):
+        BaseDbCommomGoodsInfoParamsObj.__init__(
+            self,
+            item=item,
+            logger=logger,
+        )
+
 class JDDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
     def __init__(self, item: list, logger=None):
         BaseDbCommomGoodsInfoParamsObj.__init__(
@@ -1763,7 +1837,7 @@ class JDDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
             logger=logger,
         )
 
-class Z8DbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
+class JPDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
     def __init__(self, item: list, logger=None):
         BaseDbCommomGoodsInfoParamsObj.__init__(
             self,
@@ -1771,7 +1845,39 @@ class Z8DbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
             logger=logger,
         )
 
-class ALDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
+class KLDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
+    def __init__(self, item, logger=None):
+        BaseDbCommomGoodsInfoParamsObj.__init__(
+            self,
+            item=item,
+            logger=logger,
+        )
+
+class MIADbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
+    def __init__(self, item: list, logger=None):
+        BaseDbCommomGoodsInfoParamsObj.__init__(
+            self,
+            item=item,
+            logger=logger,
+        )
+
+class YXDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
+    def __init__(self, item: list, logger=None):
+        BaseDbCommomGoodsInfoParamsObj.__init__(
+            self,
+            item=item,
+            logger=logger,
+        )
+
+class YPDbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
+    def __init__(self, item: list, logger=None):
+        BaseDbCommomGoodsInfoParamsObj.__init__(
+            self,
+            item=item,
+            logger=logger,
+        )
+
+class Z8DbGoodsInfoObj(BaseDbCommomGoodsInfoParamsObj):
     def __init__(self, item: list, logger=None):
         BaseDbCommomGoodsInfoParamsObj.__init__(
             self,
@@ -2944,6 +3050,8 @@ def get_db_commom_goods_update_params(item) -> tuple:
         dumps(item['stock_change_info'], ensure_ascii=False),
         parent_dir,
         _schedule,
+        item['is_sku_name_change'],
+        item['sku_name_change_time'],
 
         item['goods_id'],
     ]

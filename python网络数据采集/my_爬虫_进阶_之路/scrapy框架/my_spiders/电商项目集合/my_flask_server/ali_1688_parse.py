@@ -773,6 +773,8 @@ class ALi1688LoginAndParse(Crawler):
             dumps(item['stock_change_info'], ensure_ascii=False),
             item['parent_dir'],
             dumps(item['schedule'], ensure_ascii=False),
+            item['is_sku_name_change'],
+            item['sku_name_change_time'],
 
             item['goods_id'],
         ]
