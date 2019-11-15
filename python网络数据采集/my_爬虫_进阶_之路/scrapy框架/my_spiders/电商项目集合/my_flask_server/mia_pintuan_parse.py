@@ -358,6 +358,8 @@ class MiaPintuanParse(MiaParse, Crawler):
         assert tmp_data != [], 'tmp_data不为空list'
         # pprint(tmp_data)
 
+        # todo 官方页面单独购买显示有问题, 此处detail_price取其原价
+
         true_sku_info = []
         pintuan_time = {}
         i_s = {}
