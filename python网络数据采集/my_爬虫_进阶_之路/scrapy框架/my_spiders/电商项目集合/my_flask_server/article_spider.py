@@ -48,6 +48,8 @@ supported:
     36. bilibili(短视频)(https://www.bilibili.com/)
     37. 快音视(短视频)(https://kuaiyinshi.com/hot/video/?source=kuai-shou&page=1&st=week)
     38. 搞笑gif图片集(https://m.gaoxiaogif.com/)
+    39. 酷燃视频(https://krcom.cn/)
+    40. 东方视频网(http://imedia.eastday.com/)(可采其中的热门视频)
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -69,7 +71,7 @@ not supported:
     17. 多玩搞笑囧图(http://tu.duowan.cn/bxgif)(先不做pass, 得用driver, 发布太慢, pass)
     18. 嗡啪搞笑(http://wengpa.com/)
     19. 微短视频网(https://www.wdace.com/)(视频为iframe内切, 先不做)
-    20. 酷燃视频(https://krcom.cn/)
+    20. 搞笑视频网(https://www.gaoxiaovod.com/)(部分视频from youku, 需driver)
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -236,8 +238,159 @@ class ArticleParser(AsyncCrawler):
         elif article_type == 'kr':
             return await self.get_kr_article_list()
 
+        elif article_type == 'dfsp':
+            return await self.get_dfsp_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_dfsp_article_list(self) -> list:
+        """
+        获取dfsp pc热门视频(http://imedia.eastday.com/node2/2015imedia/rmsp/index.html)article_list
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            for page_num in range(1, 7):
+                # kr视频每日更新有限, 就获取前几页的
+                tasks_params_list.append({
+                    'page_num': page_num,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where dfsp: page_num:{}]...'.format(
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['page_num'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_dfsp_recommend_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_dfsp_recommend_article_list_by_page_num(self, page_num: int) -> list:
+        """
+        根据page_num获取pc热门视频页的article_list
+        :param page_num:
+        :return:
+        """
+        headers = get_random_headers(
+            cache_control='',)
+        headers.update({
+            # 'Referer': 'http://imedia.eastday.com/node2/2015imedia/rmsp/index.html',
+        })
+        url = 'http://imedia.eastday.com/node2/2015imedia/rmsp/index{}.html'.format(
+            '' if page_num == 1 else page_num-1,
+        )
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            verify=False,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            encoding='gbk',)
+        assert body != ''
+
+        article_div_list_sel = {
+            'method': 'css',
+            'selector': 'ul.videolist5 li',
+        }
+        article_div_list = parse_field(
+            parser=article_div_list_sel,
+            target_obj=body,
+            logger=self.lg,
+            is_first=False,)
+        assert article_div_list != []
+        # pprint(article_div_list)
+
+        # 文章地址选择器
+        article_url_sel = {
+            'method': 'css',
+            'selector': 'p.tx5 a ::attr("href")',
+        }
+        article_id_sel = {
+            'method': 're',
+            'selector': '/(\w+)\.html',
+        }
+        title_sel = {
+            'method': 'css',
+            'selector': 'p.tx5 a ::text',
+        }
+        # 电影时长(无)
+        res = []
+        for item in article_div_list:
+            try:
+                article_url = parse_field(
+                    parser=article_url_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert article_url != ''
+                if 'http:' not in article_url:
+                    article_url = 'http://imedia.eastday.com' + article_url
+                else:
+                    pass
+                article_id = parse_field(
+                    parser=article_id_sel,
+                    target_obj=article_url,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert article_id != ''
+                title = parse_field(
+                    parser=title_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert title != ''
+                if len(title) >= 30:
+                    continue
+
+            except (AssertionError, Exception):
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('dfsp::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('dfsp', article_id)),
+                'article_type': 'dfsp',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+
+        self.lg.info('[{}] dfsp::page_num:{}'.format(
+            '+' if res != [] else '-',
+            page_num,
+        ))
+
+        return res
 
     async def get_kr_article_list(self) -> list:
         """
@@ -1460,6 +1613,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'krcom.cn',
                 'site_id': 42,
             },
+            'dfsp': {
+                'debug': False,
+                'name': '东方视频',
+                'url': 'http://imedia.eastday.com/',
+                'obj_origin': 'imedia.eastday.com',
+                'site_id': 43,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -1827,6 +1987,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'kr':
                 return await self._get_kr_article_html(article_url=article_url)
 
+            elif article_url_type == 'dfsp':
+                return await self._get_dfsp_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -1834,6 +1997,41 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_dfsp_article_html(self, article_url) -> tuple:
+        """
+        获取dfsp hml
+        :param article_url:
+        :return:
+        """
+        headers = await async_get_random_headers()
+        headers.update({
+            # 'Referer': 'http://imedia.eastday.com/node2/2015imedia/rmsp/index.html',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            verify=False,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            proxy_type=PROXY_TYPE_HTTPS,
+            logger=self.lg,
+            encoding='gbk',)
+        assert body != ''
+        # self.lg.info(body)
+
+        video_url_sel = {
+            'method': 're',
+            'selector': 'var source = \"(.*?)\";',
+        }
+        video_url = await async_parse_field(
+            parser=video_url_sel,
+            target_obj=body,
+            logger=self.lg,)
+        assert video_url != ''
+        self.lg.info('video_url: {}'.format(video_url))
+
+        return body, video_url
 
     async def _get_kr_article_html(self, article_url) -> tuple:
         """
@@ -4088,6 +4286,7 @@ class ArticleParser(AsyncCrawler):
             'kys',
             'gxg',
             'kr',
+            'dfsp',
         ]
         if short_name in short_name_list2:
             pass
@@ -5057,6 +5256,7 @@ class ArticleParser(AsyncCrawler):
             'blbl',
             'kys',
             'kr',
+            'dfsp',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -5330,8 +5530,17 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'kr':
             content = await self._wash_kr_article_content(content=content)
 
+        elif short_name == 'dfsp':
+            content = await self._wash_dfsp_article_content(content=content)
+
         else:
             pass
+
+        return content
+
+    @staticmethod
+    async def _wash_dfsp_article_content(content: str) -> str:
+        content = fix_text(text=content)
 
         return content
 
@@ -6935,6 +7144,11 @@ def main():
     # url = 'https://krcom.cn/1729930211/episodes/2358773:4276593313415601'
     # url = 'https://krcom.cn/6511520515/episodes/2358773:673bb576ece8d9291562459596cee095'
 
+    # 东方视频(热门视频)
+    # url = 'http://imedia.eastday.com/node2/2015imedia/rmsp/u8i790954.html'
+    # url = 'http://imedia.eastday.com/node2/2015imedia/i/20191117/u8i790911.html'
+    # url = 'http://imedia.eastday.com/node2/2015imedia/i/20191114/u8i790718.html'
+
     # 文章url 测试
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(
@@ -6952,7 +7166,8 @@ def main():
     # # article_type = 'lfd'
     # # article_type = 'gxg'
     # # article_type = 'pp'
-    # article_type = 'kr'
+    # # article_type = 'kr'
+    # article_type = 'dfsp'
     # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
     #     article_type=article_type,))
     # pprint(tmp)
