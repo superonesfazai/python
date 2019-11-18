@@ -37,22 +37,10 @@ try:
 except ImportError:
     pass
 
-from fzutils.cp_utils import filter_invalid_comment_content
-from fzutils.internet_utils import (
-    _get_url_contain_params,
-    get_random_pc_ua,
-    get_random_headers,
-    str_cookies_2_dict,
-    get_random_phone_ua,)
-from fzutils.time_utils import get_shanghai_time
-from fzutils.common_utils import (
-    wash_sensitive_info,
-    json_2_dict,)
-from fzutils.spider.crawler import Crawler
-from fzutils.spider.fz_requests import Requests
 from fzutils.celery_utils import (
     block_get_celery_async_results,
     get_current_all_celery_handled_results_list,)
+from fzutils.spider.async_always import *
 
 class TmallCommentParse(Crawler):
     def __init__(self, logger=None):
@@ -74,6 +62,8 @@ class TmallCommentParse(Crawler):
         self.comment_page_switch_sleep_time = 1.5   # 评论下一页sleep time
         self.g_data = {}                # 临时数据
         self.max_page_num = 10
+        self.proxy_type = PROXY_TYPE_HTTPS
+        self.num_retries = 6
 
     def _get_comment_data(self, _type:int, goods_id):
         """
@@ -277,7 +267,10 @@ class TmallCommentParse(Crawler):
             headers=headers,
             params=params,
             cookies=self.login_cookies_dict,
-            ip_pool_type=self.ip_pool_type,)
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.num_retries,
+        )
 
         # 所以直接用phantomjs来获取相关api数据
         # _url = _get_url_contain_params(url=_url, params=params)
@@ -438,7 +431,10 @@ class TmallCommentParse(Crawler):
             headers=headers,
             params=params,
             ip_pool_type=self.ip_pool_type,
-            cookies=self.login_cookies_dict)
+            cookies=self.login_cookies_dict,
+            proxy_type=self.proxy_type,
+            num_retries=self.num_retries,
+        )
         # self.lg.info(body)
 
         seller_id = '0'

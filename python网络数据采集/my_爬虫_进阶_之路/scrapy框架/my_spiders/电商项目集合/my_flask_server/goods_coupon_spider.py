@@ -56,7 +56,7 @@ class GoodsCouponSpider(AsyncCrawler):
         # 不宜过大, 官网会发现
         self.concurrency = 15
         # 不可太大 电脑卡死
-        self.concurrency2 = 4
+        self.concurrency2 = 3
         self.req_num_retries = 8
         self.proxy_type = PROXY_TYPE_HTTPS
         self.driver_load_images = DRIVER_LOAD_IMAGES

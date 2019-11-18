@@ -31,23 +31,12 @@ except ImportError:
     pass
 
 from random import randint, choice
-from time import sleep
-from gc import collect
-import re
-from pprint import pprint
 import requests
 
-from fzutils.cp_utils import filter_invalid_comment_content
-from fzutils.internet_utils import (
-    str_cookies_2_dict,
-    get_random_headers,)
-from fzutils.spider.fz_requests import Requests
-from fzutils.common_utils import json_2_dict
-from fzutils.time_utils import get_shanghai_time
-from fzutils.spider.crawler import Crawler
 from fzutils.celery_utils import (
     block_get_celery_async_results,
     get_current_all_celery_handled_results_list,)
+from fzutils.spider.async_always import *
 
 class TaoBaoCommentParse(Crawler):
     def __init__(self, logger=None):
@@ -67,6 +56,8 @@ class TaoBaoCommentParse(Crawler):
         self.comment_page_switch_sleep_time = 2   # 评论下一页sleep time
         self.db_random_head_img_url_list = []
         self.max_page_num = 10
+        self.proxy_type = PROXY_TYPE_HTTPS
+        self.num_retries = 6
 
     def _get_comment_data(self, goods_id):
         """
@@ -237,7 +228,10 @@ class TaoBaoCommentParse(Crawler):
             params=_params,
             encoding='gbk',
             ip_pool_type=self.ip_pool_type,
-            cookies=self.login_cookies_dict,)
+            cookies=self.login_cookies_dict,
+            proxy_type=self.proxy_type,
+            num_retries=self.num_retries,
+        )
         # self.lg.info(str(body))
 
         try:
@@ -402,7 +396,7 @@ class TaoBaoCommentParse(Crawler):
             _res = requests.get(
                 url=url,
                 headers=headers,
-                proxies=tmp_proxies)
+                proxies=tmp_proxies,)
             self.lg.info(str(_res.url))
             if _res.url == 'https://gw.alicdn.com/tps/i3/TB1yeWeIFXXXXX5XFXXuAZJYXXX-210-210.png_40x40.jpg':
                 return True

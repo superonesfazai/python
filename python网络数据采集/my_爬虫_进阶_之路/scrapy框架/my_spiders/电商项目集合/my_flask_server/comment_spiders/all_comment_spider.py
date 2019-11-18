@@ -27,9 +27,6 @@ from settings import (
     MY_SPIDER_LOGS_PATH,
     IP_POOL_TYPE,)
 
-from gc import collect
-from pprint import pprint
-
 from sql_str_controller import (
     cm_select_str_2,
     cm_select_str_3,)
@@ -177,7 +174,7 @@ class CommentSpider(AsyncCrawler):
             8: True,
             9: True,
             10: True,
-            11: True,
+            11: False,
             12: False,
             13: False,
             25: False,

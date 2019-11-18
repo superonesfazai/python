@@ -45,7 +45,9 @@ ORDER BY comment_modify_time asc
 cm_select_str_2 = '''
 select GoodsID, SiteID 
 from dbo.GoodsInfoAutoGet 
-where MainGoodsID is not null and IsDelete=0 and GoodsID not in (select DISTINCT goods_id from dbo.goods_comment_new)
+where MainGoodsID is not null 
+and IsDelete=0 
+and GoodsID not in (select DISTINCT goods_id from dbo.goods_comment_new)
 ORDER BY CreateTime DESC
 '''
 # 得到评论表中所有goods_id
@@ -198,7 +200,7 @@ from dbo.GoodsInfoAutoGet
 where MainGoodsID is not null 
 and (SiteID=3 or SiteID=4 or SiteID=6) 
 -- and IsDelete=1
--- and GoodsID='10591310356'
+-- and GoodsID='576173378608'
 -- and MainGoodsID=165596
 order by ModfiyTime asc
 '''

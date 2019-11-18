@@ -296,28 +296,36 @@ class CommonGoodsRealTimeUpdater(AsyncCrawler):
     def get_tm_tasks_params_list(self, slice_params_list: list, index: int) -> list:
         tasks_params_list = []
         for item in slice_params_list:
-            db_goods_info_obj = TMDbGoodsInfoObj(item=item, logger=self.lg)
-            tmp_item = self.get_tm_tmp_item(
-                site_id=db_goods_info_obj.site_id,
-                goods_id=db_goods_info_obj.goods_id, )
-            tasks_params_list.append({
-                'db_goods_info_obj': db_goods_info_obj,
-                'index': index,
-                'tmp_item': tmp_item,
-            })
-            index += 1
+            try:
+                db_goods_info_obj = TMDbGoodsInfoObj(item=item, logger=self.lg)
+                tmp_item = self.get_tm_tmp_item(
+                    site_id=db_goods_info_obj.site_id,
+                    goods_id=db_goods_info_obj.goods_id, )
+                tasks_params_list.append({
+                    'db_goods_info_obj': db_goods_info_obj,
+                    'index': index,
+                    'tmp_item': tmp_item,
+                })
+                index += 1
+            except Exception:
+                self.lg.error('遇到错误[goods_id: {}]:', exc_info=True)
+                continue
 
         return tasks_params_list
 
     def get_tb_tasks_params_list(self, slice_params_list: list, index: int) -> list:
         tasks_params_list = []
         for item in slice_params_list:
-            db_goods_info_obj = TBDbGoodsInfoObj(item=item, logger=self.lg)
-            tasks_params_list.append({
-                'db_goods_info_obj': db_goods_info_obj,
-                'index': index,
-            })
-            index += 1
+            try:
+                db_goods_info_obj = TBDbGoodsInfoObj(item=item, logger=self.lg)
+                tasks_params_list.append({
+                    'db_goods_info_obj': db_goods_info_obj,
+                    'index': index,
+                })
+                index += 1
+            except Exception:
+                self.lg.error('遇到错误[goods_id: {}]:', exc_info=True)
+                continue
 
         return tasks_params_list
 
