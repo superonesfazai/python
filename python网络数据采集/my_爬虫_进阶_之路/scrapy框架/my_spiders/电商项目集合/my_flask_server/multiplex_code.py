@@ -2384,6 +2384,8 @@ def get_top_n_buyer_name_and_comment_date_by_goods_id(goods_id, top_n_num=1500, 
     # 必须放在try外, 连接异常则立即抛出异常
     sql_cli = SqlServerMyPageInfoSaveItemPipeline()
     if not sql_cli.is_connect_success:
+        # 统一在此处休眠
+        sleep(3.5)
         # 连接失败抛出连接异常!
         raise SqlServerConnectionException
 

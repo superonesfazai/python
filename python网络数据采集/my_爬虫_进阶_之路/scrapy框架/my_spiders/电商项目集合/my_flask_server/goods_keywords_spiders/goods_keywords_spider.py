@@ -52,6 +52,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
         # 插入数据到goods_id_and_keyword_middle_table表
         self.add_keyword_id_for_goods_id_sql_str = kw_insert_str_1
         self.req_num_retries = 7
+        self.sql_cli_remainder = 15
 
     def _init_debugging_api(self):
         '''
@@ -129,7 +130,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
                         db_obj=self.sql_cli,
                         index=self.add_goods_index,
                         logger=self.lg,
-                        remainder=20,)
+                        remainder=self.sql_cli_remainder,)
                     goods_id_list = self._get_keywords_goods_id_list(
                         type=type,
                         keyword=item)
@@ -820,7 +821,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
                     db_obj=self.sql_cli,
                     index=self.add_goods_index,
                     logger=self.lg,
-                    remainder=20,)
+                    remainder=self.sql_cli_remainder,)
                 if self.sql_cli.is_connect_success:
                     goods_id = taobao.get_goods_id_from_url(item)
                     if goods_id == '':
@@ -965,7 +966,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
                     db_obj=self.sql_cli,
                     index=self.add_goods_index,
                     logger=self.lg,
-                    remainder=20, )
+                    remainder=self.sql_cli_remainder, )
                 if self.sql_cli.is_connect_success:
                     goods_id = tmall.get_goods_id_from_url(item)
                     if goods_id == []:

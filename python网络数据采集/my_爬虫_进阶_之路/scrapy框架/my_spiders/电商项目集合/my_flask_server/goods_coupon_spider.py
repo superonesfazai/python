@@ -496,10 +496,7 @@ class GoodsCouponSpider(AsyncCrawler):
         )
         headers.update({
             'authority': 'www.quanyoubuy.com',
-            'upgrade-insecure-requests': '1',
-            'sec-fetch-mode': 'navigate',
-            'sec-fetch-user': '?1',
-            'sec-fetch-site': 'same-origin',
+            # 'referer': 'https://www.quanyoubuy.com/',
         })
         url = 'https://www.quanyoubuy.com/item/index/iid/{}.html'.format(goods_id)
         body = Requests.get_url_body(

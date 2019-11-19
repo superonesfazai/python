@@ -153,6 +153,7 @@ class CommentSpider(AsyncCrawler):
             result = list(tmp_sql_server._select_table(sql_str=cm_select_str_2))
         except TypeError:
             self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
+            await async_sleep(8.)
 
         await _print_db_old_data(result=result, logger=self.lg)
 

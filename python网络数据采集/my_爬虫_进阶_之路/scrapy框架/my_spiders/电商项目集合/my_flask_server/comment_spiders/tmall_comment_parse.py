@@ -318,6 +318,21 @@ class TmallCommentParse(Crawler):
 
             sku_info = item.get('auctionSku', '')
             # self.lg.info(sku_info)
+
+            # todo 此处先不处理, 情况过多(code需要完善, 建议只显示原始的)
+            # # eg: '适用床尺寸:床笠四件套-1.8米宽床【适合200*230被子】;颜色分类:大萌仔黄H'
+            # new_sku_info_list = []
+            # for ii in sku_info.split(';'):
+            #     # 多规格的存储单一个规格
+            #     one_sku_info = re.compile(':(.*)').findall(ii)
+            #     if one_sku_info != []:
+            #         new_sku_info_list.append(one_sku_info[0])
+            #     else:
+            #         new_sku_info_list.append(ii)
+            # # 组合成新的, eg: '床笠四件套-1.8米宽床【适合200*230被子】|大萌仔黄H'
+            # sku_info = '|'.join(new_sku_info_list)
+            # # self.lg.info(sku_info)
+
             if sku_info == '':
                 # 从所有规格里面随机一个
                 sku_info = str(choice(db_sku_info_list))
