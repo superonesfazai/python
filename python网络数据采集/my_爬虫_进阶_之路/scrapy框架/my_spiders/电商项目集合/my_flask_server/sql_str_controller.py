@@ -181,7 +181,7 @@ tb_update_str_5 = 'update dbo.taobao_tiantiantejia set is_delete=1, modfiy_time=
 # 淘抢购下架删除
 tb_delete_str_1 = 'delete from dbo.tao_qianggou_xianshimiaosha where goods_id=%s'
 # 天天特价过期清空
-tb_delete_str_2 = 'delete from dbo.taobao_tiantiantejia where miaosha_end_time < GETDATE()-2'
+tb_delete_str_2 = 'delete from dbo.taobao_tiantiantejia where miaosha_end_time < GETDATE()-3'
 
 """
 天猫
@@ -200,7 +200,7 @@ from dbo.GoodsInfoAutoGet
 where MainGoodsID is not null 
 and (SiteID=3 or SiteID=4 or SiteID=6) 
 -- and IsDelete=1
--- and GoodsID='576173378608'
+-- and GoodsID='606872826206'
 -- and MainGoodsID=165596
 order by ModfiyTime asc
 '''

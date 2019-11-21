@@ -121,14 +121,18 @@ async def do_something(target_url: str):
         print(e)
 
     try:
-        del chromium_puppeteer
+        await driver.close()
+    except:
+        pass
+    try:
         del page
     except:
         pass
     try:
-        await driver.close()
+        del chromium_puppeteer
     except:
         pass
+    collect()
 
     # 结束删除proxy扩展
     # system('rm -rf ./extensions')

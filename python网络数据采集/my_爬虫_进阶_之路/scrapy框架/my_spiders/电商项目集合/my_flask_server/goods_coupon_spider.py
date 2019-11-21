@@ -312,28 +312,27 @@ class GoodsCouponSpider(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
         try:
-            del chromium_puppeteer
-            del page
-        except:
-            try:
-                del chromium_puppeteer
-                del page
-            except:
-                try:
-                    del chromium_puppeteer
-                    del page
-                except:
-                    pass
-        try:
             await driver.close()
         except:
             try:
                 await driver.close()
             except:
-                try:
-                    await driver.close()
-                except:
-                    pass
+                pass
+        try:
+            del page
+        except:
+            try:
+                del page
+            except:
+                pass
+        try:
+            del chromium_puppeteer
+        except:
+            try:
+                del chromium_puppeteer
+            except:
+                pass
+
         collect()
 
         return res

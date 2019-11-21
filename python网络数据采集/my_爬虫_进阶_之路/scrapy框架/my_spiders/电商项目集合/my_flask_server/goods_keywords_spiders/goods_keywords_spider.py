@@ -89,6 +89,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
 
             if result is None or result_2 is None:
                 sleep(15)
+                self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
                 continue
 
             self.lg.info('db 已存在的goods_id_num: {}'.format(len(result_2)))

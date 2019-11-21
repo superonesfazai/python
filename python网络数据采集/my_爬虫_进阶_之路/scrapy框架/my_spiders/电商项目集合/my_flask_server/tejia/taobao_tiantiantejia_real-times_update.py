@@ -55,7 +55,8 @@ async def run_forever():
     # 由于不处理下架的商品，所以is_delete=0
     try:
         # todo 先不处理过期的因为后台没有同步下架会导致其无法查到数据
-        # tmp_sql_server._delete_table(sql_str=tb_delete_str_2, params=None)
+        # 得 处理 因为只要此处会清数据了
+        tmp_sql_server._delete_table(sql_str=tb_delete_str_2, params=None)
         # await async_sleep(10)
         result = list(tmp_sql_server._select_table(sql_str=tb_select_str_7))
     except TypeError:

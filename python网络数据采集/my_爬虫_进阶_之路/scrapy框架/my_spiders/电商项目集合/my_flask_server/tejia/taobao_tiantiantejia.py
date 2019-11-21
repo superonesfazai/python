@@ -152,20 +152,24 @@ class TaoBaoTianTianTeJia(AsyncCrawler):
                             '''
                             * 处理由常规商品又转换为天天特价商品 *
                             '''
-                            self.lg.info('##### 该商品由常规商品又转换为天天特价商品! #####')
-                            # 先删除，再重新插入(原先已过期)
-                            _ = await sql_cli.delete_taobao_tiantiantejia_expired_goods_id(
-                                goods_id=tmp_item.get('goods_id', ''),
-                                logger=self.lg)
-                            if _ is False:
-                                continue
+                            # TODO cp 后台出现多个主站id 指向同一个goods_id, 预估导致原因 此处不操作
+                            # self.lg.info('##### 该商品由常规商品又转换为天天特价商品! #####')
+                            # # 先删除，再重新插入(原先已过期)
+                            # _ = await sql_cli.delete_taobao_tiantiantejia_expired_goods_id(
+                            #     goods_id=tmp_item.get('goods_id', ''),
+                            #     logger=self.lg)
+                            # if _ is False:
+                            #     continue
+                            #
+                            # index = await self.insert_into_table(
+                            #     tmp_item=tmp_item,
+                            #     category=item['category'],
+                            #     current_page=item['current_page'],
+                            #     sql_cli=sql_cli,
+                            #     index=index,)
 
-                            index = await self.insert_into_table(
-                                tmp_item=tmp_item,
-                                category=item['category'],
-                                current_page=item['current_page'],
-                                sql_cli=sql_cli,
-                                index=index,)
+                            self.lg.info('该goods_id已经存在于数据库中, 此处跳过')
+                            pass
 
                         else:
                             self.lg.info('该goods_id已经存在于数据库中, 此处跳过')
