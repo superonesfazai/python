@@ -209,7 +209,13 @@ class RecommendGoodOps(AsyncCrawler):
         # }]
 
         # 文章在前的发布顺序, 视频在后(避免视频发过多)
-        article_list = zq_article_list + pp_article_list + kr_article_list + dfsp_article_list + hk_article_list + lfd_article_list + gxg_article_list
+        article_list = zq_article_list \
+                       + pp_article_list \
+                       + kr_article_list \
+                       + dfsp_article_list \
+                       + hk_article_list \
+                       + lfd_article_list \
+                       + gxg_article_list
 
         assert article_list != []
         # pprint(article_list)
@@ -664,14 +670,15 @@ class RecommendGoodOps(AsyncCrawler):
             # 没匹配到frame(可能是原先就在目标iframe, eg: title过长的, 再切回iframe, 但是iframe_ele_list为0)
             raise e
 
-        # 清空输入框
-        input_box_ele = driver.find_element(value='input#SnatchUrl')
-        input_box_ele.clear()
-        # 输入待采集地址
-        input_box_ele.send_keys(article_url)
-        # 点击采集按钮
-        driver.find_elements(value='span.input-group-btn button')[0].click()
         try:
+            # 清空输入框
+            input_box_ele = driver.find_element(value='input#SnatchUrl')
+            input_box_ele.clear()
+            # 输入待采集地址
+            input_box_ele.send_keys(article_url)
+            # 点击采集按钮
+            driver.find_elements(value='span.input-group-btn button')[0].click()
+
             self.wait_for_delete_img_appear(driver=driver)
         except (FZTimeoutError, NoSuchElementException):
             # 发布某文章超时失败or无元素存在, 则抛出发布异常
