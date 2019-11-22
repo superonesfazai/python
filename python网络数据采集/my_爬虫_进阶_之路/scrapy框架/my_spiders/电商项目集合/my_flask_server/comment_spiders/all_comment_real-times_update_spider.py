@@ -39,8 +39,8 @@ class CommentRealTimesUpdateSpider(AsyncCrawler):
             ip_pool_type=IP_POOL_TYPE,
             log_print=True,
             log_save_path=MY_SPIDER_LOGS_PATH + '/all_comment/实时更新/',)
-        # 并发量
-        self.concurrency = 50
+        # 并发量, 不宜过高, 40刚好
+        self.concurrency = 40
         self.debugging_api = self._init_debugging_api()
         # 设置并发obj
         self.conc_type_num = 0

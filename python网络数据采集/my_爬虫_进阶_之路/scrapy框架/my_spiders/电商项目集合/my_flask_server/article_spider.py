@@ -1607,7 +1607,7 @@ class ArticleParser(AsyncCrawler):
                 'site_id': 41,
             },
             'kr': {
-                'debug': False,
+                'debug': True,
                 'name': '酷燃视频',
                 'url': 'https://krcom.cn',
                 'obj_origin': 'krcom.cn',
@@ -5329,6 +5329,8 @@ class ArticleParser(AsyncCrawler):
                 '文章中的，，文字为。',
                 '阅读原文',
                 '领取更多京东优惠',
+                '欢迎你关注我',
+                '我们下期再见',
                 '\：\，\，\。',
                 '\:\,\,\.',
                 '[\[\(\【]{1}[\]\)\】]{1}',

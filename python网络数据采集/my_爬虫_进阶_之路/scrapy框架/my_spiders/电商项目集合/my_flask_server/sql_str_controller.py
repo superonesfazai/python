@@ -200,7 +200,7 @@ from dbo.GoodsInfoAutoGet
 where MainGoodsID is not null 
 and (SiteID=3 or SiteID=4 or SiteID=6) 
 -- and IsDelete=1
--- and GoodsID='606872826206'
+-- and GoodsID='604225914578'
 -- and MainGoodsID=165596
 order by ModfiyTime asc
 '''
