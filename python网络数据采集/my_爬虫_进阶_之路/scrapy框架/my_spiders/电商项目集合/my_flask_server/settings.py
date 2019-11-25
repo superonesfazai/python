@@ -1917,6 +1917,31 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num':None,
     },
+    {
+        'short_name': 'txws',
+        'debug': True,
+        'obj_origin': 'h5.weishi.qq.com',
+        'article_id': {
+            'method': 're',
+            'selector': '&id=(\w+)&',
+        },
+        'title': None,
+        'video_title': None,
+        'author': None,                         # 此处留空
+        'video_author': None,
+        'head_url': None,
+        'video_head_url': None,
+        'create_time': None,                    # 不用他的时间, 自己生成
+        'video_create_time': None,
+        'content': None,                        # 留空无值
+        'video_article_content': None,
+        'comment_num': None,                    # 点赞数留空
+        'tags_list': None,
+        'video_tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num':None,
+    },
 ]
 
 '''

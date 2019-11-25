@@ -72,6 +72,7 @@ not supported:
     18. 嗡啪搞笑(http://wengpa.com/)
     19. 微短视频网(https://www.wdace.com/)(视频为iframe内切, 先不做)
     20. 搞笑视频网(https://www.gaoxiaovod.com/)(部分视频from youku, 需driver)
+    21. 腾讯微视(根据腾讯微视分享出的地址)
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -1620,6 +1621,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'imedia.eastday.com',
                 'site_id': 43,
             },
+            'txws': {
+                'debug': False,
+                'name': '腾讯微视',
+                'url': '根据腾讯微视分享出的地址',
+                'obj_origin': 'h5.weishi.qq.com',
+                'site_id': 44,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -1990,6 +1998,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'dfsp':
                 return await self._get_dfsp_article_html(article_url=article_url)
 
+            elif article_url_type == 'txws':
+                return await self._get_txws_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -1998,9 +2009,98 @@ class ArticleParser(AsyncCrawler):
 
             return body, video_url
 
+    async def _get_txws_article_html(self, article_url) -> tuple:
+        """
+        获取txws html
+        :param article_url:
+        :return:
+        """
+        parser_obj = await self._get_parse_obj(article_url_type='txws')
+        article_id = await async_parse_field(
+            parser=parser_obj['article_id'],
+            target_obj=article_url,
+            logger=self.lg, )
+        assert article_id != ''
+        self.lg.info('article_id: {}'.format(article_id))
+
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='', )
+        headers.update({
+            'authority': 'h5.weishi.qq.com',
+            'accept': 'application/json',
+            'origin': 'https://h5.weishi.qq.com',
+            'x-requested-with': 'XMLHttpRequest',
+            'content-type': 'application/json',
+            # 'sec-fetch-site': 'same-origin',
+            # 'sec-fetch-mode': 'cors',
+            # 'referer': 'https://h5.weishi.qq.com/weishi/feed/6ZWI9iM5q1Ipfc65v/wsfeed?wxplay=1&id=6ZWI9iM5q1Ipfc65v&spid=1556715970981610&qua=v1_and_weishi_6.1.5_588_312026001_d&chid=100000014&pkg=3670&attach=cp_reserves3_1000000012&from=groupmessage&isappinstalled=0',
+        })
+        # cookies 必须
+        cookies = {
+            # 'LOLWebSet_AreaBindInfo_2939161681': '%257B%2522areaid%2522%253A%25222%2522%252C%2522areaname%2522%253A%2522%25E6%25AF%2594%25E5%25B0%2594%25E5%2590%2589%25E6%25B2%2583%25E7%2589%25B9%2520%25E7%25BD%2591%25E9%2580%259A%2522%252C%2522sRoleId%2522%253A0%252C%2522roleid%2522%253A%25222939161681%2522%252C%2522rolename%2522%253A%2522%25E9%2587%258A%25E6%2588%2592%25E5%2599%258C%2522%252C%2522checkparam%2522%253A%2522lol%257Cyes%257C2939161681%257C2%257C2939161681*%257C%257C%257C%257C%2525E9%252587%25258A%2525E6%252588%252592%2525E5%252599%25258C*%257C%257C%257C1571287757%2522%252C%2522md5str%2522%253A%25229357D9A7E7A47EAF76E8601D9B46297D%2522%252C%2522roleareaid%2522%253A%25222%2522%252C%2522sPartition%2522%253A%25222%2522%257D',
+            # 'RK': 'CLo97uh4d/',
+            # 'actdaojuqqcomrouteLine': 'wxlolmall',
+            # 'eas_sid': 'c1y527g1t141V7t9Z2w2H3o1m6',
+            # 'ied_qq': 'o2939161681',
+            # 'pac_uid': '0_5d9bf9e063d76',
+            # 'person_id_bak': '5300148305753943',
+            # 'pgv_info': 'ssid',
+            # 'pgv_pvi': '308360192',
+            # 'pgv_pvid': '7670180216',
+            # 'pgv_si': 's2792151040',
+            # 'ptcz': '3057abc40cfc1a41ca314fc3250c2d7083357e953406539f6c35138770471c7d',
+            # 'ptui_loginuin': '2939161681',
+            # 'sd_cookie_crttime': '1557540981306',
+            # 'sd_userid': '27191557540981306',
+            'skey': '@wIDWAlXuP',
+            # 'tvfe_boss_uuid': '897b2b175de68297',
+            # 'uin': 'o1006770934',
+            # 'uin_cookie': 'o2939161681',
+            # 'wsreq_logseq': '351269000',
+        }
+        params = (
+            ('from', 'groupmessage'),
+            # ('t', '0.016109720074739764'),
+            ('g_tk', '2133740682'),  # 定值
+        )
+        data = dumps({
+            'feedid': article_id,
+            'recommendtype': 0,
+            'datalvl': 'all',
+            '_weishi_mapExt': {}
+        })
+
+        body = await unblock_request(
+            method='post',
+            url='https://h5.weishi.qq.com/webapp/json/weishi/WSH5GetPlayPage',
+            headers=headers,
+            params=params,
+            data=data,
+            cookies=cookies,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        # self.lg.info(body)
+        data = json_2_dict(
+            json_str=body,
+            default_res={},
+            logger=self.lg,).get('data', {})
+        # pprint(data)
+        self.hook_target_api_data = data
+
+        video_url = self.hook_target_api_data.get('feeds', [])[0].get('video_url', '')
+        assert video_url != ''
+        self.lg.info('video_url: {}'.format(video_url))
+
+        return body, video_url
+
     async def _get_dfsp_article_html(self, article_url) -> tuple:
         """
-        获取dfsp hml
+        获取dfsp html
         :param article_url:
         :return:
         """
@@ -4254,6 +4354,12 @@ class ArticleParser(AsyncCrawler):
                 .get('owner', {})\
                 .get('name', '')
 
+        elif short_name == 'txws':
+            author = self.hook_target_api_data\
+                .get('feeds', [])[0]\
+                .get('poster', {})\
+                .get('nick', '')
+
         else:
             pass
 
@@ -4289,6 +4395,7 @@ class ArticleParser(AsyncCrawler):
             'gxg',
             'kr',
             'dfsp',
+            'txws',
         ]
         if short_name in short_name_list2:
             pass
@@ -4422,6 +4529,14 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'kr':
             title = self.hook_target_api_data.get('title', '')
 
+        elif short_name == 'txws':
+            # pprint(self.hook_target_api_data)
+            title = self.hook_target_api_data.get('feeds', [])[0].get('feed_desc', '')
+            if title == '':
+                title = self.hook_target_api_data.get('feeds', [])[0].get('material_desc', '')
+            else:
+                pass
+
         else:
             pass
 
@@ -4456,9 +4571,26 @@ class ArticleParser(AsyncCrawler):
             title = await self._wash_kys_title(title=title)
         elif short_name == 'kr':
             title = await self._wash_kr_title(title=title)
+        elif short_name == 'txws':
+            title = await self._wash_txws_title(title=title)
 
         else:
             pass
+
+        return title
+
+    @staticmethod
+    async def _wash_txws_title(title: str) -> str:
+        title = wash_sensitive_info(
+            data=title,
+            replace_str_list=[],
+            add_sensitive_str_list=[
+                '微视',
+                '腾讯',
+            ],
+            is_default_filter=False,
+            is_lower=False,
+        )
 
         return title
 
@@ -4578,6 +4710,12 @@ class ArticleParser(AsyncCrawler):
                 .get('videoInfo', {})\
                 .get('owner', {})\
                 .get('face', '')
+
+        elif short_name == 'txws':
+            head_url = self.hook_target_api_data\
+                .get('feeds', [])[0]\
+                .get('poster', {})\
+                .get('avatar', '')
 
         else:
             pass
@@ -5259,6 +5397,7 @@ class ArticleParser(AsyncCrawler):
             'kys',
             'kr',
             'dfsp',
+            'txws',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -7156,6 +7295,14 @@ def main():
     # url = 'http://imedia.eastday.com/node2/2015imedia/rmsp/u8i790954.html'
     # url = 'http://imedia.eastday.com/node2/2015imedia/i/20191117/u8i790911.html'
     # url = 'http://imedia.eastday.com/node2/2015imedia/i/20191114/u8i790718.html'
+
+    # 腾讯微视
+    # url = 'https://h5.weishi.qq.com/weishi/feed/6YfJpqYl21IysAVgg/wsfeed?wxplay=1&id=6YfJpqYl21IysAVgg&spid=1556715970981610&qua=v1_and_weishi_6.1.5_588_312026001_d&chid=100000014&pkg=3670&attach=cp_reserves3_1000000012&from=groupmessage&isappinstalled=0'
+    # url = 'https://h5.weishi.qq.com/weishi/feed/6ZWI9iM5q1Ipfc65v/wsfeed?wxplay=1&id=6ZWI9iM5q1Ipfc65v&spid=1556715970981610&qua=v1_and_weishi_6.1.5_588_312026001_d&chid=100000014&pkg=3670&attach=cp_reserves3_1000000012&from=groupmessage&isappinstalled=0'
+    # url = 'https://h5.weishi.qq.com/weishi/feed/771Jznds31IrthMbv/wsfeed?wxplay=1&id=771Jznds31IrthMbv&spid=1556715970981610&qua=v1_and_weishi_6.1.5_588_312026001_d&chid=100000014&pkg=3670&attach=cp_reserves3_1000000012&from=groupmessage&isappinstalled=0'
+    # url = 'https://h5.weishi.qq.com/weishi/feed/7723Eht791IwmCuXW/wsfeed?wxplay=1&id=7723Eht791IwmCuXW&spid=1556715970981610&qua=v1_and_weishi_6.1.5_588_312026001_d&chid=100000014&pkg=3670&attach=cp_reserves3_1000000012&from=groupmessage&isappinstalled=0'
+    # 视频原声
+    # url = 'https://h5.weishi.qq.com/weishi/feed/7cGkLgNTS1Iva9REP/wsfeed?wxplay=1&id=7cGkLgNTS1Iva9REP&spid=1556715970981610&qua=v1_and_weishi_6.1.5_588_312026001_d&chid=100000014&pkg=3670&attach=cp_reserves3_1000000012&from=groupmessage&isappinstalled=0'
 
     # 文章url 测试
     print('article_url: {}'.format(url))
