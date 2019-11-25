@@ -3824,6 +3824,7 @@ class ArticleParser(AsyncCrawler):
                 headers=headers,
                 params=params,
                 ip_pool_type=self.ip_pool_type,
+                proxy_type=PROXY_TYPE_HTTPS,
                 # 只进行2次请求, 避免时间过长无法执行下步请求
                 num_retries=3,)
             # self.lg.info(body)
@@ -3847,7 +3848,8 @@ class ArticleParser(AsyncCrawler):
             url=article_url,
             headers=headers,
             ip_pool_type=self.ip_pool_type,
-            num_retries=2,)
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=3,)
         # self.lg.info(body)
         assert body != '', '获取到的kb的body为空值!'
         parse_obj = self.unblock_get_parse_obj(article_url_type='kb')
@@ -6320,6 +6322,7 @@ def main():
     # url = 'https://kuaibao.qq.com/s/20190723A0IRBX00?refer=kb_news&amp;titleFlag=2&amp;coral_uin=ec30afdb64e74038ca7991e4e282153af308670081f17d0ee4fc3e473b0b5dda2f&amp;omgid=22c4ac23307a6a33267184cafd2df8b6&from=groupmessage&isappinstalled=0'
     # TODO 含视频(本地可以，server也成功[firefox失败, 用的chrome]) [有一定失败率多尝试]
     # url = 'https://kuaibao.qq.com/s/20180906V1A30P00?refer=kb_news&titleFlag=2&omgid=78610c582f61e3b1f414134f9d4fa0ce'
+    # url = 'https://kuaibao.qq.com/s/20191028V044PD00?refer=kb_news&amp;omgid=7a157262f3d303c6f2d089446406d22e&amp;chlid=daily_timeline&amp;atype=4&from=groupmessage&isappinstalled=0'
     # 第一种类型
     # url = 'https://kuaibao.qq.com/s/20190322V0DCSY00?refer=kb_news&amp;coral_uin=ec2fef55983f2b0f322a43dc540c8dda94190bf70c60ca0d998400a23f576204fb&amp;omgid=7a157262f3d303c6f2d089446406d22e&amp;chlid=daily_timeline&amp;atype=4&from=groupmessage&isappinstalled=0'
     # 第二种类型

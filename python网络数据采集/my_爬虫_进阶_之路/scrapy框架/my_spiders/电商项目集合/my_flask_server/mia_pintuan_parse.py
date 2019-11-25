@@ -162,6 +162,7 @@ class MiaPintuanParse(MiaParse, Crawler):
             return self._data_error_init()
 
         self.result_data = data
+
         return data
 
     def deal_with_data(self) -> dict:

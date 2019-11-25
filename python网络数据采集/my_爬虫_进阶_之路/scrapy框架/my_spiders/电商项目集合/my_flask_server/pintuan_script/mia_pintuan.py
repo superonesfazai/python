@@ -84,8 +84,6 @@ class MiaPintuan(object):
 
                 else:
                     goods_id = str(item.get('goods_id', ''))
-                    tmp_url = 'https://www.mia.com/item-' + str(goods_id) + '.html'
-
                     mia.get_goods_data(goods_id=str(goods_id))
                     goods_data = mia.deal_with_data()
                     if goods_data == {}:  # 返回的data为空则跳过
@@ -93,9 +91,15 @@ class MiaPintuan(object):
                     else:  # 否则就解析并且插入
                         goods_url = goods_data['goods_url']
                         if re.compile(r'://m.miyabaobei.hk/').findall(goods_url) != '':
-                            goods_url = 'https://www.miyabaobei.hk/item-' + str(goods_id) + '.html'
+                            # 地址变了
+                            # 原先
+                            # goods_url = 'https://www.miyabaobei.hk/item-{}.html'.format(goods_id)
+                            # now
+                            goods_url = 'https://m.miyabaobei.hk/item-{}.html'.format(goods_id)
+
                         else:
-                            goods_url = 'https://www.mia.com/item-' + str(goods_id) + '.html'
+                            goods_url = 'https://m.mia.com/item-' + str(goods_id) + '.html'
+
                         goods_data['goods_url'] = goods_url
                         goods_data['goods_id'] = str(goods_id)
                         goods_data['sub_title'] = item.get('sub_title', '')

@@ -446,7 +446,7 @@ select top 1500 goods_id, miaosha_time, pid
 from dbo.mia_pintuan 
 where site_id=21 
 and is_delete=0
--- and MainGoodsID=177079
+-- and MainGoodsID=197911
 order by modfiy_time asc
 '''
 # 秒杀实时更新

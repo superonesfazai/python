@@ -54,13 +54,14 @@ class GoodsCouponSpider(AsyncCrawler):
             headless=True,
         )
         # 不宜过大, 官网会发现
-        self.concurrency = 15
+        self.concurrency = 10
         # 不可太大 电脑卡死
         self.concurrency2 = 3
         self.req_num_retries = 8
         self.proxy_type = PROXY_TYPE_HTTPS
         self.driver_load_images = DRIVER_LOAD_IMAGES
-        self.concurrent_type = 1
+        # 用线程模式长期运行报: too many open files
+        self.concurrent_type = 0
         self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
         self.init_sql_str()
 
@@ -541,6 +542,8 @@ class GoodsCouponSpider(AsyncCrawler):
             })
         else:
             self.lg.info('[-] 该goods_id: {} 不含 有优惠券'.format(goods_id))
+
+        collect()
 
         return coupon_url
 
