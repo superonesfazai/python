@@ -215,14 +215,15 @@ class TmuxOps(AsyncCrawler):
                 ),
                 'delay_time': 2,
             },
-            {
-                'page_name': 'cp_goods_info_monitor',
-                'cmd': 'cd {} && {} cp_goods_info_monitor_spider.py'.format(
-                    self.cp_path,
-                    self.python_version_cmd,
-                ),
-                'delay_time': 2,
-            },
+            # 说周期性变化, 此处不跑这个了
+            # {
+            #     'page_name': 'cp_goods_info_monitor',
+            #     'cmd': 'cd {} && {} cp_goods_info_monitor_spider.py'.format(
+            #         self.cp_path,
+            #         self.python_version_cmd,
+            #     ),
+            #     'delay_time': 2,
+            # },
             {
                 'page_name': 'db_timing_script',
                 'cmd': 'cd {} && {} db_timing_script.py'.format(

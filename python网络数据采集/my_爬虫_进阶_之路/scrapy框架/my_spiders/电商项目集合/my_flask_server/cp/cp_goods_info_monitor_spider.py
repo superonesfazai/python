@@ -278,7 +278,7 @@ class YXGoodsInfoMonitorSpider(AsyncCrawler):
         from dbo.GoodsInfoAutoGet
         where MainGoodsID is not null
         and IsDelete=0
-        -- and MainGoodsID=143509
+        -- and MainGoodsID=186392
         '''
         self.sql_tr1 = '''
         update dbo.GoodsInfoAutoGet 

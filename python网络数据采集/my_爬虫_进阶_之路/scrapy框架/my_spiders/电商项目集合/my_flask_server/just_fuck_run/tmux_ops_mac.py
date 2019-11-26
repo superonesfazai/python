@@ -44,19 +44,28 @@ class TmuxOps(AsyncCrawler):
             # 不打印日志, 占用内存少
             {
                 'page_name': 'celery_tasks',
-                'cmd': 'cd {} && celery multi start w0 --app=celery_tasks --concurrency=250 --pool=gevent --pidfile=/Users/afa/myFiles/my_spider_logs/celery/run/%N.pid --logfile=/Users/afa/myFiles/my_spider_logs/celery/log/celery_tasks.log '.format(
+                'cmd': 'cd {} && celery multi start w0 w1 --app=celery_tasks --concurrency=250 --pool=gevent --pidfile=/Users/afa/myFiles/my_spider_logs/celery/run/%N.pid --logfile=/Users/afa/myFiles/my_spider_logs/celery/log/celery_tasks.log'.format(
                     self.zwm_path,
                 ),
                 'delay_time': 3,
             },
             {
-                'page_name': 'all_comment_real-times_update_spider',
-                'cmd': 'cd {} && {} all_comment_real-times_update_spider.py'.format(
+                'page_name': 'all_comment_spider',
+                'cmd': 'cd {} && {} all_comment_spider.py'.format(
                     self.comment_spiders_path,
                     self.python_version_cmd,
                 ),
                 'delay_time': 3,
             },
+            # 每个商品有20条就够, 不要太多, 故这个先不跑
+            # {
+            #     'page_name': 'all_comment_real-times_update_spider',
+            #     'cmd': 'cd {} && {} all_comment_real-times_update_spider.py'.format(
+            #         self.comment_spiders_path,
+            #         self.python_version_cmd,
+            #     ),
+            #     'delay_time': 3,
+            # },
             {
                 'page_name': 'goods_coupon_spider',
                 'cmd': 'cd {} && {} goods_coupon_spider.py'.format(

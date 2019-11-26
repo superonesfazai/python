@@ -50,6 +50,7 @@ supported:
     38. 搞笑gif图片集(https://m.gaoxiaogif.com/)
     39. 酷燃视频(https://krcom.cn/)
     40. 东方视频网(http://imedia.eastday.com/)(可采其中的热门视频)
+    41. 腾讯微视(根据腾讯微视分享出的地址)
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -72,7 +73,6 @@ not supported:
     18. 嗡啪搞笑(http://wengpa.com/)
     19. 微短视频网(https://www.wdace.com/)(视频为iframe内切, 先不做)
     20. 搞笑视频网(https://www.gaoxiaovod.com/)(部分视频from youku, 需driver)
-    21. 腾讯微视(根据腾讯微视分享出的地址)
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -252,7 +252,7 @@ class ArticleParser(AsyncCrawler):
         """
         def get_tasks_params_list() -> list:
             tasks_params_list = []
-            for page_num in range(1, 7):
+            for page_num in range(1, 8):
                 # kr视频每日更新有限, 就获取前几页的
                 tasks_params_list.append({
                     'page_num': page_num,
@@ -400,7 +400,7 @@ class ArticleParser(AsyncCrawler):
         """
         def get_tasks_params_list() -> list:
             tasks_params_list = []
-            for page_num in range(1, 7):
+            for page_num in range(1, 8):
                 # kr视频每日更新有限, 就获取前几页的
                 tasks_params_list.append({
                     'page_num': page_num,
@@ -600,7 +600,7 @@ class ArticleParser(AsyncCrawler):
         """
         def get_tasks_params_list() -> list:
             tasks_params_list = []
-            for page_num in range(1, 6):
+            for page_num in range(1, 8):
                 # pp视频每日更新有限, 就获取前几页的
                 tasks_params_list.append({
                     'page_num': page_num,
@@ -887,7 +887,7 @@ class ArticleParser(AsyncCrawler):
         """
         def get_tasks_params_list() -> list:
             tasks_params_list = []
-            for page_num in range(1, 6):
+            for page_num in range(1, 8):
                 # lfd每日更新有限, 就获取前6页的
                 tasks_params_list.append({
                     'page_num': page_num,
@@ -1063,7 +1063,7 @@ class ArticleParser(AsyncCrawler):
                 'shishang',
             ]
             # 随机赛选一个区间
-            _ = random_sample(self.hk_tab_name_list, 3)
+            _ = random_sample(self.hk_tab_name_list, 5)
             for tab_name in _:
                 tasks_params_list.append({
                     'tab_name': tab_name,

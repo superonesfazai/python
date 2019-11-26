@@ -98,6 +98,19 @@ class TaoBaoLoginAndParse(Crawler):
                     and data.get('data', {}).get('seller', {}).get('evaluates') is None:
                 raise GoodsShelvesException
 
+            # 处理商品被转移或者下架导致页面不存在的商品
+            if data.get('data').get('seller', {}).get('evaluates') is None:
+                self.lg.info('data为空, 地址被重定向, 该商品[goods_id: {}]可能已经被转移或下架'.format(
+                    goods_id))
+                return self._data_error_init()
+
+            data = self._wash_tb_origin_data(data=data)
+            result_data = data['data']
+
+            # 处理result_data['apiStack'][0]['value']
+            # self.lg.info(result_data.get('apiStack', [])[0].get('value', ''))
+            result_data_apiStack_value = result_data.get('apiStack', [])[0].get('value', {})
+
         except GoodsShelvesException:
             ## 表示该商品已经下架, 原地址被重定向到新页面
             _handle_goods_shelves_in_auto_goods_table(
@@ -112,19 +125,6 @@ class TaoBaoLoginAndParse(Crawler):
                 msg='遇到错误[出错goods_id: {0}]:'.format(goods_id),
                 exc_info=True)
             return self._data_error_init()
-
-        # 处理商品被转移或者下架导致页面不存在的商品
-        if data.get('data').get('seller', {}).get('evaluates') is None:
-            self.lg.info('data为空, 地址被重定向, 该商品[goods_id: {}]可能已经被转移或下架'.format(
-                goods_id))
-            return self._data_error_init()
-
-        data = self._wash_tb_origin_data(data=data)
-        result_data = data['data']
-
-        # 处理result_data['apiStack'][0]['value']
-        # self.lg.info(result_data.get('apiStack', [])[0].get('value', ''))
-        result_data_apiStack_value = result_data.get('apiStack', [])[0].get('value', {})
 
         # 将处理后的result_data['apiStack'][0]['value']重新赋值给result_data['apiStack'][0]['value']
         result_data['apiStack'][0]['value'] = self._wash_result_data_apiStack_value(
