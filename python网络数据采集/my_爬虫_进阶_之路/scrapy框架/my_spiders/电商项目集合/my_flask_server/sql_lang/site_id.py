@@ -357,6 +357,16 @@ GROUP BY goods_id)
 ORDER BY comment_modify_time desc
 '''
 
+# 查看主站id, 对应的采集评论
+sql_str_28 = '''
+select top 100 id, goods_id, create_time, sku_info, comment_content, IsConvert
+from dbo.goods_comment_new
+where goods_id in (
+select GoodsID
+from dbo.GoodsInfoAutoGet
+where MainGoodsID=139576)
+'''
+
 """
 异常数据处理
 """

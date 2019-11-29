@@ -83,6 +83,7 @@ from ftfy import fix_text
 from requests import session
 from random import choice as random_choice
 from random import sample as random_sample
+from random import random as random_random
 
 from my_items import WellRecommendArticle
 from settings import (
@@ -242,8 +243,203 @@ class ArticleParser(AsyncCrawler):
         elif article_type == 'dfsp':
             return await self.get_dfsp_article_list()
 
+        elif article_type == 'lsp':
+            return await self.get_lsp_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_lsp_article_list(self) -> list:
+        """
+        获取lsp pc 排行榜(https://www.pearvideo.com/popular) article_list
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            # 旗帜 只有第一页不做
+            cate_id_list = [
+                '',     # 总榜为空
+                '1',    # 社会
+                '2',    # 世界
+                '3',    # 财富
+                '4',    # 娱乐
+                '5',    # 生活
+                '6',    # 美食
+                '8',    # 科技
+                '9',    # 体育
+                '10',   # 新知
+                '31',   # 汽车
+                '59',   # 音乐
+            ]
+            for cate_id in cate_id_list:
+                for page_num in [0, 10]:
+                    # 页面自增方式为: 0, 10, 20, 30, ...
+                    # lsp视频排行榜更新有限, 就获取第一页的
+                    tasks_params_list.append({
+                        'cate_id': cate_id,
+                        'page_num': page_num,
+                    })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where lsp: cate_id: {}, page_num:{}]...'.format(
+                k['cate_id'],
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['cate_id'],
+                k['page_num'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_lsp_recommend_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_lsp_recommend_article_list_by_page_num(self, cate_id, page_num: int):
+        """
+        根据cate_id, page_num获取pc排行榜的article_list
+        :param cate_id:
+        :param page_num:
+        :return:
+        """
+        headers = get_random_headers(
+            cache_control='', )
+        headers.update({
+            'Connection': 'keep-alive',
+            'X-Requested-With': 'XMLHttpRequest',
+            # 'Referer': 'https://www.pearvideo.com/popular',
+        })
+        params = (
+            ('reqType', '1'),
+            ('categoryId', cate_id),  # 总榜'' 新知10 社会1 世界2 体育9 生活5 科技8 娱乐4 财富3 汽车31 美食6 音乐59 旗帜 只有第一页不做
+            ('start', str(page_num)),  # 0, 10, 20, 30, ...
+            # ('sort', '8'),              # 总榜8, 其他子分类第二页都是9, 测试发现可为''
+            ('mrd', str(random_random())),  # eg: '0.0657313191878468'
+        )
+
+        body = Requests.get_url_body(
+            url='https://www.pearvideo.com/popular_loading.jsp',
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            proxy_type=PROXY_TYPE_HTTPS,)
+        # self.lg.info(body)
+        assert body != ''
+
+        article_div_list_sel = {
+            'method': 'css',
+            'selector': 'li.popularem',
+        }
+        article_div_list = parse_field(
+            parser=article_div_list_sel,
+            target_obj=body,
+            logger=self.lg,
+            is_first=False,)
+        assert article_div_list != []
+        # pprint(article_div_list)
+
+        # 文章地址选择器
+        article_url_sel = {
+            'method': 'css',
+            'selector': 'a.actplay ::attr("href")',
+        }
+        article_id_sel = {
+            'method': 're',
+            'selector': 'video_(\d+)',
+        }
+        title_sel = {
+            'method': 'css',
+            'selector': 'h2.popularem-title ::text',
+        }
+        # 电影时长
+        video_duration_sel = {
+            'method': 'css',
+            'selector': 'div.cm-duration ::text',
+        }
+        # 电影时长(无)
+        res = []
+        for item in article_div_list:
+            try:
+                article_url = parse_field(
+                    parser=article_url_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert article_url != ''
+                article_id = parse_field(
+                    parser=article_id_sel,
+                    target_obj=article_url,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert article_id != ''
+                article_url = 'https://www.pearvideo.com/video_{}'.format(article_id)
+                title = parse_field(
+                    parser=title_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert title != ''
+                if len(title) >= 30:
+                    continue
+
+                video_duration = parse_field(
+                    parser=video_duration_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert video_duration != ''
+                video_duration_minute, video_duration_second = video_duration.split(':')
+                if (int(video_duration_minute) * 60 + int(video_duration_second)) >= 5 * 60:
+                    # 5分钟以上不要
+                    continue
+
+            except (AssertionError, Exception):
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('lsp::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('lsp', article_id)),
+                'article_type': 'lsp',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+
+        # pprint(res)
+        self.lg.info('[{}] lsp::cate_id:{}::page_num:{}'.format(
+            '+' if res != [] else '-',
+            cate_id,
+            page_num,
+        ))
+
+        return res
 
     async def get_dfsp_article_list(self) -> list:
         """
@@ -1503,7 +1699,7 @@ class ArticleParser(AsyncCrawler):
                 'site_id': 26,
             },
             'lsp': {
-                'debug': True,
+                'debug': False,     # last week to true
                 'name': '梨视频(短视频)',
                 'url': 'https://www.pearvideo.com/',
                 'obj_origin': 'www.pearvideo.com',
@@ -1622,7 +1818,7 @@ class ArticleParser(AsyncCrawler):
                 'site_id': 43,
             },
             'txws': {
-                'debug': False,
+                'debug': True,
                 'name': '腾讯微视',
                 'url': '根据腾讯微视分享出的地址',
                 'obj_origin': 'h5.weishi.qq.com',
@@ -7323,6 +7519,7 @@ def main():
     # # article_type = 'pp'
     # # article_type = 'kr'
     # article_type = 'dfsp'
+    # article_type = 'lsp'
     # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
     #     article_type=article_type,))
     # pprint(tmp)

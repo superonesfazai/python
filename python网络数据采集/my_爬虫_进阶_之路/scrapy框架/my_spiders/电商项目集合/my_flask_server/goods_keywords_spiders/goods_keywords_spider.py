@@ -86,8 +86,12 @@ class GoodsKeywordsSpider(AsyncCrawler):
                 self.lg.info('db中已存在的goods_id获取成功!')
             except TypeError:
                 self.lg.error('TypeError错误, 原因数据库连接失败...(可能维护中)')
+                sleep(15)
+                self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+                continue
 
-            if result is None or result_2 is None:
+            if result is None \
+                    or result_2 is None:
                 sleep(15)
                 self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
                 continue

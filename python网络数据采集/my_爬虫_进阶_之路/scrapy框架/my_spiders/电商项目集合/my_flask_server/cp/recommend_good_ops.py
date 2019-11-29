@@ -86,6 +86,7 @@ class RecommendGoodOps(AsyncCrawler):
         self.pp_intercept_num = 2
         self.kr_intercept_num = 1
         self.dfsp_intercept_num = 1
+        self.lsp_intercept_num = 1
         self.article_parser = None
         # 暂存好看视频list的dict
         self.hk_cache_dict = {}
@@ -94,6 +95,7 @@ class RecommendGoodOps(AsyncCrawler):
         self.pp_cache_dict = {}
         self.kr_cache_dict = {}
         self.dfsp_cache_dict = {}
+        self.lsp_cache_dict = {}
 
     async def _fck_run(self):
         # 休眠7.5分钟, 避免频繁发!(5分钟还是太快, 删不过来)(增加较多视频, 失败率较高故还是5分钟)
@@ -113,7 +115,7 @@ class RecommendGoodOps(AsyncCrawler):
                 try:
                     await async_wait_for(
                         self.auto_publish_articles(),
-                        timeout=(self.zq_intercept_num +self.hk_intercept_num+self.lfd_intercept_num+self.gxg_intercept_num+self.pp_intercept_num + self.kr_intercept_num + self.dfsp_intercept_num) * 2.5 * 60)
+                        timeout=(self.zq_intercept_num +self.hk_intercept_num+self.lfd_intercept_num+self.gxg_intercept_num+self.pp_intercept_num + self.kr_intercept_num + self.dfsp_intercept_num + self.lsp_intercept_num) * 2.5 * 60)
                 except AsyncTimeoutError:
                     raise PublishOneArticleFailException
 
@@ -188,6 +190,7 @@ class RecommendGoodOps(AsyncCrawler):
         # gxg_article_list = []
         # pp_article_list = []
         # kr_article_list = []
+        # dfsp_article_list = []
         zq_article_list = self.get_zq_own_create_article_id_list(
             min_article_id=self.min_article_id,
             max_article_id=self.max_article_id,)
@@ -197,6 +200,7 @@ class RecommendGoodOps(AsyncCrawler):
         pp_article_list = self.get_pp_article_id_list()
         kr_article_list = self.get_kr_article_id_list()
         dfsp_article_list = self.get_dfsp_article_id_list()
+        lsp_article_list = self.get_lsp_article_id_list()
 
         # 测试用
         # article_id = '17300123'
@@ -214,6 +218,7 @@ class RecommendGoodOps(AsyncCrawler):
                        + kr_article_list \
                        + dfsp_article_list \
                        + hk_article_list \
+                       + lsp_article_list \
                        + lfd_article_list \
                        + gxg_article_list
 
@@ -293,6 +298,39 @@ class RecommendGoodOps(AsyncCrawler):
             collect()
 
         return
+
+    def get_lsp_article_id_list(self):
+        """
+        获取lsp 目标article_id_list
+        :return:
+        """
+        if not isinstance(self.article_parser, ArticleParser):
+            self.article_parser = ArticleParser(logger=self.lg)
+        else:
+            pass
+
+        if self.lsp_cache_dict == {}:
+            # 首次启动
+            article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                article_type='lsp',))
+            self.lsp_cache_dict['data'] = article_list
+            self.lsp_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+        else:
+            cache_time = self.lsp_cache_dict['cache_time']
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > 30 * 60:
+                # dfsp 每日更新数量有限, 每过30分钟重新获取一次
+                article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                    article_type='lsp',))
+                self.lsp_cache_dict['data'] = article_list
+                self.lsp_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+            else:
+                article_list = self.lsp_cache_dict['data']
+
+        if article_list != []:
+            # 截取1个(与图文穿插)
+            article_list = random_sample(article_list, self.lsp_intercept_num)
+
+        return article_list
 
     def get_dfsp_article_id_list(self):
         """

@@ -44,7 +44,7 @@ class TmuxOps(AsyncCrawler):
             # 不打印日志, 占用内存少
             {
                 'page_name': 'celery_tasks',
-                'cmd': 'cd {} && celery multi start w0 w1 --app=celery_tasks --concurrency=250 --pool=gevent --pidfile=/Users/afa/myFiles/my_spider_logs/celery/run/%N.pid --logfile=/Users/afa/myFiles/my_spider_logs/celery/log/celery_tasks.log'.format(
+                'cmd': 'cd {} && celery multi start w0 --app=celery_tasks --concurrency=250 --pool=gevent --pidfile=/Users/afa/myFiles/my_spider_logs/celery/run/%N.pid --logfile=/Users/afa/myFiles/my_spider_logs/celery/log/celery_tasks.log'.format(
                     self.zwm_path,
                 ),
                 'delay_time': 3,
