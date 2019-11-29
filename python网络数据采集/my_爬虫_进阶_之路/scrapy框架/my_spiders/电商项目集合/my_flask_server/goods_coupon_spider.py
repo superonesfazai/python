@@ -215,6 +215,10 @@ class GoodsCouponSpider(AsyncCrawler):
             if item != '':
                 res.append(item)
 
+        try:
+            del all_res
+        except:
+            pass
         collect()
 
         return res
@@ -543,6 +547,10 @@ class GoodsCouponSpider(AsyncCrawler):
         else:
             self.lg.info('[-] 该goods_id: {} 不含 有优惠券'.format(goods_id))
 
+        try:
+            del body
+        except:
+            pass
         collect()
 
         return coupon_url
