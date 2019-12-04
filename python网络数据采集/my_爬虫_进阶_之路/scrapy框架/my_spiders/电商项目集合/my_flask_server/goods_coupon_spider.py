@@ -57,7 +57,7 @@ class GoodsCouponSpider(AsyncCrawler):
         self.concurrency = 10
         # 不可太大 电脑卡死
         self.concurrency2 = 3
-        self.req_num_retries = 8
+        self.req_num_retries = 7
         self.proxy_type = PROXY_TYPE_HTTPS
         self.driver_load_images = DRIVER_LOAD_IMAGES
         # 用线程模式长期运行报: too many open files
@@ -660,6 +660,7 @@ class TargetDataConsumer(Thread):
         global coupon_queue, goods_id_and_coupon_url_list, unique_coupon_id_list
 
         while True:
+            sql_cli = None
             try:
                 if coupon_queue.qsize() >= 1:
                     # todo 有些领券url 为预付定金商品, 此处不处理
@@ -846,6 +847,11 @@ class TargetDataConsumer(Thread):
                 continue
             except Exception as e:
                 print(e)
+            finally:
+                try:
+                    del sql_cli
+                except:
+                    pass
 
 class GoodsIdAndCouponUrlQueueConsumer(Thread):
     """

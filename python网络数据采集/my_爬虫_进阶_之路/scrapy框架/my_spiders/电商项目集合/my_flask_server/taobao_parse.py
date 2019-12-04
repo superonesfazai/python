@@ -981,13 +981,22 @@ class TaoBaoLoginAndParse(Crawler):
             img_url_list = []
             for i in pros:
                 values = i.get('values', [])
-                if len(values) >= 1:
-                    if values[0].get('image') is not None:
+                # 原先这样, 但是出现有些规格无图的, 有些又有图, 就无法处理
+                # if len(values) >= 1:
+                #     if values[0].get('image') is not None:
+                #         img_url_list = values
+                #     else:
+                #         continue
+                # else:
+                #     continue
+
+                # 改为: values有图就进赋值
+                for kk_index, kk in enumerate(values):
+                    if values[kk_index].get('image') is not None:
                         img_url_list = values
+                        break
                     else:
                         continue
-                else:
-                    continue
 
             # pprint(img_url_list)
             img_url_list = [(
