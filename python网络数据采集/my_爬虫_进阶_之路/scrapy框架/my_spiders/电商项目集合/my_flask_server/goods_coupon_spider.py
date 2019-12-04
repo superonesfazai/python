@@ -16,6 +16,7 @@ from random import uniform as random_uniform
 from decimal import Decimal
 from asyncio import TimeoutError as AsyncTimeoutError
 from asyncio import wait_for
+from os import system
 
 from settings import (
     IP_POOL_TYPE,
@@ -319,25 +320,15 @@ class GoodsCouponSpider(AsyncCrawler):
         try:
             await driver.close()
         except:
-            try:
-                await driver.close()
-            except:
-                pass
+            pass
         try:
             del page
         except:
-            try:
-                del page
-            except:
-                pass
+            pass
         try:
             del chromium_puppeteer
         except:
-            try:
-                del chromium_puppeteer
-            except:
-                pass
-
+            pass
         collect()
 
         return res
@@ -911,6 +902,13 @@ class GoodsIdAndCouponUrlQueueConsumer(Thread):
                 print(e)
 
 if __name__ == '__main__':
+    try:
+        cmd_str = 'ulimit -n 10000'
+        print('Changing ' + cmd_str)
+        system(cmd_str)
+    except Exception as e:
+        print('遇到错误:', e)
+
     # 消费券队列
     coupon_queue = Queue()
     # 存储goods_id, 领券点击地址的dict子元素的list
