@@ -320,15 +320,24 @@ class GoodsCouponSpider(AsyncCrawler):
         try:
             await driver.close()
         except:
-            pass
+            try:
+                await driver.close()
+            except:
+                pass
         try:
             del page
         except:
-            pass
+            try:
+                del page
+            except:
+                pass
         try:
             del chromium_puppeteer
         except:
-            pass
+            try:
+                del chromium_puppeteer
+            except:
+                pass
         collect()
 
         return res
@@ -487,13 +496,13 @@ class GoodsCouponSpider(AsyncCrawler):
 
         # 通过全优惠网(https://www.quanyoubuy.com)
         headers = get_random_headers(
+            user_agent_type=1,
             connection_status_keep_alive=False,
-        )
+            cache_control='',)
         headers.update({
-            'authority': 'www.quanyoubuy.com',
-            # 'referer': 'https://www.quanyoubuy.com/',
+            'authority': 'm.quanyoubuy.com',
         })
-        url = 'https://www.quanyoubuy.com/item/index/iid/{}.html'.format(goods_id)
+        url = 'https://m.quanyoubuy.com/item/index/iid/{}.html'.format(goods_id)
         body = Requests.get_url_body(
             url=url,
             headers=headers,
@@ -503,25 +512,38 @@ class GoodsCouponSpider(AsyncCrawler):
         assert body != ''
         # self.lg.info(body)
 
-        qrcode_url_sel = {
-            'method': 'css',
-            'selector': 'img.getGoodsLink ::attr("src")',
-        }
-        qrcode_url = parse_field(
-            parser=qrcode_url_sel,
-            target_obj=body,
-            logger=self.lg,)
-        assert qrcode_url != ''
-        # self.lg.info(qrcode_url)
+        # pc 的
+        # qrcode_url_sel = {
+        #     'method': 'css',
+        #     'selector': 'img#qrcode ::attr("src")',
+        # }
+        # qrcode_url = parse_field(
+        #     parser=qrcode_url_sel,
+        #     target_obj=body,
+        #     logger=self.lg,)
+        # assert qrcode_url != ''
+        # # self.lg.info(qrcode_url)
+        # coupon_url_sel = {
+        #     'method': 're',
+        #     'selector': 'text=(.*)',
+        # }
+        # coupon_url = parse_field(
+        #     parser=coupon_url_sel,
+        #     target_obj=qrcode_url,
+        #     logger=self.lg,)
+
+        # m
         coupon_url_sel = {
-            'method': 're',
-            'selector': '&text=(.*)',
+            'method': 'css',
+            'selector': 'div.goods_quan  a.getGoodsLink ::attr("href")',
         }
         coupon_url = parse_field(
             parser=coupon_url_sel,
-            target_obj=qrcode_url,
-            logger=self.lg,)
+            target_obj=body,
+            logger=self.lg,
+            is_print_error=False,)
         # self.lg.info(coupon_url)
+
         if 'uland.taobao.com' not in coupon_url:
             # 地址含有上诉的才为领券地址
             coupon_url = ''

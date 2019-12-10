@@ -230,23 +230,24 @@ class RecommendGoodOps(AsyncCrawler):
             self.lg.info('待发布的target_article_list为空list, pass!')
             return
 
-        # rasp上代理模式启动chromedriver具有一定的失败率, 故还是mac
-        driver = BaseDriver(
-            type=CHROME,
-            executable_path=CHROME_DRIVER_PATH,
-            # 本地老是出错
-            # type=FIREFOX,
-            # executable_path=FIREFOX_DRIVER_PATH,
-            load_images=True,
-            logger=self.lg,
-            headless=self.driver_headless,
-            driver_use_proxy=self.driver_use_proxy,
-            ip_pool_type=self.ip_pool_type,)
+        driver = None
         try:
             try:
+                # rasp上代理模式启动chromedriver具有一定的失败率, 故还是mac
+                driver = BaseDriver(
+                    type=CHROME,
+                    executable_path=CHROME_DRIVER_PATH,
+                    # 本地老是出错
+                    # type=FIREFOX,
+                    # executable_path=FIREFOX_DRIVER_PATH,
+                    load_images=True,
+                    logger=self.lg,
+                    headless=self.driver_headless,
+                    driver_use_proxy=self.driver_use_proxy,
+                    ip_pool_type=self.ip_pool_type, )
                 self.login_bg(driver=driver)
                 self.get_into_recommend_good_manage(driver=driver)
-            except FZTimeoutError:
+            except (FZTimeoutError, WebDriverException):
                 raise LoginFailException
 
             for item in target_article_list:

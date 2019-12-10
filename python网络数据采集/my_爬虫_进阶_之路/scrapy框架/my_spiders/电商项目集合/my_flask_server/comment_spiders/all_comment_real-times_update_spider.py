@@ -30,6 +30,11 @@ from sql_str_controller import (
 )
 from fzutils.spider.async_always import *
 
+# 处理 cannot switch to a different thread
+# 不推荐 程序卡死
+# from fzutils.gevent_utils import gevent_monkey
+# gevent_monkey.patch_all()
+
 class CommentRealTimesUpdateSpider(AsyncCrawler):
     def __init__(self, *params, **kwargs):
         AsyncCrawler.__init__(
@@ -172,6 +177,14 @@ class CommentRealTimesUpdateSpider(AsyncCrawler):
         collect()
 
 def just_fuck_run():
+    from os import system
+    try:
+        cmd_str = 'ulimit -n 10000'
+        print('Changing ' + cmd_str)
+        system(cmd_str)
+    except Exception as e:
+        print('遇到错误:', e)
+
     while True:
         print('一次大抓取即将开始'.center(30, '-'))
         _ = CommentRealTimesUpdateSpider()
