@@ -490,7 +490,12 @@ class JuMeiYouPinParse(Crawler):
         price_info_list = []
         for item in size:
             tmp_spec_value = item.get('name', '')   # 830白色2件,均码
-            spec_value = tmp_spec_value.replace(',', '|')
+            if len(size) > 1:
+                spec_value = tmp_spec_value.replace(',', '|')
+            else:
+                # 单规格不根据','分割
+                spec_value = tmp_spec_value
+
             detail_price = item.get('jumei_price', '')
             normal_price = item.get('market_price', '')
             img_url = item.get('img', '')

@@ -127,7 +127,9 @@ class JuMeiYouPinPinTuanParse(Crawler):
 
             # 上下架时间(拼团列表数据接口里面有这里先不获取)
             data['detail_name_list'] = await self.get_detail_name_list(size_attr=data.get('buy_alone', {}).get('size_attr', []))
-            true_sku_info = await self.get_true_sku_info(buy_alone_size=data.get('buy_alone', {}).get('size', []), size=data.get('size', []), group_single_price=data.get('group_single_price', ''))
+            true_sku_info = await self.get_true_sku_info(
+                buy_alone_size=data.get('buy_alone', {}).get('size', []),
+                size=data.get('size', []), group_single_price=data.get('group_single_price', ''))
             data['price_info_list'] = true_sku_info
             data['is_delete'] = await self.get_is_delete(product_status=data.get('product_status', ''), true_sku_info=true_sku_info)
             data['all_sell_count'] = await self._get_all_sell_count(data)
@@ -492,6 +494,8 @@ class JuMeiYouPinPinTuanParse(Crawler):
             self.lg.error('size为空[]')
             raise Exception
 
+        # pprint(buy_alone_size)
+        # pprint(size)
         if buy_alone_size == []:
             alone_size = []
         else:
@@ -501,7 +505,10 @@ class JuMeiYouPinPinTuanParse(Crawler):
             } for item in buy_alone_size]
 
         true_sku_info = [{
-            'spec_value': item.get('name', '').replace(',', '|'),
+            # 原先官方单规格无','分割
+            # 'spec_value': item.get('name', '').replace(',', '|'),
+            # 现增加单规格判断处理
+            'spec_value': item.get('name', '').replace(',', '|') if len(size) > 1 else item.get('name', ''),
             'pintuan_price': item.get('jumei_price', ''),
             'detail_price': item.get('market_price', ''),
             'normal_price': '',
