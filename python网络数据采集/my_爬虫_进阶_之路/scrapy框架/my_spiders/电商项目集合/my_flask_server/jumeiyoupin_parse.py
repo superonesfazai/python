@@ -130,7 +130,9 @@ class JuMeiYouPinParse(Crawler):
             # print(detail_name_list)
             data['detail_name_list'] = detail_name_list
 
-            true_sku_info = self.get_true_sku_info(size=tmp_data.get('data_2', {}).get('size', []))
+            true_sku_info = self.get_true_sku_info(
+                size=tmp_data.get('data_2', {}).get('size', []),
+                detail_name_list_len=len(detail_name_list),)
             assert true_sku_info != [], '获取到的sku_info为空值, 请检查!'
             # pprint(true_sku_info)
             data['price_info_list'] = true_sku_info
@@ -478,7 +480,7 @@ class JuMeiYouPinParse(Crawler):
 
         return detail_name_list
 
-    def get_true_sku_info(self, size):
+    def get_true_sku_info(self, size, detail_name_list_len: int):
         '''
         得到每个规格对应的库存, 价格, 图片等详细信息
         :param size:
@@ -490,7 +492,7 @@ class JuMeiYouPinParse(Crawler):
         price_info_list = []
         for item in size:
             tmp_spec_value = item.get('name', '')   # 830白色2件,均码
-            if len(size) > 1:
+            if detail_name_list_len > 1:
                 spec_value = tmp_spec_value.replace(',', '|')
             else:
                 # 单规格不根据','分割

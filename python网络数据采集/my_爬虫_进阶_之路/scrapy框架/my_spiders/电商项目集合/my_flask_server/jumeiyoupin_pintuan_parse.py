@@ -126,10 +126,14 @@ class JuMeiYouPinPinTuanParse(Crawler):
             data['div_desc'] = div_desc
 
             # 上下架时间(拼团列表数据接口里面有这里先不获取)
-            data['detail_name_list'] = await self.get_detail_name_list(size_attr=data.get('buy_alone', {}).get('size_attr', []))
+            detail_name_list = await self.get_detail_name_list(
+                size_attr=data.get('buy_alone', {}).get('size_attr', []))
+            data['detail_name_list'] = detail_name_list
             true_sku_info = await self.get_true_sku_info(
                 buy_alone_size=data.get('buy_alone', {}).get('size', []),
-                size=data.get('size', []), group_single_price=data.get('group_single_price', ''))
+                size=data.get('size', []),
+                group_single_price=data.get('group_single_price', ''),
+                detail_name_list_len=len(detail_name_list))
             data['price_info_list'] = true_sku_info
             data['is_delete'] = await self.get_is_delete(product_status=data.get('product_status', ''), true_sku_info=true_sku_info)
             data['all_sell_count'] = await self._get_all_sell_count(data)
@@ -485,6 +489,7 @@ class JuMeiYouPinPinTuanParse(Crawler):
         '''
         buy_alone_size = kwargs.get('buy_alone_size')
         size = kwargs.get('size')
+        detail_name_list_len = kwargs.get('detail_name_list_len', 0)
         try:
             # 单独购买价格
             group_single_price = re.compile(r'(\d+)').findall(kwargs.get('group_single_price'))[0]
@@ -500,7 +505,8 @@ class JuMeiYouPinPinTuanParse(Crawler):
             alone_size = []
         else:
             alone_size = [{
-                'spec_value': item.get('name', '').replace(',', '|'),
+                # 'spec_value': item.get('name', '').replace(',', '|'),
+                'spec_value': item.get('name', '').replace(',', '|') if detail_name_list_len > 1 else item.get('name', ''),
                 'alone_price': item.get('jumei_price', '')
             } for item in buy_alone_size]
 
@@ -508,7 +514,7 @@ class JuMeiYouPinPinTuanParse(Crawler):
             # 原先官方单规格无','分割
             # 'spec_value': item.get('name', '').replace(',', '|'),
             # 现增加单规格判断处理
-            'spec_value': item.get('name', '').replace(',', '|') if len(size) > 1 else item.get('name', ''),
+            'spec_value': item.get('name', '').replace(',', '|') if detail_name_list_len > 1 else item.get('name', ''),
             'pintuan_price': item.get('jumei_price', ''),
             'detail_price': item.get('market_price', ''),
             'normal_price': '',
