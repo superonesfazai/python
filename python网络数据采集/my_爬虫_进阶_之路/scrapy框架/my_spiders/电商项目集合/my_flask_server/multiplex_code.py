@@ -661,7 +661,14 @@ def get_waited_2_update_db_data_from_redis_server(spider_name='tm0',
             spider_name=spider_name,
             goods_id=goods_id,)
         try:
-            redis_cli.delete(key_name)
+            delete_res = redis_cli.delete(key_name)
+            if isinstance(delete_res, int)\
+                    and delete_res == 1:
+                # 删除成功
+                pass
+            else:
+                # 删除失败
+                pass
         except Exception as e:
             _print(msg='遇到错误:', logger=logger, log_level=2, exception=e)
             continue

@@ -1803,25 +1803,25 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'krcom.cn',
                 'site_id': 41,
             },
-            'dfsp': {
-                'debug': False,
-                'name': '东方视频',
-                'url': 'http://imedia.eastday.com/',
-                'obj_origin': 'imedia.eastday.com',
-                'site_id': 42,
-            },
             'txws': {
                 'debug': True,
                 'name': '腾讯微视',
                 'url': '根据腾讯微视分享出的地址',
                 'obj_origin': 'h5.weishi.qq.com',
-                'site_id': 43,
+                'site_id': 42,
             },
             'lsp': {
                 'debug': True,
                 'name': '梨视频(短视频)',
                 'url': 'https://www.pearvideo.com/',
                 'obj_origin': 'www.pearvideo.com',
+                'site_id': 43,
+            },
+            'dfsp': {
+                'debug': True,
+                'name': '东方视频',
+                'url': 'http://imedia.eastday.com/',
+                'obj_origin': 'imedia.eastday.com',
                 'site_id': 44,
             },
         }
