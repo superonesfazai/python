@@ -106,7 +106,7 @@ class GoodsCouponSpider(AsyncCrawler):
 
                     if coupon_url_list == []:
                         self.lg.info('coupon_url_list为空list, 跳过!')
-                        random_sleep_time = random_uniform(2.5, 5)
+                        random_sleep_time = random_uniform(3., 6.)
                         self.lg.info('休眠{}s ...'.format(random_sleep_time))
                         await async_sleep(random_sleep_time)
                         continue

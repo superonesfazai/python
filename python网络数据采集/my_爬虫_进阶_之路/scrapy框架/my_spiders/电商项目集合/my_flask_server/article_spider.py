@@ -1768,60 +1768,60 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'jandan.net',
                 'site_id': 36,
             },
-            'lfd': {
-                'debug': False,
-                'name': '来福岛爆笑娱乐网',
-                'url': 'http://www.laifudao.com/',
-                'obj_origin': 'www.laifudao.com',
-                'site_id': 37,
-            },
             'blbl': {
                 'debug': False,
                 'name': 'bilibili(短视频)',
                 'url': 'https://www.bilibili.com',
                 'obj_origin': 'www.bilibili.com',
-                'site_id': 38,
+                'site_id': 37,
             },
             'kys': {
                 'debug': False,
                 'name': '快音视(短视频)',
                 'url': 'https://kuaiyinshi.com/hot/video/?source=kuai-shou&page=1&st=week',
                 'obj_origin': 'kuaiyinshi.com',
-                'site_id': 39,
+                'site_id': 38,
             },
             'gxg': {
                 'debug': False,
                 'name': '搞笑gif图片集',
                 'url': 'https://m.gaoxiaogif.com',
                 'obj_origin': 'm.gaoxiaogif.com',
-                'site_id': 40,
+                'site_id': 39,
             },
             'kr': {
                 'debug': True,
                 'name': '酷燃视频',
                 'url': 'https://krcom.cn',
                 'obj_origin': 'krcom.cn',
-                'site_id': 41,
+                'site_id': 40,
             },
             'txws': {
                 'debug': True,
                 'name': '腾讯微视',
                 'url': '根据腾讯微视分享出的地址',
                 'obj_origin': 'h5.weishi.qq.com',
-                'site_id': 42,
+                'site_id': 41,
             },
             'lsp': {
                 'debug': True,
                 'name': '梨视频(短视频)',
                 'url': 'https://www.pearvideo.com/',
                 'obj_origin': 'www.pearvideo.com',
-                'site_id': 43,
+                'site_id': 42,
             },
             'dfsp': {
                 'debug': True,
                 'name': '东方视频',
                 'url': 'http://imedia.eastday.com/',
                 'obj_origin': 'imedia.eastday.com',
+                'site_id': 43,
+            },
+            'lfd': {
+                'debug': True,
+                'name': '来福岛爆笑娱乐网',
+                'url': 'http://www.laifudao.com/',
+                'obj_origin': 'www.laifudao.com',
                 'site_id': 44,
             },
         }
@@ -7514,8 +7514,8 @@ def main():
     # 文章列表
     # # article_type = 'zq'
     # # article_type = 'hk'
-    # # article_type = 'lfd'
-    # # article_type = 'gxg'
+    # article_type = 'lfd'
+    # article_type = 'gxg'
     # # article_type = 'pp'
     # # article_type = 'kr'
     # article_type = 'dfsp'

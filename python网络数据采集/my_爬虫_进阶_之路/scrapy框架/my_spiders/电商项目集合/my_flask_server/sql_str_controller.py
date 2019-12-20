@@ -141,7 +141,7 @@ from dbo.GoodsInfoAutoGet
 where SiteID=1 
 and MainGoodsID is not null
 -- and IsDelete=1
--- and MainGoodsID=163975
+-- and MainGoodsID=219844
 -- and GoodsID='44625517602'
 order by ModfiyTime asc
 '''
