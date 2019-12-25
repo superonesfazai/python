@@ -7,6 +7,7 @@
 '''
 
 from sys import path as sys_path
+from os import popen as os_popen
 sys_path.append('..')
 
 from settings import (
@@ -43,6 +44,7 @@ class CpolarControler(AsyncCrawler):
     async def _fck_run(self):
         while True:
             try:
+                self.check_local_cpolar_http_status()
                 print('now_time: {}'.format(get_shanghai_time()))
                 self._s = session()
                 login_res = self.login()
@@ -55,6 +57,20 @@ class CpolarControler(AsyncCrawler):
 
             print('休眠{}s ...\n'.format(self.sleep_time))
             sleep(self.sleep_time)
+
+    @catch_exceptions()
+    def check_local_cpolar_http_status(self):
+        """
+        检查本地cpolar http状态, 如果不存在则重启cpolar(测试偶尔会有问题)
+        :return:
+        """
+        process_check_response = os_popen('ps aux | grep \"cpolar http 80\"').readlines()
+        if len(process_check_response) > 2:
+            print('[+] cpolar http 80正常运行ing ...')
+        else:
+            print('[-] cpolar http 80未在运行, 重启ing...')
+            # 重启
+            os_popen('cd ~ && nohup ./cpolar http 80 -log=stdout &')
 
     def login(self) -> bool:
         """
