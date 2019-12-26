@@ -139,7 +139,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
                     goods_id_list = self._get_keywords_goods_id_list(
                         type=type,
                         keyword=item)
-                    # pprint(goods_id_list)
+                    pprint(goods_id_list)
                     self.lg.info('关键字为{0}, 获取到的goods_id_list_num: {1}'.format(keyword, len(goods_id_list)))
                     '''处理goods_id_list'''
                     self._deal_with_goods_id_list(
@@ -460,75 +460,288 @@ class GoodsKeywordsSpider(AsyncCrawler):
         # self.lg.info('其中tb goods num: {}'.format(len(new_res)))
         # collect()
 
-        # 爱淘宝pc 版搜索页(https://ai.taobao.com/)
+        # # todo 后面需要登录的cookie了(之前用的是这个)
+        # # 爱淘宝pc 版搜索页(https://ai.taobao.com/)
+        # headers = get_random_headers(
+        #     connection_status_keep_alive=False,
+        #     cache_control='',
+        # )
+        # headers.update({
+        #     'authority': 'ai.taobao.com',
+        #     # ori
+        #     # 'referer': 'https://ai.taobao.com/search/index.htm?key=%E9%A3%9F%E5%93%81&pid=mm_10011550_0_0&union_lens=recoveryid%3A201_11.131.193.65_881154_1572572691432%3Bprepvid%3A201_11.131.193.65_881154_1572572691432&prepvid=200_11.27.75.93_347_1572572705164&sort=biz30day&spm=a231o.7712113%2Fj.1003.d2',
+        #     'referer': 'https://ai.taobao.com/search/index.htm?key={}&sort=biz30day',
+        # })
+        # if sort_order == 0:
+        #     self.lg.info('按销量排序')
+        #     # 销量
+        #     params = (
+        #         ('key', keyword[1]),
+        #         # ('pid', 'mm_10011550_0_0'),
+        #         # ('union_lens', 'recoveryid:201_11.131.193.65_881154_1572572691432;prepvid:201_11.131.193.65_881154_1572572691432'),
+        #         # ('prepvid', '200_11.27.75.94_1585_1572572718183'),
+        #         ('sort', 'biz30day'),
+        #         # ('spm', 'a231o.7712113/j.1003.d11'),
+        #         ('taobao', 'true'),  # 勾选仅搜索tb
+        #     )
+        # elif sort_order == 1:
+        #     # 升序
+        #     self.lg.info('按升序排序')
+        #     params = (
+        #         ('key', keyword[1]),
+        #         ('taobao', 'true'),  # 勾选仅搜索tb
+        #         ('sort', 'discount_price_incr'),
+        #     )
+        # else:
+        #     raise NotImplemented
+        #
+        # body = Requests.get_url_body(
+        #     url='https://ai.taobao.com/search/index.htm',
+        #     headers=headers,
+        #     params=params,
+        #     ip_pool_type=self.ip_pool_type,
+        #     num_retries=self.req_num_retries,
+        #     proxy_type=PROXY_TYPE_HTTPS, )
+        # assert body != ''
+        # # self.lg.info(body)
+        #
+        # page_res = re.compile('var _pageResult = (.*?);</script>').findall(body)[0]
+        # # self.lg.info(page_res)
+        # data = json_2_dict(
+        #     json_str=page_res,
+        #     default_res={},
+        #     logger=self.lg,).get('result', {}).get('auction', [])
+        # # pprint(data)
+        #
+        # new_res = []
+        # for item in data:
+        #     item_id = str(item.get('itemId', ''))
+        #     if item_id != '':
+        #         try:
+        #             this_price = float(item.get('realPrice', '0'))
+        #             if this_price < 8.8:
+        #                 self.lg.info('该goods_id: {}, this_price: {}, 售价小于9元, pass'.format(item_id, this_price))
+        #                 continue
+        #
+        #         except Exception:
+        #             self.lg.error('遇到错误:', exc_info=True)
+        #             continue
+        #
+        #         new_res.append(item_id)
+        #
+        # # boss说同一关键字重复太多, 取10个 此处取15个
+
+        # # todo 要登录pass
+        # # 淘客联盟(https://pub.alimama.com/)
+        # # 点击超级好货-> 点击我要推广 -> 就进入搜索页面了
+        # headers = get_random_headers(
+        #     connection_status_keep_alive=False,
+        #     upgrade_insecure_requests=False,
+        #     cache_control='',
+        # )
+        # headers.update({
+        #     'authority': 'pub.alimama.com',
+        #     'accept': '*/*',
+        #     'origin': 'https://pub.alimama.com',
+        #     'x-requested-with': 'XMLHttpRequest',
+        #     'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        #     # 'referer': 'https://pub.alimama.com/promo/search/index.htm?fn=search&_t=1577324054984&q=%E5%A5%B3%E8%A3%85',
+        # })
+        # # 测试下面cookie必须(login cookie)
+        # # (但是周期性要求登录)pass
+        # cookies = {
+        #     # 'JSESSIONID': '',
+        #     # '_tb_token_': '',
+        #     # 'alimamapw': '',
+        #     # 'alimamapwag': '',
+        #     # 'cna': '',
+        #     'cookie2': '1bf448135f400847e541472de883b127',
+        #     # 'cookie31': '',
+        #     # 'cookie32': '',
+        #     # 'isg': '',
+        #     # 'l': '',
+        #     # 'login': '',
+        #     # 'rurl': '',
+        #     # 't': '',
+        #     # 'v': '0'
+        # }
+        # _t = get_now_13_bit_timestamp()
+        # params = (
+        #     ('t', _t),  # '1577324126987'
+        #     ('_tb_token_', 'eee337b476b73'),
+        # )
+        #
+        # if sort_order == 0:
+        #     self.lg.info('按销量排序')
+        #     sort_method = 'sales:des'
+        # elif sort_order == 1:
+        #     # todo 测试发现很多按升序排序官网无返回结果, pass
+        #     self.lg.info('按升序排序')
+        #     sort_method = 'coupon_price:asc'
+        # else:
+        #     raise NotImplemented
+        #
+        # data = {
+        #     '_data_': dumps({
+        #         'floorId': '20392',
+        #         'pageNum': 0,  # 页码数
+        #         'pageSize': 60,
+        #         'refpid': 'mm_402860134_0_0',
+        #         'variableMap': {
+        #             'fn': 'search',
+        #             '_t': int(_t) - 3,
+        #             'q': keyword[1],
+        #             'sort': sort_method,
+        #             'toPage': 1,
+        #         }
+        #     })
+        # }
+        #
+        # body = Requests.get_url_body(
+        #     method='post',
+        #     url='https://pub.alimama.com/openapi/json2/1/gateway.unionpub/optimus.material.json',
+        #     headers=headers,
+        #     params=params,
+        #     data=data,
+        #     cookies=cookies,
+        #     ip_pool_type=self.ip_pool_type,
+        #     num_retries=self.req_num_retries,
+        #     proxy_type=PROXY_TYPE_HTTPS, )
+        # assert body != ''
+        # # self.lg.info(body)
+        #
+        # data = json_2_dict(
+        #     json_str=body,
+        #     default_res={}, ).get('model', {}).get('recommend', {}).get('resultList', [])
+        # # pprint(data)
+        #
+        # new_res = []
+        # for item in data:
+        #     item_id = str(item.get('itemId', ''))
+        #     if item_id != '':
+        #         try:
+        #             this_price = float(item.get('price', '0'))
+        #             if this_price < 8.8:
+        #                 self.lg.info('该goods_id: {}, this_price: {}, 售价小于9元, pass'.format(item_id, this_price))
+        #                 continue
+        #             else:
+        #                 this_goods_url = item.get('url', '')
+        #                 if 'item.taobao.com' in this_goods_url:
+        #                     # 只要淘宝的, pass tm
+        #                     # self.lg.info(item.get('itemName', ''), this_goods_url)
+        #                     pass
+        #                 else:
+        #                     continue
+        #
+        #         except Exception as e:
+        #             self.lg.error('遇到错误:', exc_info=True)
+        #             continue
+        #
+        #         new_res.append(item_id)
+        # # pprint(new_res)
+
+        # 可行
+        # 通过大淘客联盟(http://www.dataoke.com/search/?keywords=%E5%A5%B3%E8%A3%85&px=sell)
         headers = get_random_headers(
-            connection_status_keep_alive=False,
             cache_control='',
         )
         headers.update({
-            'authority': 'ai.taobao.com',
-            # ori
-            # 'referer': 'https://ai.taobao.com/search/index.htm?key=%E9%A3%9F%E5%93%81&pid=mm_10011550_0_0&union_lens=recoveryid%3A201_11.131.193.65_881154_1572572691432%3Bprepvid%3A201_11.131.193.65_881154_1572572691432&prepvid=200_11.27.75.93_347_1572572705164&sort=biz30day&spm=a231o.7712113%2Fj.1003.d2',
-            'referer': 'https://ai.taobao.com/search/index.htm?key={}&sort=biz30day',
+            # 'Referer': 'http://www.dataoke.com/search/?keywords=%E5%A5%B3%E8%A3%85',
         })
         if sort_order == 0:
             self.lg.info('按销量排序')
-            # 销量
             params = (
-                ('key', keyword[1]),
-                # ('pid', 'mm_10011550_0_0'),
-                # ('union_lens', 'recoveryid:201_11.131.193.65_881154_1572572691432;prepvid:201_11.131.193.65_881154_1572572691432'),
-                # ('prepvid', '200_11.27.75.94_1585_1572572718183'),
-                ('sort', 'biz30day'),
-                # ('spm', 'a231o.7712113/j.1003.d11'),
-                ('taobao', 'true'),  # 勾选仅搜索tb
+                ('keywords', keyword[1]),
+                ('px', 'sell'),
             )
         elif sort_order == 1:
-            # 升序
             self.lg.info('按升序排序')
             params = (
-                ('key', keyword[1]),
-                ('taobao', 'true'),  # 勾选仅搜索tb
-                ('sort', 'discount_price_incr'),
+                ('keywords', keyword[1]),
+                ('px', 'jgup'),
             )
         else:
             raise NotImplemented
 
         body = Requests.get_url_body(
-            url='https://ai.taobao.com/search/index.htm',
+            url='http://www.dataoke.com/search/',
             headers=headers,
             params=params,
+            verify=False,
             ip_pool_type=self.ip_pool_type,
             num_retries=self.req_num_retries,
             proxy_type=PROXY_TYPE_HTTPS, )
         assert body != ''
         # self.lg.info(body)
 
-        page_res = re.compile('var _pageResult = (.*?);</script>').findall(body)[0]
-        # self.lg.info(page_res)
-        data = json_2_dict(
-            json_str=page_res,
-            default_res={},
-            logger=self.lg,).get('result', {}).get('auction', [])
-        # pprint(data)
+        # 处理解析异常
+        body = body.replace('divdata-id', 'div data-id')
+
+        li_list_sel = {
+            'method': 'css',
+            'selector': 'div.goods-item',
+        }
+        # 原始的tb id
+        ori_goods_id_sel = {
+            'method': 'css',
+            'selector': 'div.goods-item ::attr("data_goodsid")',
+        }
+        # 标识是tb商品的标签
+        is_tb_label_sel = {
+            'method': 'css',
+            'selector': 'i.tag-tao',
+        }
+        # tb 商品价格
+        tb_price_sel = {
+            'method': 're',
+            'selector': '<b><i class=\"rmb-style\">￥</i>(.*?)</b>',
+        }
+        li_list = parse_field(
+            parser=li_list_sel,
+            target_obj=body,
+            is_first=False,
+            logger=self.lg,
+        )
+        # pprint(li_list)
 
         new_res = []
-        for item in data:
-            item_id = str(item.get('itemId', ''))
-            if item_id != '':
-                try:
-                    this_price = float(item.get('realPrice', '0'))
-                    if this_price < 8.8:
-                        self.lg.info('该goods_id: {}, this_price: {}, 售价小于9元, pass'.format(item_id, this_price))
-                        continue
-
-                except Exception:
-                    self.lg.error('遇到错误:', exc_info=True)
+        for item in li_list:
+            try:
+                is_tb_label = parse_field(
+                    parser=is_tb_label_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                if is_tb_label == '':
+                    # 表示非tb good, pass
                     continue
 
-                new_res.append(item_id)
+                ori_goods_id = parse_field(
+                    parser=ori_goods_id_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                )
+                assert ori_goods_id != ''
 
-        # boss说同一关键字重复太多, 取10个 此处取15个
+                tb_price = float(parse_field(
+                    parser=tb_price_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                ))
+                if tb_price < 8.8:
+                    self.lg.info('该goods_id: {}, this_price: {}, 售价小于9元, pass'.format(ori_goods_id, tb_price))
+                    continue
+
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
+                continue
+            new_res.append(ori_goods_id)
+
+        # pprint(new_res)
+
+        # 可行
+        # 通过爱淘客(http://www.aitaoker.com/)的搜索
 
         return new_res[:15]
 
