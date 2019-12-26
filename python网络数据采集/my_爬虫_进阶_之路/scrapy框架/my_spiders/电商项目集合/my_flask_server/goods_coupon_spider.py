@@ -218,6 +218,33 @@ class GoodsCouponSpider(AsyncCrawler):
             if item != '':
                 res.append(item)
 
+        # 修改对应的goods_id的coupon_check_time
+        sql_str = 'update dbo.GoodsInfoAutoGet set coupon_check_time=%s where GoodsID=%s'
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        for item in slice_params_list:
+            goods_id = item['goods_id']
+            coupon_check_time_change_res = False
+            try:
+                coupon_check_time_change_res = sql_cli._update_table_2(
+                    sql_str=sql_str,
+                    params=(
+                        get_shanghai_time(),
+                        goods_id,
+                    ),
+                    logger=self.lg,
+                )
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
+
+            self.lg.info('[{}] update goods_id: {} coupon_check_time'.format(
+                '+' if coupon_check_time_change_res else '-',
+                goods_id,
+            ))
+        try:
+            del sql_cli
+        except:
+            pass
+
         try:
             del all_res
         except:
@@ -553,7 +580,9 @@ class GoodsCouponSpider(AsyncCrawler):
             pass
 
         if coupon_url != '':
-            self.lg.info('[+] 该goods_id: {} 含 有优惠券, coupon领取地址: {}'.format(goods_id, coupon_url))
+            self.lg.info('[+] 该goods_id: {} 含 有优惠券, coupon领取地址: {}'.format(
+                goods_id,
+                coupon_url,))
             # 队列录值
             goods_id_and_coupon_url_queue.put({
                 'goods_id': goods_id,
@@ -572,13 +601,14 @@ class GoodsCouponSpider(AsyncCrawler):
 
     def init_sql_str(self):
         self.sql_tr0 = '''
-        select GoodsID, SiteID
+        select top 100 GoodsID, SiteID
         from dbo.GoodsInfoAutoGet
         where MainGoodsID is not null
         and IsDelete=0
         and (SiteID=1 or SiteID=3 or SiteID=4 or SiteID=6)
         -- and MainGoodsID=143509
         -- and GoodsID='18773718545'
+        order by coupon_check_time asc
         '''
 
     def __del__(self):
@@ -712,6 +742,10 @@ class TargetDataConsumer(Thread):
                             if string_to_datetime(end_time) <= get_shanghai_time():
                                 print('该券已过期[goods_id: {}]'.format(goods_id))
                                 # 已过期的
+                                continue
+
+                            if datetime_to_timestamp(string_to_datetime(end_time)) - datetime_to_timestamp(string_to_datetime(begin_time)) < 60 * 60 * 24:
+                                print('该券小于1天[goods_id: {}], pass'.format(goods_id))
                                 continue
 
                             # todo 测试发现, 同一商品可能存在不同活动时间段的同一优惠券(但是活动时间不同), 导致一个商品有多个优惠券

@@ -625,7 +625,7 @@ $ reboot
 $ lsof | wc -l
 30989
 # 查看某个进程打开的文件数
-$ lsof -p pid | wc -f
+$ lsof -p pid | wc -l
 ```
 
 ## jupyter notebook
