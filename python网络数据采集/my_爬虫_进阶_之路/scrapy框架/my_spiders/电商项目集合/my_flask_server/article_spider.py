@@ -5559,6 +5559,13 @@ class ArticleParser(AsyncCrawler):
         else:
             pass
 
+        content = await self._wash_article_content(
+            short_name=short_name,
+            content=content,)
+        content = await self.unify_wash_article_content(
+            short_name=short_name,
+            content=content,)
+
         short_name_list2 = [
             'df',
             'sg',
@@ -5604,12 +5611,6 @@ class ArticleParser(AsyncCrawler):
         else:
             assert content != '', '获取到的content为空值!'
 
-        content = await self._wash_article_content(
-            short_name=short_name,
-            content=content,)
-        content = await self.unify_wash_article_content(
-            short_name=short_name,
-            content=content,)
         # hook 防盗链
         content = '<meta name=\"referrer\" content=\"never\">' + content if content != '' else ''
         print(content)
@@ -6354,6 +6355,10 @@ class ArticleParser(AsyncCrawler):
             is_default_filter=False,
             is_lower=False, )
 
+        if '<video' in content:
+            print('zq 不允许发布图文详情中, 带有视频的')
+            return ''
+
         content = modify_body_img_centering(content=content)
 
         return content
@@ -6706,6 +6711,8 @@ def main():
     # url = 'https://focus.youth.cn/mobile/detail/id/15561509#'
     # url = 'https://focus.youth.cn/mobile/detail/id/17240154#'
     # url = 'https://focus.youth.cn/mobile/detail?id=17197839#'
+    # 带有视频的不允许发布
+    # url = 'https://focus.youth.cn/mobile/detail/id/21760591#'
 
     # 阳光宽频网(短视频)
     # 旧版
