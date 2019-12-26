@@ -744,8 +744,9 @@ class TargetDataConsumer(Thread):
                                 # 已过期的
                                 continue
 
-                            if datetime_to_timestamp(string_to_datetime(end_time)) - datetime_to_timestamp(string_to_datetime(begin_time)) < 60 * 60 * 24:
-                                print('该券小于1天[goods_id: {}], pass'.format(goods_id))
+                            if datetime_to_timestamp(string_to_datetime(end_time)) - datetime_to_timestamp(string_to_datetime(begin_time)) \
+                                    <= 60 * 60 * 36:
+                                print('该券小于1.5天[goods_id: {}], pass'.format(goods_id))
                                 continue
 
                             # todo 测试发现, 同一商品可能存在不同活动时间段的同一优惠券(但是活动时间不同), 导致一个商品有多个优惠券
