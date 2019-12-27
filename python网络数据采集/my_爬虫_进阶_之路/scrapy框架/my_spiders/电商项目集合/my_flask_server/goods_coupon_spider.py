@@ -155,6 +155,8 @@ class GoodsCouponSpider(AsyncCrawler):
                 await async_sleep(30)
 
             finally:
+                self.lg.info('休眠6s...')
+                await async_sleep(6.)
                 collect()
 
     async def get_all_tasks_params_list_obj(self) -> list:
@@ -261,14 +263,18 @@ class GoodsCouponSpider(AsyncCrawler):
         get_current_func_info_by_traceback(self=self, logger=self.lg)
         db_res = []
         try:
+            self.lg.info('清除过期优惠券ing ...')
             # 清除过期优惠券
             self.sql_cli._delete_table(
                 sql_str='delete from dbo.coupon_info where GETDATE()-end_time >= 3',
                 params=None,)
+            self.lg.info('休眠15s ...')
             await async_sleep(15)
+            self.lg.info('获取新待检测的goods数据ing...')
             db_res = list(self.sql_cli._select_table(sql_str=self.sql_tr0,))
         except Exception:
             self.lg.error('遇到错误:', exc_info=True)
+            self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
 
         assert db_res != []
         self.lg.info('db_res_len: {}'.format(len(db_res)))
@@ -606,6 +612,7 @@ class GoodsCouponSpider(AsyncCrawler):
         where MainGoodsID is not null
         and IsDelete=0
         and (SiteID=1 or SiteID=3 or SiteID=4 or SiteID=6)
+        and GoodsID not in (select goods_id from dbo.coupon_info)
         -- and MainGoodsID=143509
         -- and GoodsID='18773718545'
         order by coupon_check_time asc

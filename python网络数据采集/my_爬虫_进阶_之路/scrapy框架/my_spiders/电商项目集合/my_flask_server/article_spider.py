@@ -654,13 +654,21 @@ class ArticleParser(AsyncCrawler):
         })
         now_time = get_shanghai_time()
         # self.lg.info(now_time)
-        # 格式: '5;2019111409'
+        # 格式: '5;2019111409' (当前小时还得减一小时)
+        now_hour = int(str(now_time)[11:13])
+        if now_hour > 0 and now_hour < 10:
+            new_now_hour = '0' + str(now_hour - 1)
+        elif now_hour == 0:
+            new_now_hour = '23'
+        else:
+            new_now_hour = str(now_hour - 1)
+
         cursor = '{};{}{}{}{}'.format(
             page_num * 5,
             str(now_time)[0:4],
             str(now_time)[5:7],
             str(now_time)[8:10],
-            str(now_time)[11:13],
+            new_now_hour,
         )
         # self.lg.info(cursor)
         params = (
@@ -7508,28 +7516,28 @@ def main():
     # url = 'https://h5.weishi.qq.com/weishi/feed/7cGkLgNTS1Iva9REP/wsfeed?wxplay=1&id=7cGkLgNTS1Iva9REP&spid=1556715970981610&qua=v1_and_weishi_6.1.5_588_312026001_d&chid=100000014&pkg=3670&attach=cp_reserves3_1000000012&from=groupmessage&isappinstalled=0'
 
     # 文章url 测试
-    print('article_url: {}'.format(url))
-    article_parse_res = loop.run_until_complete(
-        future=_._parse_article(article_url=url))
-    pprint(article_parse_res)
-    # print(dumps(article_parse_res))
+    # print('article_url: {}'.format(url))
+    # article_parse_res = loop.run_until_complete(
+    #     future=_._parse_article(article_url=url))
+    # pprint(article_parse_res)
+    # # print(dumps(article_parse_res))
 
     # article spiders intro
     # tmp = loop.run_until_complete(_.get_article_spiders_intro())
     # print(tmp)
 
     # 文章列表
-    # # article_type = 'zq'
-    # # article_type = 'hk'
+    # article_type = 'zq'
+    # article_type = 'hk'
     # article_type = 'lfd'
     # article_type = 'gxg'
-    # # article_type = 'pp'
-    # # article_type = 'kr'
+    # article_type = 'pp'
+    article_type = 'kr'
     # article_type = 'dfsp'
     # article_type = 'lsp'
-    # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
-    #     article_type=article_type,))
-    # pprint(tmp)
+    tmp = loop.run_until_complete(_.get_article_list_by_article_type(
+        article_type=article_type,))
+    pprint(tmp)
 
 if __name__ == '__main__':
     main()
