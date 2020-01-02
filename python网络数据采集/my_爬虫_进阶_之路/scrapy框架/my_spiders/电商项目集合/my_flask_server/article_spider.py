@@ -7532,9 +7532,9 @@ def main():
     # article_type = 'lfd'
     # article_type = 'gxg'
     # article_type = 'pp'
-    article_type = 'kr'
+    # article_type = 'kr'
     # article_type = 'dfsp'
-    # article_type = 'lsp'
+    article_type = 'lsp'
     tmp = loop.run_until_complete(_.get_article_list_by_article_type(
         article_type=article_type,))
     pprint(tmp)

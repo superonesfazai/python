@@ -86,7 +86,8 @@ class RecommendGoodOps(AsyncCrawler):
         self.pp_intercept_num = 2
         self.kr_intercept_num = 1
         self.dfsp_intercept_num = 1
-        self.lsp_intercept_num = 1
+        # 增加全屏视频数
+        self.lsp_intercept_num = 2
         self.article_parser = None
         # 暂存好看视频list的dict
         self.hk_cache_dict = {}

@@ -607,7 +607,7 @@ class GoodsCouponSpider(AsyncCrawler):
 
     def init_sql_str(self):
         self.sql_tr0 = '''
-        select top 100 GoodsID, SiteID
+        select top 500 GoodsID, SiteID
         from dbo.GoodsInfoAutoGet
         where MainGoodsID is not null
         and IsDelete=0

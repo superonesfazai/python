@@ -37,6 +37,7 @@ from json import dumps
 from pprint import pprint
 from fzutils.sql_utils import BaseSqlite3Cli
 from fzutils.gevent_utils import gevent_monkey
+from fzutils.common_utils import get_random_int_number
 
 try:
     from gevent.wsgi import WSGIServer      # 高并发部署
@@ -46,7 +47,12 @@ except Exception as e:
 gevent_monkey.patch_all()
 
 app = Flask(__name__, root_path=getcwd())
-sqlite3_cli = BaseSqlite3Cli(db_path='proxy.db')
+sqlite3_cli0 = BaseSqlite3Cli(db_path='proxy.db')
+sqlite3_cli1 = BaseSqlite3Cli(db_path='proxy.db')
+sqlite3_cli2 = BaseSqlite3Cli(db_path='proxy.db')
+sqlite3_cli3 = BaseSqlite3Cli(db_path='proxy.db')
+sqlite3_cli4 = BaseSqlite3Cli(db_path='proxy.db')
+
 select_sql_str = 'select * from proxy_obj_table'
 
 @app.route('/', methods=['GET', 'POST'])
@@ -73,13 +79,35 @@ def get_proxy_list():
 
     return dumps(res)
 
+def get_random_sqlite_obj() -> BaseSqlite3Cli:
+    """
+    获取随机sqlite 对象
+    :return:
+    """
+    global sqlite3_cli0, sqlite3_cli1, sqlite3_cli2, sqlite3_cli3, sqlite3_cli4
+
+    random_num = get_random_int_number(0, 4)
+    if random_num == 0:
+        return sqlite3_cli0
+    elif random_num == 1:
+        return sqlite3_cli1
+    elif random_num == 2:
+        return sqlite3_cli2
+    elif random_num == 3:
+        return sqlite3_cli3
+    elif random_num == 4:
+        return sqlite3_cli4
+    else:
+        raise NotImplemented
+
 def get_db_old_data() -> list:
     '''
     获取db数据
     :return:
     '''
+    sqlite3_obj = get_random_sqlite_obj()
     try:    # 先不处理高并发死锁问题
-        cursor = sqlite3_cli._execute(sql_str=select_sql_str)
+        cursor = sqlite3_obj._execute(sql_str=select_sql_str)
         all = cursor.fetchall()
         cursor.close()
     except Exception as e:
