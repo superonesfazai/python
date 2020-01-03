@@ -246,8 +246,231 @@ class ArticleParser(AsyncCrawler):
         elif article_type == 'lsp':
             return await self.get_lsp_article_list()
 
+        elif article_type == 'mp':
+            return await self.get_mp_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_mp_article_list(self) -> list:
+        """
+        获取mp pc 每个分类第二页的 article_list
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            # pc站首页接口
+            sort_dict_list = [
+                {
+                    'name': '热门',
+                    'url': 'https://www.meipai.com/home/hot_timeline',
+                    'tid': '',
+                    'page_num': 2,
+                },
+                {
+                    'name': '搞笑',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '13',
+                    'page_num': 2,
+                },
+                {
+                    'name': '爱豆',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '16',
+                    'page_num': 2,
+                },
+                {
+                    'name': '高颜值',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '474',
+                    'page_num': 2,
+                },
+                {
+                    'name': '舞蹈',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '63',
+                    'page_num': 2,
+                },
+                {
+                    'name': '音乐',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '62',
+                    'page_num': 2,
+                },
+                {
+                    'name': '美食',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '59',
+                    'page_num': 2,
+                },
+                {
+                    'name': '美妆',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '27',
+                    'page_num': 2,
+                },
+                {
+                    'name': '吃秀',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '423',
+                    'page_num': 2,
+                },
+                {
+                    'name': '萌宠',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '6',
+                    'page_num': 2,
+                },
+                {
+                    'name': '旅行',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '426',
+                    'page_num': 2,
+                },
+                {
+                    'name': '手工',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '450',
+                    'page_num': 2,
+                },
+                {
+                    'name': '运动',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '487',
+                    'page_num': 2,
+                },
+            ]
+            for target_sort_dict in sort_dict_list:
+                # mp视频更新有限, 就每个分类获取第2页的
+                tasks_params_list.append(target_sort_dict)
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where mp: sort_name: {}, tid: {}, page_num:{}]...'.format(
+                k['name'],
+                k['tid'],
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['url'],
+                k['tid'],
+                k['page_num'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_mp_recommend_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_mp_recommend_article_list_by_page_num(self, url, tid, page_num: int) -> list:
+        """
+        根据分类id tid, page_num获取pc的article_list
+        :param url:
+        :param tid:
+        :param page_num:
+        :return:
+        """
+        # 不使用maxid, 默认只获取第二页的所有可获取到的
+        max_id = ''
+        headers = get_random_headers(
+            upgrade_insecure_requests=False,
+            cache_control='', )
+        headers.update({
+            'accept': 'application/json, text/javascript, */*; q=0.01',
+            'X-Requested-With': 'XMLHttpRequest',
+            # 'referer': 'https://www.meipai.com/medias/hot',
+        })
+        params = [
+            ('page', str(page_num)),    # 从第2页开始
+            ('count', '96'),            # 12的倍数, 即返回的item数, 测试发现 可一次性返回需求总数据, 最大值为
+        ]
+        if page_num == 2:
+            # 第二页 无maxid 字段
+            pass
+        else:
+            params.append(
+                ('maxid', str(max_id))
+            )
+
+        if tid != '':
+            # 非热门则需要tid
+            params.append(
+                ('tid', str(tid)),
+            )
+
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            proxy_type=PROXY_TYPE_HTTPS,)
+        assert body != ''
+
+        data = json_2_dict(
+            json_str=body,
+            default_res={},
+            logger=None, ).get('medias', {})
+        # pprint(data)
+
+        res = []
+        for item in data:
+            try:
+                article_url = item.get('url', '')
+                assert article_url != ''
+                article_id = str(item.get('id', ''))
+                assert article_id != ''
+                title = item.get('caption_complete', '').replace('\n', ' ')
+                assert title != ''
+                if len(title) >= 30:
+                    continue
+
+                video_duration = int(item.get('time', '0'))
+                if video_duration >= 5 * 60:
+                    # 5分钟以上不要
+                    continue
+
+            except (AssertionError, Exception):
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('mp::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('mp', article_id)),
+                'article_type': 'mp',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+
+        # pprint(res)
+        self.lg.info('[{}] mp::tid:{}::page_num:{}'.format(
+            '+' if res != [] else '-',
+            tid,
+            page_num,
+        ))
+
+        return res
 
     async def get_lsp_article_list(self) -> list:
         """
@@ -1755,81 +1978,81 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'xueqiu.com',
                 'site_id': 33,
             },
-            '5h': {
-                'debug': False,
-                'name': '5号女性网',
-                'url': 'http://m.5h.com/',
-                'obj_origin': 'm.5h.com',
-                'site_id': 34,
-            },
             'bdj': {
                 'debug': True,
                 'name': '百思不得姐',
                 'url': 'http://www.budejie.com',
                 'obj_origin': 'www.budejie.com',
-                'site_id': 35,
+                'site_id': 34,
             },
             'jd': {
                 'debug': False,
                 'name': '煎蛋网',
                 'url': 'http://jandan.net',
                 'obj_origin': 'jandan.net',
-                'site_id': 36,
+                'site_id': 35,
             },
             'blbl': {
                 'debug': False,
                 'name': 'bilibili(短视频)',
                 'url': 'https://www.bilibili.com',
                 'obj_origin': 'www.bilibili.com',
-                'site_id': 37,
+                'site_id': 36,
             },
             'kys': {
                 'debug': False,
                 'name': '快音视(短视频)',
                 'url': 'https://kuaiyinshi.com/hot/video/?source=kuai-shou&page=1&st=week',
                 'obj_origin': 'kuaiyinshi.com',
-                'site_id': 38,
+                'site_id': 37,
             },
             'gxg': {
                 'debug': False,
                 'name': '搞笑gif图片集',
                 'url': 'https://m.gaoxiaogif.com',
                 'obj_origin': 'm.gaoxiaogif.com',
-                'site_id': 39,
+                'site_id': 38,
             },
             'kr': {
                 'debug': True,
                 'name': '酷燃视频',
                 'url': 'https://krcom.cn',
                 'obj_origin': 'krcom.cn',
-                'site_id': 40,
+                'site_id': 39,
             },
             'txws': {
                 'debug': True,
                 'name': '腾讯微视',
                 'url': '根据腾讯微视分享出的地址',
                 'obj_origin': 'h5.weishi.qq.com',
-                'site_id': 41,
+                'site_id': 40,
             },
             'lsp': {
                 'debug': True,
                 'name': '梨视频(短视频)',
                 'url': 'https://www.pearvideo.com/',
                 'obj_origin': 'www.pearvideo.com',
-                'site_id': 42,
+                'site_id': 41,
             },
             'dfsp': {
                 'debug': True,
                 'name': '东方视频',
                 'url': 'http://imedia.eastday.com/',
                 'obj_origin': 'imedia.eastday.com',
-                'site_id': 43,
+                'site_id': 42,
             },
             'lfd': {
                 'debug': True,
                 'name': '来福岛爆笑娱乐网',
                 'url': 'http://www.laifudao.com/',
                 'obj_origin': 'www.laifudao.com',
+                'site_id': 43,
+            },
+            '5h': {
+                'debug': True,
+                'name': '5号女性网',
+                'url': 'http://m.5h.com/',
+                'obj_origin': 'm.5h.com',
                 'site_id': 44,
             },
         }
@@ -4777,9 +5000,28 @@ class ArticleParser(AsyncCrawler):
             title = await self._wash_kr_title(title=title)
         elif short_name == 'txws':
             title = await self._wash_txws_title(title=title)
+        elif short_name == 'mp':
+            title = await self._wash_mp_title(title=title)
 
         else:
             pass
+
+        return title
+
+    @staticmethod
+    async def _wash_mp_title(title: str) -> str:
+        title = wash_sensitive_info(
+            data=title,
+            replace_str_list=[],
+            add_sensitive_str_list=[
+                '美拍小助手',
+                '美拍',
+                '我要上热门',
+                '\#\#',
+            ],
+            is_default_filter=False,
+            is_lower=False,
+        )
 
         return title
 
@@ -6138,8 +6380,10 @@ class ArticleParser(AsyncCrawler):
             data=content,
             replace_str_list=[],
             add_sensitive_str_list=[
+                '美拍小助手'
                 '美拍',
                 'meipai',
+                '\#\#',
             ],
             is_default_filter=False,
             is_lower=False, )
@@ -7534,7 +7778,8 @@ def main():
     # article_type = 'pp'
     # article_type = 'kr'
     # article_type = 'dfsp'
-    article_type = 'lsp'
+    # article_type = 'lsp'
+    article_type = 'mp'
     tmp = loop.run_until_complete(_.get_article_list_by_article_type(
         article_type=article_type,))
     pprint(tmp)
