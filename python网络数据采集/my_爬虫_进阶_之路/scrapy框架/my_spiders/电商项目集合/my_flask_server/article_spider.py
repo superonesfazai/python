@@ -339,6 +339,92 @@ class ArticleParser(AsyncCrawler):
                     'tid': '487',
                     'page_num': 2,
                 },
+
+                # 自己测试有返回值加的
+                {
+                    'name': '未知',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '2',
+                    'page_num': 2,
+                },
+                {
+                    'name': '未知',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '3',
+                    'page_num': 2,
+                },
+                {
+                    'name': '未知',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '4',
+                    'page_num': 2,
+                },
+                {
+                    'name': '未知',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '5',
+                    'page_num': 2,
+                },
+                {
+                    'name': '未知',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '15',
+                    'page_num': 2,
+                },
+                {
+                    'name': '未知',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '18',
+                    'page_num': 2,
+                },
+                {
+                    'name': '未知',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '19',
+                    'page_num': 2,
+                },
+                {
+                    'name': '未知',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '20',
+                    'page_num': 2,
+                },
+                {
+                    'name': '未知',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '22',
+                    'page_num': 2,
+                },
+                {
+                    'name': '未知',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '23',
+                    'page_num': 2,
+                },
+                {
+                    'name': '未知',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '26',
+                    'page_num': 2,
+                },
+                {
+                    'name': '未知',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '27',
+                    'page_num': 2,
+                },
+                {
+                    'name': '未知',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '28',
+                    'page_num': 2,
+                },
+                {
+                    'name': '未知',
+                    'url': 'https://www.meipai.com/squares/new_timeline',
+                    'tid': '30',
+                    'page_num': 2,
+                },
             ]
             for target_sort_dict in sort_dict_list:
                 # mp视频更新有限, 就每个分类获取第2页的
