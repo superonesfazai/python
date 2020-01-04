@@ -36,14 +36,18 @@ async def get_now_time_from_pytz():
     return _
 
 async def deal_with_logs():
-    file_re_path = MY_SPIDER_LOGS_PATH + '/*/*/*.txt'
+    # 为了类似mac中'2019-12-10.txt.3'也能匹配到
+    file_re_path = MY_SPIDER_LOGS_PATH + '/*/*/*.txt*'
     for item in glob.iglob(pathname=file_re_path):
         # iglob() 获取一个可编历对象，使用它可以逐个获取匹配的文件路径名
         # print(item)
         file_name_contain_extension_name = os.path.basename(item)   # 2016-02-01.txt
+        # print(file_name_contain_extension_name)
         try:
             file_name = os.path.splitext(file_name_contain_extension_name)[0]   # 2016-03-30
-            # print(file_name)
+            # print('file_name: {}'.format(file_name))
+            # 处理mac中类似'2019-12-10.txt.3', 经过上面划分为('2019-12-10.txt', '.3')
+            file_name = file_name.replace('.txt', '')
         except IndexError:
             continue
 
@@ -52,6 +56,7 @@ async def deal_with_logs():
             year=int(file_name_list[0]),
             month=int(file_name_list[1]),
             day=int(file_name_list[2]))
+        # print(str(file_name_date))
         now_date = await get_now_time_from_pytz()
         if file_name_date == now_date:
             print('当天日志, 跳过!')
