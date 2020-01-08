@@ -28,6 +28,7 @@ from multiplex_code import (
     CONTRABAND_GOODS_KEY_TUPLE,
 )
 from fzutils.data.str_utils import target_str_contain_some_char_check
+from fzutils.spider.selector import parse_field
 from fzutils.spider.async_always import *
 
 class MiaParse(Crawler):
@@ -730,38 +731,68 @@ class MiaParse(Crawler):
 
         return com
 
-    def _get_replenishment_status(self, goods_id) -> bool:
+    def _get_replenishment_status(self, goods_id, body) -> bool:
         """
         获取某goods_id是否为缺货状态!
         :param goods_id:
         :return: True 缺货状态
         """
-        headers = self._get_pc_headers()
-        data = dumps({
-            'count': '1',
-            # 'size': 'SINGLE',
-            'id': goods_id,
-        })
-        url = 'https://www.mia.com/instant/cart/addToCart'
-        body = Requests.get_url_body(
-            method='post',
-            url=url,
-            headers=headers,
-            data=data,
-            proxy_type=self.proxy_type,
-            ip_pool_type=self.ip_pool_type,
-            num_retries=self.req_num_retries,)
-        # print(body)
-        msg = json_2_dict(
-            json_str=body,
-            default_res={}).get('msg', '')
-        # print("add to cart返回的msg: {}".format(msg))
-
-        if msg == '商品正在努力上架中'\
-                or msg == '错误的商品规格':
+        # 判断是否下架 or 缺货
+        is_replenishment_status_text_sel = {
+            'method': 're',
+            'selector': 'bfd_stock: (\d+) ,',
+        }
+        is_replenishment_status_text = parse_field(
+            parser=is_replenishment_status_text_sel,
+            target_obj=body,
+            is_first=True,
+            is_print_error=False, )
+        is_replenishment_status_text_sel2 = {
+            'method': 'css',
+            'selector': 'div.btn_disabled ::text',
+        }
+        is_replenishment_status_text2 = parse_field(
+            parser=is_replenishment_status_text_sel2,
+            target_obj=body,
+            is_first=True,
+            is_print_error=False, )
+        # print(is_replenishment_status_text)
+        # print(is_replenishment_status_text2)
+        if is_replenishment_status_text == '0'\
+                or is_replenishment_status_text2 == '商品已经下架了~':
+            # 有货为'1', 补货中为'0'
             return True
+
         else:
             return False
+
+        # 该接口已失效
+        # headers = self._get_pc_headers()
+        # data = dumps({
+        #     'count': '1',
+        #     # 'size': 'SINGLE',
+        #     'id': goods_id,
+        # })
+        # url = 'https://www.mia.com/instant/cart/addToCart'
+        # body = Requests.get_url_body(
+        #     method='post',
+        #     url=url,
+        #     headers=headers,
+        #     data=data,
+        #     proxy_type=self.proxy_type,
+        #     ip_pool_type=self.ip_pool_type,
+        #     num_retries=self.req_num_retries,)
+        # # print(body)
+        # msg = json_2_dict(
+        #     json_str=body,
+        #     default_res={}).get('msg', '')
+        # # print("add to cart返回的msg: {}".format(msg))
+        #
+        # if msg == '商品正在努力上架中'\
+        #         or msg == '错误的商品规格':
+        #     return True
+        # else:
+        #     return False
 
     @staticmethod
     def _get_pc_headers():

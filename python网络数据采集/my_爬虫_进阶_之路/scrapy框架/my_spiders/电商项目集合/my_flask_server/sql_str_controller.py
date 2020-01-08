@@ -442,11 +442,12 @@ mia_select_str_1 = 'select goods_id, miaosha_time, pid from dbo.mia_pintuan wher
 # db拼团更新
 # and is_delete=0 下架的也进行检查更新(避免上下架状态改变)!!
 mia_select_str_2 = '''
-select top 1500 goods_id, miaosha_time, pid 
+select top 3000 goods_id, miaosha_time, pid 
 from dbo.mia_pintuan 
 where site_id=21 
 and is_delete=0
--- and MainGoodsID=197911
+-- and MainGoodsID=222836
+-- and goods_id='5134748'
 order by modfiy_time asc
 '''
 # 秒杀实时更新

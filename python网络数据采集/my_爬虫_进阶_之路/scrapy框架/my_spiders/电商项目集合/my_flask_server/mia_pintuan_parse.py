@@ -89,7 +89,9 @@ class MiaPintuanParse(MiaParse, Crawler):
         is_mia_mian_page = Selector(text=body).css('div.item-center ::text').extract_first() or ''
         # print(is_mia_mian_page)
         # m站是否为补货状态的 判断方法: 通过pc站点击加入购物车的请求来判断是否已缺货!!
-        is_replenishment_status = self._get_replenishment_status(goods_id=goods_id)
+        is_replenishment_status = self._get_replenishment_status(
+            goods_id=goods_id,
+            body=body)
         if (isinstance(is_mia_mian_page, str) and is_mia_mian_page == '进口母婴正品特卖')\
                 or is_replenishment_status:      # 单独处理拼团下架被定向到手机版主页的拼团商品
             print('++++++ 该拼团商品已下架，被定向到蜜芽主页 or 处在缺货状态中!')
