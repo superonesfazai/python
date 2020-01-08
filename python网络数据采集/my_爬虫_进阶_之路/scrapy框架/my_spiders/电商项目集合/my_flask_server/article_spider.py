@@ -51,6 +51,7 @@ supported:
     39. 酷燃视频(https://krcom.cn/)
     40. 东方视频网(http://imedia.eastday.com/)(可采其中的热门视频)
     41. 腾讯微视(根据腾讯微视分享出的地址)
+    42. 看了吗视频聚合网(http://www.klm123.com/mobile/index)(有全屏小视频也有短视频)
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -249,8 +250,151 @@ class ArticleParser(AsyncCrawler):
         elif article_type == 'mp':
             return await self.get_mp_article_list()
 
+        elif article_type == 'klm':
+            return await self.get_klm_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_klm_article_list(self) -> list:
+        """
+        获取klm m站某几个分类的article_list
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            # m站接口
+            device_id = 'klm{}'.format(get_uuid1().replace('-', ''))
+            channel_id_list = [
+                '100',      # 小视频(全屏),
+                # '42',       # 推荐的短视频, 这个不怎么更新 先不采集
+            ]
+            for channel_id in channel_id_list:
+                for page_num in range(1, 30):
+                    # klm视频更新有限
+                    tasks_params_list.append({
+                        'device_id': device_id,
+                        'channel_id': channel_id,
+                        'page_num': page_num,
+                    })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where klm: channel_id: {}, page_num:{}]...'.format(
+                k['channel_id'],
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['channel_id'],
+                k['page_num'],
+                k['device_id'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_klm_recommend_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_klm_recommend_article_list_by_page_num(self, channel_id, page_num: int, device_id) -> list:
+        """
+        获取klm 某个分类的单页接口数据
+        :param channel_id:
+        :param page_num:
+        :param device_id: 使用同一个device_id, 来得到后续数据
+        :return:
+        """
+        headers = get_random_headers(
+            user_agent_type=1,
+            upgrade_insecure_requests=False,
+            cache_control='',
+        )
+        headers.update({
+            'accept': '*/*',
+            'X-Requested-With': 'XMLHttpRequest',
+            # 'referer': 'http://www.klm123.com/mobile/index',
+        })
+        params = (
+            ('channel_id', str(channel_id)),  # 小视频(全屏)为'100', 推荐为'42'
+            ('page', str(page_num)),
+            ('page_size', '6'),
+        )
+        # 必须, 否则获取到的数据值很少
+        cookies = {
+            'deviceId': device_id,
+        }
+
+        body = Requests.get_url_body(
+            url='http://www.klm123.com/api/channel/videos',
+            headers=headers,
+            params=params,
+            cookies=cookies,
+            verify=False,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries, )
+        assert body != ''
+        data = json_2_dict(
+            json_str=body,
+            default_res={},
+            logger=self.lg, ).get('data', {}).get('videos', [])
+        # pprint(data)
+
+        res = []
+        for item in data:
+            try:
+                article_id = item.get('video', {}).get('videoId', '')
+                assert article_id != ''
+                title = item.get('video', {}).get('title', '')
+                assert title != ''
+                article_url = item.get('video', {}).get('shareUrl', '')
+                assert article_url != ''
+
+                video_duration = int(item.get('video', {}).get('streams', [])[0].get('duration', '0'))
+                if video_duration >= 5 * 60:
+                    # 5分钟以上不要
+                    continue
+
+            except (AssertionError, Exception):
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('klm::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('klm', article_id)),
+                'article_type': 'klm',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+
+        # pprint(res)
+        self.lg.info('[{}] klm::channel_id:{}::page_num:{}'.format(
+            '+' if res != [] else '-',
+            channel_id,
+            page_num,
+        ))
+
+        return res
 
     async def get_mp_article_list(self) -> list:
         """
@@ -2141,6 +2285,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'm.5h.com',
                 'site_id': 44,
             },
+            'klm': {
+                'debug': False,
+                'name': '看了吗视频聚合网',
+                'url': 'http://www.klm123.com/mobile/index',
+                'obj_origin': 'www.klm123.com',
+                'site_id': 45,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -2514,6 +2665,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'txws':
                 return await self._get_txws_article_html(article_url=article_url)
 
+            elif article_url_type == 'klm':
+                return await self._get_klm_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -2521,6 +2675,44 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_klm_article_html(self, article_url) -> tuple:
+        """
+        获取klm html
+        :param article_url:
+        :return:
+        """
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            cache_control='',)
+        headers.update({
+            # 'referer': 'http://www.klm123.com/mobile/index',
+        })
+
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            verify=False,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        assert body != ''
+        # self.lg.info(body)
+
+        video_url_sel = {
+            'method': 'css',
+            'selector': 'video source ::attr("src")',
+        }
+        video_url = await async_parse_field(
+            parser=video_url_sel,
+            target_obj=body,
+            logger=self.lg, )
+        assert video_url != ''
+        video_url = video_url.replace(' ', '')
+        self.lg.info('klm video_url: {}'.format(video_url))
+
+        return body, video_url
 
     async def _get_txws_article_html(self, article_url) -> tuple:
         """
@@ -4909,6 +5101,7 @@ class ArticleParser(AsyncCrawler):
             'kr',
             'dfsp',
             'txws',
+            'klm',
         ]
         if short_name in short_name_list2:
             pass
@@ -5937,6 +6130,7 @@ class ArticleParser(AsyncCrawler):
             'kr',
             'dfsp',
             'txws',
+            'klm',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -7845,6 +8039,14 @@ def main():
     # 视频原声
     # url = 'https://h5.weishi.qq.com/weishi/feed/7cGkLgNTS1Iva9REP/wsfeed?wxplay=1&id=7cGkLgNTS1Iva9REP&spid=1556715970981610&qua=v1_and_weishi_6.1.5_588_312026001_d&chid=100000014&pkg=3670&attach=cp_reserves3_1000000012&from=groupmessage&isappinstalled=0'
 
+    # 看了吗视频聚合网
+    # 小视频
+    # url = 'http://www.klm123.com/share/5b399af6d947'
+    # url = 'http://www.klm123.com/share/3c4e443bb39f'
+    # 短视频
+    # url = 'http://www.klm123.com/share/4260e78cad8f'
+    # url = 'http://www.klm123.com/share/93e219fa9a2e'
+
     # 文章url 测试
     # print('article_url: {}'.format(url))
     # article_parse_res = loop.run_until_complete(
@@ -7865,7 +8067,8 @@ def main():
     # article_type = 'kr'
     # article_type = 'dfsp'
     # article_type = 'lsp'
-    article_type = 'mp'
+    # article_type = 'mp'
+    article_type = 'klm'
     tmp = loop.run_until_complete(_.get_article_list_by_article_type(
         article_type=article_type,))
     pprint(tmp)
