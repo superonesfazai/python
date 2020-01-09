@@ -1285,6 +1285,7 @@ def _get_sku_price_trans_record(old_sku_info:list,
             tmp_unique_id_list = list(set(db_unique_id_list + new_unique_id_list))
 
             for unique_id in tmp_unique_id_list:
+                # 先从新数据找, 没有再从老数据找
                 if unique_id in new_unique_id_list:
                     try:
                         _i = _get_one_item_by_unique_id(unique_id=unique_id, target_list=new_price_change_info)
@@ -1320,7 +1321,7 @@ def _get_sku_price_trans_record(old_sku_info:list,
         new_is_price_change, new_price_change_info = oo(is_price_change=is_price_change)
         if isinstance(db_price_change_info, dict) \
                 or db_price_change_info is None \
-                or db_price_change_info == []:
+                or (isinstance(db_price_change_info, list) and db_price_change_info == []):
             _ = new_price_change_info
         else:
             # 修复bug: 当cp 后台未同步时, 保持增量更新新变动的信息
@@ -1328,6 +1329,9 @@ def _get_sku_price_trans_record(old_sku_info:list,
             old_price_trans_time = now_time if new_is_price_change == 1 else old_price_trans_time
 
         return is_price_change, old_price_trans_time, _
+
+    else:
+        pass
 
     is_price_change, _ = oo(is_price_change)
     new_price_trans_time = now_time if is_price_change == 1 else old_price_trans_time

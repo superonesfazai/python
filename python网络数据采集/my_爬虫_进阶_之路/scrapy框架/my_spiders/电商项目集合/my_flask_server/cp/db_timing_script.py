@@ -111,6 +111,21 @@ class DbTimingScript(AsyncCrawler):
         and is_delete=0
         and miaosha_end_time <= GETDATE()
         '''
+        # 周期性的把最近更新的商品进行规格跟价格变动标记
+        self.sql_str11 = '''
+        select top 150 GoodsID 
+        from dbo.GoodsInfoAutoGet
+        where MainGoodsID is not null
+        and IsDelete=0
+        ORDER BY ModfiyTime desc
+        '''
+        self.sql_str12 = '''
+        update dbo.GoodsInfoAutoGet 
+        set is_spec_change=1, spec_trans_time=%s, 
+        ModfiyTime=%s, 
+        IsPriceChange=1, sku_info_trans_time=%s, PriceChangeInfo=SKUInfo
+        where GoodsID=%s
+        '''
 
     async def _fck_run(self):
         while True:
@@ -166,6 +181,12 @@ class DbTimingScript(AsyncCrawler):
                     select_sql_str=self.sql_str10,
                     update_sql_str=jm_update_str_5,
                     func_get_params=self.get_params2,
+                )
+                # 周期性的把最近更新的商品进行规格跟价格变动标记
+                await self.db_script0(
+                    select_sql_str=self.sql_str11,
+                    update_sql_str=self.sql_str12,
+                    func_get_params=self.get_params3,
                 )
             except Exception as e:
                 print(e)
@@ -227,6 +248,18 @@ class DbTimingScript(AsyncCrawler):
         print('goods_id: {}, site_id: {}'.format(goods_id, site_id))
 
         return tuple([
+            now_time,
+            goods_id,
+        ])
+
+    def get_params3(self, k) -> tuple:
+        now_time = str(get_shanghai_time())
+        goods_id = k[0]
+        print('goods_id: {}'.format(goods_id))
+
+        return tuple([
+            now_time,
+            now_time,
             now_time,
             goods_id,
         ])
