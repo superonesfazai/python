@@ -113,7 +113,7 @@ class DbTimingScript(AsyncCrawler):
         '''
         # 周期性的把最近更新的商品进行规格跟价格变动标记
         self.sql_str11 = '''
-        select top 150 GoodsID 
+        select top 200 GoodsID 
         from dbo.GoodsInfoAutoGet
         where MainGoodsID is not null
         and IsDelete=0
