@@ -89,7 +89,9 @@ class JuMeiYouPinPinTuanParse(Crawler):
         '''
         换用phantomjs
         '''
-        body = self.driver.get_url_body(url=tmp_url)
+        body = self.driver.get_url_body(
+            url=tmp_url,
+            timeout=25,)
         # print(body)
         try:
             body = re.compile('<pre .*?>(.*)</pre>').findall(body)[0]
@@ -449,14 +451,15 @@ class JuMeiYouPinPinTuanParse(Crawler):
         :return:
         '''
         try:
-            tmp_div_desc = str(Selector(text=body).css('section#detailImg').extract_first())
+            div_desc = str(Selector(text=body).css('section#detailImg').extract_first() or '')
         except:
             self.lg.error('获取到的div_desc出错,请检查!')
             raise Exception
 
-        tmp_div_desc = re.compile(r'src="http://p0.jmstatic.com/templates/jumei/images/baoxian_pop.jpg"').sub('', tmp_div_desc)
+        assert div_desc != ''
+        div_desc = re.compile(r'src="http://p0.jmstatic.com/templates/jumei/images/baoxian_pop.jpg"').sub('', div_desc)
 
-        return '<div>' + tmp_div_desc + '</div>'
+        return '<div>' + div_desc + '</div>'
 
     async def get_detail_name_list(self, size_attr):
         '''

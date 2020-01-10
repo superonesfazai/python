@@ -441,7 +441,9 @@ class JuMeiYouPinParse(Crawler):
         description_usage = tmp_div_desc.get('description_usage', '')
         description_images = tmp_div_desc.get('description_images', '')
 
-        div_desc = '<div>' + description + description_usage + description_images + '</div>'
+        _tmp = description + description_usage + description_images
+        assert _tmp != ''
+        div_desc = '<div>' + _tmp + '</div>'
 
         return div_desc
 

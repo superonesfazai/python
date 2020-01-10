@@ -12,7 +12,6 @@ sys.path.append('..')
 
 import json
 import time
-import gc
 from logging import INFO, ERROR
 import asyncio
 
@@ -74,14 +73,14 @@ class JuMeiYouPinPinTuan(object):
 
     def _set_logger(self, logger):
         if logger is None:
-            self.my_lg = set_logger(
+            self.lg = set_logger(
                 logger_name=get_uuid1(),
                 log_file_name=MY_SPIDER_LOGS_PATH + '/聚美优品/拼团/' + str(get_shanghai_time())[0:10] + '.txt',
                 console_log_level=INFO,
                 file_log_level=ERROR
             )
         else:
-            self.my_lg = logger
+            self.lg = logger
 
     async def get_pintuan_goods_info(self):
         '''
@@ -90,10 +89,13 @@ class JuMeiYouPinPinTuan(object):
         '''
         s_time = time.time()
         goods_list = []
-        driver = BaseDriver(executable_path=PHANTOMJS_DRIVER_PATH, logger=self.my_lg, ip_pool_type=self.ip_pool_type)
+        driver = BaseDriver(
+            executable_path=PHANTOMJS_DRIVER_PATH,
+            logger=self.lg,
+            ip_pool_type=self.ip_pool_type)
         for key in self.tab_dict:
             self.msg = '正在抓取的分类为: ' + key
-            self.my_lg.info(self.msg)
+            self.lg.info(self.msg)
             for index in range(1, 20):
                 item_list = await self.get_one_page_goods_list(driver=driver, key=key, tab=self.tab_dict[key], index=index)
 
@@ -106,12 +108,14 @@ class JuMeiYouPinPinTuan(object):
             #     break
             # break
 
-        try: del driver
-        except: pass
-        self.my_lg.info(str(goods_list))
-        self.my_lg.info('本次抓到所有拼团商品个数为: ' + str(len(goods_list)))
+        try:
+            del driver
+        except:
+            pass
+        self.lg.info(str(goods_list))
+        self.lg.info('本次抓到所有拼团商品个数为: ' + str(len(goods_list)))
         e_time = time.time()
-        self.my_lg.info('总用时:' + str(e_time-s_time))
+        self.lg.info('总用时:' + str(e_time-s_time))
         await asyncio.sleep(3)
 
         return goods_list
@@ -125,40 +129,45 @@ class JuMeiYouPinPinTuan(object):
 
         my_pipeline = SqlServerMyPageInfoSaveItemPipeline()
         if my_pipeline.is_connect_success:
-            # _ = list(await my_pipeline.select_jumeiyoupin_pintuan_all_goods_id(logger=self.my_lg))
-            _ = list(my_pipeline._select_table(sql_str=jm_select_str_3, logger=self.my_lg))
+            # _ = list(await my_pipeline.select_jumeiyoupin_pintuan_all_goods_id(logger=self.lg))
+            _ = list(my_pipeline._select_table(sql_str=jm_select_str_3, logger=self.lg))
             db_goods_id_list = [item[0] for item in _]
-            # self.my_lg.info(str(db_goods_id_list))
+            # self.lg.info(str(db_goods_id_list))
 
             index = 1
             for item in goods_list:
-                my_pipeline = await _get_new_db_conn(db_obj=my_pipeline, index=index, logger=self.my_lg, remainder=20)
-                if item.get('goods_id', '') in db_goods_id_list:
-                    self.my_lg.info('该goods_id已经存在于数据库中, 此处跳过')
+                my_pipeline = await _get_new_db_conn(
+                    db_obj=my_pipeline,
+                    index=index,
+                    logger=self.lg,
+                    remainder=20,)
+                goods_id = item.get('goods_id', '')
+                if goods_id in db_goods_id_list:
+                    self.lg.info('该goods_id[{}]已经存在于数据库中, 此处跳过'.format(goods_id))
                     pass
                 else:
-                    goods_id = item.get('goods_id', '')
                     tmp_url = 'https://s.h5.jumei.com/yiqituan/detail?item_id={0}&type={1}'.format(goods_id, item.get('type', ''))
 
                     s_time = time.time()
-
-                    jumeiyoupin = JuMeiYouPinPinTuanParse(logger=self.my_lg)
+                    jumeiyoupin = JuMeiYouPinPinTuanParse(logger=self.lg)
                     goods_data = await jumeiyoupin.deal_with_data(jumei_pintuan_url=tmp_url)
 
-                    if goods_data == {} or goods_data.get('is_delete', 0) == 1:
+                    if goods_data == {} \
+                            or goods_data.get('is_delete', 0) == 1:
                         pass
                     else:
                         # 规范化
                         goods_data['goods_id'] = goods_id
                         goods_data['pintuan_time'] = item.get('pintuan_time', {})
-                        goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = await self.get_pintuan_begin_time_and_pintuan_end_time(pintuan_time=item.get('pintuan_time', {}))
+                        goods_data['pintuan_begin_time'], goods_data['pintuan_end_time'] = await self.get_pintuan_begin_time_and_pintuan_end_time(
+                            pintuan_time=item.get('pintuan_time', {}))
                         goods_data['sort'] = item.get('sort')
                         goods_data['page'] = item.get('page')
                         goods_data['tab'] = item.get('tab')
 
                         # pprint(goods_data)
                         # print(goods_data)
-                        _r = await jumeiyoupin.insert_into_jumeiyoupin_pintuan_table(data=goods_data, pipeline=my_pipeline, logger=self.my_lg)
+                        _r = await jumeiyoupin.insert_into_jumeiyoupin_pintuan_table(data=goods_data, pipeline=my_pipeline, logger=self.lg)
                         if _r:
                             if goods_id not in db_goods_id_list:
                                 db_goods_id_list.append(goods_id)
@@ -171,10 +180,10 @@ class JuMeiYouPinPinTuan(object):
                     index += 1
 
         else:
-            self.my_lg.error('数据库连接失败，此处跳过!')
+            self.lg.error('数据库连接失败，此处跳过!')
             pass
 
-        gc.collect()
+        collect()
         return None
 
     async def get_one_page_goods_list(self, **kwargs):
@@ -200,20 +209,20 @@ class JuMeiYouPinPinTuan(object):
         try: body = re.compile('<pre .*?>(.*)</pre>').findall(body)[0]
         except: pass
         await asyncio.sleep(1)
-        # self.my_lg.info(body)
+        # self.lg.info(body)
 
         self.msg = '正在抓取第' + str(index) + '页...' + ' ☭ 用时: ' + str(time.time() - i_time)
-        self.my_lg.info(self.msg)
+        self.lg.info(self.msg)
 
         item_list = []
         if body == '':
             self.msg = '获取到的body为空str!' + ' 出错地址: ' + tmp_url
-            self.my_lg.error(self.msg)
+            self.lg.error(self.msg)
         else:
             one_data = await self.json_2_dict(json_str=body)
             if one_data == {}:
                 self.msg = '出错地址: ' + tmp_url
-                self.my_lg.error(self.msg)
+                self.lg.error(self.msg)
             else:
                 if one_data.get('data', []) == []:
                     pass
@@ -234,7 +243,7 @@ class JuMeiYouPinPinTuan(object):
                                 'page': index,
                                 'tab': tab,
                             })
-                    # self.my_lg.info(str(item_list))
+                    # self.lg.info(str(item_list))
 
         return item_list
 
@@ -247,7 +256,7 @@ class JuMeiYouPinPinTuan(object):
         try:
             tmp = json.loads(json_str)
         except Exception:
-            self.my_lg.error('json转换json_str时出错,请检查!')
+            self.lg.error('json转换json_str时出错,请检查!')
             tmp = {}
         return tmp
 
@@ -267,11 +276,11 @@ class JuMeiYouPinPinTuan(object):
 
     def __del__(self):
         try:
-            del self.my_lg
+            del self.lg
             del self.msg
         except:
             pass
-        gc.collect()
+        collect()
 
 def just_fuck_run():
     while True:
@@ -284,7 +293,8 @@ def just_fuck_run():
             loop.close()
         except:
             pass
-        gc.collect()
+        collect()
+        print('休眠10分钟...')
         sleep(10*60)
         print('一次大抓取完毕, 即将重新开始'.center(30, '-'))
 
