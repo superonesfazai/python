@@ -724,10 +724,14 @@ class TaoBaoLoginAndParse(Crawler):
         """
         all_img_url = []
         for item in tmp_all_img_url:
-            item = 'https:' + item
-            all_img_url.append(item)
+            # 原先
+            # img_url = 'https:' + item
+            # 原图太大, 改取pc站, 430的图
+            img_url = 'https:' + item + '_430x430q90.jpg'
+            all_img_url.append({
+                'img_url': img_url,
+            })
 
-        all_img_url = [{'img_url': item} for item in all_img_url]
         # assert all_img_url != []
 
         return all_img_url

@@ -74,6 +74,10 @@ not supported:
     18. 嗡啪搞笑(http://wengpa.com/)
     19. 微短视频网(https://www.wdace.com/)(视频为iframe内切, 先不做)
     20. 搞笑视频网(https://www.gaoxiaovod.com/)(部分视频from youku, 需driver)
+    21. 今日小视频网(http://m.jrtb.net/)(可做)
+    22. 开眼短视频(https://www.kaiyanapp.com/detail.html?vid=52619)(视频id类似递增)
+    
+视频地址解析神器: https://www.urlgot.top/
     
 news_media_ranking_url(https://top.chinaz.com/hangye/index_news.html)
 """
@@ -2208,88 +2212,88 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'www.budejie.com',
                 'site_id': 33,
             },
-            'jd': {
-                'debug': False,
-                'name': '煎蛋网',
-                'url': 'http://jandan.net',
-                'obj_origin': 'jandan.net',
-                'site_id': 34,
-            },
             'blbl': {
                 'debug': False,
                 'name': 'bilibili(短视频)',
                 'url': 'https://www.bilibili.com',
                 'obj_origin': 'www.bilibili.com',
-                'site_id': 35,
+                'site_id': 34,
             },
             'kys': {
                 'debug': False,
                 'name': '快音视(短视频)',
                 'url': 'https://kuaiyinshi.com/hot/video/?source=kuai-shou&page=1&st=week',
                 'obj_origin': 'kuaiyinshi.com',
-                'site_id': 36,
+                'site_id': 35,
             },
             'gxg': {
                 'debug': False,
                 'name': '搞笑gif图片集',
                 'url': 'https://m.gaoxiaogif.com',
                 'obj_origin': 'm.gaoxiaogif.com',
-                'site_id': 37,
+                'site_id': 36,
             },
             'kr': {
                 'debug': True,
                 'name': '酷燃视频',
                 'url': 'https://krcom.cn',
                 'obj_origin': 'krcom.cn',
-                'site_id': 38,
+                'site_id': 37,
             },
             'txws': {
                 'debug': True,
                 'name': '腾讯微视',
                 'url': '根据腾讯微视分享出的地址',
                 'obj_origin': 'h5.weishi.qq.com',
-                'site_id': 39,
+                'site_id': 38,
             },
             'lsp': {
                 'debug': True,
                 'name': '梨视频(短视频)',
                 'url': 'https://www.pearvideo.com/',
                 'obj_origin': 'www.pearvideo.com',
-                'site_id': 40,
+                'site_id': 39,
             },
             'dfsp': {
                 'debug': True,
                 'name': '东方视频',
                 'url': 'http://imedia.eastday.com/',
                 'obj_origin': 'imedia.eastday.com',
-                'site_id': 41,
+                'site_id': 40,
             },
             'lfd': {
                 'debug': True,
                 'name': '来福岛爆笑娱乐网',
                 'url': 'http://www.laifudao.com/',
                 'obj_origin': 'www.laifudao.com',
-                'site_id': 42,
+                'site_id': 41,
             },
             '5h': {
                 'debug': True,
                 'name': '5号女性网',
                 'url': 'http://m.5h.com/',
                 'obj_origin': 'm.5h.com',
-                'site_id': 43,
+                'site_id': 42,
             },
             'klm': {
                 'debug': False,
                 'name': '看了吗视频聚合网',
                 'url': 'http://www.klm123.com/mobile/index',
                 'obj_origin': 'www.klm123.com',
-                'site_id': 44,
+                'site_id': 43,
             },
             'amz': {
                 'debug': True,
                 'name': '艾墨镇(短视频)',
                 'url': 'https://aimozhen.com/',
                 'obj_origin': 'aimozhen.com',
+                'site_id': 44,
+            },
+            'jd': {
+                'debug': True,
+                'name': '煎蛋网',
+                'url': 'http://jandan.net',
+                'obj_origin': 'jandan.net',
                 'site_id': 45,
             },
         }

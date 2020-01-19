@@ -52,7 +52,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
         # 插入数据到goods_id_and_keyword_middle_table表
         self.add_keyword_id_for_goods_id_sql_str = kw_insert_str_1
         self.req_num_retries = 7
-        self.sql_cli_remainder = 15
+        self.sql_cli_remainder = 10
 
     def _init_debugging_api(self):
         '''
@@ -1018,7 +1018,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
         keyword_id = kwargs.get('keyword_id')
         goods_url_list = ['https://item.taobao.com/item.htm?id=' + item for item in goods_id_list]
 
-        self.lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
+        self.lg.info('即将开始抓取tb该关键字的goods, 请耐心等待...')
         for item in goods_url_list:     # item为goods_url
             # 用于判断某个goods是否被插入的参数
             result = False
@@ -1093,7 +1093,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
         keyword_id = kwargs.get('keyword_id')
         goods_url_list = ['https://detail.1688.com/offer/{0}.html'.format(item) for item in goods_id_list]
 
-        self.lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
+        self.lg.info('即将开始抓取1688该关键字的goods, 请耐心等待...')
 
         for item in goods_url_list:
             result = False  # 每次重置
@@ -1163,7 +1163,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
         keyword_id = kwargs.get('keyword_id')
         goods_url_list = ['https:' + re.compile('&skuId=.*').sub('', item) for item in goods_id_list]
 
-        self.lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
+        self.lg.info('即将开始抓取tm该关键字的goods, 请耐心等待...')
         for item in goods_url_list:
             # item为goods_url
             # 用于判断某个goods是否被插入的参数
@@ -1245,7 +1245,7 @@ class GoodsKeywordsSpider(AsyncCrawler):
         # 所以这边jd就不分类存，一律存为常规商品site_id = 7
         goods_url_list = ['https://item.jd.com/{0}.html'.format(str(item)) for item in goods_id_list]
 
-        self.lg.info('即将开始抓取该关键字的goods, 请耐心等待...')
+        self.lg.info('即将开始抓取jd该关键字的goods, 请耐心等待...')
 
         for item in goods_url_list:     # item为goods_url
             result = False  # 用于判断某个goods是否被插入db的参数
@@ -1336,7 +1336,16 @@ class GoodsKeywordsSpider(AsyncCrawler):
         '''先判断中间表goods_id_and_keyword_middle_table是否已新增该关键字的id'''
         # 注意非完整sql语句不用r'', 而直接''
         try:
-            _ = self.sql_cli._select_table(sql_str=kw_select_str_3, params=(goods_id,))
+            if not self.sql_cli.is_connect_success:
+                self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+            else:
+                pass
+
+            _ = self.sql_cli._select_table(
+                sql_str=kw_select_str_3,
+                params=(
+                    goods_id,
+                ))
             _ = [i[0] for i in _]
             # pprint(_)
         except Exception:

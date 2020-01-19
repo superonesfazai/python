@@ -413,6 +413,8 @@ class JuMeiYouPinPinTuanParse(Crawler):
         :param data:
         :return:
         '''
+        # 拼团测试发现很多都是单图(官方数据返回, 故需cp后台单独设置下)
+        # pprint(data)
         if len(data.get('buy_alone', {})) == 1:
             all_img_url = data.get('share_info', [])[1].get('image_url_set', {}).get('url', {}).get('800', '')
             if all_img_url == '':
