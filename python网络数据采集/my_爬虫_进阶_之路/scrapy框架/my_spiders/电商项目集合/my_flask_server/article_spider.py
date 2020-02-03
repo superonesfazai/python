@@ -52,6 +52,7 @@ supported:
     40. 东方视频网(http://imedia.eastday.com/)(可采其中的热门视频)
     41. 腾讯微视(根据腾讯微视分享出的地址)
     42. 看了吗视频聚合网(http://www.klm123.com/mobile/index)(有全屏小视频也有短视频)
+    43. 开眼短视频(https://www.kaiyanapp.com/detail.html?vid=52619)(视频id类似递增)
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -75,7 +76,6 @@ not supported:
     19. 微短视频网(https://www.wdace.com/)(视频为iframe内切, 先不做)
     20. 搞笑视频网(https://www.gaoxiaovod.com/)(部分视频from youku, 需driver)
     21. 今日小视频网(http://m.jrtb.net/)(可做)
-    22. 开眼短视频(https://www.kaiyanapp.com/detail.html?vid=52619)(视频id类似递增)
     
 视频地址解析神器: https://www.urlgot.top/
     
@@ -2296,6 +2296,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'jandan.net',
                 'site_id': 45,
             },
+            'ky': {
+                'debug': False,
+                'name': '开眼小视频',
+                'url': '无地址',
+                'obj_origin': 'www.kaiyanapp.com',
+                'site_id': 46,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -2672,6 +2679,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'klm':
                 return await self._get_klm_article_html(article_url=article_url)
 
+            elif article_url_type == 'ky':
+                return await self._get_ky_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -2679,6 +2689,59 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_ky_article_html(self, article_url) -> tuple:
+        """
+        获取ky html
+        :param article_url:
+        :return:
+        """
+        parser_obj = await self._get_parse_obj(article_url_type='ky')
+        article_id = await async_parse_field(
+            parser=parser_obj['article_id'],
+            target_obj=article_url,
+            logger=self.lg, )
+        assert article_id != ''
+        self.lg.info('article_id: {}'.format(article_id))
+
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='', )
+        headers.update({
+            'authority': 'baobab.kaiyanapp.com',
+            'accept': '*/*',
+            'origin': 'https://www.kaiyanapp.com',
+            # 'sec-fetch-site': 'same-site',
+            # 'sec-fetch-mode': 'cors',
+            # 'referer': 'https://www.kaiyanapp.com/detail.html?vid=52619',
+        })
+        params = (
+            ('f', 'web'),
+        )
+        url = 'https://baobab.kaiyanapp.com/api/v1/video/{}'.format(article_id)
+
+        body = await unblock_request(
+            url=url,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries, )
+        # self.lg.info(body)
+        self.hook_target_api_data = json_2_dict(
+            json_str=body,
+            default_res={},
+            logger=self.lg,
+        )
+        # pprint(data)
+
+        video_url = self.hook_target_api_data.get('playUrl', '')
+        assert video_url != ''
+        self.lg.info('video_url: {}'.format(video_url))
+
+        return body, video_url
 
     async def _get_klm_article_html(self, article_url) -> tuple:
         """
@@ -5106,6 +5169,7 @@ class ArticleParser(AsyncCrawler):
             'dfsp',
             'txws',
             'klm',
+            'ky',
         ]
         if short_name in short_name_list2:
             pass
@@ -5218,6 +5282,10 @@ class ArticleParser(AsyncCrawler):
                 .get('base_data', {})\
                 .get('title', '')
 
+        elif short_name == 'ky':
+            title = self.hook_target_api_data\
+                .get('title', '')
+
         elif short_name == 'ft':
             if video_url != '':
                 if title == '':
@@ -5240,7 +5308,7 @@ class ArticleParser(AsyncCrawler):
             title = self.hook_target_api_data.get('title', '')
 
         elif short_name == 'txws':
-            # pprint(self.hook_target_api_data)
+            pprint(self.hook_target_api_data)
             title = self.hook_target_api_data.get('feeds', [])[0].get('feed_desc', '')
             if title == '':
                 title = self.hook_target_api_data.get('feeds', [])[0].get('material_desc', '')
@@ -5277,17 +5345,39 @@ class ArticleParser(AsyncCrawler):
         """
         if short_name == 'tt':
             title = await self._wash_tt_title(title=title)
+
         elif short_name == 'kys':
             title = await self._wash_kys_title(title=title)
+
         elif short_name == 'kr':
             title = await self._wash_kr_title(title=title)
+
         elif short_name == 'txws':
             title = await self._wash_txws_title(title=title)
+
         elif short_name == 'mp':
             title = await self._wash_mp_title(title=title)
 
+        elif short_name == 'ky':
+            title = await self._wash_ky_title(title=title)
+
         else:
             pass
+
+        return title
+
+    @staticmethod
+    async def _wash_ky_title(title: str) -> str:
+        title = wash_sensitive_info(
+            data=title,
+            replace_str_list=[],
+            add_sensitive_str_list=[
+                '开眼',
+                'kaiyan',
+            ],
+            is_default_filter=False,
+            is_lower=False,
+        )
 
         return title
 
@@ -6089,6 +6179,10 @@ class ArticleParser(AsyncCrawler):
                 .get('videoInfo', {})\
                 .get('desc', '')
 
+        elif short_name == 'ky':
+            content = self.hook_target_api_data\
+                .get('description', '')
+
         else:
             pass
 
@@ -6135,6 +6229,7 @@ class ArticleParser(AsyncCrawler):
             'dfsp',
             'txws',
             'klm',
+            'ky',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -6410,9 +6505,16 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'dfsp':
             content = await self._wash_dfsp_article_content(content=content)
 
+        elif short_name == 'ky':
+            content = await self._wash_ky_article_content(content=content)
+
         else:
             pass
 
+        return content
+
+    @staticmethod
+    async def _wash_ky_article_content(content: str) -> str:
         return content
 
     @staticmethod
@@ -8040,6 +8142,7 @@ def main():
     # url = 'https://h5.weishi.qq.com/weishi/feed/6ZWI9iM5q1Ipfc65v/wsfeed?wxplay=1&id=6ZWI9iM5q1Ipfc65v&spid=1556715970981610&qua=v1_and_weishi_6.1.5_588_312026001_d&chid=100000014&pkg=3670&attach=cp_reserves3_1000000012&from=groupmessage&isappinstalled=0'
     # url = 'https://h5.weishi.qq.com/weishi/feed/771Jznds31IrthMbv/wsfeed?wxplay=1&id=771Jznds31IrthMbv&spid=1556715970981610&qua=v1_and_weishi_6.1.5_588_312026001_d&chid=100000014&pkg=3670&attach=cp_reserves3_1000000012&from=groupmessage&isappinstalled=0'
     # url = 'https://h5.weishi.qq.com/weishi/feed/7723Eht791IwmCuXW/wsfeed?wxplay=1&id=7723Eht791IwmCuXW&spid=1556715970981610&qua=v1_and_weishi_6.1.5_588_312026001_d&chid=100000014&pkg=3670&attach=cp_reserves3_1000000012&from=groupmessage&isappinstalled=0'
+    # url = 'https://h5.weishi.qq.com/weishi/feed/76q06teUr1IJyDKND/wsfeed?attach=cp_reserves3_1000020006&wxplay=1&qua=v1_iph_weishi_6.4.0_606_app_a&id=76q06teUr1IJyDKND&spid=8045329248462745600&chid=100002010&pkg=3670'
     # 视频原声
     # url = 'https://h5.weishi.qq.com/weishi/feed/7cGkLgNTS1Iva9REP/wsfeed?wxplay=1&id=7cGkLgNTS1Iva9REP&spid=1556715970981610&qua=v1_and_weishi_6.1.5_588_312026001_d&chid=100000014&pkg=3670&attach=cp_reserves3_1000000012&from=groupmessage&isappinstalled=0'
 
@@ -8051,12 +8154,17 @@ def main():
     # url = 'http://www.klm123.com/share/4260e78cad8f'
     # url = 'http://www.klm123.com/share/93e219fa9a2e'
 
+    # 开眼小视频
+    # url = 'https://www.kaiyanapp.com/detail.html?vid=52619'
+    # url = 'https://www.kaiyanapp.com/detail.html?vid=52618'
+    # url = 'https://www.kaiyanapp.com/detail.html?vid=4000'
+
     # 文章url 测试
-    # print('article_url: {}'.format(url))
-    # article_parse_res = loop.run_until_complete(
-    #     future=_._parse_article(article_url=url))
-    # pprint(article_parse_res)
-    # # print(dumps(article_parse_res))
+    print('article_url: {}'.format(url))
+    article_parse_res = loop.run_until_complete(
+        future=_._parse_article(article_url=url))
+    pprint(article_parse_res)
+    # print(dumps(article_parse_res))
 
     # article spiders intro
     # tmp = loop.run_until_complete(_.get_article_spiders_intro())
@@ -8072,10 +8180,10 @@ def main():
     # article_type = 'dfsp'
     # article_type = 'lsp'
     # article_type = 'mp'
-    article_type = 'klm'
-    tmp = loop.run_until_complete(_.get_article_list_by_article_type(
-        article_type=article_type,))
-    pprint(tmp)
+    # article_type = 'klm'
+    # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
+    #     article_type=article_type,))
+    # pprint(tmp)
 
 if __name__ == '__main__':
     main()

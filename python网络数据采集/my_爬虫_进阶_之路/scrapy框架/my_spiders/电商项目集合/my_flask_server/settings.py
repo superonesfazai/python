@@ -223,7 +223,7 @@ redis
 """
 # REDIS_HOST = '127.0.0.1'
 # pi
-REDIS_HOST = '192.168.124.4'
+REDIS_HOST = '192.168.1.102'
 REDIS_PORT = 6379
 REDIS_PASSWORD = None
 REDIS_DB = 6
@@ -1954,6 +1954,31 @@ ARTICLE_ITEM_LIST = [
             'method': 'css',
             'selector': 'title ::text',
         },
+        'video_title': None,
+        'author': None,                         # 此处留空
+        'video_author': None,
+        'head_url': None,
+        'video_head_url': None,
+        'create_time': None,                    # 不用他的时间, 自己生成
+        'video_create_time': None,
+        'content': None,                        # 留空无值
+        'video_article_content': None,
+        'comment_num': None,                    # 点赞数留空
+        'tags_list': None,
+        'video_tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num':None,
+    },
+    {
+        'short_name': 'ky',
+        'debug': True,
+        'obj_origin': 'www.kaiyanapp.com',
+        'article_id': {
+            'method': 're',
+            'selector': 'vid=(\d+)',
+        },
+        'title': None,
         'video_title': None,
         'author': None,                         # 此处留空
         'video_author': None,
