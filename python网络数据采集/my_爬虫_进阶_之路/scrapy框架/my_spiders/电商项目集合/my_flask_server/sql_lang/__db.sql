@@ -567,3 +567,28 @@ create table coupon_info(
   end_time datetime,
   use_method nvarchar(2000),
 );
+
+-- 商品标签表
+create table goods_label_table(
+  label_id int identity(1, 1) primary key,
+  label_name nvarchar(200) not null unique,
+  is_delete int not null default 0,
+);
+-- 商品标签关联规则表
+create table goods_label_association_rules_table(
+  id int identity(1, 1) primary key,
+  create_time datetime,
+  father_label_id int not null,
+  relation_label_id int not null,           -- 被关联的label_id
+  unique_id nvarchar(100) not null unique,  -- 根据father_label_id跟relation_label_id生成的唯一id, 生成方式eg: 'father_label_id::relation_label_id'
+  is_delete int not null default 0,
+);
+-- 主站商品id推荐关联表
+create table main_goods_id_association_table(
+  id int identity(1, 1) primary key,
+  create_time datetime,
+  father_goods_id int not null,
+  relation_goods_id int not null,
+  goods_label_relation_id nvarchar(100) not null, -- 表示这条记录的关联规则unique_id, 即商品标签关联表的unique_id,
+  rank_value int not null,  -- 排序值0, 1, 2..., 修改排序顺序即取出所有对应的进行重新排序录入
+);

@@ -2276,7 +2276,7 @@ class ArticleParser(AsyncCrawler):
                 'site_id': 42,
             },
             'klm': {
-                'debug': False,
+                'debug': True,
                 'name': '看了吗视频聚合网',
                 'url': 'http://www.klm123.com/mobile/index',
                 'obj_origin': 'www.klm123.com',

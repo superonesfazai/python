@@ -318,7 +318,7 @@ def admin():
                 my_lg.error('来自admin页面中的未知操作!')
 
         else:
-            return send_file('templates/admin.html')       
+            return send_file('templates/admin.html')
 
     else:   # 非法登录显示错误网页
         return ERROR_HTML_CODE
@@ -535,7 +535,7 @@ def get_all_data():
                 return _error_msg(msg='违禁物品禁止上架!')
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            collect()  
+            collect()
             msg = '阿里1688抓取数据成功!'
 
             return _success_data(data=wait_to_save_data, msg=msg)
@@ -629,7 +629,7 @@ def get_taobao_data():
                 return _error_msg(msg='违禁物品禁止上架!')
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            collect()  
+            collect()
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -724,7 +724,7 @@ def get_tmall_data():
                 return _error_msg(msg='违禁物品禁止上架!')
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            collect()  
+            collect()
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -822,7 +822,7 @@ def get_jd_data():
                 return _error_msg(msg='违禁物品禁止上架!')
 
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
-            collect()  
+            collect()
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -942,7 +942,7 @@ def get_zhe_800_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del zhe_800  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
-            collect()  
+            collect()
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1058,7 +1058,7 @@ def get_juanpi_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del juanpi  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
-            collect()  
+            collect()
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1172,7 +1172,7 @@ def get_pinduoduo_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del pinduoduo  # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
-            collect()  
+            collect()
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1289,7 +1289,7 @@ def get_vip_data():
             tmp_wait_to_save_data_list.append(wait_to_save_data)    # 用于存放所有url爬到的结果
             try: del vip       # 释放login_ali的资源(python在使用del后不一定马上回收垃圾资源, 因此我们需要手动进行回收)
             except: pass
-            collect()        
+            collect()
 
             my_lg.info('------>>>| 下面是爬取到的页面信息: ')
             my_lg.info(str(wait_to_save_data))
@@ -1443,7 +1443,7 @@ def kaola_to_save_data():
 
     else:
         return _error_msg(msg='')
-    
+
 ######################################################
 # 网易严选
 @app.route('/yanxuan_data', methods=['POST'])
@@ -1764,7 +1764,7 @@ def get_basic_data():
                     except:
                         pass
                     return _null_goods_id()
-                    
+
                 wait_to_deal_with_url = 'https://item.taobao.com/item.htm?id=' + goods_id  # 构造成标准干净的淘宝商品地址
                 try:
                     tmp_result = tb.get_goods_data(goods_id=goods_id)
@@ -2523,6 +2523,334 @@ def spider_dcs():
         data=res,)
 
 ######################################################
+"""
+跨域关联数据相关接口
+"""
+@app.route('/get_chinese_word_segmentation_results', methods=['GET'])
+def get_chinese_word_segmentation_results():
+    """
+    获取某字符串中文分词结果
+    :return:
+    """
+    @catch_exceptions(
+        logger=my_lg,
+        default_res=_error_msg(
+            msg='获取分词结果失败!',
+            default_res={},))
+    def get_res():
+        # eg: '棉柔世家宝宝棉柔巾婴儿新生儿专用干湿两用干巾洗脸巾非湿巾纸巾'
+        target_str = req_args_dict.get('target_str', '')
+        assert target_str != ''
+        my_lg.info('待处理原字符串: {}'.format(target_str))
+
+        from jieba import cut as jieba_cut
+
+        # 精准模式
+        seg_list = list(jieba_cut(
+            sentence=target_str,
+            cut_all=False,))
+        # pprint(seg_list)
+        my_lg.info('中文分词结果: {}'.format('/ '.join(seg_list)))
+        assert seg_list != []
+
+        return _success_data(
+            msg='获取分词结果成功!',
+            data={
+                'res': [{
+                    'word': item,
+                } for item in seg_list],
+            },)
+
+    req_args_dict = request.args
+
+    return get_res()
+
+@app.route('/add_goods_label', methods=['GET'])
+def add_goods_label():
+    """
+    db 添加商品标签(必须存入该商品标签后才能继续进行后续关联操作)
+    :return:
+    """
+    @catch_exceptions(
+        logger=my_lg,
+        default_res=_error_msg(
+            msg='添加商品标签失败!',
+            default_res={}, ))
+    def get_res():
+        label_name = req_args_dict.get('label_name', '')
+        assert label_name != ''
+
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        res = new_add_goods_label_name_and_get_add_res(
+            sql_cli=sql_cli,
+            label_name=label_name,)
+        label_name, label_id = res['label_name'], res['label_id']
+        try:
+            del sql_cli
+        except:
+            pass
+
+        return _success_data(
+            msg='添加label_name: {}, 成功!'.format(label_name),
+            data={
+                'label_id': label_id,
+                'label_name': label_name,
+            }, )
+
+    req_args_dict = request.args
+
+    return get_res()
+
+def new_add_goods_label_name_and_get_add_res(sql_cli, label_name) -> dict:
+    """
+    新增一组label_name 并返回增加后的label_name对应的label_id信息
+    :param sql_cli:
+    :param label_name:
+    :return:
+    """
+    # 不管原先有没都执行插入操作
+    sql_cli._insert_into_table_2(
+        sql_str='insert into dbo.goods_label_table(label_name) values (%s)',
+        params=(
+            label_name,
+        ),
+        logger=my_lg,
+    )
+    res = list(sql_cli._select_table(
+        sql_str='select label_id from dbo.goods_label_table where label_name=%s',
+        params=(
+            label_name,
+        ), ))
+    assert res is not None
+    assert res != []
+    label_id = res[0][0]
+    my_lg.info('获取到label_name: {}, 的label_id: {}'.format(label_name, label_id))
+
+    return {
+        'label_name': label_name,
+        'label_id': label_id,
+    }
+
+@app.route('/add_one_row_goods_label_name_relation_data', methods=['GET'])
+def add_one_row_goods_label_name_relation_data():
+    """
+    添加一行商品标签关联数据(即表示增加一行互相关规则, 通过生成unique_id来进行唯一标签关联规则约束)(实现两关键字互相关)
+    :return:
+    """
+    @catch_exceptions(
+        logger=my_lg,
+        default_res=_error_msg(
+            msg='添加标签关联记录失败!',
+            default_res={},))
+    def get_res():
+        # 父标签名
+        father_label_name = req_args_dict.get('father_label_name', '')
+        # 被关联的标签名
+        relation_label_name = req_args_dict.get('relation_label_name', '')
+        assert father_label_name != ''
+        assert relation_label_name != ''
+
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        res0 = new_add_goods_label_name_and_get_add_res(
+            sql_cli=sql_cli,
+            label_name=father_label_name,)
+        res1 = new_add_goods_label_name_and_get_add_res(
+            sql_cli=sql_cli,
+            label_name=relation_label_name,)
+        father_label_id, relation_label_id = res0['label_id'], res1['label_id']
+
+        # 不管原先有没都执行插入操作
+        unique_id = get_uuid3(target_str='{}::{}'.format(father_label_id, relation_label_id ))
+        res = sql_cli._insert_into_table_2(
+            sql_str='insert into dbo.goods_label_association_rules_table(create_time, father_label_id, relation_label_id, unique_id) values (%s, %s, %s, %s)',
+            params=(
+                get_shanghai_time(),
+                father_label_id,
+                relation_label_id,
+                unique_id,
+            ),
+            logger=my_lg,)
+        assert res is True
+        my_lg.info('新增标签关联记录unique_id: {}'.format(unique_id))
+
+        try:
+            del sql_cli
+        except:
+            pass
+
+        return _success_data(
+            msg='添加标签关联记录成功!',
+            data={
+                'goods_label_unique_relation_id': unique_id,
+            }, )
+
+    req_args_dict = request.args
+
+    return get_res()
+
+@app.route('/find_out_relation_name_list_by_label_name', methods=['GET'])
+def find_out_relation_name_list_by_label_name():
+    """
+    通过给定的label_name 进行搜索关联关键字列表(有则返回, 无则可让其手动增加关联关键字至db)(且两两关键字要实现互关联检索)
+    :return:
+    """
+    @catch_exceptions(
+        logger=my_lg,
+        default_res=_error_msg(
+            msg='搜索label_name: {}的关联标签列表失败!',
+            default_res={},))
+    def get_res():
+        label_name = req_args_dict.get('label_name', '')
+        assert label_name != ''
+
+        sql_cli = SqlServerMyPageInfoSaveItemPipeline()
+        # 查找label_name对应的label_id
+        res0 = sql_cli._select_table(
+            sql_str='select label_id from dbo.goods_label_table where label_name=%s',
+            params=(label_name,),
+            logger=my_lg,)
+        assert res0 is not None
+        assert res0 != []
+        label_id = res0[0][0]
+        my_lg.info('获取到label_name: {} 对应的label_id: {}'.format(label_name, label_id))
+
+        # 根据label_id 在goods_label_association_rules_table中查找关系id
+        res1 = sql_cli._select_table(
+            sql_str='''
+            select father_label_id, relation_label_id, unique_id
+            from dbo.goods_label_association_rules_table
+            where (father_label_id=%s 
+            or relation_label_id=%s)
+            and is_delete=0
+            ''',
+            params=(label_id, label_id),
+            logger=my_lg,)
+        assert res1 is not None
+
+        # 获取返回结果中不含原先待检索label_id的关系label_id信息
+        res = []
+        for item in res1:
+            father_label_id, relation_label_id, unique_id = item
+            if father_label_id == label_id:
+                res2 = sql_cli._select_table(
+                    sql_str='select label_name from dbo.goods_label_table where label_id=%s',
+                    params=(relation_label_id,),
+                    logger=my_lg,)
+                res.append({
+                    'relation_label_name': res2[0][0],
+                    'relation_label_id': relation_label_id,
+                    'goods_label_unique_relation_id': unique_id,
+                })
+                continue
+
+            if relation_label_id == label_id:
+                res2 = sql_cli._select_table(
+                    sql_str='select label_name from dbo.goods_label_table where label_id=%s',
+                    params=(father_label_id,),
+                    logger=my_lg, )
+                res.append({
+                    'relation_label_name': res2[0][0],
+                    'relation_label_id': father_label_id,
+                    'goods_label_unique_relation_id': unique_id,
+                })
+                continue
+
+        try:
+            del sql_cli
+        except:
+            pass
+
+        return _success_data(
+            msg='搜索关联关键字列表成功!',
+            data={
+                'res': res,
+            },)
+
+    req_args_dict = request.args
+
+    return get_res()
+
+@app.route('/search_goods_info_in_yiuxiu_by_keyword', methods=['GET'])
+def search_goods_info_in_yiuxiu_by_keyword():
+    """
+    根据给与关键字在主站中寻找返回的商品信息
+    :return:
+    """
+    @catch_exceptions(
+        logger=my_lg,
+        default_res=_error_msg(
+            msg='搜索label_name: {}的商品列表失败!',
+            default_res={},))
+    def get_res():
+        keyword = req_args_dict.get('keyword', '')
+        page_num = int(req_args_dict.get('page_num', '1'))
+        assert keyword != ''
+
+        my_lg.info('待检索关键字: {}, page_num: {}, 正在获取搜索数据ing...'.format(keyword, page_num))
+
+        headers = get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='',)
+        # from urllib.parse import quote
+        headers.update({
+            'authority': 'm.yiuxiu.com',
+            'accept': 'application/json, text/javascript, */*; q=0.01',
+            'x-requested-with': 'XMLHttpRequest',
+            # 'referer': 'https://m.yiuxiu.com/Product/List?key={}'.format(quote(keyword)),
+        })
+        params = (
+            ('key', keyword),
+            ('cid', '0'),
+            ('curIndex', str(page_num)),    # 页码数, 1, 2...
+            ('sort', 'def'),                # 'def' 表示默认, 'sale'表示销量, 此处默认按综合排序
+            ('dir', 'asc'),
+        )
+
+        body = Requests.get_url_body(
+            url='https://m.yiuxiu.com/search/GetSearchResult',
+            headers=headers,
+            params=params,
+            ip_pool_type=IP_POOL_TYPE,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=6, )
+        assert body != ''
+        data = json_2_dict(
+            json_str=body,
+            default_res={},
+            logger=my_lg,).get('msgObj', [])
+        # pprint(data)
+
+        res = []
+        for item in data:
+            try:
+                goods_id = item.get('ID', '')
+                assert goods_id != ''
+                img_url = item.get('ImageUrl', '')
+                assert img_url != ''
+                goods_name = item.get('goods_name', '')
+                assert goods_name != ''
+                res.append({
+                    'goods_id': int(goods_id),
+                    'img_url': img_url,
+                    'goods_name': goods_name,
+                    'buy_price': item.get('PurchasePrice', ''),
+                })
+            except Exception:
+                continue
+
+        return _success_data(
+            msg='搜索label_name: {}的商品列表成功!',
+            data={
+                'res': res,
+            }, )
+
+    req_args_dict = request.args
+
+    return get_res()
+
+######################################################
 LOCAL_SERVER_URL = 'http://a7659ca.cpolar.io'
 """
 /local_info
@@ -2575,7 +2903,7 @@ def set_local_server_url():
 @app.route('/wechat', methods=['GET', 'POST'])
 def wechat():
     echo_str = dict(request.args).get('echostr', '')
-    
+
     return echo_str
 
 ######################################################

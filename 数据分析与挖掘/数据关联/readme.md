@@ -498,3 +498,12 @@ FP-growth算法是一种用于发现数据集中频繁模式的有效方法。FP
 [python数据分析：分类分析（classification analysis）](https://blog.csdn.net/tonydz0523/article/details/84629076)
 
 [youtube: 使用Apriori算法进行关联分析 - 理论](https://www.youtube.com/watch?v=rEpJCamrjXY)
+
+[专访明略数据任鑫琦：解密关联分析大数据算法](http://www.raincent.com/content-88-4885-1.html)
+
+## 数据存储
+[大数据的三种存储方式](https://zhuanlan.zhihu.com/p/42776873)
+
+[Python操作Hbase](https://www.jianshu.com/p/62f687ba0c11)
+
+[Python操作MongoDB](https://juejin.im/post/5addbd0e518825671f2f62ee)
