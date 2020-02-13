@@ -126,8 +126,8 @@ TAOBAO_QIANGGOU_SPIDER_HOUR_LIST = ['10', '11', '12', '13', '14', '15', '17']
 '''
 折800 session_id相关
 '''
-BASE_SESSION_ID = 28212             # 起始session_id
-MAX_SESSION_ID = 33000              # 截止的session_id
+BASE_SESSION_ID = 29264             # 起始session_id
+MAX_SESSION_ID = 35000              # 截止的session_id
 SPIDER_START_HOUR = 8               # 每日限时秒杀爬取的开始秒杀时间点
 SPIDER_END_HOUR = 16                # 每日限时秒杀爬取的秒杀结束时间点
 ZHE_800_SPIKE_SLEEP_TIME = 1.8       # 没抓取一个sleep time的时间,用于避免返回为空的情况
@@ -1978,6 +1978,28 @@ ARTICLE_ITEM_LIST = [
             'method': 're',
             'selector': 'vid=(\d+)',
         },
+        'title': None,
+        'video_title': None,
+        'author': None,                         # 此处留空
+        'video_author': None,
+        'head_url': None,
+        'video_head_url': None,
+        'create_time': None,                    # 不用他的时间, 自己生成
+        'video_create_time': None,
+        'content': None,                        # 留空无值
+        'video_article_content': None,
+        'comment_num': None,                    # 点赞数留空
+        'tags_list': None,
+        'video_tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num':None,
+    },
+    {
+        'short_name': 'dy',
+        'debug': True,
+        'obj_origin': 'v.douyin.com',
+        'article_id': None,
         'title': None,
         'video_title': None,
         'author': None,                         # 此处留空

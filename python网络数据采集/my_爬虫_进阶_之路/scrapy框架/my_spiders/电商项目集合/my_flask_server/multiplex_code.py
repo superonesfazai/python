@@ -386,11 +386,11 @@ async def handle_real_times_goods_one_res(goods_type: str,
         if goods_type == 'tm':
             db_goods_info_obj = TMDbGoodsInfoObj(
                 item=item,
-                logger=logger, )
+                logger=logger,)
         else:
             db_goods_info_obj = TBDbGoodsInfoObj(
                 item=item,
-                logger=logger, )
+                logger=logger,)
         msg = 'create task[where is goods_id: {}, index: {}]...'.format(
             db_goods_info_obj.goods_id,
             index)
@@ -906,7 +906,7 @@ def format_price_info_list(price_info_list, site_id, is_add_profit: bool=True) -
                 continue
 
             if is_add_profit:
-                # 加价
+                # 加价(在原先价格基础上加上公司利润)
                 try:
                     detail_price = add_cp_profit_2_price(target_price=detail_price)
                     normal_price = add_cp_profit_2_price(target_price=normal_price)

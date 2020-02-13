@@ -272,7 +272,10 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://m.gaoxiaogif.com/dongwugif/12298.html'
 
         # 酷燃视频
-        article_link = 'https://krcom.cn/7315375944/episodes/2358773:4438202283699380'
+        # article_link = 'https://krcom.cn/7315375944/episodes/2358773:4438202283699380'
+
+        # dy
+        article_link = 'https://v.douyin.com/se3wkb'
 
         url = article_link
 

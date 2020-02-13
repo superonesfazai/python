@@ -53,6 +53,7 @@ supported:
     41. 腾讯微视(根据腾讯微视分享出的地址)
     42. 看了吗视频聚合网(http://www.klm123.com/mobile/index)(有全屏小视频也有短视频)
     43. 开眼短视频(https://www.kaiyanapp.com/detail.html?vid=52619)(视频id类似递增)
+    44. 抖音(根据抖音分享出来的地址)(但是cp上传视频被403禁止)
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -2303,6 +2304,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'www.kaiyanapp.com',
                 'site_id': 46,
             },
+            'dy': {
+                'debug': False,
+                'name': '抖音',
+                'url': '根据抖音分享出来的短地址',
+                'obj_origin': 'v.douyin.com',
+                'site_id': 47,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -2682,6 +2690,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'ky':
                 return await self._get_ky_article_html(article_url=article_url)
 
+            elif article_url_type == 'dy':
+                return await self._get_dy_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -2689,6 +2700,118 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_dy_article_html(self, article_url) -> tuple:
+        """
+        获取dy html
+        :param article_url:
+        :return:
+        """
+        # 根据dy分享的短地址
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='', )
+        headers.update({
+            'authority': 'v.douyin.com',
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        })
+        # 下面需设置allow_redirects=False, 才可获取到数据
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            allow_redirects=False,
+            logger=self.lg,)
+        assert body != ''
+        # self.lg.info(body)
+
+        # 获取未被重定向的a标签地址进行后续请求
+        a_sel = {
+            'method': 're',
+            'selector': 'href=\"(.*?)\"',
+        }
+        target_a_url = await async_parse_field(
+            parser=a_sel,
+            target_obj=body,
+            logger=self.lg, )
+        assert target_a_url != ''
+        self.lg.info('获取到待跳转的原地址: {}'.format(target_a_url))
+
+        # 获取跳转后的body, 目的获取item_ids, dytk
+        body = await unblock_request(
+            url=target_a_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        assert body != ''
+        # self.lg.info(body)
+
+        item_ids_sel = {
+            'method': 're',
+            'selector': 'itemId\: \"(\d+)\",',
+        }
+        dytk_sel = {
+            'method': 're',
+            'selector': 'dytk\: \"(\w+)\"',
+        }
+        item_ids = await async_parse_field(
+            parser=item_ids_sel,
+            target_obj=body,
+            logger=self.lg,
+        )
+        dytk = await async_parse_field(
+            parser=dytk_sel,
+            target_obj=body,
+            logger=self.lg,
+        )
+        assert item_ids != ''
+        assert dytk != ''
+        self.lg.info('item_ids: {}, dytk: {}'.format(item_ids, dytk))
+
+        # 获取视频数据接口
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='', )
+        headers.update({
+            'authority': 'www.iesdouyin.com',
+            'accept': '*/*',
+            'x-requested-with': 'XMLHttpRequest',
+            # 'referer': 'https://www.iesdouyin.com/share/video/6788405311460920583/?region=CN&amp;mid=6788399235936750339&amp;u_code=14a6g7j4m&amp;titleType=title&amp;timestamp=1581400527&amp;utm_campaign=client_share&amp;app=aweme&amp;utm_medium=ios&amp;tt_from=copy&amp;utm_source=copy',
+            'referer': target_a_url,
+        })
+        params = (
+            ('item_ids', item_ids),
+            ('dytk', dytk),
+        )
+        body = await unblock_request(
+            url='https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/',
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        assert body != ''
+        self.hook_target_api_data = json_2_dict(
+            json_str=body,
+            default_res={},
+            logger=self.lg, ).get('item_list', [])[0]
+        # pprint(self.hook_target_api_data)
+
+        video_url = self.hook_target_api_data\
+            .get('video', {})\
+            .get('download_addr', {})\
+            .get('url_list', [])[0]
+        self.lg.info('获取到dy video_url: {}'.format(video_url))
+
+        return body, video_url
 
     async def _get_ky_article_html(self, article_url) -> tuple:
         """
@@ -5170,6 +5293,7 @@ class ArticleParser(AsyncCrawler):
             'txws',
             'klm',
             'ky',
+            'dy',
         ]
         if short_name in short_name_list2:
             pass
@@ -5286,6 +5410,10 @@ class ArticleParser(AsyncCrawler):
             title = self.hook_target_api_data\
                 .get('title', '')
 
+        elif short_name == 'dy':
+            title = self.hook_target_api_data\
+                .get('desc', '')
+
         elif short_name == 'ft':
             if video_url != '':
                 if title == '':
@@ -5361,8 +5489,31 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'ky':
             title = await self._wash_ky_title(title=title)
 
+        elif short_name == 'dy':
+            title = await self._wash_dy_title(title=title)
+
         else:
             pass
+
+        return title
+
+    @staticmethod
+    async def _wash_dy_title(title: str) -> str:
+        title = wash_sensitive_info(
+            data=title,
+            replace_str_list=[
+                ('  ', ' '),
+            ],
+            add_sensitive_str_list=[
+                '\@\w+',     # eg: '@抖音小助手'
+                '\#\w+',     # eg: '#波波脱口秀'
+                '抖音',
+                'douyin',
+                'DOUYIN',
+            ],
+            is_default_filter=False,
+            is_lower=False,
+        )
 
         return title
 
@@ -5596,6 +5747,10 @@ class ArticleParser(AsyncCrawler):
 
         elif short_name == 'jd':
             share_id = self.hook_target_api_data.get('article_id', '')
+
+        elif short_name == 'dy':
+            share_id = self.hook_target_api_data.get('aweme_id', '')
+
         else:
             pass
 
@@ -6230,6 +6385,7 @@ class ArticleParser(AsyncCrawler):
             'txws',
             'klm',
             'ky',
+            'dy',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -6508,9 +6664,16 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'ky':
             content = await self._wash_ky_article_content(content=content)
 
+        elif short_name == 'dy':
+            content = await self._wash_dy_article_content(content=content)
+
         else:
             pass
 
+        return content
+
+    @staticmethod
+    async def _wash_dy_article_content(content: str) -> str:
         return content
 
     @staticmethod
@@ -8158,6 +8321,11 @@ def main():
     # url = 'https://www.kaiyanapp.com/detail.html?vid=52619'
     # url = 'https://www.kaiyanapp.com/detail.html?vid=52618'
     # url = 'https://www.kaiyanapp.com/detail.html?vid=4000'
+
+    # 抖音
+    # url = 'https://v.douyin.com/pnxxaH/'
+    # url = 'https://v.douyin.com/sdLYWJ/'
+    # url = 'https://v.douyin.com/se3wkb/'
 
     # 文章url 测试
     print('article_url: {}'.format(url))
