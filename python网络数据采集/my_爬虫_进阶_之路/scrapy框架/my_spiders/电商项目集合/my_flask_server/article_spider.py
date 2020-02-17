@@ -54,6 +54,7 @@ supported:
     42. 看了吗视频聚合网(http://www.klm123.com/mobile/index)(有全屏小视频也有短视频)
     43. 开眼短视频(https://www.kaiyanapp.com/detail.html?vid=52619)(视频id类似递增)
     44. 抖音(根据抖音分享出来的地址)(但是cp上传视频被403禁止)
+    45. 今日小视频网(部分视频为全屏小视频)(http://m.jrtb.net/)
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -76,7 +77,6 @@ not supported:
     18. 嗡啪搞笑(http://wengpa.com/)
     19. 微短视频网(https://www.wdace.com/)(视频为iframe内切, 先不做)
     20. 搞笑视频网(https://www.gaoxiaovod.com/)(部分视频from youku, 需driver)
-    21. 今日小视频网(http://m.jrtb.net/)(可做)
     
 视频地址解析神器: https://www.urlgot.top/
     
@@ -258,8 +258,233 @@ class ArticleParser(AsyncCrawler):
         elif article_type == 'klm':
             return await self.get_klm_article_list()
 
+        elif article_type == 'jrxsp':
+            return await self.get_jrxsp_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_jrxsp_article_list(self) -> list:
+        """
+        获取jrxsp 首页每个分类的的article_list
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            # m站首页接口
+            sort_dict_list = [
+                # 不取推荐的, 因为推荐的常含游戏的
+                # {
+                #     'name': '推荐',
+                #     'sort_key': 'tuijian',
+                #     'page_num': 1,          # 推荐只有一页
+                # },
+                {
+                    'name': '娱乐',
+                    'sort_key': 'yule',
+                },
+                {
+                    'name': '搞笑',
+                    'sort_key': 'gaoxiao',
+                },
+                {
+                    'name': '影视',
+                    'sort_key': 'yingshi',
+                },
+                {
+                    'name': '美食',
+                    'sort_key': 'meishi',
+                },
+                {
+                    'name': '音乐',
+                    'sort_key': 'yinyue',
+                },
+                {
+                    'name': '儿童',
+                    'sort_key': 'ertong',
+                },
+                {
+                    'name': '体育',
+                    'sort_key': 'tiyu',
+                },
+                {
+                    'name': '综艺',
+                    'sort_key': 'zongyi',
+                },
+                {
+                    'name': '宠物',
+                    'sort_key': 'chongwu',
+                },
+                {
+                    'name': '生活',
+                    'sort_key': 'shenghuo',
+                },
+            ]
+            new_sort_dict_list = []
+            for item in sort_dict_list:
+                for page_num in range(1, 3):
+                    # 取前面2页
+                    tmp_item = item.copy()
+                    tmp_item['page_num'] = page_num
+                    new_sort_dict_list.append(tmp_item)
+
+            sort_dict_list = new_sort_dict_list
+            # pprint(sort_dict_list)
+
+            for target_sort_dict in sort_dict_list:
+                # mp视频更新有限, 就每个分类获取第2页的
+                tasks_params_list.append(target_sort_dict)
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where jrxsp: sort_name: {}, sort_key: {}, page_num:{}]...'.format(
+                k['name'],
+                k['sort_key'],
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['sort_key'],
+                k['page_num'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_jrxsp_recommend_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_jrxsp_recommend_article_list_by_page_num(self, sort_key: str, page_num: int) -> list:
+        """
+        获取jrxsp 每个分类的某页article_list
+        :param sort_key:
+        :param page_num:
+        :return:
+        """
+        headers = get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='',
+        )
+        headers.update({
+            'Proxy-Connection': 'keep-alive',
+        })
+        url = 'http://m.jrtb.net/{}'.format(sort_key)
+        if page_num > 1:
+            params = (
+                ('page', page_num),
+            )
+        else:
+            params = None
+
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            params=params,
+            verify=False,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            proxy_type=PROXY_TYPE_HTTPS, )
+        assert body != ''
+        # self.lg.info(body)
+
+        article_div_list_sel = {
+            'method': 'css',
+            'selector': 'div.list_content section',
+        }
+        article_div_list = parse_field(
+            parser=article_div_list_sel,
+            target_obj=body,
+            logger=self.lg,
+            is_first=False, )
+        assert article_div_list != []
+        # pprint(article_div_list)
+
+        # 文章地址选择器
+        article_url_sel = {
+            'method': 'css',
+            'selector': 'a.article_link ::attr("href")',
+        }
+        article_id_sel = {
+            'method': 're',
+            'selector': '/(\w+)\.html',
+        }
+        title_sel = {
+            'method': 'css',
+            'selector': 'div.item_detail h3 ::text',
+        }
+        # 电影时长(无)
+        res = []
+        for item in article_div_list:
+            try:
+                article_url = parse_field(
+                    parser=article_url_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert article_url != ''
+                article_id = parse_field(
+                    parser=article_id_sel,
+                    target_obj=article_url,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert article_id != ''
+                article_url = 'http://m.jrtb.net/{}/{}.html'.format(
+                    sort_key,
+                    article_id)
+                title = parse_field(
+                    parser=title_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert title != ''
+                if len(title) >= 30:
+                    continue
+
+                # 电影时长无, pass
+
+            except (AssertionError, Exception):
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('jrxsp::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('jrxsp', article_id)),
+                'article_type': 'jrxsp',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+
+        # pprint(res)
+        self.lg.info('[{}] jrxsp::sort_key:{}::page_num:{}'.format(
+            '+' if res != [] else '-',
+            sort_key,
+            page_num,
+        ))
+
+        return res
 
     async def get_klm_article_list(self) -> list:
         """
@@ -2228,7 +2453,7 @@ class ArticleParser(AsyncCrawler):
                 'site_id': 35,
             },
             'gxg': {
-                'debug': False,
+                'debug': True,
                 'name': '搞笑gif图片集',
                 'url': 'https://m.gaoxiaogif.com',
                 'obj_origin': 'm.gaoxiaogif.com',
@@ -2310,6 +2535,13 @@ class ArticleParser(AsyncCrawler):
                 'url': '根据抖音分享出来的短地址',
                 'obj_origin': 'v.douyin.com',
                 'site_id': 47,
+            },
+            'jrxsp': {
+                'debug': False,
+                'name': '今日小视频',
+                'url': 'http://m.jrtb.net',
+                'obj_origin': 'm.jrtb.net',
+                'site_id': 48,
             },
         }
 
@@ -2693,6 +2925,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'dy':
                 return await self._get_dy_article_html(article_url=article_url)
 
+            elif article_url_type == 'jrxsp':
+                return await self._get_jrxsp_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -2700,6 +2935,44 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_jrxsp_article_html(self, article_url) -> tuple:
+        """
+        获取jrxsp html
+        :param article_url:
+        :return:
+        """
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='', )
+        headers.update({
+            'Proxy-Connection': 'keep-alive',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            verify=False,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        assert body != ''
+        # self.lg.info(body)
+
+        video_url_sel = {
+            'method': 'css',
+            'selector': 'div.media video ::attr("src")',
+        }
+        video_url = await async_parse_field(
+            parser=video_url_sel,
+            target_obj=body,
+            logger=self.lg,)
+        assert video_url != ''
+        video_url = 'http:' + video_url if video_url != '' else ''
+        self.lg.info('video_url: {}'.format(video_url))
+
+        return body, video_url
 
     async def _get_dy_article_html(self, article_url) -> tuple:
         """
@@ -5294,6 +5567,7 @@ class ArticleParser(AsyncCrawler):
             'klm',
             'ky',
             'dy',
+            'jrxsp',
         ]
         if short_name in short_name_list2:
             pass
@@ -6386,6 +6660,7 @@ class ArticleParser(AsyncCrawler):
             'klm',
             'ky',
             'dy',
+            'jrxsp',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -8327,6 +8602,12 @@ def main():
     # url = 'https://v.douyin.com/sdLYWJ/'
     # url = 'https://v.douyin.com/se3wkb/'
 
+    # 今日小视频(它们网站偶尔不稳定)
+    # url = 'http://m.jrtb.net/shenghuo/xhyljjtzxjdpjmmhzpysdxjzcr.html'
+    # url = 'http://m.jrtb.net/yingshi/dxhyjgfzgypcdzlyglkqwwzlxs.html'
+    # url = 'http://m.jrtb.net/shenghuo/11sxnhzgyyzzjdycqsxlwdyklldrz.html'
+    # url = 'http://m.jrtb.net/yingshi/zdqwcrzzzgzzbmxltzfywrtdzjj.html'
+
     # 文章url 测试
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(
@@ -8349,6 +8630,7 @@ def main():
     # article_type = 'lsp'
     # article_type = 'mp'
     # article_type = 'klm'
+    # article_type = 'jrxsp'
     # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
     #     article_type=article_type,))
     # pprint(tmp)

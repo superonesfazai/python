@@ -86,6 +86,7 @@ class RecommendGoodOps(AsyncCrawler):
         self.pp_intercept_num = 2
         self.kr_intercept_num = 1
         self.dfsp_intercept_num = 1
+        self.jrxsp_intercept_num = 1
         # 增加全屏视频数
         self.lsp_intercept_num = 2
         self.mp_intercept_num = 1
@@ -101,6 +102,7 @@ class RecommendGoodOps(AsyncCrawler):
         self.lsp_cache_dict = {}
         self.mp_cache_dict = {}
         self.klm_cache_dict = {}
+        self.jrxsp_cache_dict = {}
 
     async def _fck_run(self):
         # 休眠7.5分钟, 避免频繁发!(5分钟还是太快, 删不过来)(增加较多视频, 失败率较高故还是5分钟)
@@ -120,7 +122,7 @@ class RecommendGoodOps(AsyncCrawler):
                 try:
                     await async_wait_for(
                         self.auto_publish_articles(),
-                        timeout=(self.zq_intercept_num +self.hk_intercept_num+self.lfd_intercept_num+self.gxg_intercept_num+self.pp_intercept_num + self.kr_intercept_num + self.dfsp_intercept_num + self.lsp_intercept_num + self.mp_intercept_num + self.klm_intercept_num) * 2.5 * 60)
+                        timeout=(self.zq_intercept_num +self.hk_intercept_num+self.lfd_intercept_num+self.gxg_intercept_num+self.pp_intercept_num + self.kr_intercept_num + self.dfsp_intercept_num + self.lsp_intercept_num + self.mp_intercept_num + self.klm_intercept_num + self.jrxsp_intercept_num) * 2.5 * 60)
                 except AsyncTimeoutError:
                     raise PublishOneArticleFailException
 
@@ -198,6 +200,7 @@ class RecommendGoodOps(AsyncCrawler):
         # dfsp_article_list = []
         # lsp_article_list = []
         # mp_article_list = []
+        # klm_article_list = []
         zq_article_list = self.get_zq_own_create_article_id_list(
             min_article_id=self.min_article_id,
             max_article_id=self.max_article_id,)
@@ -210,6 +213,7 @@ class RecommendGoodOps(AsyncCrawler):
         lsp_article_list = self.get_lsp_article_id_list()
         mp_article_list = self.get_mp_article_id_list()
         klm_article_list = self.get_klm_article_id_list()
+        jrxsp_article_list = self.get_jrxsp_article_id_list()
 
         # 测试用
         # article_id = '17300123'
@@ -228,6 +232,7 @@ class RecommendGoodOps(AsyncCrawler):
                        + dfsp_article_list \
                        + hk_article_list \
                        + klm_article_list \
+                       + jrxsp_article_list \
                        + mp_article_list \
                        + lsp_article_list \
                        + lfd_article_list \
@@ -310,6 +315,39 @@ class RecommendGoodOps(AsyncCrawler):
             collect()
 
         return
+
+    def get_jrxsp_article_id_list(self):
+        """
+        获取目标article_list
+        :return:
+        """
+        if not isinstance(self.article_parser, ArticleParser):
+            self.article_parser = ArticleParser(logger=self.lg)
+        else:
+            pass
+
+        if self.jrxsp_cache_dict == {}:
+            # 首次启动
+            article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                article_type='jrxsp',))
+            self.jrxsp_cache_dict['data'] = article_list
+            self.jrxsp_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+        else:
+            cache_time = self.jrxsp_cache_dict['cache_time']
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > 40 * 60:
+                # klm 每日更新数量有限, 每过40分钟重新获取一次
+                article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                    article_type='jrxsp',))
+                self.jrxsp_cache_dict['data'] = article_list
+                self.jrxsp_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+            else:
+                article_list = self.jrxsp_cache_dict['data']
+
+        if article_list != []:
+            # 截取1个(与图文穿插)
+            article_list = random_sample(article_list, self.jrxsp_intercept_num)
+
+        return article_list
 
     def get_klm_article_id_list(self):
         """
