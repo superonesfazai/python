@@ -688,6 +688,9 @@ $ ./cpolar authtoken xxxxx[你的账号的认证代码]
 Authtoken saved to configuration file: /root/.cpolar/cpolar.yml
 ```
 
+#### cpolar异常处理
+重新安装即可(再次执行上面安装步骤即可)
+
 #### 远程连接
 
 ##### 使用ssh从远程网络访问Pi

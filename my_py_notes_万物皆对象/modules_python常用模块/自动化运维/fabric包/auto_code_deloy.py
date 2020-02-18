@@ -187,6 +187,9 @@ def get_connected_hosts():
             else:
                 pass
 
+        # if '118.31' in ip:
+        #     continue
+
         print('目标ip: {}'.format(ip))
         _ = group.Connection(
             host=ip,
