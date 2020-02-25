@@ -10,7 +10,6 @@
 """
 拼多多页面采集系统(官网地址: http://mobile.yangkeduo.com/)
 由于拼多多的pc站，官方早已放弃维护，专注做移动端，所以下面的都是基于移动端地址进行的爬取
-直接requests开始时是可以的，后面就只返回错误的信息，估计将我IP过滤了
 """
 
 from random import randint
@@ -41,8 +40,8 @@ class PinduoduoParse(Crawler):
         super(PinduoduoParse, self).__init__(
             ip_pool_type=IP_POOL_TYPE,
             
-            is_use_driver=True,
-            driver_executable_path=PHANTOMJS_DRIVER_PATH,
+            # is_use_driver=True,
+            # driver_executable_path=PHANTOMJS_DRIVER_PATH,
         )
         self._set_headers()
         self.result_data = {}
@@ -73,68 +72,96 @@ class PinduoduoParse(Crawler):
         '''
         1.采用requests，由于经常返回错误的body(即requests.get返回的为空的html), So pass
         '''
-        # body = Requests.get_url_body(url=tmp_url, headers=self.headers, had_referer=True)
+        # 测试发现api_uid为必传值且为定值, 否则无商品数据返回
+        cookies = {
+            'api_uid': 'CiH4cV2v+p60kgA6bIdPAg==',
+            # '_nano_fp': 'Xpd8XpCan0C8X0Tyl9_0Zt_m4ozZLdKa2jz_FW9I',
+            # 'PDDAccessToken': '',
+            # 'ua': 'Mozilla%2F5.0%20(iPhone%3B%20CPU%20iPhone%20OS%2011_0%20like%20Mac%20OS%20X)%20AppleWebKit%2F604.1.38%20(KHTML%2C%20like%20Gecko)%20Version%2F11.0%20Mobile%2F15A372%20Safari%2F604.1',
+            # 'webp': '1',
+        }
+        headers = get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='', )
+        headers.update({
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+            # 'Referer': 'http://mobile.yangkeduo.com/?item_index=0&offset=0&count=8&cards_info=11-2_9-7_10-14_8-21_2-28_8-35_&sp=295&mlist_id=kb0eD07cTm&page_id=10002_1582599801877_t6buJNCFce&list_id=cF8OnntVWV&is_back=1',
+            'Proxy-Connection': 'keep-alive',
+        })
+        params = (
+            ('goods_id', goods_id),
+        )
+        body = Requests.get_url_body(
+            url='http://mobile.yangkeduo.com/goods.html',
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=3,
+            cookies=cookies,
+            verify=False,)
+        # print(body)
         '''
         2.采用phantomjs来获取
         '''
-        body = self.driver.get_url_body(url=tmp_url)
-        if body == '':
-            print('body中re匹配到的data为空!')
-            return self._data_error()
+        # body = self.driver.get_url_body(url=tmp_url)
 
-        data = re.compile(r'window.rawData= (.*?);</script>').findall(body)  # 贪婪匹配匹配所有
-        if data != []:
-            data = json_2_dict(json_str=data[0]).get('initDataObj', {})
-            if data == {}:
-                return self._data_error()
+        try:
+            assert body != ''
+            data = re.compile(r'window.rawData= (.*?);</script>').findall(body)
+            assert data != []
+            # print(data)
+            data = json_2_dict(
+                json_str=data[0])
+            # 原先的
+            # data = data.get('initDataObj', {})
+            # 后来更新的
+            data = data.get('store', {}).get('initDataObj', {})
+            assert data != {}
             # pprint(data)
+            data = self._wash_data(data=data)
 
+            data['div_desc'] = self._get_div_desc(data=data)
             try:
-                data['goods'].pop('localGroups')
-                data['goods'].pop('mallService')
-                data.pop('reviews')             # 评价信息跟相关统计
+                # 删除图文介绍的无第二次用途的信息
+                data['goods'].pop('detailGallery')
             except:
                 pass
-            # pprint(data)
 
-            '''
-            处理detailGallery转换成能被html显示页面信息
-            '''
-            detail_data = data.get('goods', {}).get('detailGallery', [])
-            tmp_div_desc = ''
-            if detail_data != []:
-                for index in range(0, len(detail_data)):
-                    if index == 0:      # 跳过拼多多的提示
-                        pass
-                    else:
-                        tmp = ''
-                        tmp_img_url = detail_data[index].get('url')
-                        tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(tmp_img_url)
-                        tmp_div_desc += tmp
-
-                detail_data = '<div>' + tmp_div_desc + '</div>'
-
-            else:
-                detail_data = ''
-            # print(detail_data)
-            try:
-                data['goods'].pop('detailGallery')  # 删除图文介绍的无第二次用途的信息
-            except:
-                pass
-            data['div_desc'] = detail_data
-
-            # pprint(data)
-            self.result_data = data
-            return data
-
-        else:
-            print('data为空!')
+        except Exception as e:
+            print(e)
             return self._data_error()
 
-    def _data_error(self):
-        self.result_data = {}
+        # pprint(data)
+        self.result_data = data
 
-        return {}
+        return data
+
+    def _get_div_desc(self, data):
+        """
+        获取div_desc
+        :param data:
+        :return:
+        """
+        # 处理detailGallery转换成能被html显示页面信息
+        detail_data = data.get('goods', {}).get('detailGallery', [])
+        tmp_div_desc = ''
+        div_desc = ''
+        if detail_data != []:
+            for index in range(0, len(detail_data)):
+                if index == 0:  # 跳过拼多多的提示
+                    pass
+                else:
+                    tmp_img_url = detail_data[index].get('url', '')
+                    tmp_img_url = 'https:' + tmp_img_url \
+                        if re.compile('http').findall(tmp_img_url) == [] else tmp_img_url
+                    tmp = r'<img src="{}" style="height:auto;width:100%;"/>'.format(tmp_img_url)
+                    tmp_div_desc += tmp
+
+            div_desc = '<div>' + tmp_div_desc + '</div>'
+
+        return div_desc
 
     def deal_with_data(self):
         '''
@@ -230,6 +257,27 @@ class PinduoduoParse(Crawler):
         else:
             print('待处理的data为空的dict, 该商品可能已经转移或者下架')
             return {}
+
+    def _wash_data(self, data):
+        """
+        清洗数据
+        :param data:
+        :return:
+        """
+        try:
+            data['goods'].pop('localGroups')
+            data['goods'].pop('mallService')
+            data.pop('reviews')             # 评价信息跟相关统计
+        except:
+            pass
+        # pprint(data)
+
+        return data
+
+    def _data_error(self):
+        self.result_data = {}
+
+        return {}
 
     def to_right_and_update_data(self, data, pipeline):
         tmp = _get_right_model_data(data=data, site_id=13)
@@ -385,17 +433,14 @@ class PinduoduoParse(Crawler):
         给headers增加一个cookie, 里面有个key名字为api_uid
         :return:
         '''
-        # 设置代理ip
-        ip_object = IpPools()
-        self.proxies = ip_object.get_proxy_ip_from_ip_pool()  # {'http': ['xx', 'yy', ...]}
-        self.proxy = self.proxies['http'][randint(0, len(self.proxies) - 1)]
-
-        tmp_proxies = {
-            'http': self.proxy,
-        }
         # 得到cookie中的key名为api_uid的值
         host_url = 'http://mobile.yangkeduo.com'
         try:
+            self.proxy = IpPools()._get_random_proxy_ip()
+            assert self.proxy is not False
+            tmp_proxies = {
+                'http': self.proxy,
+            }
             response = requests.get(host_url, headers=self.headers, proxies=tmp_proxies, timeout=10)  # 在requests里面传数据，在构造头时，注意在url外头的&xxx=也得先构造
             api_uid = response.cookies.get('api_uid')
             # print(response.cookies.items())
@@ -431,10 +476,10 @@ class PinduoduoParse(Crawler):
             return ''
 
     def __del__(self):
-        try:
-            del self.driver
-        except:
-            pass
+        # try:
+        #     del self.driver
+        # except:
+        #     pass
         collect()
 
 if __name__ == '__main__':
