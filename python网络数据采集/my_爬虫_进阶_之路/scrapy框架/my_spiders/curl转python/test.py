@@ -209,3 +209,33 @@ FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 #     json_str=re.compile('\((.*)\)').findall(body)[0],
 #     default_res={})
 # pprint(data)
+
+# 咪咕视频根据视频id进行视频信息获取
+# import requests
+#
+# headers = {
+#     'Proxy-Connection': 'keep-alive',
+#     'terminalId': 'h5',
+#     # 'X-UP-CLIENT-CHANNEL-ID': '0131_10010001005',
+#     'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
+#     'Accept': 'application/json',
+#     # 'clientId': '36854075131aeac30ca17f1b54649196',
+#     'userId': '',
+#     'userToken': '',
+#     'appId': 'miguvideo',
+#     'SDKCEId': '',
+#     'Origin': 'http://m.miguvideo.com',
+#     'Referer': 'http://m.miguvideo.com/mgs/msite/prd/detail.html?cid=652525090',
+#     'Accept-Encoding': 'gzip, deflate',
+#     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+# }
+#
+# params = (
+#     ('contId', '652525090'),
+#     ('rateType', '3'),
+#     # ('clientId', '36854075131aeac30ca17f1b54649196'),
+#     # ('channelId', '0131_10010001005'),
+# )
+#
+# response = requests.get('http://webapi.miguvideo.com/gateway/playurl/v2/play/playurlh5', headers=headers, params=params, verify=False)
+# print(response.text)

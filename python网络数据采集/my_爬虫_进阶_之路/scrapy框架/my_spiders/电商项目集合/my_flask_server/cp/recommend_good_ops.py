@@ -78,6 +78,8 @@ class RecommendGoodOps(AsyncCrawler):
         self.driver_use_proxy = True
         # 荐好管理label
         self.recommend_good_label_css_selector = 'span.nav-label'
+        # 设置开眼的min_article_id, max_article_id
+        self.ky_min_article_id, self.ky_max_article_id = 4000, 60000
         # article_id 截取数
         self.zq_intercept_num = 2
         self.hk_intercept_num = 1
@@ -87,6 +89,7 @@ class RecommendGoodOps(AsyncCrawler):
         self.kr_intercept_num = 1
         self.dfsp_intercept_num = 1
         self.jrxsp_intercept_num = 1
+        self.ky_intercept_num = 1
         # 增加全屏视频数
         self.lsp_intercept_num = 2
         self.mp_intercept_num = 1
@@ -112,6 +115,7 @@ class RecommendGoodOps(AsyncCrawler):
         assert self.db_article_id_list != []
         self.lg.info('db_article_id_list_len: {}'.format(len(self.db_article_id_list)))
 
+        _timeout = await self.get_auto_publish_articles_timeout()
         while True:
             if get_shanghai_time().hour == 0:
                 # 夜晚休眠
@@ -122,7 +126,7 @@ class RecommendGoodOps(AsyncCrawler):
                 try:
                     await async_wait_for(
                         self.auto_publish_articles(),
-                        timeout=(self.zq_intercept_num +self.hk_intercept_num+self.lfd_intercept_num+self.gxg_intercept_num+self.pp_intercept_num + self.kr_intercept_num + self.dfsp_intercept_num + self.lsp_intercept_num + self.mp_intercept_num + self.klm_intercept_num + self.jrxsp_intercept_num) * 2.5 * 60)
+                        timeout=_timeout,)
                 except AsyncTimeoutError:
                     raise PublishOneArticleFailException
 
@@ -140,6 +144,27 @@ class RecommendGoodOps(AsyncCrawler):
 
             self.lg.info('休眠{}s...'.format(sleep_time))
             await async_sleep(sleep_time)
+
+    async def get_auto_publish_articles_timeout(self):
+        """
+        获取自动发布文章的超时时长
+        :return:
+        """
+        all_intercept_num = self.zq_intercept_num \
+                            + self.hk_intercept_num \
+                            + self.lfd_intercept_num \
+                            + self.gxg_intercept_num \
+                            + self.pp_intercept_num \
+                            + self.kr_intercept_num \
+                            + self.dfsp_intercept_num \
+                            + self.lsp_intercept_num \
+                            + self.mp_intercept_num \
+                            + self.klm_intercept_num \
+                            + self.jrxsp_intercept_num \
+                            + self.ky_intercept_num
+        _timeout = all_intercept_num * 2.5 * 60
+
+        return _timeout
 
     async def get_db_unique_id_list(self) -> list:
         """
@@ -201,6 +226,7 @@ class RecommendGoodOps(AsyncCrawler):
         # lsp_article_list = []
         # mp_article_list = []
         # klm_article_list = []
+        # jrxsp_article_list = []
         zq_article_list = self.get_zq_own_create_article_id_list(
             min_article_id=self.min_article_id,
             max_article_id=self.max_article_id,)
@@ -214,6 +240,7 @@ class RecommendGoodOps(AsyncCrawler):
         mp_article_list = self.get_mp_article_id_list()
         klm_article_list = self.get_klm_article_id_list()
         jrxsp_article_list = self.get_jrxsp_article_id_list()
+        ky_article_list = self.get_ky_own_create_article_id_list()
 
         # 测试用
         # article_id = '17300123'
@@ -235,6 +262,7 @@ class RecommendGoodOps(AsyncCrawler):
                        + jrxsp_article_list \
                        + mp_article_list \
                        + lsp_article_list \
+                       + ky_article_list \
                        + lfd_article_list \
                        + gxg_article_list
 
@@ -315,6 +343,25 @@ class RecommendGoodOps(AsyncCrawler):
             collect()
 
         return
+
+    def get_ky_own_create_article_id_list(self):
+        """
+        获取ky article_list
+        :return:
+        """
+        article_id_list = [str(article_id) for article_id in range(self.ky_min_article_id, self.ky_max_article_id)]
+
+        # 截取
+        article_id_list = random_sample(article_id_list, self.ky_intercept_num)
+        res = [{
+            'uid': get_uuid3(target_str='{}::{}'.format('ky', article_id)),
+            'article_type': 'ky',
+            'title': '未知',
+            'article_id': article_id,
+            'article_url': 'https://www.kaiyanapp.com/detail.html?vid={}'.format(article_id),
+        } for article_id in article_id_list]
+
+        return res
 
     def get_jrxsp_article_id_list(self):
         """

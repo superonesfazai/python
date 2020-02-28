@@ -77,6 +77,8 @@ not supported:
     18. 嗡啪搞笑(http://wengpa.com/)
     19. 微短视频网(https://www.wdace.com/)(视频为iframe内切, 先不做)
     20. 搞笑视频网(https://www.gaoxiaovod.com/)(部分视频from youku, 需driver)
+    21. 图虫视频网(https://tuchong.com/video/)(need driver, 可做, 根据列表页获取share_url然后auto)
+    22. 咪咕视频网(http://m.miguvideo.com/)(可取里面的短视频的接口部分)
     
 视频地址解析神器: https://www.urlgot.top/
     
