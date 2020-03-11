@@ -24,19 +24,7 @@ from fzutils.spider.async_always import *
 
 class Zhe800Pintuan(object):
     def __init__(self):
-        self._set_headers()
         self.ip_pool_type = IP_POOL_TYPE
-
-    def _set_headers(self):
-        self.headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            # 'Accept-Encoding:': 'gzip',
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'Cache-Control': 'max-age=0',
-            'Connection': 'keep-alive',
-            'Host': 'pina.m.zhe800.com',
-            'User-Agent': get_random_pc_ua(),  # 随机一个请求头
-        }
 
     def _get_pintuan_goods_info(self):
         '''
@@ -44,13 +32,24 @@ class Zhe800Pintuan(object):
         :return:
         '''
         zid_list = []
+        headers = get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='',
+        )
+        headers.update({
+            'accept': 'application/json',
+            # 'Referer': 'http://pina.m.zhe800.com/list/list.html',
+            'X-Requested-With': 'XMLHttpRequest',
+        })
+
         for page in range(0, 100):
             tmp_url = 'https://pina.m.zhe800.com/nnc/list/deals.json?page={0}&size=500'.format(str(page))
             print('正在抓取的页面地址为: ', tmp_url)
-
             tmp_body = Requests.get_url_body(
                 url=tmp_url,
-                headers=self.headers,
+                headers=headers,
                 high_conceal=True,
                 ip_pool_type=self.ip_pool_type,
                 proxy_type=PROXY_TYPE_HTTPS,

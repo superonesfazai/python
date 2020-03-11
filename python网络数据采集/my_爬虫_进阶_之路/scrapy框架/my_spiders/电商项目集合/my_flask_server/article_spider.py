@@ -3048,43 +3048,116 @@ class ArticleParser(AsyncCrawler):
         assert dytk != ''
         self.lg.info('item_ids: {}, dytk: {}'.format(item_ids, dytk))
 
-        # 获取视频数据接口
+        # 下面是官方web页面获取视频数据接口, 但是视频无法被cp服务器上传, so pass
+        # headers = await async_get_random_headers(
+        #     user_agent_type=1,
+        #     connection_status_keep_alive=False,
+        #     upgrade_insecure_requests=False,
+        #     cache_control='', )
+        # headers.update({
+        #     'authority': 'www.iesdouyin.com',
+        #     'accept': '*/*',
+        #     'x-requested-with': 'XMLHttpRequest',
+        #     # 'referer': 'https://www.iesdouyin.com/share/video/6788405311460920583/?region=CN&amp;mid=6788399235936750339&amp;u_code=14a6g7j4m&amp;titleType=title&amp;timestamp=1581400527&amp;utm_campaign=client_share&amp;app=aweme&amp;utm_medium=ios&amp;tt_from=copy&amp;utm_source=copy',
+        #     'referer': target_a_url,
+        # })
+        # params = (
+        #     ('item_ids', item_ids),
+        #     ('dytk', dytk),
+        # )
+        # body = await unblock_request(
+        #     url='https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/',
+        #     headers=headers,
+        #     params=params,
+        #     ip_pool_type=self.ip_pool_type,
+        #     proxy_type=PROXY_TYPE_HTTPS,
+        #     num_retries=self.request_num_retries,
+        #     logger=self.lg,)
+        # # self.lg.info(body)
+        # assert body != ''
+        # self.hook_target_api_data = json_2_dict(
+        #     json_str=body,
+        #     default_res={},
+        #     logger=self.lg, ).get('item_list', [])[0]
+        # # pprint(self.hook_target_api_data)
+        #
+        # video_url = self.hook_target_api_data\
+        #     .get('video', {})\
+        #     .get('download_addr', {})\
+        #     .get('url_list', [])[0]
+        # self.lg.info('获取到dy video_url: {}'.format(video_url))
+
+        # ** dy 去水印
+        # 三方去水印工具地址: https://sy.kuakuavideo.com/douyin.html
         headers = await async_get_random_headers(
             user_agent_type=1,
-            connection_status_keep_alive=False,
             upgrade_insecure_requests=False,
-            cache_control='', )
+            cache_control='',)
         headers.update({
-            'authority': 'www.iesdouyin.com',
-            'accept': '*/*',
-            'x-requested-with': 'XMLHttpRequest',
-            # 'referer': 'https://www.iesdouyin.com/share/video/6788405311460920583/?region=CN&amp;mid=6788399235936750339&amp;u_code=14a6g7j4m&amp;titleType=title&amp;timestamp=1581400527&amp;utm_campaign=client_share&amp;app=aweme&amp;utm_medium=ios&amp;tt_from=copy&amp;utm_source=copy',
-            'referer': target_a_url,
+            'accept': 'application/json, text/plain, */*',
+            'X-Requested-With': 'XMLHttpRequest',
+            'token': '22dxy8bf7haegdj2gnylz072mxta41rk',
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+            'Origin': 'https://sy.kuakuavideo.com',
+            'referer': 'https://sy.kuakuavideo.com/douyin.html',
         })
-        params = (
-            ('item_ids', item_ids),
-            ('dytk', dytk),
-        )
+        # args = ()
+        # server 上加载路径错误
+        # r = str(get_js_parser_res(
+        #     js_path='./js/hook_video_remove_watermark.js',
+        #     func_name='generateRandom',
+        #     *args,
+        # ))
+        # 改用直接导入, 测试报错 AttributeError: 'NoneType' object has no attribute 'fork_exec'
+        # from execjs import compile as execjs_compile
+        # js_code = '''
+        # function generateRandom() {
+        #     c = Math.random().toString(10).substring(2);
+        #     return c
+        # }
+        # '''
+        # r = execjs_compile(js_code).call('generateRandom', *args)
+        # 改用python 直接生成
+        from random import random as random_random
+        r = str(random_random())[2:][0:15]
+
+        # 测试: r = '6316272011432618' -> e = '75aed7a243ede5ec1f3b8548e0283539
+        e = article_url + '@&^' + r
+        e = md5_encrypt(target_str=e)
+        self.lg.info('r: {}, e: {}'.format(r, e))
+
+        # data = '{"sourceURL":"https://v.douyin.com/nXCh6q","e":"75aed7a243ede5ec1f3b8548e0283539","r":"6316272011432618","ticket":"","randstr":""}'
+        data = dumps({
+            'sourceURL': article_url,
+            'e': e,
+            'r': r,
+            'ticket': '',
+            'randstr': '',
+        })
         body = await unblock_request(
-            url='https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/',
+            method='post',
+            url='https://sy.kuakuavideo.com/douyin',
             headers=headers,
-            params=params,
+            data=data,
             ip_pool_type=self.ip_pool_type,
             proxy_type=PROXY_TYPE_HTTPS,
             num_retries=self.request_num_retries,
             logger=self.lg,)
         assert body != ''
+        # self.lg.info(body)
         self.hook_target_api_data = json_2_dict(
             json_str=body,
             default_res={},
-            logger=self.lg, ).get('item_list', [])[0]
+            logger=self.lg,).get('data', {})
         # pprint(self.hook_target_api_data)
 
-        video_url = self.hook_target_api_data\
-            .get('video', {})\
-            .get('download_addr', {})\
-            .get('url_list', [])[0]
+        video_url = self.hook_target_api_data.get('realDownloadURL', '')
+        assert video_url != ''
         self.lg.info('获取到dy video_url: {}'.format(video_url))
+
+        # 构造跟官方web接口同样结构的数据, 以便数据模板公用
+        self.hook_target_api_data['desc'] = self.hook_target_api_data.get('title', '')
+        self.hook_target_api_data['aweme_id'] = item_ids
 
         return body, video_url
 
@@ -8603,6 +8676,7 @@ def main():
     # url = 'https://v.douyin.com/pnxxaH/'
     # url = 'https://v.douyin.com/sdLYWJ/'
     # url = 'https://v.douyin.com/se3wkb/'
+    # url = 'https://v.douyin.com/nXCh6q/'
 
     # 今日小视频(它们网站偶尔不稳定)
     # url = 'http://m.jrtb.net/shenghuo/xhyljjtzxjdpjmmhzpysdxjzcr.html'

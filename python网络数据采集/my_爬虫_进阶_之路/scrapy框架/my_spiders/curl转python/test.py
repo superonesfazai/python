@@ -210,7 +210,7 @@ FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 #     default_res={})
 # pprint(data)
 
-# 咪咕视频根据视频id进行视频信息获取
+# ** 咪咕视频根据视频id进行视频信息获取
 # import requests
 #
 # headers = {
