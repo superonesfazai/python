@@ -116,6 +116,15 @@ class JuanPiParse(Crawler):
 
             main_data = json_2_dict(json_str=data[0])
             assert main_data != {}
+            # pprint(main_data)
+
+            goods_status = int(main_data.get('detail', {}).get('baseInfo', {}).get('status', '1'))
+            # print('goods_status: {}'.format(goods_status))
+            if goods_status == 0:
+                # 表示商品下架, 无法正常购买
+                raise GoodsShelvesException
+            else:
+                pass
 
             if main_data.get('detail') is not None:
                 main_data = self._wash_main_data(main_data.get('detail', {}))

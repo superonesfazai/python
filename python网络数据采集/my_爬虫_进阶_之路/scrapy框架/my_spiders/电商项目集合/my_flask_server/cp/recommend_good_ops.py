@@ -324,7 +324,10 @@ class RecommendGoodOps(AsyncCrawler):
             # 抛出异常
             raise e
         except Exception:
-            self.lg.error('遇到错误:', exc_info=True)
+            try:
+                self.lg.error('遇到错误:', exc_info=True)
+            except Exception as e:
+                print(e)
 
         finally:
             try:
@@ -718,8 +721,10 @@ class RecommendGoodOps(AsyncCrawler):
         自己create的article_id_list
         :return:
         """
-        # 取中间值, 避免老是在发老新闻
+        # 取中间值, 避免老是在发老新闻, 取更接近新的文章
         middle_article_id = int((min_article_id + max_article_id) / 2)
+        middle_article_id = int((middle_article_id + max_article_id) / 2)
+        middle_article_id = int((middle_article_id + max_article_id) / 2)
         self.lg.info('middle_article_id: {}'.format(middle_article_id))
         article_id_list = [str(article_id) for article_id in range(middle_article_id, max_article_id)]
 
