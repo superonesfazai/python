@@ -275,7 +275,10 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://krcom.cn/7315375944/episodes/2358773:4438202283699380'
 
         # dy
-        article_link = 'https://v.douyin.com/se3wkb'
+        # article_link = 'https://v.douyin.com/se3wkb'
+
+        # 金华广众网
+        article_link = 'https://news.jinhua.com.cn/shishi/2020-03-26/543480.html'
 
         url = article_link
 

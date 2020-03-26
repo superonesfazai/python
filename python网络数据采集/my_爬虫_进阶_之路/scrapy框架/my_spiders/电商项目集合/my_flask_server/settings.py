@@ -2045,6 +2045,40 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num':None,
     },
+    {
+        'short_name': 'jhgzw',
+        'debug': True,
+        'obj_origin': 'jinhua.com.cn',
+        'article_id': {
+            'method': 're',
+            'selector': '/(\d+)\.html',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'h1.articletitle ::text',
+        },
+        'video_title': {
+            'method': 'css',
+            'selector': 'h1.articletitle ::text',
+        },
+        'author': None,                         # 此处留空
+        'video_author': None,
+        'head_url': None,
+        'video_head_url': None,
+        'create_time': None,                    # 不用他的时间, 自己生成
+        'video_create_time': None,
+        'content': {
+            'method': 'css',
+            'selector': 'div.article-main',
+        },
+        'video_article_content': None,
+        'comment_num': None,                    # 点赞数留空
+        'tags_list': None,
+        'video_tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num':None,
+    },
 ]
 
 '''

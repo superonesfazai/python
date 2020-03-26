@@ -55,6 +55,7 @@ supported:
     43. 开眼短视频(https://www.kaiyanapp.com/detail.html?vid=52619)(视频id类似递增)
     44. 抖音(根据抖音分享出来的地址)(但是cp上传视频被403禁止)
     45. 今日小视频网(部分视频为全屏小视频)(http://m.jrtb.net/)
+    46. 金华广众网(即金华广电网)(以下不做解析: 美食中特色推荐, 美食快讯, 因为不更新, 全是前几年的东西, 要附加做的解析: 舌尖上的金华[视频图文])
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -263,8 +264,170 @@ class ArticleParser(AsyncCrawler):
         elif article_type == 'jrxsp':
             return await self.get_jrxsp_article_list()
 
+        elif article_type == 'jhgzw':
+            return await self.get_jhgzw_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_jhgzw_article_list(self) -> list:
+        """
+        获取jhgzw 金华24小时的页面的数据
+        :return:
+        """
+        # 采用金华24小时的页面的数据(即广众网的资讯点更多进入的首页的页面数据: https://news.jinhua.com.cn/), 因为其包括时事,生活, 奇闻, 突发的页面数据
+        # 由于官网美食, 摄影, 活动等不更新, 此处不处理其页面数据, 视频的由于cp后台 不支持m3u8的下载, 也pass
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            for page_num in range(1, 8):
+                # 每日更新有限, 就获取前几页的
+                tasks_params_list.append({
+                    'page_num': page_num,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where jhgzw: page_num:{}]...'.format(
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['page_num'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_jhgzw_recommend_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_jhgzw_recommend_article_list_by_page_num(self, page_num: int) -> list:
+        """
+        根据page_num获取单页的article_list
+        :return:
+        """
+        headers = get_random_headers(
+            user_agent_type=0,
+            cache_control='',)
+        headers.update({
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+            # 'referer': 'https://news.jinhua.com.cn/?pp=12',
+        })
+        params = (
+            ('pp', str(12 * (page_num - 1))),  # 格式为: '0', '12', '24'
+        )
+
+        body = Requests.get_url_body(
+            url='https://news.jinhua.com.cn/',
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,)
+        assert body != ''
+        # self.lg.info(body)
+
+        article_div_list_sel = {
+            'method': 'css',
+            'selector': 'ul.teaser li h4',
+        }
+        article_div_list = parse_field(
+            parser=article_div_list_sel,
+            target_obj=body,
+            logger=self.lg,
+            is_first=False, )
+        assert article_div_list != []
+        # pprint(article_div_list)
+
+        # 文章地址选择器
+        article_url_sel = {
+            'method': 'css',
+            'selector': 'a ::attr("href")',
+        }
+        article_id_sel = {
+            'method': 're',
+            'selector': '/(\d+)\.html',
+        }
+        title_sel = {
+            'method': 'css',
+            'selector': 'a ::text',
+        }
+        # 电影时长(无)
+        res = []
+        for item in article_div_list:
+            try:
+                article_url = parse_field(
+                    parser=article_url_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert article_url != ''
+                article_id = parse_field(
+                    parser=article_id_sel,
+                    target_obj=article_url,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert article_id != ''
+                title = parse_field(
+                    parser=title_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert title != ''
+                if len(title) >= 30:
+                    continue
+
+                if 'jinhua.com.cn' not in article_url:
+                    # 去掉不合法的网址
+                    continue
+
+                if '新型冠状病毒肺炎疫情通报' in title:
+                    # 去掉每日播报
+                    continue
+
+                # 电影时长无, pass
+
+            except (AssertionError, Exception):
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('jhgzw::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('jhgzw', article_id)),
+                'article_type': 'jhgzw',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+
+        # pprint(res)
+        self.lg.info('[{}] jhgzw::page_num:{}'.format(
+            '+' if res != [] else '-',
+            page_num,
+        ))
+
+        return res
 
     async def get_jrxsp_article_list(self) -> list:
         """
@@ -2545,6 +2708,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'm.jrtb.net',
                 'site_id': 48,
             },
+            'jhgzw': {
+                'debug': False,
+                'name': '金华广众网',
+                'url': 'https://www.jinhua.com.cn',
+                'obj_origin': 'jinhua.com.cn',
+                'site_id': 49,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -2930,6 +3100,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'jrxsp':
                 return await self._get_jrxsp_article_html(article_url=article_url)
 
+            elif article_url_type == 'jhgzw':
+                return await self._get_jhgzw_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -2937,6 +3110,47 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_jhgzw_article_html(self, article_url) -> tuple:
+        """
+        获取jhgzw html
+        :param article_url:
+        :return:
+        """
+        headers = await async_get_random_headers(user_agent_type=0)
+        headers.update({
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+            # 'referer': 'https://food.jinhua.com.cn/',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        assert body != ''
+        # self.lg.info(body)
+
+        body = body.replace('id=\"m3u8\"value=', 'id=\"m3u8\" value=',)
+        # self.lg.info(body)
+
+        # 处理纯视频的
+        video_url_sel = {
+            'method': 'css',
+            'selector': 'section#videocontent input#m3u8 ::attr("value")',
+        }
+        video_url = await async_parse_field(
+            parser=video_url_sel,
+            target_obj=body,
+            logger=self.lg,)
+        # self.lg.info(video_url)
+        if video_url != '':
+            self.lg.info('video_url: {}'.format(video_url))
+        else:
+            pass
+
+        return body, video_url
 
     async def _get_jrxsp_article_html(self, article_url) -> tuple:
         """
@@ -5643,6 +5857,7 @@ class ArticleParser(AsyncCrawler):
             'ky',
             'dy',
             'jrxsp',
+            'jhgzw',
         ]
         if short_name in short_name_list2:
             pass
@@ -5689,6 +5904,7 @@ class ArticleParser(AsyncCrawler):
             'jd',
             'lfd',
             'blbl',
+            'jhgzw',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -6524,6 +6740,7 @@ class ArticleParser(AsyncCrawler):
             'bdj',
             'jd',
             'lfd',
+            'jhgzw',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -6736,6 +6953,7 @@ class ArticleParser(AsyncCrawler):
             'ky',
             'dy',
             'jrxsp',
+            'jhgzw',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -6747,7 +6965,8 @@ class ArticleParser(AsyncCrawler):
             assert content != '', '获取到的content为空值!'
 
         # hook 防盗链
-        content = '<meta name=\"referrer\" content=\"never\">' + content if content != '' else ''
+        content = '<meta name=\"referrer\" content=\"never\">' + content \
+            if content != '' else ''
         print(content)
         # cp后台处理, 此处不处理
         # content = await self._wash_my_style_in_content(content=content)
@@ -7017,8 +7236,31 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'dy':
             content = await self._wash_dy_article_content(content=content)
 
+        elif short_name == 'jhgzw':
+            content = await self._wash_jhgzw_article_content(content=content)
+
         else:
             pass
+
+        return content
+
+    @staticmethod
+    async def _wash_jhgzw_article_content(content: str) -> str:
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+            ],
+            add_sensitive_str_list=[
+                '无[线限]金华客户端',
+                '金华广众网',
+                # 去除无线金华二维码
+                '<img class=\"image\" imageid=\"98923271\" src=\"http://imgs.jinhua.com.cn/material/news/img/640x/2020/02/20200214163442WEcA.png\?KzgC\">',
+            ],
+            is_default_filter=False,
+            is_lower=False, )
+
+        content = modify_body_img_centering(content=content)
+        content = modify_body_p_typesetting(content=content)
 
         return content
 
@@ -8684,6 +8926,48 @@ def main():
     # url = 'http://m.jrtb.net/shenghuo/11sxnhzgyyzzjdycqsxlwdyklldrz.html'
     # url = 'http://m.jrtb.net/yingshi/zdqwcrzzzgzzbmxltzfywrtdzjj.html'
 
+    # 金华广众网(即金华广电网)(目前只做里面的图文文章)
+    # todo 有些文章无权限访问, 要账号登录论坛, pass
+    # 美食
+    # 美食快讯里的文章(但是官网不更新)
+    # url = 'https://food.jinhua.com.cn/mskx/2018-06-07/348820.html'
+    # 美食里的舌尖上的金华(含视频, 视频在js中, 自己会切入, 是m3u8的格式, 目前cp后台不支持下载, pass)
+    # url = 'https://food.jinhua.com.cn/sjjh/2019-03-11/458177.html'
+    # url = 'https://food.jinhua.com.cn/sjjh/2019-02-01/450063.html'
+    # 饮食健康
+    # url = 'https://food.jinhua.com.cn/ysjk/2016-12-02/234967.html'
+    # 活动(活动里面含有一些规格正确的地址但是非文章内容, 此处做成获取接口时, pass)
+    # url = 'https://www.jinhua.com.cn/activity/2019-12-13/521841.html'
+    # url = 'https://www.jinhua.com.cn/app/zhuanti/2018-06-14/352998.html'
+    # 资讯(即金华24小时)(其中地址如浙江新闻网的地址, 微信分享的地址, 就pass)
+    # url = 'https://news.jinhua.com.cn/shishi/2020-03-26/543480.html'
+    # url = 'https://news.jinhua.com.cn/shishi/2020-03-25/543470.html'
+    # url = 'https://news.jinhua.com.cn/shishi/2020-03-25/543469.html'
+    # 资讯里的生活
+    # url = 'https://news.jinhua.com.cn/shenghuo/2020-03-26/543486.html'
+    # 资讯里的奇闻(不更新)
+    # url = 'https://news.jinhua.com.cn/qiwen/2017-07-04/278236.html'
+    # 资讯里的突发(含js切入的视频图文, 如上[舌尖上的金华])
+    # url = 'https://www.jinhua.com.cn/topics/qtzt/xgwz/2019-09-02/498875.html'
+    # url = 'https://news.jinhua.com.cn/tufa/2018-07-05/355326.html'
+    # 咨询里的广播(含上述切入的视频)
+    # url = 'https://news.jinhua.com.cn/guangbo/jgzxw/2019-12-26/524156.html'
+    # 摄影
+    # url = 'https://photo.jinhua.com.cn/slys/2019-12-12/521505.html'
+    # 摄影里的摄影技巧
+    # url = 'https://photo.jinhua.com.cn/xuexi/syjq/2018-04-11/335061.html'
+    # 摄影里的作品欣赏, pass
+    # url = 'https://photo.jinhua.com.cn/zpxs/xwjs/2019-12-04/519814.html'
+    # todo 主页里的视频(获取到的视频播放地址都为m3u8格式的, cp 目前不支持上传, pass)
+    # 视频里面的直播回顾
+    # url = 'https://www.jinhua.com.cn/video/zhibo/2020-02-29/537613.html'
+    # url = 'https://www.jinhua.com.cn/video/zhibo/2019-11-08/527712.html'
+    # 视频里面的原创短片
+    # url = 'https://www.jinhua.com.cn/video/yuanchuang/2018-04-08/536933.html'
+    # 舌尖上的金华再上方处理了
+    # 无线金华, pass
+    # url = 'https://tv1.jinhua.com.cn/wxjh/2020-03-24/543065.html'
+
     # 文章url 测试
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(
@@ -8707,6 +8991,7 @@ def main():
     # article_type = 'mp'
     # article_type = 'klm'
     # article_type = 'jrxsp'
+    # article_type = 'jhgzw'
     # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
     #     article_type=article_type,))
     # pprint(tmp)
