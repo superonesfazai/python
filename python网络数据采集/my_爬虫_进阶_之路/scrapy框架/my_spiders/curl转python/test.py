@@ -239,3 +239,78 @@ FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 #
 # response = requests.get('http://webapi.miguvideo.com/gateway/playurl/v2/play/playurlh5', headers=headers, params=params, verify=False)
 # print(response.text)
+
+# # 根据百度app的金华本地接口列表数据
+# # 测试发现其中返回的数据prefetch_html字段打开的页面图片都是异常的(图片只能在百度app里面调起), pass
+# headers = {
+#     'Host': 'mbd.baidu.com',
+#     'Connection': 'keep-alive',
+#     # 'Content-Length': '601',
+#     'X-BDBoxApp-NetEngine': '3',
+#     'Accept': 'application/json, text/plain, */*',
+#     'Content-Type': 'application/x-www-form-urlencoded',
+#     # 'X-TurboNet-Info': '2.13.2655.160',
+#     # 'X-Bd-Traceid': '349387a91d64470ca1034efd3d1e88a8',
+#     'User-Agent': 'BaiduBoxApp/11.21.0 iPad; CPU OS 13_3_1 like Mac OS X',
+#     'Accept-Encoding': 'gzip, deflate',
+# }
+#
+# params = (
+#     ('action', 'feed'),
+#     ('cmd', '206'),
+#     ('refresh', '0'),
+#     ('cfrom', '1099a'),
+#     ('from', '1099a'),
+#     ('network', '1_0'),
+#     ('osbranch', 'i0'),
+#     ('osname', 'baiduboxapp'),
+#     ('service', 'bdbox'),
+#     ('sid', '1027009_4-1027162_3-2600_6645-1027088_2-1027168_1-3081_8171-5238_7311-2696_6930-1027126_2-3057_8089-1026844_1-1026774_1-1026764_3-1027195_1-1026767_2-5456_8016-3270_8882-1027146_1-1026924_1-1026983_1-5306_7565-1027223_2-2946_7781-5524_8269-2929_7702-1026805_2-1026738_1-1027034_3-3163_8438-1472_3438-5579_8458-3037_8036-1026937_2-1026947_1-3000026_2-1026758_2-1027201_4-1027221_1-1026957_2-5529_8280-1027151_2-5566_8411-5562_8387-5571_8441-1026768_2-1026845_3-1021859_1-5409_7877-3039_8040-5586_8486-1026932_3-1026816_2-5436_7970-1021774_1-1026763_2-2512_6387-1026707_2-1027132_3-2859_7452-1027128_2-1027152_1-1026769_1-1026878_4-2939_7745-1027218_1-1026985_1'),
+#     ('sst', '0'),
+#     ('st', '0'),
+#     ('ua', '1668_2224_iphone_11.21.0.23_0'),
+#     # ('uid', 'E4317D7927A4F423B2A894710C308D015F8D69D51OMTBGHBERB'),
+#     # ('ut', 'iPad7,3_13.3.1'),
+#     # ('zid', '9iAc0yzbau51GKO563M1gzHzaPoPDD_d8nXwjCKxdBLLH1JIcnRw-9KcL-PZCsVl_qPQN9ChO-3-Lg1550aEhCA'),
+# )
+#
+# data = {
+#   # 'data': '{"direction":"auto","refresh_type":0,"bundleVersion":"2.80.49","source":"bdbox_feed_attentiontab","upload_ids":[],"info":{"location":"120.072187,28.962848,---"},"data":{"tab_id":"109999333","tab_name":"","is_sub":0,"last_update_time":0,"session_id":"1586394978645","click_id":"64daedfac01584fe4d675c81aca8b248","refresh_index":1,"refresh_count":1,"refresh_state":4,"pre_render":0,"context":{}}}'
+#     'data': dumps({
+#         'direction': 'auto',
+#         'refresh_type': 0,
+#         'bundleVersion': '2.80.49',
+#         'source': 'bdbox_feed_attentiontab',
+#         'upload_ids': [],
+#         'info': {'location': '120.072187,28.962848,---'},
+#         'data': {
+#             'tab_id': '109999333',
+#             'tab_name': '',
+#             'is_sub': 0,
+#             'last_update_time': 0,
+#             # 'session_id': '1586394978645',
+#             'session_id': get_now_13_bit_timestamp(),
+#             'click_id': '64daedfac01584fe4d675c81aca8b248',
+#             'refresh_index': 1,
+#             'refresh_count': 1,
+#             'refresh_state': 4,
+#             'pre_render': 0,
+#             'context': {},
+#         }
+#     })
+# }
+#
+# body = Requests.get_url_body(
+#     method='post',
+#     url='https://mbd.baidu.com/searchbox',
+#     headers=headers,
+#     params=params,
+#     data=data,
+#     ip_pool_type=tri_ip_pool,
+#     proxy_type=PROXY_TYPE_HTTPS,
+#     num_retries=6,)
+# # print(body)
+#
+# data = json_2_dict(
+#     json_str=body,).get('data', {}).get('206', {}).get('itemlist', {}).get('items', [])
+# pprint(data)

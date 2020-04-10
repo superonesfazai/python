@@ -80,6 +80,7 @@ not supported:
     20. 搞笑视频网(https://www.gaoxiaovod.com/)(部分视频from youku, 需driver)
     21. 图虫视频网(https://tuchong.com/video/)(need driver, 可做, 根据列表页获取share_url然后auto)
     22. 咪咕视频网(http://m.miguvideo.com/)(可取里面的短视频的接口部分)
+    23. 浙江资讯-手机新浪网(http://zj.sina.cn/news/list-p1.d.html)
     
 视频地址解析神器: https://www.urlgot.top/
     
@@ -8988,6 +8989,7 @@ def main():
     # article_type = 'kr'
     # article_type = 'dfsp'
     # article_type = 'lsp'
+    # mp pc站官网503
     # article_type = 'mp'
     # article_type = 'klm'
     # article_type = 'jrxsp'

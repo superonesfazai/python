@@ -35,8 +35,6 @@ from random import randint
 from random import sample as random_sample
 from selenium.common.exceptions import NoSuchFrameException
 from selenium.common.exceptions import TimeoutException as SeleniumTimeoutException
-from asyncio import TimeoutError as AsyncTimeoutError
-from asyncio import wait_for as async_wait_for
 
 from fzutils.data.str_utils import target_str_contain_some_char_check
 from fzutils.spider.fz_driver import (
@@ -94,6 +92,7 @@ class RecommendGoodOps(AsyncCrawler):
         self.lsp_intercept_num = 2
         self.mp_intercept_num = 1
         self.klm_intercept_num = 2
+        self.jhgzw_intercept_num = 1
         self.article_parser = None
         # 暂存好看视频list的dict
         self.hk_cache_dict = {}
@@ -106,11 +105,15 @@ class RecommendGoodOps(AsyncCrawler):
         self.mp_cache_dict = {}
         self.klm_cache_dict = {}
         self.jrxsp_cache_dict = {}
+        self.jhgzw_cache_dict = {}
+        # 隔多久更新一次列表数据, 单位秒
+        self.wait_to_update_time0 = 60 * 60
+        self.wait_to_update_time1 = 40 * 60
 
     async def _fck_run(self):
         # 休眠7.5分钟, 避免频繁发!(5分钟还是太快, 删不过来)(增加较多视频, 失败率较高故还是5分钟)
         # sleep_time = 0.
-        sleep_time = 60 * 5.
+        sleep_time = 60 * 3.
         self.db_article_id_list = await self.get_db_unique_id_list()
         assert self.db_article_id_list != []
         self.lg.info('db_article_id_list_len: {}'.format(len(self.db_article_id_list)))
@@ -161,7 +164,8 @@ class RecommendGoodOps(AsyncCrawler):
                             + self.mp_intercept_num \
                             + self.klm_intercept_num \
                             + self.jrxsp_intercept_num \
-                            + self.ky_intercept_num
+                            + self.ky_intercept_num \
+                            + self.jhgzw_intercept_num
         _timeout = all_intercept_num * 2.5 * 60
 
         return _timeout
@@ -227,6 +231,8 @@ class RecommendGoodOps(AsyncCrawler):
         # mp_article_list = []
         # klm_article_list = []
         # jrxsp_article_list = []
+        # ky_article_list = []
+        # jhgzw_article_list = []
         zq_article_list = self.get_zq_own_create_article_id_list(
             min_article_id=self.min_article_id,
             max_article_id=self.max_article_id,)
@@ -241,6 +247,7 @@ class RecommendGoodOps(AsyncCrawler):
         klm_article_list = self.get_klm_article_id_list()
         jrxsp_article_list = self.get_jrxsp_article_id_list()
         ky_article_list = self.get_ky_own_create_article_id_list()
+        jhgzw_article_list = self.get_jhgzw_own_create_article_id_list()
 
         # 测试用
         # article_id = '17300123'
@@ -260,6 +267,7 @@ class RecommendGoodOps(AsyncCrawler):
                        + hk_article_list \
                        + klm_article_list \
                        + jrxsp_article_list \
+                       + jhgzw_article_list \
                        + mp_article_list \
                        + lsp_article_list \
                        + ky_article_list \
@@ -347,6 +355,39 @@ class RecommendGoodOps(AsyncCrawler):
 
         return
 
+    def get_jhgzw_own_create_article_id_list(self):
+        """
+        获取jhgzw article_list
+        :return:
+        """
+        if not isinstance(self.article_parser, ArticleParser):
+            self.article_parser = ArticleParser(logger=self.lg)
+        else:
+            pass
+
+        if self.jhgzw_cache_dict == {}:
+            # 首次启动
+            article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                article_type='jhgzw',))
+            self.jhgzw_cache_dict['data'] = article_list
+            self.jhgzw_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+        else:
+            cache_time = self.jhgzw_cache_dict['cache_time']
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time0:
+                # jhgzw 每日更新数量有限, 每过40分钟重新获取一次
+                article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                    article_type='jhgzw',))
+                self.jhgzw_cache_dict['data'] = article_list
+                self.jhgzw_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+            else:
+                article_list = self.jhgzw_cache_dict['data']
+
+        if article_list != []:
+            # 截取1个(与图文穿插)
+            article_list = random_sample(article_list, self.jhgzw_intercept_num)
+
+        return article_list
+
     def get_ky_own_create_article_id_list(self):
         """
         获取ky article_list
@@ -384,7 +425,7 @@ class RecommendGoodOps(AsyncCrawler):
             self.jrxsp_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
         else:
             cache_time = self.jrxsp_cache_dict['cache_time']
-            if datetime_to_timestamp(get_shanghai_time()) - cache_time > 40 * 60:
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time0:
                 # klm 每日更新数量有限, 每过40分钟重新获取一次
                 article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                     article_type='jrxsp',))
@@ -417,7 +458,7 @@ class RecommendGoodOps(AsyncCrawler):
             self.klm_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
         else:
             cache_time = self.klm_cache_dict['cache_time']
-            if datetime_to_timestamp(get_shanghai_time()) - cache_time > 30 * 60:
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time0:
                 # klm 每日更新数量有限, 每过30分钟重新获取一次
                 article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                     article_type='klm',))
@@ -450,7 +491,7 @@ class RecommendGoodOps(AsyncCrawler):
             self.mp_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
         else:
             cache_time = self.mp_cache_dict['cache_time']
-            if datetime_to_timestamp(get_shanghai_time()) - cache_time > 30 * 60:
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time0:
                 # mp 每日更新数量有限, 每过30分钟重新获取一次
                 article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                     article_type='mp',))
@@ -483,7 +524,7 @@ class RecommendGoodOps(AsyncCrawler):
             self.lsp_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
         else:
             cache_time = self.lsp_cache_dict['cache_time']
-            if datetime_to_timestamp(get_shanghai_time()) - cache_time > 30 * 60:
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time0:
                 # dfsp 每日更新数量有限, 每过30分钟重新获取一次
                 article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                     article_type='lsp',))
@@ -516,7 +557,7 @@ class RecommendGoodOps(AsyncCrawler):
             self.dfsp_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
         else:
             cache_time = self.dfsp_cache_dict['cache_time']
-            if datetime_to_timestamp(get_shanghai_time()) - cache_time > 30 * 60:
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time0:
                 # dfsp 每日更新数量有限, 每过30分钟重新获取一次
                 article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                     article_type='dfsp',))
@@ -549,7 +590,7 @@ class RecommendGoodOps(AsyncCrawler):
             self.kr_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
         else:
             cache_time = self.kr_cache_dict['cache_time']
-            if datetime_to_timestamp(get_shanghai_time()) - cache_time > 30 * 60:
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time0:
                 # pp 每日更新数量有限, 每过30分钟重新获取一次
                 article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                     article_type='kr',))
@@ -582,7 +623,7 @@ class RecommendGoodOps(AsyncCrawler):
             self.pp_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
         else:
             cache_time = self.pp_cache_dict['cache_time']
-            if datetime_to_timestamp(get_shanghai_time()) - cache_time > 30 * 60:
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time1:
                 # pp 每日更新数量有限, 每过30分钟重新获取一次
                 article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                     article_type='pp',))
@@ -615,7 +656,7 @@ class RecommendGoodOps(AsyncCrawler):
             self.gxg_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
         else:
             cache_time = self.gxg_cache_dict['cache_time']
-            if datetime_to_timestamp(get_shanghai_time()) - cache_time > 30 * 60:
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time0:
                 # gxg 每日更新数量有限, 每过30分钟重新获取一次
                 article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                     article_type='gxg',))
@@ -648,7 +689,7 @@ class RecommendGoodOps(AsyncCrawler):
             self.lfd_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
         else:
             cache_time = self.lfd_cache_dict['cache_time']
-            if datetime_to_timestamp(get_shanghai_time()) - cache_time > 30 * 60:
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time1:
                 # lfd 每日更新数量有限, 每过30分钟重新获取一次
                 article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                     article_type='lfd',))
@@ -681,7 +722,7 @@ class RecommendGoodOps(AsyncCrawler):
             self.hk_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
         else:
             cache_time = self.hk_cache_dict['cache_time']
-            if datetime_to_timestamp(get_shanghai_time()) - cache_time > 12 * 60:
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time0:
                 # 每过12分钟重新获取一次
                 article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                     article_type='hk',))
