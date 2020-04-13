@@ -340,12 +340,14 @@ class MiaPintuanParse(MiaParse, Crawler):
 
             return ([], {}, {}, '0')
 
+        # 多规格的目标good_id list
         # pprint(sku_info)
         goods_id_str = '-'.join([item.get('goods_id', '') for item in sku_info])
         # print(goods_id_str)
         tmp_url = 'https://p.mia.com/item/list/' + goods_id_str
         # print(tmp_url)
 
+        # 老版获取拼团数据接口, 废弃
         tmp_body = Requests.get_url_body(
             url=tmp_url,
             headers=self.headers,
@@ -362,19 +364,19 @@ class MiaPintuanParse(MiaParse, Crawler):
         # pprint(tmp_data)
 
         # todo 官方页面单独购买显示有问题, 此处detail_price取其原价
-
         true_sku_info = []
         pintuan_time = {}
         i_s = {}
         all_sell_count = '0'
         for item_1 in sku_info:
+            # eg: sku_info = [{'color_name': '虚线网7双混搭|0到4岁', 'goods_id': '3727420', 'img_url': ''},]
             for item_2 in tmp_data:
                 if item_1.get('goods_id', '') == str(item_2.get('id', '')):
                     i_s = item_2.get('i_s', {})
                     g_l = item_2.get('g_l', [])
                     # print(i_s)
                     # pprint(g_l)
-                    if i_s == {}\
+                    if i_s == {} \
                             or g_l == []:
                         # 无拼团属性的商品逻辑下架  eg: https://www.mia.com/item-2736567.html 无货!!
                         # gl == [] 表示如果该规格的拼团价为[], 则跳出这层循环
@@ -429,6 +431,69 @@ class MiaPintuanParse(MiaParse, Crawler):
         #     # 空list即进行下架操作
         #     # eg: https://www.mia.com/item-1179175.html 其phone https://m.mia.com/item-1179175.html为补货中
         #     return _pintuan_error(goods_id=goods_id)
+
+        # 2020.4.13新版拼团接口数据获取
+        headers = get_random_headers(
+            user_agent_type=1,
+            upgrade_insecure_requests=False,
+            cache_control='',)
+        headers.update({
+            'accept': '*/*',
+            # 'referer': 'https://m.mia.com/item-4274574.html',
+        })
+        params = (
+            ('_', get_now_13_bit_timestamp()),
+            ('callback', 'mia_jsonp'),
+        )
+        body = Requests.get_url_body(
+            url='https://p.mia.com/item/list_spu/'+goods_id_str,
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=self.proxy_type,
+            num_retries=self.req_num_retries,)
+        new_data = json_2_dict(
+            json_str=re.compile('\((.*)\)').findall(body)[0],
+            default_res={},).get('data', [])
+        assert new_data != []
+        # print('-' * 20)
+        # pprint(new_data)
+        # print('-' * 20)
+
+        # 覆盖老版本获取到的数据
+        true_sku_info = []
+        for item0 in sku_info:
+            # eg: sku_info = [{'color_name': '虚线网7双混搭|0到4岁', 'goods_id': '3727420', 'img_url': ''},]
+            for item1 in new_data:
+                if item0.get('goods_id', '') == str(item1.get('id', '')):
+                    now_goods_id = item0.get('goods_id', '')
+                    spec_value = item0.get('color_name', '')
+                    # print(now_goods_id, spec_value)
+                    pt = item1.get('pt', {})
+                    assert pt != {}
+                    normal_price = str(item1.get('mp'))
+                    detail_price = str(pt.get('sap'))
+                    pintuan_price = str(pt.get('ap', ''))
+                    assert pintuan_price != ''
+                    # print(pintuan_price)
+
+                    img_url = item0.get('img_url', '')
+                    # 判断是否无库存的标志
+                    s = str(item1.get('s', '1'))
+                    if s == '0':
+                        continue
+
+                    # 只显示库存充足, 此处使用默认值
+                    rest_number = 50
+                    tmp = {}
+                    tmp['spec_value'] = spec_value
+                    tmp['pintuan_price'] = pintuan_price
+                    tmp['detail_price'] = detail_price
+                    # todo 官方页面原价返回数据有问题都是一个值, 导致其页面也多规格也只显示一个值
+                    tmp['normal_price'] = normal_price
+                    tmp['img_url'] = img_url
+                    tmp['rest_number'] = rest_number
+                    true_sku_info.append(tmp)
 
         return (true_sku_info, i_s, pintuan_time, all_sell_count)
 
