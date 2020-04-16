@@ -56,6 +56,7 @@ supported:
     44. 抖音(根据抖音分享出来的地址)(但是cp上传视频被403禁止)
     45. 今日小视频网(部分视频为全屏小视频)(http://m.jrtb.net/)
     46. 金华广众网(即金华广电网)(以下不做解析: 美食中特色推荐, 美食快讯, 因为不更新, 全是前几年的东西, 要附加做的解析: 舌尖上的金华[视频图文])
+    47. 金华热线(即浙中在线)(http://www.0579.cn/)(手机版: http://m.0579.cn/)
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -268,8 +269,134 @@ class ArticleParser(AsyncCrawler):
         elif article_type == 'jhgzw':
             return await self.get_jhgzw_article_list()
 
+        elif article_type == 'jhrx':
+            return await self.get_jhrx_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_jhrx_article_list(self) -> list:
+        """
+        获取jhrx m站首页的最新热点页面数据
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            for page_num in range(1, 15):
+                # 每日更新有限, 就获取前几页的, 并不能返回全部前15页的, 后续是无返回的
+                tasks_params_list.append({
+                    'page_num': page_num,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where jhrx: page_num:{}]...'.format(
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['page_num'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_jhrx_recommend_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_jhrx_recommend_article_list_by_page_num(self, page_num: int) -> list:
+        """
+        获取单页article_list
+        :param page_num:
+        :return:
+        """
+        headers = get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='',
+        )
+        headers.update({
+            'accept': 'application/json',
+            'referer': 'http://m.0579.cn/',
+            'X-Requested-With': 'XMLHttpRequest',
+        })
+        params = (
+            ('getmsg', '1'),
+            ('page', str(page_num)),  # 1, 2, 3, ...
+            ('last_time', '0' if page_num == 1 else get_now_13_bit_timestamp()[0:10]),  # 第一页为'0', 后面为当前10位时间戳
+        )
+
+        body = Requests.get_url_body(
+            url='http://m.0579.cn/index.php',
+            headers=headers,
+            params=params,
+            verify=False,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=self.request_num_retries,
+            proxy_type=PROXY_TYPE_HTTPS, )
+        assert body != ''
+        # self.lg.info(body)
+
+        data = json_2_dict(
+            json_str=body,
+            logger=self.lg, ).get('data', [])
+        # pprint(data)
+        article_div_list = data
+
+        # 电影时长(无)
+        res = []
+        for item in article_div_list:
+            try:
+                article_id = item.get('to_id', '')
+                assert article_id != ''
+                article_url = 'http://m.0579.cn/read.php?tid={}'.format(article_id)
+                assert article_url != ''
+                title = item.get('title', '')
+                assert title != ''
+                if len(title) >= 30:
+                    continue
+
+                # 电影时长无, pass
+
+            except (AssertionError, Exception):
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('jhrx::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('jhrx', article_id)),
+                'article_type': 'jhrx',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+        # pprint(res)
+
+        self.lg.info('[{}] jhrx::page_num:{}'.format(
+            '+' if res != [] else '-',
+            page_num,
+        ))
+
+        return res
 
     async def get_jhgzw_article_list(self) -> list:
         """
@@ -2716,6 +2843,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'jinhua.com.cn',
                 'site_id': 49,
             },
+            'jhrx': {
+                'debug': False,
+                'name': '金华热线',
+                'url': 'http://m.0579.cn/',
+                'obj_origin': 'm.0579.cn',
+                'site_id': 50,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -3104,6 +3238,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'jhgzw':
                 return await self._get_jhgzw_article_html(article_url=article_url)
 
+            elif article_url_type == 'jhrx':
+                return await self._get_jhrx_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -3111,6 +3248,37 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_jhrx_article_html(self, article_url) -> tuple:
+        """
+        获取金华热线 html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            cache_control='',)
+        headers.update({
+            'Proxy-Connection': 'keep-alive',
+            'referer': 'http://m.0579.cn',
+        })
+
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            verify=False,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        assert body != ''
+        # self.lg.info(body)
+
+        body = body.replace('<imgsrc', '<img src',)
+
+        return body, video_url
 
     async def _get_jhgzw_article_html(self, article_url) -> tuple:
         """
@@ -5859,6 +6027,8 @@ class ArticleParser(AsyncCrawler):
             'dy',
             'jrxsp',
             'jhgzw',
+            'jhrx',
+            'mp',
         ]
         if short_name in short_name_list2:
             pass
@@ -5906,6 +6076,7 @@ class ArticleParser(AsyncCrawler):
             'lfd',
             'blbl',
             'jhgzw',
+            'jhrx',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -6058,8 +6229,27 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'dy':
             title = await self._wash_dy_title(title=title)
 
+        elif short_name == 'jhrx':
+            title = await self._wash_jhrx_title(title=title)
+
         else:
             pass
+
+        return title
+
+    @staticmethod
+    async def _wash_jhrx_title(title: str) -> str:
+        title = wash_sensitive_info(
+            data=title,
+            replace_str_list=[
+                ('  ', ' '),
+            ],
+            add_sensitive_str_list=[
+                '-大金华论坛',
+            ],
+            is_default_filter=False,
+            is_lower=False,
+        )
 
         return title
 
@@ -6742,6 +6932,7 @@ class ArticleParser(AsyncCrawler):
             'jd',
             'lfd',
             'jhgzw',
+            'jhrx',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -6955,6 +7146,7 @@ class ArticleParser(AsyncCrawler):
             'dy',
             'jrxsp',
             'jhgzw',
+            'jhrx',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -7240,8 +7432,32 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'jhgzw':
             content = await self._wash_jhgzw_article_content(content=content)
 
+        elif short_name == 'jhrx':
+            content = await self._wash_jhrx_article_content(content=content)
+
         else:
             pass
+
+        return content
+
+    @staticmethod
+    async def _wash_jhrx_article_content(content: str) -> str:
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+                ('金华热线', '优秀网'),
+                ('浙中在线', '优秀网'),
+            ],
+            add_sensitive_str_list=[
+                # 去除表情包
+                r'<img src="http://bbs.0579.cn/images/post/smile/pig/daku.gif">',
+                # 去除金华热线二维码
+                '<img src=\"images/inapp\.jpg\?id=\\d+\" alt=\"\">',
+            ],
+            is_default_filter=False,
+            is_lower=False, )
+
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -8532,6 +8748,7 @@ def main():
     # url = 'https://www.meipai.com/media/1133207409'
     # url = 'https://www.meipai.com/media/1132365942'
     # url = 'https://www.meipai.com/media/1131644923'
+    # url = 'https://www.meipai.com/media/1188897814'
     # todo 直播不采集
 
     # 百度好看视频
@@ -8969,6 +9186,13 @@ def main():
     # 无线金华, pass
     # url = 'https://tv1.jinhua.com.cn/wxjh/2020-03-24/543065.html'
 
+    # 金华热线
+    # url = 'http://m.0579.cn/read.php?tid=3138997'
+    # url = 'http://m.0579.cn/read.php?tid=3138827'
+    # url = 'http://m.0579.cn/read.php?tid=3138994'
+    # url = 'http://m.0579.cn/read.php?tid=3138573'
+    # url = 'http://m.0579.cn/read.php?tid=3136901'
+
     # 文章url 测试
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(
@@ -8994,6 +9218,7 @@ def main():
     # article_type = 'klm'
     # article_type = 'jrxsp'
     # article_type = 'jhgzw'
+    # article_type = 'jhrx'
     # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
     #     article_type=article_type,))
     # pprint(tmp)

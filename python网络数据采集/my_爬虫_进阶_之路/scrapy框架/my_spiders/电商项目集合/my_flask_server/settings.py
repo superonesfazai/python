@@ -1341,10 +1341,7 @@ ARTICLE_ITEM_LIST = [
             'selector': 'title ::text',
         },
         'video_title': None,
-        'author': {
-            'method': 're',
-            'selector': '<meta property=\"og:video:director\" content=\"(.*?)\">',
-        },
+        'author': None,
         'video_author': None,
         'head_url': {
             'method': 'css',
@@ -2070,6 +2067,37 @@ ARTICLE_ITEM_LIST = [
         'content': {
             'method': 'css',
             'selector': 'div.article-main',
+        },
+        'video_article_content': None,
+        'comment_num': None,                    # 点赞数留空
+        'tags_list': None,
+        'video_tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num':None,
+    },
+    {
+        'short_name': 'jhrx',
+        'debug': True,
+        'obj_origin': 'm.0579.cn',
+        'article_id': {
+            'method': 're',
+            'selector': 'tid=(\d+)',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'title ::text',
+        },
+        'video_title': None,
+        'author': None,                         # 此处留空
+        'video_author': None,
+        'head_url': None,
+        'video_head_url': None,
+        'create_time': None,                    # 不用他的时间, 自己生成
+        'video_create_time': None,
+        'content': {
+            'method': 'css',
+            'selector': 'div.content div.detail',
         },
         'video_article_content': None,
         'comment_num': None,                    # 点赞数留空

@@ -79,7 +79,7 @@ class RecommendGoodOps(AsyncCrawler):
         # 设置开眼的min_article_id, max_article_id
         self.ky_min_article_id, self.ky_max_article_id = 4000, 60000
         # article_id 截取数
-        self.zq_intercept_num = 2
+        self.zq_intercept_num = 1
         self.hk_intercept_num = 1
         self.lfd_intercept_num = 1
         self.gxg_intercept_num = 1
@@ -88,6 +88,7 @@ class RecommendGoodOps(AsyncCrawler):
         self.dfsp_intercept_num = 1
         self.jrxsp_intercept_num = 1
         self.ky_intercept_num = 1
+        self.jhrx_intercept_num = 1
         # 增加全屏视频数
         self.lsp_intercept_num = 2
         self.mp_intercept_num = 1
@@ -106,6 +107,7 @@ class RecommendGoodOps(AsyncCrawler):
         self.klm_cache_dict = {}
         self.jrxsp_cache_dict = {}
         self.jhgzw_cache_dict = {}
+        self.jhrx_cache_dict = {}
         # 隔多久更新一次列表数据, 单位秒
         self.wait_to_update_time0 = 60 * 60
         self.wait_to_update_time1 = 40 * 60
@@ -113,7 +115,7 @@ class RecommendGoodOps(AsyncCrawler):
     async def _fck_run(self):
         # 休眠7.5分钟, 避免频繁发!(5分钟还是太快, 删不过来)(增加较多视频, 失败率较高故还是5分钟)
         # sleep_time = 0.
-        sleep_time = 60 * 3.
+        sleep_time = 60 * 2.
         self.db_article_id_list = await self.get_db_unique_id_list()
         assert self.db_article_id_list != []
         self.lg.info('db_article_id_list_len: {}'.format(len(self.db_article_id_list)))
@@ -165,7 +167,8 @@ class RecommendGoodOps(AsyncCrawler):
                             + self.klm_intercept_num \
                             + self.jrxsp_intercept_num \
                             + self.ky_intercept_num \
-                            + self.jhgzw_intercept_num
+                            + self.jhgzw_intercept_num \
+                            + self.jhrx_intercept_num
         _timeout = all_intercept_num * 2.5 * 60
 
         return _timeout
@@ -248,6 +251,7 @@ class RecommendGoodOps(AsyncCrawler):
         jrxsp_article_list = self.get_jrxsp_article_id_list()
         ky_article_list = self.get_ky_own_create_article_id_list()
         jhgzw_article_list = self.get_jhgzw_own_create_article_id_list()
+        jhrx_article_list = self.get_jhrx_own_create_article_id_list()
 
         # 测试用
         # article_id = '17300123'
@@ -260,14 +264,16 @@ class RecommendGoodOps(AsyncCrawler):
         # }]
 
         # 文章在前的发布顺序, 视频在后(避免视频发过多)
-        article_list = zq_article_list \
+        # 本地新闻先放前面
+        article_list = jhrx_article_list \
+                       + jhgzw_article_list \
+                       + zq_article_list \
                        + pp_article_list \
                        + kr_article_list \
                        + dfsp_article_list \
                        + hk_article_list \
                        + klm_article_list \
                        + jrxsp_article_list \
-                       + jhgzw_article_list \
                        + mp_article_list \
                        + lsp_article_list \
                        + ky_article_list \
@@ -354,6 +360,39 @@ class RecommendGoodOps(AsyncCrawler):
             collect()
 
         return
+
+    def get_jhrx_own_create_article_id_list(self):
+        """
+        获取jhrx article_list
+        :return:
+        """
+        if not isinstance(self.article_parser, ArticleParser):
+            self.article_parser = ArticleParser(logger=self.lg)
+        else:
+            pass
+
+        if self.jhrx_cache_dict == {}:
+            # 首次启动
+            article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                article_type='jhrx',))
+            self.jhrx_cache_dict['data'] = article_list
+            self.jhrx_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+        else:
+            cache_time = self.jhrx_cache_dict['cache_time']
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time0:
+                # jhrx 每日更新数量有限, 每过40分钟重新获取一次
+                article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                    article_type='jhrx',))
+                self.jhrx_cache_dict['data'] = article_list
+                self.jhrx_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+            else:
+                article_list = self.jhrx_cache_dict['data']
+
+        if article_list != []:
+            # 截取1个(与图文穿插)
+            article_list = random_sample(article_list, self.jhrx_intercept_num)
+
+        return article_list
 
     def get_jhgzw_own_create_article_id_list(self):
         """

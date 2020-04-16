@@ -278,7 +278,10 @@ class RequestClient(AsyncCrawler):
         # article_link = 'https://v.douyin.com/se3wkb'
 
         # 金华广众网
-        article_link = 'https://news.jinhua.com.cn/shishi/2020-03-26/543480.html'
+        # article_link = 'https://news.jinhua.com.cn/shishi/2020-03-26/543480.html'
+
+        # 金华热线
+        article_link = 'http://m.0579.cn/read.php?tid=3138827'
 
         url = article_link
 
