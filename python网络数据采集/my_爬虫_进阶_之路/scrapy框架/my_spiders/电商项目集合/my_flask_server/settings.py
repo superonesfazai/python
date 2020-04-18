@@ -2107,6 +2107,37 @@ ARTICLE_ITEM_LIST = [
         'profile': None,
         'fav_num':None,
     },
+    {
+        'short_name': 'jhwb',
+        'debug': True,
+        'obj_origin': '96356.in',
+        'article_id': {
+            'method': 're',
+            'selector': '/articles/(\d+)',
+        },
+        'title': {
+            'method': 'css',
+            'selector': 'h2.article-title ::text',
+        },
+        'video_title': None,
+        'author': None,                         # 此处留空
+        'video_author': None,
+        'head_url': None,
+        'video_head_url': None,
+        'create_time': None,                    # 不用他的时间, 自己生成
+        'video_create_time': None,
+        'content': {
+            'method': 'css',
+            'selector': 'article.article-content',
+        },
+        'video_article_content': None,
+        'comment_num': None,                    # 点赞数留空
+        'tags_list': None,
+        'video_tags_list': None,
+        'praise_num': None,
+        'profile': None,
+        'fav_num':None,
+    },
 ]
 
 '''

@@ -95,6 +95,7 @@ from logging import (
 from base64 import b64decode
 from threading import Lock as ThreadingLock
 from queue import Queue
+from requests import session as requests_session
 # 处理并发请求时协程报错: 'RuntimeError: This event loop is already running'
 import nest_asyncio
 
@@ -3021,6 +3022,28 @@ def save_every_url_right_data(**kwargs):
         pipeline=my_page_info_save_item_pipeline,
         is_inserted_and_goods_id_list=is_inserted_and_goods_id_list
     )
+
+######################################################
+"""
+get ip
+"""
+@app.route('/get_all', methods=['GET', 'POST'])
+def get_all():
+    """
+    获取本地所有代理ip
+    :return:
+    """
+    # todo 代码优化, 可使用缓存来避免频繁请求
+    base_url = 'http://127.0.0.1:8001/get_all'
+    try:
+        with requests_session() as _s:
+            res = _s.get(base_url).json()
+            assert res != [], 'res为空list!'
+    except Exception as e:
+        print(e)
+        return {'https': None}
+
+    return dumps(res, ensure_ascii=False).encode().decode()
 
 ######################################################
 def just_fuck_run():

@@ -55,8 +55,9 @@ supported:
     43. 开眼短视频(https://www.kaiyanapp.com/detail.html?vid=52619)(视频id类似递增)
     44. 抖音(根据抖音分享出来的地址)(但是cp上传视频被403禁止)
     45. 今日小视频网(部分视频为全屏小视频)(http://m.jrtb.net/)
-    46. 金华广众网(即金华广电网)(以下不做解析: 美食中特色推荐, 美食快讯, 因为不更新, 全是前几年的东西, 要附加做的解析: 舌尖上的金华[视频图文])
+    46. 金华广众网(即金华广电网)(以下不做解析: 美食中特色推荐, 美食快讯, 因为不更新, 全是前几年的东西, 要附加做的解析: 舌尖上的金华[视频图文])(https://www.jinhua.com.cn/)
     47. 金华热线(即浙中在线)(http://www.0579.cn/)(手机版: http://m.0579.cn/)
+    48. 金华晚报(https://www.96356.in/)(手机版)
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -82,6 +83,7 @@ not supported:
     21. 图虫视频网(https://tuchong.com/video/)(need driver, 可做, 根据列表页获取share_url然后auto)
     22. 咪咕视频网(http://m.miguvideo.com/)(可取里面的短视频的接口部分)
     23. 浙江资讯-手机新浪网(http://zj.sina.cn/news/list-p1.d.html)
+    24. 金华新闻网(新闻板块: https://www.jhnews.com.cn/xw/)
     
 视频地址解析神器: https://www.urlgot.top/
     
@@ -272,8 +274,162 @@ class ArticleParser(AsyncCrawler):
         elif article_type == 'jhrx':
             return await self.get_jhrx_article_list()
 
+        elif article_type == 'jhwb':
+            return await self.get_jhwb_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_jhwb_article_list(self) -> list:
+        """
+        获取jhwb m站首页的文章推荐
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            for page_num in range(1, 10):
+                # 每日更新有限, 就获取前几页的
+                tasks_params_list.append({
+                    'page_num': page_num,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where jhwb: page_num:{}]...'.format(
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['page_num'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_jhwb_recommend_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_jhwb_recommend_article_list_by_page_num(self, page_num: int) -> list:
+        """
+        获取jhwb 单页article_list
+        :param page_num:
+        :return:
+        """
+        headers = get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='',
+        )
+        headers.update({
+            'authority': 'www.96356.in',
+            'accept': 'text/html, */*; q=0.01',
+            'x-requested-with': 'XMLHttpRequest',
+            # 'referer': 'https://www.96356.in/',
+        })
+        url = 'https://www.96356.in/page/{}'.format(page_num)
+        body = Requests.get_url_body(
+            url=url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            num_retries=6,
+            proxy_type=PROXY_TYPE_HTTPS, )
+        assert body != ''
+        # self.lg.info(body)
+
+        article_div_list_sel = {
+            'method': 'css',
+            'selector': 'article.excerpt',
+        }
+        article_div_list = parse_field(
+            parser=article_div_list_sel,
+            target_obj=body,
+            logger=self.lg,
+            is_first=False, )
+        assert article_div_list != []
+        # pprint(article_div_list)
+
+        # 文章地址选择器
+        article_url_sel = {
+            'method': 'css',
+            'selector': 'h2 a ::attr("href")',
+        }
+        article_id_sel = {
+            'method': 're',
+            'selector': '/articles/(\d+)',
+        }
+        title_sel = {
+            'method': 'css',
+            'selector': 'h2 a ::text',
+        }
+        # 电影时长(无)
+        res = []
+        for item in article_div_list:
+            try:
+                article_url = parse_field(
+                    parser=article_url_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert article_url != ''
+                article_id = parse_field(
+                    parser=article_id_sel,
+                    target_obj=article_url,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert article_id != ''
+                title = parse_field(
+                    parser=title_sel,
+                    target_obj=item,
+                    logger=self.lg,
+                    is_print_error=False,
+                )
+                assert title != ''
+                if len(title) >= 30:
+                    continue
+
+                # 电影时长无, pass
+
+            except (AssertionError, Exception):
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('jhwb::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('jhwb', article_id)),
+                'article_type': 'jhwb',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+
+        # pprint(res)
+        self.lg.info('[{}] jhwb::page_num:{}'.format(
+            '+' if res != [] else '-',
+            page_num,
+        ))
+
+        return res
 
     async def get_jhrx_article_list(self) -> list:
         """
@@ -2850,6 +3006,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'm.0579.cn',
                 'site_id': 50,
             },
+            'jhwb': {
+                'debug': False,
+                'name': '金华晚报',
+                'url': 'https://www.96356.in/',
+                'obj_origin': '96356.in',
+                'site_id': 51,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -3241,6 +3404,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'jhrx':
                 return await self._get_jhrx_article_html(article_url=article_url)
 
+            elif article_url_type == 'jhwb':
+                return await self._get_jhwb_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -3248,6 +3414,33 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_jhwb_article_html(self, article_url) -> tuple:
+        """
+        获取jhwb html
+        :param article_url:
+        :return:
+        """
+        video_url = ''
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+        )
+        headers.update({
+            'authority': 'www.96356.in',
+            # 'referer': 'https://www.96356.in/',
+        })
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        assert body != ''
+        # self.lg.info(body)
+
+        return body, video_url
 
     async def _get_jhrx_article_html(self, article_url) -> tuple:
         """
@@ -6029,6 +6222,7 @@ class ArticleParser(AsyncCrawler):
             'jhgzw',
             'jhrx',
             'mp',
+            'jhwb',
         ]
         if short_name in short_name_list2:
             pass
@@ -6077,6 +6271,7 @@ class ArticleParser(AsyncCrawler):
             'blbl',
             'jhgzw',
             'jhrx',
+            'jhwb',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -6933,6 +7128,7 @@ class ArticleParser(AsyncCrawler):
             'lfd',
             'jhgzw',
             'jhrx',
+            'jhwb',
         ]
         if short_name in short_name_list:
             if video_url != '':
@@ -7147,6 +7343,7 @@ class ArticleParser(AsyncCrawler):
             'jrxsp',
             'jhgzw',
             'jhrx',
+            'jhwb',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -7435,8 +7632,30 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'jhrx':
             content = await self._wash_jhrx_article_content(content=content)
 
+        elif short_name == 'jhwb':
+            content = await self._wash_jhwb_article_content(content=content)
+
         else:
             pass
+
+        return content
+
+    @staticmethod
+    async def _wash_jhwb_article_content(content: str) -> str:
+        content = wash_sensitive_info(
+            data=content,
+            replace_str_list=[
+            ],
+            add_sensitive_str_list=[
+                '金华晚报',
+                '<div class=\"article-social\">.*</script></div>',
+                '<div class=\"article-weixin\">.*?</div>',
+                '\d+月\d+日消息',
+            ],
+            is_default_filter=False,
+            is_lower=False, )
+
+        content = modify_body_img_centering(content=content)
 
         return content
 
@@ -9193,6 +9412,11 @@ def main():
     # url = 'http://m.0579.cn/read.php?tid=3138573'
     # url = 'http://m.0579.cn/read.php?tid=3136901'
 
+    # 金华晚报
+    # url = 'https://www.96356.in/articles/75359'
+    # url = 'https://www.96356.in/articles/75345'
+    # url = 'https://www.96356.in/articles/75301'
+
     # 文章url 测试
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(
@@ -9219,6 +9443,7 @@ def main():
     # article_type = 'jrxsp'
     # article_type = 'jhgzw'
     # article_type = 'jhrx'
+    # article_type = 'jhwb'
     # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
     #     article_type=article_type,))
     # pprint(tmp)

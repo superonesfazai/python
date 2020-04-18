@@ -58,22 +58,23 @@ class TmuxOps(AsyncCrawler):
                 'cmd': 'cd ~ && ./cpolar http 80',
                 'delay_time': 2,
             },
-            {
-                'page_name': 'ip_pool',
-                'cmd': 'cd {} && {} proxy_checker_plus.py'.format(
-                    self.ip_pool_path,
-                    self.python_version_cmd,
-                ),
-                'delay_time': 2,
-            },
-            {
-                'page_name': 'ip_server',
-                'cmd': 'cd {} && {} server.py'.format(
-                    self.ip_pool_path,
-                    self.python_version_cmd,
-                ),
-                'delay_time': 25,
-            },
+            # 放在同一台服务器上获取, 不单独运行, 因为获取代理供应商不支持多台同时根据一个订单号获取, 会有冲突导致一台无数据
+            # {
+            #     'page_name': 'ip_pool',
+            #     'cmd': 'cd {} && {} proxy_checker_plus.py'.format(
+            #         self.ip_pool_path,
+            #         self.python_version_cmd,
+            #     ),
+            #     'delay_time': 2,
+            # },
+            # {
+            #     'page_name': 'ip_server',
+            #     'cmd': 'cd {} && {} server.py'.format(
+            #         self.ip_pool_path,
+            #         self.python_version_cmd,
+            #     ),
+            #     'delay_time': 25,
+            # },
             {
                 'page_name': 'new_my_server',
                 'cmd': 'cd {} && {} new_my_server.py'.format(

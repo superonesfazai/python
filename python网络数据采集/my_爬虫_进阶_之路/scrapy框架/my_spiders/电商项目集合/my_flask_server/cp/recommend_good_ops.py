@@ -115,7 +115,7 @@ class RecommendGoodOps(AsyncCrawler):
     async def _fck_run(self):
         # 休眠7.5分钟, 避免频繁发!(5分钟还是太快, 删不过来)(增加较多视频, 失败率较高故还是5分钟)
         # sleep_time = 0.
-        sleep_time = 60 * 2.
+        sleep_time = 60 * .5
         self.db_article_id_list = await self.get_db_unique_id_list()
         assert self.db_article_id_list != []
         self.lg.info('db_article_id_list_len: {}'.format(len(self.db_article_id_list)))
