@@ -96,6 +96,7 @@ class RecommendGoodOps(AsyncCrawler):
         self.lsp_intercept_num = 2
         self.mp_intercept_num = 1
         self.klm_intercept_num = 2
+        self.bdqmxsv_intercept_num = 2
         self.article_parser = None
         # 暂存好看视频list的dict
         self.hk_cache_dict = {}
@@ -112,6 +113,7 @@ class RecommendGoodOps(AsyncCrawler):
         self.jhrx_cache_dict = {}
         self.jhwb_cache_dict = {}
         self.jhbdsv_cache_dict = {}
+        self.bdqmxsv_cache_dict = {}
         # 隔多久更新一次列表数据, 单位秒
         self.wait_to_update_time0 = 60 * 60
         self.wait_to_update_time1 = 40 * 60
@@ -174,7 +176,8 @@ class RecommendGoodOps(AsyncCrawler):
                             + self.jhgzw_intercept_num \
                             + self.jhrx_intercept_num \
                             + self.jhwb_intercept_num \
-                            + self.jhbdsv_intercept_num
+                            + self.jhbdsv_intercept_num \
+                            + self.bdqmxsv_intercept_num
         _timeout = all_intercept_num * 2.5 * 60
 
         return _timeout
@@ -244,6 +247,7 @@ class RecommendGoodOps(AsyncCrawler):
         # jhgzw_article_list = []
         # jhrx_article_list = []
         # jhwb_article_list = []
+        # jhbdsv_article_list = []
         zq_article_list = self.get_zq_own_create_article_id_list(
             min_article_id=self.min_article_id,
             max_article_id=self.max_article_id,)
@@ -262,6 +266,7 @@ class RecommendGoodOps(AsyncCrawler):
         jhrx_article_list = self.get_jhrx_own_create_article_id_list()
         jhwb_article_list = self.get_jhwb_own_create_article_id_list()
         jhbdsv_article_list = self.get_jhbdsv_own_create_article_id_list()
+        bdqmxsv_article_list = self.get_bdqmxsv_own_create_article_id_list()
 
         # 测试用
         # article_id = '17300123'
@@ -279,6 +284,7 @@ class RecommendGoodOps(AsyncCrawler):
                        + jhwb_article_list \
                        + jhgzw_article_list \
                        + zq_article_list \
+                       + bdqmxsv_article_list \
                        + jhbdsv_article_list \
                        + pp_article_list \
                        + kr_article_list \
@@ -372,6 +378,35 @@ class RecommendGoodOps(AsyncCrawler):
             collect()
 
         return
+
+    def get_bdqmxsv_own_create_article_id_list(self):
+        if not isinstance(self.article_parser, ArticleParser):
+            self.article_parser = ArticleParser(logger=self.lg)
+        else:
+            pass
+
+        if self.bdqmxsv_cache_dict == {}:
+            # 首次启动
+            article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                article_type='bdqmxsv',))
+            self.bdqmxsv_cache_dict['data'] = article_list
+            self.bdqmxsv_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+        else:
+            cache_time = self.bdqmxsv_cache_dict['cache_time']
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time1:
+                # bdqmxsv 每日更新数量有限, 每过40分钟重新获取一次
+                article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                    article_type='bdqmxsv',))
+                self.bdqmxsv_cache_dict['data'] = article_list
+                self.bdqmxsv_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+            else:
+                article_list = self.bdqmxsv_cache_dict['data']
+
+        if article_list != []:
+            # 截取1个(与图文穿插)
+            article_list = random_sample(article_list, self.bdqmxsv_intercept_num)
+
+        return article_list
 
     def get_jhbdsv_own_create_article_id_list(self):
         if not isinstance(self.article_parser, ArticleParser):

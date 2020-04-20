@@ -59,6 +59,7 @@ supported:
     47. 金华热线(即浙中在线)(http://www.0579.cn/)(手机版: http://m.0579.cn/)
     48. 金华晚报(https://www.96356.in/)(手机版)
     49. 百度app金华本地板块的视频解析
+    50. 百度app全屏小视频板块页面解析
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -282,8 +283,216 @@ class ArticleParser(AsyncCrawler):
         elif article_type == 'jhbdsv':
             return await self.get_jhbdsv_article_list()
 
+        elif article_type == 'bdqmxsv':
+            return await self.get_bdqmxsv_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_bdqmxsv_article_list(self) -> list:
+        """
+        获取百度app 的全屏小视频的list
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            for page_num in range(1, 10):
+                # 其实不需要page_num, 此处只是做个标记
+                tasks_params_list.append({
+                    'page_num': page_num,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where bdqmxsv: page_num:{}]...'.format(
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['page_num'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_bdqmxsv_recommend_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_bdqmxsv_recommend_article_list_by_page_num(self, page_num: int) -> list:
+        """
+        解析bdqmxsv 单页的小视频article_list
+        :param page_num:
+        :return:
+        """
+        # 百度app的小视频发现接口, 其中的全屏视频文章可直接被抓取
+        headers = {
+            'Host': 'mbd.baidu.com',
+            'Connection': 'keep-alive',
+            # 'Content-Length': '4557',
+            # 'X-BD-QUIC': '1',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            # 'X-BDBoxApp-NetEngine': '3',
+            'User-Agent': get_random_phone_ua(),
+        # 'Mozilla/5.0 (iPad; CPU OS 13_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 SP-engine/2.18.0'
+            # 'X-Bd-Traceid': '644a9f61e6cc425e8df842d2cb926de9',
+            'Accept': '*/*',
+            # 'X-TurboNet-Info': '2.13.2679.177',
+            'Accept-Encoding': 'gzip, deflate',
+        }
+
+        params = (
+            ('action', 'feed'),
+            ('cmd', '210'),
+            # ('maid', '_a2S8_aq28_qa28qiPSOtj8Pvag3h2aajiXT8jukvNlza-uNzuB3uli6-u_KO-ifY0HJ8lukSugkuXa90ivhI_PSv8oIi2ihgCSaa_asS8_M82uazxqSC'),
+            ('refresh', '1'),
+            ('imgtype', 'webp'),
+            ('cfrom', '1099a'),
+            ('from', '1099a'),
+            ('network', '1_0'),
+            ('osbranch', 'i0'),
+            ('osname', 'baiduboxapp'),
+            ('service', 'bdbox'),
+            # ('sid', '1027585_4-2600_6645-1027088_2-1027514_1-1027521_1-1027598_3-3081_8171-5238_7311-2696_6930-1027056_2-3057_8089-5618_8591-1027583_1-1027195_1-1027384_2-1027255_3-1027604_1-5456_8016-1026924_1-5306_7565-1027258_2-3270_8882-2946_7781-1027230_2-5524_8269-1027659_1-2929_7702-1027285_1-1027328_5-1027599_1-1472_3438-5579_8458-3037_8036-1027425_3-1027641_1-1027564_2-3000026_2-1027249_1-1027654_1-1027525_2-5529_8280-1027151_2-5566_8411-1027577_2-5562_8387-1027102_1-5571_8441-1027346_1-1021859_1-5409_7877-3039_8040-5586_8486-5546_8581-1027597_2-1027562_1-1027251_1-5525_8271-1021774_1-2512_6387-2859_7452-1027460_2-1027128_2-1027379_1-1027652_2-2939_7745-1027218_1-1027225_1-1026985_1'),
+            ('sst', '0'),
+            ('st', '0'),
+            ('ua', '1668_2224_iphone_11.22.0.17_0'),
+            ('uid', 'E4317D7927A4F423B2A894710C308D015F8D69D51OMTBGHBERB'),
+            # ('ut', 'iPad7,3_13.3.1'),
+            # ('zid', '9iAc0yzbau51GKO563M1gzHzaPoPDD_d8nXwjCKxdBLITCmV4uqwJmkYrkuarE6BQqUXF7INisVWgScgYhwZ0qQ'),
+        )
+
+        data = {
+            # 'data': '{\n  "upload_ids" : [\n    {\n      "clk" : 0,\n      "id" : "sv_5653763656459563687",\n      "show" : 0,\n      "clk_ts" : 0,\n      "show_ts" : 0\n    },\n    {\n      "clk" : 0,\n      "id" : "sv_3599925748637729943",\n      "show" : 0,\n      "clk_ts" : 0,\n      "show_ts" : 0\n    },\n    {\n      "clk" : 0,\n      "id" : "sv_5250727945753531281",\n      "show" : 0,\n      "clk_ts" : 0,\n      "show_ts" : 0\n    },\n    {\n      "clk" : 0,\n      "id" : "sv_4823468498756614746",\n      "show" : 1,\n      "clk_ts" : 0,\n      "show_ts" : 1587165880\n    },\n    {\n      "clk" : 0,\n      "id" : "sv_4439062174156612467",\n      "show" : 1,\n      "clk_ts" : 0,\n      "show_ts" : 1587165886\n    },\n    {\n      "clk" : 0,\n      "id" : "sv_5248424962721750237",\n      "show" : 1,\n      "clk_ts" : 0,\n      "show_ts" : 1587165886\n    },\n    {\n      "clk" : 0,\n      "id" : "sv_4130330140644084020",\n      "show" : 1,\n      "clk_ts" : 0,\n      "show_ts" : 1587165880\n    },\n    {\n      "clk" : 0,\n      "id" %3...'
+            'data': dumps({
+                "upload_ids": [
+                    {
+                        "clk": 0,
+                        "id": "sv_5653763656459563687",
+                        "show": 0,
+                        "clk_ts": 0,
+                        "show_ts": 0
+                    },
+                    {
+                        "clk": 0,
+                        "id": "sv_3599925748637729943",
+                        "show": 0,
+                        "clk_ts": 0,
+                        "show_ts": 0
+                    },
+                    {
+                        "clk": 0,
+                        "id": "sv_5250727945753531281",
+                        "show": 0,
+                        "clk_ts": 0,
+                        "show_ts": 0
+                    },
+                    {
+                        "clk": 0,
+                        "id": "sv_4823468498756614746",
+                        "show": 1,
+                        "clk_ts": 0,
+                        "show_ts": datetime_to_timestamp(get_shanghai_time()),  # 1587165880
+                    },
+                    {
+                        "clk": 0,
+                        "id": "sv_4439062174156612467",
+                        "show": 1,
+                        "clk_ts": 0,
+                        "show_ts": datetime_to_timestamp(get_shanghai_time())
+                    },
+                    {
+                        "clk": 0,
+                        "id": "sv_5248424962721750237",
+                        "show": 1,
+                        "clk_ts": 0,
+                        "show_ts": datetime_to_timestamp(get_shanghai_time())
+                    },
+                    {
+                        "clk": 0,
+                        "id": "sv_4130330140644084020",
+                        "show": 1,
+                        "clk_ts": 0,
+                        "show_ts": datetime_to_timestamp(get_shanghai_time())
+                    },
+                ]})
+        }
+        body = Requests.get_url_body(
+            method='post',
+            url='https://mbd.baidu.com/searchbox',
+            headers=headers,
+            params=params,
+            data=data,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,)
+        assert body != ''
+        data = article_div_list = json_2_dict(
+            json_str=body,
+            logger=self.lg).get('data', {}).get('210', {}).get('itemlist', {}).get('items', [])
+        # pprint(data)
+
+        res = []
+        for item in article_div_list:
+            try:
+                title = item.get('data', {}).get('title', '')
+                assert title != ''
+                _mode = item.get('data', {}).get('mode', '')
+                assert _mode != ''
+                article_url = item.get('data', {}).get('videoInfo', {}).get('pageUrl', '')
+                assert article_url != ''
+
+                article_id = re.compile('&vid=(\d+)').findall(article_url)[0]
+                assert article_id != ''
+                # self.lg.info('mode: {}, title: {}, article_url: {}'.format(_mode, title, article_url))
+
+                if len(title) >= 30:
+                    continue
+
+                if '王者荣耀' in title \
+                        or '王者农药' in title \
+                        or '绝地求生' in title \
+                        or '英雄联盟' in title:
+                    continue
+
+                # 视频时长(因为多为几十秒的小视频), pass
+            except Exception:
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('bdqmxsv::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('bdqmxsv', article_id)),
+                'article_type': 'bdqmxsv',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+
+        # pprint(res)
+        self.lg.info('[{}] bdqmxsv::page_num:{}'.format(
+            '+' if res != [] else '-',
+            page_num,
+        ))
+
+        return res
 
     async def get_jhbdsv_article_list(self) -> list:
         """
@@ -411,7 +620,7 @@ class ArticleParser(AsyncCrawler):
 
         data = article_div_list = json_2_dict(
             json_str=body,
-            logger=None, ).get('data', {}).get('206', {}).get('itemlist', {}).get('items', [])
+            logger=self.lg, ).get('data', {}).get('206', {}).get('itemlist', {}).get('items', [])
         # pprint(data)
 
         res = []
@@ -431,6 +640,9 @@ class ArticleParser(AsyncCrawler):
 
                 article_id = re.compile('sv_(\d+)').findall(article_url)[0]
                 assert article_id != ''
+
+                if len(title) >= 30:
+                    continue
 
                 # 视频时长
                 # eg: '03:29'
@@ -3202,6 +3414,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': 'sv.baidu.com',
                 'site_id': 52,
             },
+            'bdqmxsv': {
+                'debug': False,
+                'name': '百度app全屏小视频板块的视频',
+                'url': '此处无值',
+                'obj_origin': 'quanmin.baidu.com',
+                'site_id': 53,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -3599,6 +3818,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'jhbdsv':
                 return await self._get_jhbdsv_article_html(article_url=article_url)
 
+            elif article_url_type == 'bdqmxsv':
+                return await self._get_bdqmxsv_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -3606,6 +3828,71 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+
+    async def _get_bdqmxsv_article_html(self, article_url) -> tuple:
+        """
+        获取bdqmxsv html
+        :param article_url:
+        :return:
+        """
+        parser_obj = await self._get_parse_obj(article_url_type='bdqmxsv')
+        article_id = await async_parse_field(
+            parser=parser_obj['article_id'],
+            target_obj=article_url,
+            logger=self.lg,)
+        assert article_id != ''
+        self.lg.info('article_id: {}'.format(article_id))
+
+        headers = get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='', )
+        headers.update({
+            'authority': 'quanmin.baidu.com',
+            'accept': '*/*',
+            # 'referer': 'https://quanmin.baidu.com/sv?source=share-h5&pd=qm_share_mvideo&vid=4538982913039184503&shared_cuid=AqqqB',
+        })
+        params = (
+            ('source', 'share-h5'),
+            ('pd', 'qm_share_mvideo'),
+            ('vid', article_id),        # '4538982913039184503'
+            # ('shared_cuid', 'AqqqB'),
+            ('_format', 'json'),
+        )
+
+        body = Requests.get_url_body(
+            url='https://quanmin.baidu.com/wise/growth/api/sv/immerse',
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries, )
+        assert body != ''
+        # self.lg.info(body)
+
+        data = json_2_dict(
+            json_str=body,
+            default_res={},
+            logger=self.lg, ).get('data', {})
+        assert data != {}
+        try:
+            data['four_palace_relate_list'] = []
+            data['comment_info'] = []
+        except Exception:
+            pass
+        # pprint(data)
+
+        self.hook_target_api_data = data
+        video_url = self.hook_target_api_data\
+            .get('meta', {})\
+            .get('video_info', {})\
+            .get('clarityUrl', [])[0]\
+            .get('url', '')
+        self.lg.info('video_url: {}'.format(video_url))
+
+        return body, video_url
 
     async def _get_jhbdsv_article_html(self, article_url) -> tuple:
         """
@@ -6418,6 +6705,11 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'jhbdsv':
             author = self.hook_target_api_data.get('source_name', '')
 
+        elif short_name == 'bdqmxsv':
+            author = self.hook_target_api_data\
+                .get('author', {})\
+                .get('name', '')
+
         else:
             pass
 
@@ -6463,6 +6755,7 @@ class ArticleParser(AsyncCrawler):
             'mp',
             'jhwb',
             'jhbdsv',
+            'bdqmxsv',
         ]
         if short_name in short_name_list2:
             pass
@@ -6618,6 +6911,11 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'jhbdsv':
             title = self.hook_target_api_data.get('title', '')
 
+        elif short_name == 'bdqmxsv':
+            title = self.hook_target_api_data\
+                .get('meta', {})\
+                .get('title', '')
+
         else:
             pass
 
@@ -6670,8 +6968,27 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'jhrx':
             title = await self._wash_jhrx_title(title=title)
 
+        elif short_name == 'bdqmxsv':
+            title = await self._wash_bdqmxsv_title(title=title)
+
         else:
             pass
+
+        return title
+
+    @staticmethod
+    async def _wash_bdqmxsv_title(title: str) -> str:
+        title = wash_sensitive_info(
+            data=title,
+            replace_str_list=[
+            ],
+            add_sensitive_str_list=[
+                '全民小视频',
+                '\#\#',
+            ],
+            is_default_filter=False,
+            is_lower=False,
+        )
 
         return title
 
@@ -7588,6 +7905,7 @@ class ArticleParser(AsyncCrawler):
             'jhrx',
             'jhwb',
             'jhbdsv',
+            'bdqmxsv',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -7882,9 +8200,16 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'jhbdsv':
             content = await self._wash_jhbdsv_article_content(content=content)
 
+        elif short_name == 'bdqmxsv':
+            content = await self._wash_bdqmxsv_article_content(content=content)
+
         else:
             pass
 
+        return content
+
+    @staticmethod
+    async def _wash_bdqmxsv_article_content(content: str) -> str:
         return content
 
     @staticmethod
@@ -9683,6 +10008,12 @@ def main():
     # url = 'https://sv.baidu.com/videoui/page/videoland?&context=%7B%22nid%22%3A%22sv_17635889761783462064%22%2C%22sourceFrom%22%3A%22bjh%22%2C%22poster_big%22%3A%22https%3A%5C%2F%5C%2Fpic.rmb.bdstatic.com%5C%2Fb968eea9c83d089a2986e3b8ca8093ab.jpeg%40s_1%2Cw_660%2Ch_370%22%7D'
     # url = 'https://sv.baidu.com/videoui/page/videoland?&context=%7B%22nid%22%3A%22sv_5599335408583823355%22%2C%22sourceFrom%22%3A%22bjh%22%2C%22poster_big%22%3A%22http%3A%5C%2F%5C%2Fpic.rmb.bdstatic.com%5C%2F1fc5d9fe736de4d9326bcf272a15fc45.jpeg%40s_1%2Cw_660%2Ch_370%22%7D'
 
+    # 百度app中全屏小视频页面解析
+    # url = 'https://quanmin.baidu.com/sv?source=share-h5&pd=qm_share_mvideo&vid=4538982913039184503&shared_cuid=AqqqB#/'
+    # url = 'https://quanmin.baidu.com/sv?source=share-h5&pd=qm_share_mvideo&vid=5015163600876926622&shared_cuid=AqqqB'
+    # url = 'https://quanmin.baidu.com/sv?source=share-h5&pd=qm_share_mvideo&vid=3982527886437173468&shared_cuid=AqqqB'
+    # url = 'https://quanmin.baidu.com/sv?source=share-h5&pd=qm_share_mvideo&vid=3276059148537518865&shared_cuid=AqqqB'
+
     # 文章url 测试
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(
@@ -9711,6 +10042,7 @@ def main():
     # article_type = 'jhrx'
     # article_type = 'jhwb'
     # article_type = 'jhbdsv'
+    # article_type = 'bdqmxsv'
     # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
     #     article_type=article_type,))
     # pprint(tmp)
