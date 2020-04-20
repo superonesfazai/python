@@ -58,6 +58,7 @@ supported:
     46. 金华广众网(即金华广电网)(以下不做解析: 美食中特色推荐, 美食快讯, 因为不更新, 全是前几年的东西, 要附加做的解析: 舌尖上的金华[视频图文])(https://www.jinhua.com.cn/)
     47. 金华热线(即浙中在线)(http://www.0579.cn/)(手机版: http://m.0579.cn/)
     48. 金华晚报(https://www.96356.in/)(手机版)
+    49. 百度app金华本地板块的视频解析
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -226,6 +227,7 @@ class ArticleParser(AsyncCrawler):
         _['likes'] = praise_num
         _['collects'] = fav_num
         _['comment_num'] = comment_num
+        _['short_name'] = article_url_type
 
         return dict(_)
 
@@ -277,8 +279,188 @@ class ArticleParser(AsyncCrawler):
         elif article_type == 'jhwb':
             return await self.get_jhwb_article_list()
 
+        elif article_type == 'jhbdsv':
+            return await self.get_jhbdsv_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_jhbdsv_article_list(self) -> list:
+        """
+        获取百度app 金华本地的推荐中的短视频list
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = []
+            for page_num in range(1, 20):
+                # 去掉时长过长的短视频后列表较少(本来请求一次就取短视频文章), 此处增加数量
+                # 每日更新有限, 就获取前几页的, 其实不需要page_num, 此处只是做个标记
+                tasks_params_list.append({
+                    'page_num': page_num,
+                })
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where jhbdsv: page_num:{}]...'.format(
+                k['page_num'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['page_num'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_jhbdsv_recommend_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_jhbdsv_recommend_article_list_by_page_num(self, page_num: int) -> list:
+        """
+        解析jhbdsv 单页的短视频article_list
+        :param page_num: 此处无用途, 只做标记
+        :return:
+        """
+        # 根据百度app的金华本地接口列表数据(包含视频)(也只处理视频)
+        # 测试发现其中返回的数据中图文文章的prefetch_html字段打开的页面图片都是异常的(图片只能在百度app里面调起), pass
+        headers = {
+            'Host': 'mbd.baidu.com',
+            'Connection': 'keep-alive',
+            # 'Content-Length': '601',
+            # 'X-BDBoxApp-NetEngine': '3',
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            # 'X-Bd-Traceid': '16fe51d50af744aa9f405a6674a0ece3',
+            # 'X-TurboNet-Info': '2.13.2679.177',
+            'User-Agent': get_random_phone_ua(),  # 'BaiduBoxApp/11.22.0 iPad; CPU OS 13_3_1 like Mac OS X'
+            'Accept-Encoding': 'gzip, deflate',
+        }
+        params = (
+            ('action', 'feed'),
+            ('cmd', '206'),
+            ('refresh', '0'),
+            ('cfrom', '1099a'),
+            ('from', '1099a'),
+            ('network', '1_0'),
+            ('osbranch', 'i0'),
+            ('osname', 'baiduboxapp'),
+            # ('puid', '_avrijOq2iAqAqqqB'),
+            ('service', 'bdbox'),
+            # ('sid', '5279_7493-5343_7673-1027255_3-1027249_1-3108_8246-1027599_1-5420_7915-5159_7064-5318_7602-5505_8213-2387_6070-5546_8581-3200_8608-5409_7877-1027056_2-3057_8089-1768_6301-2849_7423-1027525_2-3085_8180-3188_8547-5276_7485-5177_7115-5566_8411-5482_8122-1027088_2-5247_7339-2411_6133-5553_8355-5351_7695-3022_7980-5358_7713-2583_6589-1027151_2-2964_7829-5270_7472-2422_6166-3092_8204-5344_7676-5525_8271-5557_8366-1027564_2-5508_8414-5297_7538-1027652_2-5426_7932-5291_7522-5309_7573-5188_7161-2558_7271-1027384_2-2966_7835-5164_7078-5295_7533-5618_8591-1869_4509-5568_8429-1027604_1-1027379_1-1027654_1-5288_7517-3072_8145-3234_8756-5306_7565-2119_5266-1549_3643-2702_6941-5397_7837-5292_7525-5605_8537-5189_7164-3195_8561-2929_7702-1027562_1-5623_8610-5456_8016-3281_8984-5571_8441-2762_7136-5437_7972-5399_7843-1027251_1-1027195_1-5382_7800-3021_7978-3037_8036-5305_7560-1027102_1-1026985_1-1027583_1-5434_7961-5524_8269-2939_7745-5529_8280-2132_5301-5287_7515-1021859_1-1027577_2-2962_7825-1027346_1-2512_6387-1027128_2-5511_8234-5562_8387-1026924_1-1892_4570-5302_7555-1027460_2-5253_7382-5540_8312-5191_7167-2859_7452-5258_7413-5380_7796-3000026_2-1021774_1-5501_8201-2696_6930-5337_8416-5356_7706-1027230_2-5208_7208-3270_8882-3068_8126-2701_6939-1027218_1-5495_8181-5244_7333-3095_8211-3081_8171-2429_6181-2720_7764-1027225_1-3094_8208-5354_7701-3066_8262-2407_6127-1756_4144-1027425_3-5290_7521-5289_7518-3008_7953-1472_3438-3051_8075-571_1173-5488_8587-5260_7422-5196_7178-5326_7620-5514_8240-5539_8310-5586_8486-1027514_1-965_2041-1027258_2-5274_7482-5465_8048-2991_7919-5474_8088-5238_7311-2949_7792-5304_7558-1027521_1-3269_8880-5341_7661-5396_7836-2734_7019-5277_7487-1027659_1-5229_7291-2862_7464-3039_8040-1027328_5-1027641_1-1027597_2-2946_7781-2520_6890-1027285_1-5476_8091-3150_8396-5579_8458-3038_8037-3246_8805-5621_8606-2163_5390-1027585_4-2600_6645-5551_8343-5507_8218-5552_8352-1027598_3-5387_7815-2466_6272'),
+            ('sst', '0'),
+            ('st', '0'),
+            ('ua', '1668_2224_iphone_11.22.0.17_0'),
+            ('uid', 'E4317D7927A4F423B2A894710C308D015F8D69D51OMTBGHBERB'),
+            ('ut', 'iPad7,3_13.3.1'),
+            # ('zid', '9iAc0yzbau51GKO563M1gzHzaPoPDD_d8nXwjCKxdBLL_jVT_hAYpPuHPN7r33duZtuXxOapOpFhVJsy0VCBMVg'),
+        )
+        data = {
+            # 'data': '{"direction":"auto","refresh_type":0,"bundleVersion":"2.80.57","source":"bdbox_feed_attentiontab","upload_ids":[],"info":{"location":"120.072277,28.962932,---"},"data":{"tab_id":"109999333","tab_name":"","is_sub":0,"last_update_time":0,"session_id":"1587166932496","click_id":"f7c2394b4a3a374e9565268449e1f8b7","refresh_index":1,"refresh_count":1,"refresh_state":4,"pre_render":0,"context":{}}}'
+            'data': dumps({
+                'bundleVersion': '2.80.57',
+                'data': {
+                    # 'click_id': 'f7c2394b4a3a374e9565268449e1f8b7',
+                    'context': {},
+                    'is_sub': 0,
+                    'last_update_time': 0,
+                    'pre_render': 0,
+                    'refresh_count': 1,
+                    'refresh_index': 1,
+                    'refresh_state': 4,
+                    'session_id': get_now_13_bit_timestamp(),
+                    'tab_id': '109999333',
+                    'tab_name': ''
+                },
+                'direction': 'auto',
+                'info': {'location': '120.072277,28.962932,---'},
+                'refresh_type': 0,
+                'source': 'bdbox_feed_attentiontab',
+                'upload_ids': []
+            })
+        }
+        body = Requests.get_url_body(
+            method='post',
+            url='https://mbd.baidu.com/searchbox',
+            headers=headers,
+            params=params,
+            data=data,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=6,)
+        assert body != ''
+        # self.lg.info(body)
+
+        data = article_div_list = json_2_dict(
+            json_str=body,
+            logger=None, ).get('data', {}).get('206', {}).get('itemlist', {}).get('items', [])
+        # pprint(data)
+
+        res = []
+        for item in article_div_list:
+            try:
+                title = item.get('data', {}).get('title', '')
+                assert title != ''
+                _mode = item.get('data', {}).get('mode', '')
+                assert _mode != ''
+                if _mode == 'video':
+                    article_url = item.get('data', {}).get('videoInfo', {}).get('pageUrl', '')
+                else:
+                    # 跳过图文文章, 因为其中图片只能在百度app里面调起
+                    # article_url = item.get('data', {}).get('prefetch_html', '')
+                    continue
+                assert article_url != ''
+
+                article_id = re.compile('sv_(\d+)').findall(article_url)[0]
+                assert article_id != ''
+
+                # 视频时长
+                # eg: '03:29'
+                video_duration = item.get('data', {}).get('duration', '')
+                assert video_duration != ''
+                video_duration_minute, video_duration_second = video_duration.split(':')
+                if (int(video_duration_minute) * 60 + int(video_duration_second)) >= 5. * 60:
+                    # 5分钟以上不要
+                    continue
+
+                # self.lg.info('mode: {}, title: {}, video_duration: {}, article_url: {}'.format(_mode, title, video_duration, article_url))
+            except (AssertionError, Exception):
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('jhbdsv::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('jhbdsv', article_id)),
+                'article_type': 'jhbdsv',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+
+        # pprint(res)
+        self.lg.info('[{}] jhbdsv::page_num:{}'.format(
+            '+' if res != [] else '-',
+            page_num,
+        ))
+
+        return res
 
     async def get_jhwb_article_list(self) -> list:
         """
@@ -3013,6 +3195,13 @@ class ArticleParser(AsyncCrawler):
                 'obj_origin': '96356.in',
                 'site_id': 51,
             },
+            'jhbdsv': {
+                'debug': False,
+                'name': '百度app金华本地板块的视频',
+                'url': '此处无值',
+                'obj_origin': 'sv.baidu.com',
+                'site_id': 52,
+            },
         }
 
     async def get_article_spiders_intro(self) -> str:
@@ -3407,6 +3596,9 @@ class ArticleParser(AsyncCrawler):
             elif article_url_type == 'jhwb':
                 return await self._get_jhwb_article_html(article_url=article_url)
 
+            elif article_url_type == 'jhbdsv':
+                return await self._get_jhbdsv_article_html(article_url=article_url)
+
             else:
                 raise AssertionError('未实现的解析!')
 
@@ -3414,6 +3606,50 @@ class ArticleParser(AsyncCrawler):
             self.lg.error('遇到错误:', exc_info=True)
 
             return body, video_url
+
+    async def _get_jhbdsv_article_html(self, article_url) -> tuple:
+        """
+        获取jhbdsv html
+        :param article_url:
+        :return:
+        """
+        headers = await async_get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+        )
+        headers.update({
+            'authority': 'sv.baidu.com',
+        })
+        if 'sv.baidu.com/videoui' not in article_url:
+            raise ValueError('待采集的文章地址值异常, article_url: {}'.format(article_url))
+        else:
+            pass
+
+        body = await unblock_request(
+            url=article_url,
+            headers=headers,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries,
+            logger=self.lg,)
+        assert body != ''
+        # self.lg.info(body)
+
+        data = json_2_dict(
+            json_str=re.compile('window\.__PRELOADED_STATE__ = (.*); document\.querySelector').findall(body)[0],
+            logger=None, ).get('curVideoMeta', {})
+        # pprint(data)
+
+        self.hook_target_api_data = data
+        assert self.hook_target_api_data != {}
+        video_url = self.hook_target_api_data\
+            .get('videoInfoExt', {})\
+            .get('default', {})\
+            .get('defaultUrlHttp', '')
+        assert video_url != ''
+        self.lg.info('video_url: {}'.format(video_url))
+
+        return body, video_url
 
     async def _get_jhwb_article_html(self, article_url) -> tuple:
         """
@@ -6179,6 +6415,9 @@ class ArticleParser(AsyncCrawler):
                 .get('poster', {})\
                 .get('nick', '')
 
+        elif short_name == 'jhbdsv':
+            author = self.hook_target_api_data.get('source_name', '')
+
         else:
             pass
 
@@ -6223,6 +6462,7 @@ class ArticleParser(AsyncCrawler):
             'jhrx',
             'mp',
             'jhwb',
+            'jhbdsv',
         ]
         if short_name in short_name_list2:
             pass
@@ -6374,6 +6614,9 @@ class ArticleParser(AsyncCrawler):
                 title = self.hook_target_api_data.get('feeds', [])[0].get('material_desc', '')
             else:
                 pass
+
+        elif short_name == 'jhbdsv':
+            title = self.hook_target_api_data.get('title', '')
 
         else:
             pass
@@ -7344,6 +7587,7 @@ class ArticleParser(AsyncCrawler):
             'jhgzw',
             'jhrx',
             'jhwb',
+            'jhbdsv',
         ]
         if short_name in short_name_list2:
             if video_url != '':
@@ -7635,9 +7879,16 @@ class ArticleParser(AsyncCrawler):
         elif short_name == 'jhwb':
             content = await self._wash_jhwb_article_content(content=content)
 
+        elif short_name == 'jhbdsv':
+            content = await self._wash_jhbdsv_article_content(content=content)
+
         else:
             pass
 
+        return content
+
+    @staticmethod
+    async def _wash_jhbdsv_article_content(content: str) -> str:
         return content
 
     @staticmethod
@@ -8362,6 +8613,15 @@ class ArticleParser(AsyncCrawler):
         判断url类别
         :return:
         """
+        # 提前处理并返回的, 避免二级域名冲突
+        for key, value in self.obj_origin_dict.items():
+            if key == 'jhbdsv':
+                # todo jhbdsv文章的地址也是'sv.baidu.com'与下方百度m站部分地址冲突, 此处直接在其前面进行处理
+                if 'sv.baidu.com' in article_url:
+                    return key
+            else:
+                pass
+
         for key, value in self.obj_origin_dict.items():
             if key == 'df':
                 if 'mini.eastday.com' in article_url:
@@ -9417,6 +9677,12 @@ def main():
     # url = 'https://www.96356.in/articles/75345'
     # url = 'https://www.96356.in/articles/75301'
 
+    # 百度app金华本地的短视频解析
+    # url = 'https://sv.baidu.com/videoui/page/videoland?&context=%7B%22nid%22%3A%22sv_13449568219241582441%22%2C%22sourceFrom%22%3A%22bjh%22%2C%22poster_big%22%3A%22https%3A%5C%2F%5C%2Fpic.rmb.bdstatic.com%5C%2F613230305e3b9c62c8b66bb2e1bda612.jpeg%40s_1%2Cw_660%2Ch_370%22%7D'
+    # url = 'https://sv.baidu.com/videoui/page/videoland?&context=%7B%22nid%22%3A%22sv_711599875470459459%22%2C%22sourceFrom%22%3A%22bjh%22%2C%22poster_big%22%3A%22https%3A%5C%2F%5C%2Fpic.rmb.bdstatic.com%5C%2F4b6343c1864151170561b0d9ca23f595.jpeg%40s_1%2Cw_660%2Ch_370%22%7D'
+    # url = 'https://sv.baidu.com/videoui/page/videoland?&context=%7B%22nid%22%3A%22sv_17635889761783462064%22%2C%22sourceFrom%22%3A%22bjh%22%2C%22poster_big%22%3A%22https%3A%5C%2F%5C%2Fpic.rmb.bdstatic.com%5C%2Fb968eea9c83d089a2986e3b8ca8093ab.jpeg%40s_1%2Cw_660%2Ch_370%22%7D'
+    # url = 'https://sv.baidu.com/videoui/page/videoland?&context=%7B%22nid%22%3A%22sv_5599335408583823355%22%2C%22sourceFrom%22%3A%22bjh%22%2C%22poster_big%22%3A%22http%3A%5C%2F%5C%2Fpic.rmb.bdstatic.com%5C%2F1fc5d9fe736de4d9326bcf272a15fc45.jpeg%40s_1%2Cw_660%2Ch_370%22%7D'
+
     # 文章url 测试
     print('article_url: {}'.format(url))
     article_parse_res = loop.run_until_complete(
@@ -9444,6 +9710,7 @@ def main():
     # article_type = 'jhgzw'
     # article_type = 'jhrx'
     # article_type = 'jhwb'
+    # article_type = 'jhbdsv'
     # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
     #     article_type=article_type,))
     # pprint(tmp)

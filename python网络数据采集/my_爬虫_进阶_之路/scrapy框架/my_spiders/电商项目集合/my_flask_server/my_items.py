@@ -106,6 +106,7 @@ class WellRecommendArticle(Item):
     likes = Field()                 # 点赞数 int
     collects = Field()              # 收藏数 int
     comment_num = Field()           # 评论数 int
+    short_name = Field()            # 爬取来源缩写
 
 class CompanyItem(Item):
     """企业 or 商铺对象"""
