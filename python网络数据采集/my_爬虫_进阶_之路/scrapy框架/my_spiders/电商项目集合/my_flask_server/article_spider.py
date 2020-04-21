@@ -2998,8 +2998,8 @@ class ArticleParser(AsyncCrawler):
             upgrade_insecure_requests=False,
             cache_control='',)
         headers.update({
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-origin',
+            # 'Sec-Fetch-Mode': 'cors',
+            # 'Sec-Fetch-Site': 'same-origin',
             'Origin': 'https://focus.youth.cn',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'Referer': 'https://focus.youth.cn/html/articleTop/mobile.html',
@@ -3012,7 +3012,7 @@ class ArticleParser(AsyncCrawler):
         })
         body = Requests.get_url_body(
             method='post',
-            url='https://focus.youth.cn/WebApi/Article/top',
+            url='https://focus.youth.cn/WebApi/Article/top2',
             headers=headers,
             data=data,
             ip_pool_type=self.ip_pool_type,
@@ -6984,7 +6984,9 @@ class ArticleParser(AsyncCrawler):
             ],
             add_sensitive_str_list=[
                 '全民小视频',
+                '@全民小助手',
                 '\#\#',
+                '全民小助手',
             ],
             is_default_filter=False,
             is_lower=False,
@@ -10015,11 +10017,11 @@ def main():
     # url = 'https://quanmin.baidu.com/sv?source=share-h5&pd=qm_share_mvideo&vid=3276059148537518865&shared_cuid=AqqqB'
 
     # 文章url 测试
-    print('article_url: {}'.format(url))
-    article_parse_res = loop.run_until_complete(
-        future=_._parse_article(article_url=url))
-    pprint(article_parse_res)
-    # print(dumps(article_parse_res))
+    # print('article_url: {}'.format(url))
+    # article_parse_res = loop.run_until_complete(
+    #     future=_._parse_article(article_url=url))
+    # pprint(article_parse_res)
+    # # print(dumps(article_parse_res))
 
     # article spiders intro
     # tmp = loop.run_until_complete(_.get_article_spiders_intro())
