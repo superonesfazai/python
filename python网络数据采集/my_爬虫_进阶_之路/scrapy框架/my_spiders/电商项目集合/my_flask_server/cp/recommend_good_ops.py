@@ -117,6 +117,7 @@ class RecommendGoodOps(AsyncCrawler):
         # 隔多久更新一次列表数据, 单位秒
         self.wait_to_update_time0 = 60 * 60
         self.wait_to_update_time1 = 40 * 60
+        self.wait_to_update_time2 = 2 * 60 * 60
 
     async def _fck_run(self):
         # 休眠7.5分钟, 避免频繁发!(5分钟还是太快, 删不过来)(增加较多视频, 失败率较高故还是5分钟)
@@ -569,7 +570,7 @@ class RecommendGoodOps(AsyncCrawler):
             self.jrxsp_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
         else:
             cache_time = self.jrxsp_cache_dict['cache_time']
-            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time0:
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time2:
                 # klm 每日更新数量有限, 每过40分钟重新获取一次
                 article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
                     article_type='jrxsp',))

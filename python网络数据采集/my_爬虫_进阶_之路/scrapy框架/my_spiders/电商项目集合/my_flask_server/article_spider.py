@@ -2169,6 +2169,7 @@ class ArticleParser(AsyncCrawler):
         :param page_num:
         :return:
         """
+        # 该接口偶尔会没数据
         headers = get_random_headers(
             upgrade_insecure_requests=False,
             cache_control='', )
@@ -2201,7 +2202,7 @@ class ArticleParser(AsyncCrawler):
             ('ajwvr', '6'),
             ('cursor', cursor),
             ('op', '4427060390002831'),
-            ('__rnd', str(get_now_13_bit_timestamp())),
+            ('__rnd', get_now_13_bit_timestamp()),
         )
 
         body = Requests.get_url_body(
