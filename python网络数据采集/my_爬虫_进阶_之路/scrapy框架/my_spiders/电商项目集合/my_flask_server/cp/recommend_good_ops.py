@@ -97,6 +97,7 @@ class RecommendGoodOps(AsyncCrawler):
         self.mp_intercept_num = 1
         self.klm_intercept_num = 2
         self.bdqmxsv_intercept_num = 2
+        self.dy0_intercept_num = 1
         self.article_parser = None
         # 暂存好看视频list的dict
         self.hk_cache_dict = {}
@@ -114,6 +115,26 @@ class RecommendGoodOps(AsyncCrawler):
         self.jhwb_cache_dict = {}
         self.jhbdsv_cache_dict = {}
         self.bdqmxsv_cache_dict = {}
+        self.dy0_cache_dict = {}
+        # 目标集合
+        self.zq_article_list = []
+        self.hk_article_list = []
+        self.lfd_article_list = []
+        self.gxg_article_list = []
+        self.pp_article_list = []
+        self.kr_article_list = []
+        self.dfsp_article_list = []
+        self.lsp_article_list = []
+        self.mp_article_list = []
+        self.klm_article_list = []
+        self.jrxsp_article_list = []
+        self.ky_article_list = []
+        self.jhgzw_article_list = []
+        self.jhrx_article_list = []
+        self.jhwb_article_list = []
+        self.jhbdsv_article_list = []
+        self.bdqmxsv_article_list = []
+        self.dy0_article_list = []
         # 隔多久更新一次列表数据, 单位秒
         self.wait_to_update_time0 = 60 * 60
         self.wait_to_update_time1 = 40 * 60
@@ -178,7 +199,8 @@ class RecommendGoodOps(AsyncCrawler):
                             + self.jhrx_intercept_num \
                             + self.jhwb_intercept_num \
                             + self.jhbdsv_intercept_num \
-                            + self.bdqmxsv_intercept_num
+                            + self.bdqmxsv_intercept_num \
+                            + self.dy0_intercept_num
         _timeout = all_intercept_num * 2.5 * 60
 
         return _timeout
@@ -231,43 +253,27 @@ class RecommendGoodOps(AsyncCrawler):
             pass
 
         # todo shadow模式下老是登录失败, 建议关闭shadow, 不使用其 or lantern or 使用shadow其全局代理模式即可
-
         # 创建目标集合
-        # zq_article_list = []
-        # hk_article_list = []
-        # lfd_article_list = []
-        # gxg_article_list = []
-        # pp_article_list = []
-        # kr_article_list = []
-        # dfsp_article_list = []
-        # lsp_article_list = []
-        # mp_article_list = []
-        # klm_article_list = []
-        # jrxsp_article_list = []
-        # ky_article_list = []
-        # jhgzw_article_list = []
-        # jhrx_article_list = []
-        # jhwb_article_list = []
-        # jhbdsv_article_list = []
-        zq_article_list = self.get_zq_own_create_article_id_list(
+        self.zq_article_list = self.get_zq_own_create_article_id_list(
             min_article_id=self.min_article_id,
             max_article_id=self.max_article_id,)
-        hk_article_list = self.get_hk_article_id_list()
-        lfd_article_list = self.get_lfd_article_id_list()
-        gxg_article_list = self.get_gxg_article_id_list()
-        pp_article_list = self.get_pp_article_id_list()
-        kr_article_list = self.get_kr_article_id_list()
-        dfsp_article_list = self.get_dfsp_article_id_list()
-        lsp_article_list = self.get_lsp_article_id_list()
-        mp_article_list = self.get_mp_article_id_list()
-        klm_article_list = self.get_klm_article_id_list()
-        jrxsp_article_list = self.get_jrxsp_article_id_list()
-        ky_article_list = self.get_ky_own_create_article_id_list()
-        jhgzw_article_list = self.get_jhgzw_own_create_article_id_list()
-        jhrx_article_list = self.get_jhrx_own_create_article_id_list()
-        jhwb_article_list = self.get_jhwb_own_create_article_id_list()
-        jhbdsv_article_list = self.get_jhbdsv_own_create_article_id_list()
-        bdqmxsv_article_list = self.get_bdqmxsv_own_create_article_id_list()
+        self.hk_article_list = self.get_hk_article_id_list()
+        self.lfd_article_list = self.get_lfd_article_id_list()
+        self.gxg_article_list = self.get_gxg_article_id_list()
+        self.pp_article_list = self.get_pp_article_id_list()
+        self.kr_article_list = self.get_kr_article_id_list()
+        self.dfsp_article_list = self.get_dfsp_article_id_list()
+        self.lsp_article_list = self.get_lsp_article_id_list()
+        self.mp_article_list = self.get_mp_article_id_list()
+        self.klm_article_list = self.get_klm_article_id_list()
+        self.jrxsp_article_list = self.get_jrxsp_article_id_list()
+        self.ky_article_list = self.get_ky_own_create_article_id_list()
+        self.jhgzw_article_list = self.get_jhgzw_own_create_article_id_list()
+        self.jhrx_article_list = self.get_jhrx_own_create_article_id_list()
+        self.jhwb_article_list = self.get_jhwb_own_create_article_id_list()
+        self.jhbdsv_article_list = self.get_jhbdsv_own_create_article_id_list()
+        self.bdqmxsv_article_list = self.get_bdqmxsv_own_create_article_id_list()
+        self.dy0_article_list = self.get_dy0_own_create_article_id_list()
 
         # 测试用
         # article_id = '17300123'
@@ -281,23 +287,24 @@ class RecommendGoodOps(AsyncCrawler):
 
         # 文章在前的发布顺序, 视频在后(避免视频发过多)
         # 本地新闻先放前面
-        article_list = jhrx_article_list \
-                       + jhwb_article_list \
-                       + jhgzw_article_list \
-                       + zq_article_list \
-                       + bdqmxsv_article_list \
-                       + jhbdsv_article_list \
-                       + pp_article_list \
-                       + kr_article_list \
-                       + dfsp_article_list \
-                       + hk_article_list \
-                       + klm_article_list \
-                       + jrxsp_article_list \
-                       + mp_article_list \
-                       + lsp_article_list \
-                       + ky_article_list \
-                       + lfd_article_list \
-                       + gxg_article_list
+        article_list = self.jhrx_article_list \
+                       + self.jhwb_article_list \
+                       + self.jhgzw_article_list \
+                       + self.zq_article_list \
+                       + self.dy0_article_list \
+                       + self.bdqmxsv_article_list \
+                       + self.jhbdsv_article_list \
+                       + self.pp_article_list \
+                       + self.kr_article_list \
+                       + self.dfsp_article_list \
+                       + self.hk_article_list \
+                       + self.klm_article_list \
+                       + self.jrxsp_article_list \
+                       + self.mp_article_list \
+                       + self.lsp_article_list \
+                       + self.ky_article_list \
+                       + self.lfd_article_list \
+                       + self.gxg_article_list
 
         assert article_list != []
         # pprint(article_list)
@@ -379,6 +386,35 @@ class RecommendGoodOps(AsyncCrawler):
             collect()
 
         return
+
+    def get_dy0_own_create_article_id_list(self):
+        if not isinstance(self.article_parser, ArticleParser):
+            self.article_parser = ArticleParser(logger=self.lg)
+        else:
+            pass
+
+        if self.dy0_cache_dict == {}:
+            # 首次启动
+            article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                article_type='dy0',))
+            self.dy0_cache_dict['data'] = article_list
+            self.dy0_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+        else:
+            cache_time = self.dy0_cache_dict['cache_time']
+            if datetime_to_timestamp(get_shanghai_time()) - cache_time > self.wait_to_update_time2:
+                # dy0 每日更新数量有限, 每过2*60分钟重新获取一次
+                article_list = self.loop.run_until_complete(self.article_parser.get_article_list_by_article_type(
+                    article_type='dy0',))
+                self.dy0_cache_dict['data'] = article_list
+                self.dy0_cache_dict['cache_time'] = datetime_to_timestamp(get_shanghai_time())
+            else:
+                article_list = self.dy0_cache_dict['data']
+
+        if article_list != []:
+            # 截取1个(与图文穿插)
+            article_list = random_sample(article_list, self.dy0_intercept_num)
+
+        return article_list
 
     def get_bdqmxsv_own_create_article_id_list(self):
         if not isinstance(self.article_parser, ArticleParser):

@@ -60,6 +60,7 @@ supported:
     48. 金华晚报(https://www.96356.in/)(手机版)
     49. 百度app金华本地板块的视频解析
     50. 百度app全屏小视频板块页面解析
+    51. 抖音搜索中分享出来的视频榜(https://www.iesdouyin.com/share/billboard/?id=0&utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=copy&utm_source=copy)
     
 not supported:
     1. 男人窝(https://m.nanrenwo.net/)
@@ -286,8 +287,145 @@ class ArticleParser(AsyncCrawler):
         elif article_type == 'bdqmxsv':
             return await self.get_bdqmxsv_article_list()
 
+        elif article_type == 'dy0':
+            return await self.get_dy0_article_list()
+
         else:
             raise NotImplemented
+
+    async def get_dy0_article_list(self) -> list:
+        """
+        根据dy app 搜索页面分享出来的视频榜(均只有单页)
+        来源: https://www.iesdouyin.com/share/billboard/?id=0&utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=copy&utm_source=copy
+        :return:
+        """
+        def get_tasks_params_list() -> list:
+            tasks_params_list = [{
+                'video_rank_type': 'default',
+            },{
+                'video_rank_type': 'positive',
+            }]
+
+            return tasks_params_list
+
+        def get_create_task_msg(k) -> str:
+            return 'create task[where dy0: video_rank_type:{}]...'.format(
+                k['video_rank_type'],
+            )
+
+        def get_now_args(k) -> list:
+            return [
+                k['video_rank_type'],
+            ]
+
+        all_res = await get_or_handle_target_data_by_task_params_list(
+            loop=self.loop,
+            tasks_params_list=get_tasks_params_list(),
+            func_name_where_get_create_task_msg=get_create_task_msg,
+            func_name=self.get_dy0_recommend_article_list_by_page_num,
+            func_name_where_get_now_args=get_now_args,
+            func_name_where_handle_one_res=None,
+            func_name_where_add_one_res_2_all_res=default_add_one_res_2_all_res,
+            one_default_res=[],
+            step=self.concurrency,
+            logger=self.lg,
+            get_all_res=True,
+            concurrent_type=0,
+        )
+        all_res = list_remove_repeat_dict_plus(
+            target=all_res,
+            repeat_key='article_id',)
+        # pprint(all_res)
+        self.lg.info('all_res_len: {}'.format(len(all_res)))
+
+        return all_res
+
+    @catch_exceptions_with_class_logger(default_res=[])
+    def get_dy0_recommend_article_list_by_page_num(self, video_rank_type: str) -> list:
+        """
+        根据video_rank_type来解析对应的视频榜单(均只有单页)
+        :param video_rank_type: 'defalut' 默认视频榜 or 'positive' 正能量榜
+        :return:
+        """
+        # 根据dy app 搜索页面分享出来的视频榜(均只有单页)
+        # 来源: https://www.iesdouyin.com/share/billboard/?id=0&utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=copy&utm_source=copy
+        headers = get_random_headers(
+            user_agent_type=1,
+            connection_status_keep_alive=False,
+            upgrade_insecure_requests=False,
+            cache_control='', )
+        headers.update({
+            'authority': 'www.iesdouyin.com',
+            'accept': 'application/json',
+            'x-requested-with': 'XMLHttpRequest',
+            # 'referer': 'https://www.iesdouyin.com/share/billboard/?id=0&utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=copy&utm_source=copy',
+        })
+        try:
+            # 避免返回数据无法解码
+            headers.pop('accept-encoding')
+        except Exception:
+            pass
+        if video_rank_type == 'default':
+            # 视频榜
+            params = None
+        elif video_rank_type == 'positive':
+            # 正能量榜
+            params = (
+                ('type', 'positive'),
+            )
+        else:
+            raise ValueError('video_rank_type 值异常!')
+
+        body = Requests.get_url_body(
+            url='https://www.iesdouyin.com/web/api/v2/hotsearch/billboard/aweme/',
+            headers=headers,
+            params=params,
+            ip_pool_type=self.ip_pool_type,
+            proxy_type=PROXY_TYPE_HTTPS,
+            num_retries=self.request_num_retries, )
+        assert body != ''
+        # self.lg.info(body)
+
+        data = article_div_list = json_2_dict(
+            json_str=body,
+            logger=None,
+            default_res={}, ).get('aweme_list', [])
+        assert data != []
+        # pprint(data)
+
+        res = []
+        for item in article_div_list:
+            try:
+                title = item.get('aweme_info', {}).get('desc', '')
+                assert title != ''
+                article_url = item.get('aweme_info', {}).get('share_url', '')
+                assert article_url != ''
+
+                article_id = item.get('aweme_info', {}).get('aweme_id', '')
+                assert article_id != ''
+                if len(title) >= 30:
+                    continue
+
+                # 视频时长(因为多为几十秒的小视频), pass
+            except Exception:
+                continue
+
+            res.append({
+                # db中存储的uid eg: get_uuid3('dy::123')
+                'uid': get_uuid3(target_str='{}::{}'.format('dy', article_id)),
+                'article_type': 'dy',
+                'title': title,
+                'article_id': str(article_id),
+                'article_url': article_url,
+            })
+
+        # pprint(res)
+        self.lg.info('[{}] dy0::video_rank_type:{}'.format(
+            '+' if res != [] else '-',
+            video_rank_type,
+        ))
+
+        return res
 
     async def get_bdqmxsv_article_list(self) -> list:
         """
@@ -4082,110 +4220,128 @@ class ArticleParser(AsyncCrawler):
         :param article_url:
         :return:
         """
-        # 根据dy分享的短地址
-        headers = await async_get_random_headers(
-            user_agent_type=1,
-            connection_status_keep_alive=False,
-            cache_control='', )
-        headers.update({
-            'authority': 'v.douyin.com',
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-        })
-        # 下面需设置allow_redirects=False, 才可获取到数据
-        body = await unblock_request(
-            url=article_url,
-            headers=headers,
-            ip_pool_type=self.ip_pool_type,
-            proxy_type=PROXY_TYPE_HTTPS,
-            num_retries=self.request_num_retries,
-            allow_redirects=False,
-            logger=self.lg,)
-        assert body != ''
-        # self.lg.info(body)
+        item_ids = ''
+        if 'v.douyin.com' in article_url:
+            # 处理从dy 分享出来的短地址
+            headers = await async_get_random_headers(
+                user_agent_type=1,
+                connection_status_keep_alive=False,
+                cache_control='', )
+            headers.update({
+                'authority': 'v.douyin.com',
+                'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+            })
+            # 下面需设置allow_redirects=False, 才可获取到数据
+            body = await unblock_request(
+                url=article_url,
+                headers=headers,
+                ip_pool_type=self.ip_pool_type,
+                proxy_type=PROXY_TYPE_HTTPS,
+                num_retries=self.request_num_retries,
+                allow_redirects=False,
+                logger=self.lg,)
+            assert body != ''
+            # self.lg.info(body)
 
-        # 获取未被重定向的a标签地址进行后续请求
-        a_sel = {
-            'method': 're',
-            'selector': 'href=\"(.*?)\"',
-        }
-        target_a_url = await async_parse_field(
-            parser=a_sel,
-            target_obj=body,
-            logger=self.lg, )
-        assert target_a_url != ''
-        self.lg.info('获取到待跳转的原地址: {}'.format(target_a_url))
+            # 获取未被重定向的a标签地址进行后续请求
+            a_sel = {
+                'method': 're',
+                'selector': 'href=\"(.*?)\"',
+            }
+            target_a_url = await async_parse_field(
+                parser=a_sel,
+                target_obj=body,
+                logger=self.lg, )
+            assert target_a_url != ''
+            self.lg.info('获取到待跳转的原地址: {}'.format(target_a_url))
 
-        # 获取跳转后的body, 目的获取item_ids, dytk
-        body = await unblock_request(
-            url=target_a_url,
-            headers=headers,
-            ip_pool_type=self.ip_pool_type,
-            proxy_type=PROXY_TYPE_HTTPS,
-            num_retries=self.request_num_retries,
-            logger=self.lg,)
-        assert body != ''
-        # self.lg.info(body)
+            # 获取跳转后的body, 目的获取item_ids, dytk
+            body = await unblock_request(
+                url=target_a_url,
+                headers=headers,
+                ip_pool_type=self.ip_pool_type,
+                proxy_type=PROXY_TYPE_HTTPS,
+                num_retries=self.request_num_retries,
+                logger=self.lg,)
+            assert body != ''
+            # self.lg.info(body)
 
-        item_ids_sel = {
-            'method': 're',
-            'selector': 'itemId\: \"(\d+)\",',
-        }
-        dytk_sel = {
-            'method': 're',
-            'selector': 'dytk\: \"(\w+)\"',
-        }
-        item_ids = await async_parse_field(
-            parser=item_ids_sel,
-            target_obj=body,
-            logger=self.lg,
-        )
-        dytk = await async_parse_field(
-            parser=dytk_sel,
-            target_obj=body,
-            logger=self.lg,
-        )
-        assert item_ids != ''
-        assert dytk != ''
-        self.lg.info('item_ids: {}, dytk: {}'.format(item_ids, dytk))
+            item_ids_sel = {
+                'method': 're',
+                'selector': 'itemId\: \"(\d+)\",',
+            }
+            dytk_sel = {
+                'method': 're',
+                'selector': 'dytk\: \"(\w+)\"',
+            }
+            item_ids = await async_parse_field(
+                parser=item_ids_sel,
+                target_obj=body,
+                logger=self.lg,
+            )
+            dytk = await async_parse_field(
+                parser=dytk_sel,
+                target_obj=body,
+                logger=self.lg,
+            )
+            assert item_ids != ''
+            assert dytk != ''
+            self.lg.info('item_ids: {}, dytk: {}'.format(item_ids, dytk))
 
-        # 下面是官方web页面获取视频数据接口, 但是视频无法被cp服务器上传, so pass
-        # headers = await async_get_random_headers(
-        #     user_agent_type=1,
-        #     connection_status_keep_alive=False,
-        #     upgrade_insecure_requests=False,
-        #     cache_control='', )
-        # headers.update({
-        #     'authority': 'www.iesdouyin.com',
-        #     'accept': '*/*',
-        #     'x-requested-with': 'XMLHttpRequest',
-        #     # 'referer': 'https://www.iesdouyin.com/share/video/6788405311460920583/?region=CN&amp;mid=6788399235936750339&amp;u_code=14a6g7j4m&amp;titleType=title&amp;timestamp=1581400527&amp;utm_campaign=client_share&amp;app=aweme&amp;utm_medium=ios&amp;tt_from=copy&amp;utm_source=copy',
-        #     'referer': target_a_url,
-        # })
-        # params = (
-        #     ('item_ids', item_ids),
-        #     ('dytk', dytk),
-        # )
-        # body = await unblock_request(
-        #     url='https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/',
-        #     headers=headers,
-        #     params=params,
-        #     ip_pool_type=self.ip_pool_type,
-        #     proxy_type=PROXY_TYPE_HTTPS,
-        #     num_retries=self.request_num_retries,
-        #     logger=self.lg,)
-        # # self.lg.info(body)
-        # assert body != ''
-        # self.hook_target_api_data = json_2_dict(
-        #     json_str=body,
-        #     default_res={},
-        #     logger=self.lg, ).get('item_list', [])[0]
-        # # pprint(self.hook_target_api_data)
-        #
-        # video_url = self.hook_target_api_data\
-        #     .get('video', {})\
-        #     .get('download_addr', {})\
-        #     .get('url_list', [])[0]
-        # self.lg.info('获取到dy video_url: {}'.format(video_url))
+            # 下面是官方web页面获取视频数据接口, 但是视频无法被cp服务器上传, so pass
+            # headers = await async_get_random_headers(
+            #     user_agent_type=1,
+            #     connection_status_keep_alive=False,
+            #     upgrade_insecure_requests=False,
+            #     cache_control='', )
+            # headers.update({
+            #     'authority': 'www.iesdouyin.com',
+            #     'accept': '*/*',
+            #     'x-requested-with': 'XMLHttpRequest',
+            #     # 'referer': 'https://www.iesdouyin.com/share/video/6788405311460920583/?region=CN&amp;mid=6788399235936750339&amp;u_code=14a6g7j4m&amp;titleType=title&amp;timestamp=1581400527&amp;utm_campaign=client_share&amp;app=aweme&amp;utm_medium=ios&amp;tt_from=copy&amp;utm_source=copy',
+            #     'referer': target_a_url,
+            # })
+            # params = (
+            #     ('item_ids', item_ids),
+            #     ('dytk', dytk),
+            # )
+            # body = await unblock_request(
+            #     url='https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/',
+            #     headers=headers,
+            #     params=params,
+            #     ip_pool_type=self.ip_pool_type,
+            #     proxy_type=PROXY_TYPE_HTTPS,
+            #     num_retries=self.request_num_retries,
+            #     logger=self.lg,)
+            # # self.lg.info(body)
+            # assert body != ''
+            # self.hook_target_api_data = json_2_dict(
+            #     json_str=body,
+            #     default_res={},
+            #     logger=self.lg, ).get('item_list', [])[0]
+            # # pprint(self.hook_target_api_data)
+            #
+            # video_url = self.hook_target_api_data\
+            #     .get('video', {})\
+            #     .get('download_addr', {})\
+            #     .get('url_list', [])[0]
+            # self.lg.info('获取到dy video_url: {}'.format(video_url))
+
+        elif 'www.iesdouyin.com' in article_url:
+            item_ids_sel = {
+                'method': 're',
+                'selector': '/video/(\d+)/'
+            }
+            item_ids = await async_parse_field(
+                parser=item_ids_sel,
+                target_obj=article_url,
+                logger=self.lg,
+            )
+            assert item_ids != ''
+            self.lg.info('item_ids: {}'.format(item_ids))
+
+        else:
+            raise ValueError('article_url 为抖音未知类型地址, 请检查!')
 
         # ** dy 去水印
         # 三方去水印工具地址: https://sy.kuakuavideo.com/douyin.html
@@ -8868,6 +9024,10 @@ class ArticleParser(AsyncCrawler):
         判断是否是子对象, 以及是否debug是打开
         :return:
         """
+        if 'www.iesdouyin.com' in article_url:
+            # 单独处理抖音排行榜的视频地址
+            return True
+
         for item in ARTICLE_ITEM_LIST:
             item_debug = item.get('debug', False)
             if item.get('short_name', '') == 'df':
@@ -8941,6 +9101,10 @@ class ArticleParser(AsyncCrawler):
         判断url类别
         :return:
         """
+        if 'www.iesdouyin.com' in article_url:
+            # 单独处理抖音排行榜的视频
+            return 'dy'
+
         # 提前处理并返回的, 避免二级域名冲突
         for key, value in self.obj_origin_dict.items():
             if key == 'jhbdsv':
@@ -9944,6 +10108,8 @@ def main():
     # url = 'https://v.douyin.com/sdLYWJ/'
     # url = 'https://v.douyin.com/se3wkb/'
     # url = 'https://v.douyin.com/nXCh6q/'
+    # 下方为不是app里面分享的地址, 如排行榜的地址
+    # url = 'https://www.iesdouyin.com/share/video/6818874977903824128/?region=&mid=6818874986108603143&u_code=0&titleType=title'
 
     # 今日小视频(它们网站偶尔不稳定)
     # url = 'http://m.jrtb.net/shenghuo/xhyljjtzxjdpjmmhzpysdxjzcr.html'
@@ -10046,6 +10212,7 @@ def main():
     # article_type = 'jhwb'
     # article_type = 'jhbdsv'
     # article_type = 'bdqmxsv'
+    # article_type = 'dy0'
     # tmp = loop.run_until_complete(_.get_article_list_by_article_type(
     #     article_type=article_type,))
     # pprint(tmp)

@@ -239,3 +239,16 @@ FIREFOX_DRIVER_PATH = '/Users/afa/myFiles/tools/geckodriver'
 #
 # response = requests.get('http://webapi.miguvideo.com/gateway/playurl/v2/play/playurlh5', headers=headers, params=params, verify=False)
 # print(response.text)
+
+# headers = {
+#     'authority': 'www.iesdouyin.com',
+#     'accept': 'application/json',
+#     # 'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
+#     'user-agent': get_random_phone_ua(),
+#     'x-requested-with': 'XMLHttpRequest',
+#     'sec-fetch-site': 'same-origin',
+#     'sec-fetch-mode': 'cors',
+#     'sec-fetch-dest': 'empty',
+#     # 'referer': 'https://www.iesdouyin.com/share/billboard/?id=0&utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=copy&utm_source=copy',
+#     'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+# }
