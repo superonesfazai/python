@@ -8742,12 +8742,12 @@ class ArticleParser(AsyncCrawler):
         content = wash_sensitive_info(
             data=content,
             replace_str_list=[
+                # 去除无线金华二维码, 都已'TiEL'结尾的图片
+                ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.png\?TiEL\"', 'src=""'),
             ],
             add_sensitive_str_list=[
                 '无[线限]金华客户端',
                 '金华广众网',
-                # 去除无线金华二维码
-                '<img class=\"image\" imageid=\"98923271\" src=\"http://imgs.jinhua.com.cn/material/news/img/640x/2020/02/20200214163442WEcA.png\?KzgC\">',
             ],
             is_default_filter=False,
             is_lower=False, )
@@ -10480,6 +10480,9 @@ def main():
     # 舌尖上的金华再上方处理了
     # 无线金华, pass
     # url = 'https://tv1.jinhua.com.cn/wxjh/2020-03-24/543065.html'
+    # 含有无线金华二维码的且含有视频的处理
+    # url = 'https://news.jinhua.com.cn/shishi/2020-04-26/549659.html'
+    # url = 'https://news.jinhua.com.cn/shishi/2020-04-25/549601.html'
 
     # 金华热线
     # url = 'http://m.0579.cn/read.php?tid=3138997'
