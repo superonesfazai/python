@@ -19,3 +19,7 @@ attach
 ```bash
 $ tmux attach -t myname
 ```
+关闭所有会话
+```bash
+$ tmux ls | grep : | cut -d. -f1 | awk '{print substr($1, 0, length($1)-1)}' | xargs kill
+```

@@ -1369,7 +1369,8 @@ class ArticleParser(AsyncCrawler):
                     # 去掉不合法的网址
                     continue
 
-                if '新型冠状病毒肺炎疫情通报' in title:
+                if '新型冠状病毒肺炎疫情通报' in title or \
+                        '新型冠状病毒肺炎疫情情况' in title:
                     # 去掉每日播报
                     continue
 
@@ -8744,10 +8745,15 @@ class ArticleParser(AsyncCrawler):
             replace_str_list=[
                 # 去除无线金华二维码, 都已'TiEL'结尾的图片
                 ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.png\?TiEL\"', 'src=""'),
+                ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.png\?YfBN\"', 'src=""'),
+                ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.png\?dJAq\"', 'src=""'),
+                ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.png\?jJ3h\"', 'src=""'),
             ],
             add_sensitive_str_list=[
                 '无[线限]金华客户端',
                 '金华广众网',
+                # 去掉开头的时间点消息
+                '\d+月\d+日消息',
             ],
             is_default_filter=False,
             is_lower=False, )
@@ -10480,9 +10486,14 @@ def main():
     # 舌尖上的金华再上方处理了
     # 无线金华, pass
     # url = 'https://tv1.jinhua.com.cn/wxjh/2020-03-24/543065.html'
-    # 含有无线金华二维码的且含有视频的处理
+    # 含有无线金华二维码的且(含有视频的处理 or 图文)
     # url = 'https://news.jinhua.com.cn/shishi/2020-04-26/549659.html'
     # url = 'https://news.jinhua.com.cn/shishi/2020-04-25/549601.html'
+    # url = 'https://news.jinhua.com.cn/shishi/2020-04-29/550345.html'
+    # url = 'https://news.jinhua.com.cn/shishi/2020-04-28/550341.html'
+    # url = 'https://news.jinhua.com.cn/shishi/2020-04-28/550302.html'
+    # url = 'https://news.jinhua.com.cn/shishi/2020-04-28/550303.html'
+    # url = 'https://news.jinhua.com.cn/shishi/2020-04-28/550155.html'
 
     # 金华热线
     # url = 'http://m.0579.cn/read.php?tid=3138997'
