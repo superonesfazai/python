@@ -151,10 +151,17 @@ class CommonGoodsRealTimeUpdater(AsyncCrawler):
                     except AssertionError:
                         break
 
-                    one_res, index = await self._get_one_res(
-                        slice_params_list=slice_params_list,
-                        index=index)
-                    await self._except_sleep(res=one_res)
+                    # 超时退出
+                    try:
+                        await async_wait_for(
+                            self.do_something(
+                                slice_params_list=slice_params_list,
+                                index=index,),
+                            timeout=60 * 15,)
+                    except AsyncTimeoutError:
+                        await async_sleep(3)
+                        self.lg.error('时间超时, 跳过!')
+                        continue
 
                 self.lg.info('全部数据更新完毕'.center(100, '#'))
 
@@ -170,6 +177,12 @@ class CommonGoodsRealTimeUpdater(AsyncCrawler):
             except Exception:
                 pass
             collect()
+
+    async def do_something(self, slice_params_list, index):
+        one_res, index = await self._get_one_res(
+            slice_params_list=slice_params_list,
+            index=index)
+        await self._except_sleep(res=one_res)
 
     async def _get_db_old_data(self) -> (list, None):
         """

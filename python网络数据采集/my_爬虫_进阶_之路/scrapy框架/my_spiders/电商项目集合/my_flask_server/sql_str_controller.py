@@ -141,7 +141,7 @@ from dbo.GoodsInfoAutoGet
 where SiteID=1 
 and MainGoodsID is not null
 -- and IsDelete=1
--- and MainGoodsID=219844
+-- and MainGoodsID=213054
 -- and GoodsID='44625517602'
 order by ModfiyTime asc
 '''
@@ -201,7 +201,7 @@ where MainGoodsID is not null
 and (SiteID=3 or SiteID=4 or SiteID=6) 
 -- and IsDelete=1
 -- and GoodsID='586763854909'
--- and MainGoodsID=238478
+-- and MainGoodsID=196362
 order by ModfiyTime asc
 '''
 '''insert'''

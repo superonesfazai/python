@@ -428,7 +428,8 @@ def unblock_judge_ip_is_anonymity(ip_address='',
     if not httpbin:
         now_ip_selector = {
             'method': 'css',
-            'selector': 'div#ip-address:nth-child(2) .detected-column a:nth-child(1) ::text',
+            # 'selector': 'div#ip-address:nth-child(2) .detected-column a:nth-child(1) ::text',
+            'selector': 'div#ip-address.detection-block .detected-column a:nth-child(1) ::text',
         }
         now_ip = parse_field(
             parser=now_ip_selector,
