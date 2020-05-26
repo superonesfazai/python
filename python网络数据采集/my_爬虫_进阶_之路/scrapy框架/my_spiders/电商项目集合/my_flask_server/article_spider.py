@@ -8740,6 +8740,13 @@ class ArticleParser(AsyncCrawler):
 
     @staticmethod
     async def _wash_jhgzw_article_content(content: str) -> str:
+        if 'livmedia.php' in content:
+            # 表示是js的视频文章, 此处pass, 因为这种都只有一个视频且为js
+            # 金华广众网较多都是含有js视频文章的会导致较多的发布失败, 所以考虑放到后面去
+            raise AssertionError('js视频文章, pass')
+        else:
+            pass
+
         content = wash_sensitive_info(
             data=content,
             replace_str_list=[
@@ -8748,6 +8755,15 @@ class ArticleParser(AsyncCrawler):
                 ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.png\?YfBN\"', 'src=""'),
                 ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.png\?dJAq\"', 'src=""'),
                 ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.png\?jJ3h\"', 'src=""'),
+
+                ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.[jp][pn]g\?RFZU\"', 'src=""'),
+                ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.[jp][pn]g\?9kzt\"', 'src=""'),
+                ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.[jp][pn]g\?cIFA\"', 'src=""'),
+                ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.[jp][pn]g\?zUBO\"', 'src=""'),
+                ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.[jp][pn]g\?bp7w\"', 'src=""'),
+                ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.[jp][pn]g\?G4Z\"', 'src=""'),
+                ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.[jp][pn]g\?1GOQ\"', 'src=""'),
+                ('src=\"http:\/\/imgs.jinhua.com.cn/material/news/img/640x/\d+/\d+/\w+\.[jp][pn]g\?14e\"', 'src=""'),
             ],
             add_sensitive_str_list=[
                 '无[线限]金华客户端',
@@ -10494,6 +10510,7 @@ def main():
     # url = 'https://news.jinhua.com.cn/shishi/2020-04-28/550302.html'
     # url = 'https://news.jinhua.com.cn/shishi/2020-04-28/550303.html'
     # url = 'https://news.jinhua.com.cn/shishi/2020-04-28/550155.html'
+    # url = 'https://news.jinhua.com.cn/shishi/2020-05-16/553957.html'
 
     # 金华热线
     # url = 'http://m.0579.cn/read.php?tid=3138997'

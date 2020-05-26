@@ -592,3 +592,22 @@ create table main_goods_id_association_table(
   goods_label_relation_id nvarchar(100) not null, -- 表示这条记录的关联规则unique_id, 即商品标签关联表的unique_id,
   rank_value int not null,  -- 排序值0, 1, 2..., 修改排序顺序即取出所有对应的进行重新排序录入
 );
+
+-- 通用店铺类型表
+create table common_shop_type_table(
+  id int identity(1, 1) primary key,
+  shop_id nvarchar(50) not null unique,       -- 通用店铺类型
+  shop_name nvarchar(150) not null,           -- 通用店铺名
+);
+
+-- 通用店铺分类等级表
+create table common_shop_sort_level_table(
+  id int identity(1, 1) primary key,
+  unique_id nvarchar(200) not null unique,    -- 唯一约束该条记录
+  sort_level1_id nvarchar(200) not null,      -- 分类等级1的id
+  sort_level1_name nvarchar(200) not null,    -- 分类等级1的name
+  sort_level2_id nvarchar(200) null,
+  sort_level2_name nvarchar(200) null,
+  sort_level3_id nvarchar(200) null,
+  sort_level3_name nvarchar(200) null,
+);

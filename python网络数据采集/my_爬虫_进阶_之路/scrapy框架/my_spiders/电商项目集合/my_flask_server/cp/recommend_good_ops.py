@@ -292,12 +292,13 @@ class RecommendGoodOps(AsyncCrawler):
 
         # 文章在前的发布顺序, 视频在后(避免视频发过多)
         # 本地新闻先放前面
+        # 金华广众网较多都是含有js视频文章的会导致较多的发布失败, 所以考虑放到后面去
         article_list = self.jhrx_article_list \
+                       + self.dy0_article_list \
                        + self.jhwb_article_list \
                        + self.jhgzw_article_list \
                        + self.jhzjol_article_list \
                        + self.zq_article_list \
-                       + self.dy0_article_list \
                        + self.bdqmxsv_article_list \
                        + self.jhbdsv_article_list \
                        + self.pp_article_list \

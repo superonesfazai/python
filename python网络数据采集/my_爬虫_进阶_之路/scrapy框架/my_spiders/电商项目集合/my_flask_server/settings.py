@@ -126,7 +126,7 @@ TAOBAO_QIANGGOU_SPIDER_HOUR_LIST = ['10', '11', '12', '13', '14', '15', '17']
 '''
 折800 session_id相关
 '''
-BASE_SESSION_ID = 30240             # 起始session_id
+BASE_SESSION_ID = 31018             # 起始session_id
 MAX_SESSION_ID = 35000              # 截止的session_id
 SPIDER_START_HOUR = 8               # 每日限时秒杀爬取的开始秒杀时间点
 SPIDER_END_HOUR = 16                # 每日限时秒杀爬取的秒杀结束时间点
@@ -223,7 +223,7 @@ redis
 """
 # REDIS_HOST = '127.0.0.1'
 # pi
-REDIS_HOST = '192.168.1.100'
+REDIS_HOST = '192.168.124.6'
 REDIS_PORT = 6379
 REDIS_PASSWORD = None
 REDIS_DB = 6
