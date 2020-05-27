@@ -228,7 +228,7 @@ class TmallParse(Crawler):
 
         # 上下架判断放在这里避免已下架的不进行taobao_price为空断言判断
         is_delete = self._get_is_delete(data=data, title=title)
-
+        # self.lg.info('is_delete: {}'.format(is_delete))
         try:
             # 每个标签对应值的价格及其库存
             price_info_list = taobao._get_price_info_list(
@@ -552,6 +552,7 @@ class TmallParse(Crawler):
         eg: https://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.16.3a476095nAD0gh&id=541895028241&skuId=3556559472007&areaId=330700&user_id=732956498&cat_id=2&is_b=1&rn=5435e2e903312b0cf8422e9938dff7ac
         """
         is_delete = 0
+        # pprint(data)
         # todo 以下顺序不可颠倒
         # * 2017-10-16 先通过buyEnable字段来判断商品是否已经下架
         if data.get('trade', {}) != {}:
@@ -561,6 +562,7 @@ class TmallParse(Crawler):
                 pass
         else:
             pass
+        # self.lg.info('is_delete: {}'.format(is_delete))
 
         if is_delete == 0:
             # 2019-09-03 新增: tm 2版的下架判断
@@ -571,11 +573,29 @@ class TmallParse(Crawler):
 
         else:
             pass
+        # self.lg.info('is_delete: {}'.format(is_delete))
 
         if is_delete == 0:      # * 2018-6-29 加个判断防止与上面冲突(修复冲突bug)
             # * 2018-4-17 新增一个判断是否下架
             if not data.get('mockData', {}).get('trade', {}).get('buyEnable', True):
                     is_delete = 1
+            else:
+                pass
+        else:
+            pass
+        # self.lg.info('is_delete: {}'.format(is_delete))
+
+        # 2020.5.27 新增:
+        # 单独处理tm 超市的, 因为tm 超市很多实际在售, 但是由于上面的判断导致下架的状态(多出现在超市分类goods存入数据时)
+        if is_delete == 1:
+            # todo 因此这样处理后, cp 判断该天猫超市商品是否可买还是得看其实际是否能配送进行判断了
+            if data.get('seller', {}).get('shopName', '') == '天猫超市':
+                if data.get('trade', {}).get('buyEnable', 'true') == 'false' \
+                    and data.get('trade', {}).get('cartConfirmEnable', 'false') == 'true' \
+                    and data.get('trade', {}).get('cartEnable', 'false') == 'true':
+                    is_delete = 0
+                else:
+                    pass
             else:
                 pass
         else:

@@ -9,12 +9,17 @@
 from settings import (
     IP_POOL_TYPE,
     MY_SPIDER_LOGS_PATH,
+    TAOBAO_REAL_TIMES_SLEEP_TIME,
 )
 from my_pipeline import SqlServerMyPageInfoSaveItemPipeline
 
+from tmall_parse_2 import TmallParse
+from multiplex_code import (
+    _block_get_new_db_conn,
+)
+
 from fzutils.spider.fz_driver import PHONE
 from fzutils.cp_utils import (
-    get_taobao_sign_and_body,
     block_calculate_tb_right_sign,
 )
 from fzutils.spider.async_always import *
@@ -40,9 +45,9 @@ class GoodsSortByShopTypeSpider2(AsyncCrawler):
         # 天猫超市入口的t, _m_h5_tk
         # t = '1590387891307'
         # _m_h5_tk = '6f594c22870353cede88c2796cc28ee9'
-        self.tm_new_chrome_t = '1590462144500'
-        self.tm_new_chrome_sign = '30077eac29271c210646bfdea87f3990'
-        self.tm_new_chrome_cookies_str = 'hng=CN%7Czh-CN%7CCNY%7C156; cna=wRsVFTj6JEoCAXHXtCqXOzC7; lid=%E6%88%91%E6%98%AF%E5%B7%A5%E5%8F%B79527%E6%9C%AC%E4%BA%BA; enc=MXX6theE39REQu4vFae7f5vi8A8GAdt5pdcQAJY7eR3zuOxwTSUu0zQGRWpBLbzxbJUsLvdHk4vB8ZWvQR%2BjQg%3D%3D; l=eB_zn817vA2VK0x_BOfZnurza779_IRAguPzaNbMiOCPOdfH5H0fWZAGqqTMCnGVh6uk83JDb3ZQBeYBcBdKnxvOnrZgURDmn; sm4=330100; csa=0_0_0_0_0_0_0_0_0_0_0_0_0; sgcookie=EbIdqdSy36jBPHKaO%2FPZS; uc3=id2=UUplY9Ft9xwldQ%3D%3D&lg2=W5iHLLyFOGW7aA%3D%3D&vt3=F8dBxGZjLZslLqBqC3E%3D&nk2=rUtEoY7x%2Bk8Rxyx1ZtN%2FAg%3D%3D; t=44ba880282155f09837da199e9503ac5; tracknick=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; uc4=id4=0%40U2gvLJ3%2BK6kqeorNX%2B21sXN8x3lW&nk4=0%40r7rCNeQ4%2Bj7fAj%2BMcdPH4%2B0X9x%2FwQLp0Sd4%2F; lgc=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; _tb_token_=6f560ee758b7; cookie2=149dda2bafcaebd274a743d5320acc65; _m_h5_tk=1942ee9b8bc4f3c4ef06951534bda043_1590471490706; _m_h5_tk_enc=ccaf144e114b061308be53c18731a2fd; isg=BJeXuGUrhSKzIAPyU_A77fAQJg3h3Gs-yAsChunEs2bNGLda8az7jlU-fv6j8EO2'
+        self.tm_new_chrome_t = '1590545557798'
+        self.tm_new_chrome_sign = 'c2d1fced4d7b1333d0f19b6b637fed9f'
+        self.tm_new_chrome_cookies_str = 'hng=CN%7Czh-CN%7CCNY%7C156; cna=wRsVFTj6JEoCAXHXtCqXOzC7; lid=%E6%88%91%E6%98%AF%E5%B7%A5%E5%8F%B79527%E6%9C%AC%E4%BA%BA; enc=MXX6theE39REQu4vFae7f5vi8A8GAdt5pdcQAJY7eR3zuOxwTSUu0zQGRWpBLbzxbJUsLvdHk4vB8ZWvQR%2BjQg%3D%3D; l=eB_zn817vA2VK0x_BOfZnurza779_IRAguPzaNbMiOCPOdfH5H0fWZAGqqTMCnGVh6uk83JDb3ZQBeYBcBdKnxvOnrZgURDmn; sm4=330100; csa=0_0_0_0_0_0_0_0_0_0_0_0_0; sgcookie=EbIdqdSy36jBPHKaO%2FPZS; uc3=id2=UUplY9Ft9xwldQ%3D%3D&lg2=W5iHLLyFOGW7aA%3D%3D&vt3=F8dBxGZjLZslLqBqC3E%3D&nk2=rUtEoY7x%2Bk8Rxyx1ZtN%2FAg%3D%3D; t=c413bd0891628c3269938122b2bee15f; tracknick=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; uc4=id4=0%40U2gvLJ3%2BK6kqeorNX%2B21sXN8x3lW&nk4=0%40r7rCNeQ4%2Bj7fAj%2BMcdPH4%2B0X9x%2FwQLp0Sd4%2F; lgc=%5Cu6211%5Cu662F%5Cu5DE5%5Cu53F79527%5Cu672C%5Cu4EBA; _tb_token_=ee5587773876d; cookie2=13ed682f1aa10261d267e8e5a9e8e223; _m_h5_tk=883da77eaee1f1b25a7fb1f4c95b68e6_1590554541015; _m_h5_tk_enc=d531110c50a3daed05299dbb0b6dc3f0; isg=BBISyyg5mGC0AuZBht_2zq0HY970Ixa9xZzn1dxrPkWw77LpxLNmzRgJWw32n45V'
         self.tm_first_sort_list = [
             {
                 'name': '休闲零食',
@@ -164,12 +169,144 @@ class GoodsSortByShopTypeSpider2(AsyncCrawler):
             '上新',
             '秒杀',
             '热门',
+            '减',
+            '满减',
         )
         self.sql_cli = SqlServerMyPageInfoSaveItemPipeline()
-        self.sql_str0 = 'insert into dbo.common_shop_sort_level_table(unique_id, sort_level1_id, sort_level1_name, sort_level2_id, sort_level2_name, sort_level3_id, sort_level3_name) values(%s, %s, %s, %s, %s, %s, %s)'
+        self._init_sql_str()
+        self.db_existed_goods_id_list = []
+        self.sql_cli_remainder = 20
+
+    def _init_sql_str(self):
+        self.sql_str0 = 'insert into dbo.common_shop_sort_level_table(unique_id, sort_level1_id, sort_level1_name, sort_level2_id, sort_level2_name, sort_level3_id, sort_level3_name, shop_id) values(%s, %s, %s, %s, %s, %s, %s, %s)'
+        self.sql_str1 = """
+        select unique_id, sort_level1_id, sort_level2_id, sort_level2_name, sort_level3_id, sort_level3_name
+        from dbo.common_shop_sort_level_table
+        where sort_level2_id != '' 
+        and sort_level3_id != ''
+        """
+        self.sql_str2 = 'insert into dbo.common_shop_sort_and_goods_relation_table(create_time, unique_id, sort_unique_id, goods_id, goods_url) values(%s, %s, %s, %s, %s)'
+        self.sql_str3 = """
+        select unique_id
+        from dbo.common_shop_sort_and_goods_relation_table
+        """
+        self.sql_str4 = 'select GoodsID from dbo.GoodsInfoAutoGet'
+        self.sql_str5 = """
+        select goods_id
+        from dbo.common_shop_sort_and_goods_relation_table
+        where sort_unique_id in (
+        select unique_id 
+        from dbo.common_shop_sort_level_table
+        where shop_id='tmcs'
+        )
+        """
 
     async def _fck_run(self):
-        await self.get_tm_sort_info()
+        # await self.get_tm_sort_info_and_2_db()
+
+        # 处理待存入的tmcs goods_id
+        await self.deal_with_tmcs_goods_sort_relation_2_goods_table()
+
+    async def deal_with_tmcs_goods_sort_relation_2_goods_table(self):
+        """
+        处理common_shop_sort_and_goods_relation_table表中未存入的goods_id, 对应存入原商品表中
+        :return:
+        """
+        while True:
+            # 用于定位增加商品的个数
+            self.add_goods_index = 0
+            try:
+                result0 = list(self.sql_cli._select_table(sql_str=self.sql_str4))
+                assert result0 is not None
+                result1 = list(self.sql_cli._select_table(sql_str=self.sql_str5))
+                assert result1 is not None
+                self.lg.info('db 已存在的goods_id_num: {}'.format(len(result0)))
+                self.db_existed_goods_id_list = [item[0] for item in result0]
+                assert self.db_existed_goods_id_list != []
+                # 获取db 中待处理存入的tmcs goods
+                self.db_wait_2_save_goods_id_list = [item[0] for item in result1]
+                assert self.db_wait_2_save_goods_id_list != []
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
+                await async_sleep(15)
+                continue
+
+            try:
+                del result0
+                del result1
+            except:
+                pass
+            collect()
+            # 处理待存入的tmcs 的goods_id_list
+            await self.deal_with_tmcs_goods_id_list()
+
+    async def deal_with_tmcs_goods_id_list(self):
+        self.lg.info('即将开始抓取tmcs goods, 请耐心等待...')
+        for item in self.db_wait_2_save_goods_id_list:
+            # eg: '61864164616'
+            goods_id = item
+
+            if goods_id in self.db_existed_goods_id_list:
+                self.lg.info('该goods_id[{0}]已存在于db中!'.format(goods_id))
+                continue
+
+            tmall = TmallParse(logger=self.lg, is_real_times_update_call=True)
+            self.sql_cli = _block_get_new_db_conn(
+                db_obj=self.sql_cli,
+                index=self.add_goods_index,
+                logger=self.lg,
+                remainder=self.sql_cli_remainder, )
+            if self.sql_cli.is_connect_success:
+                # 加spm 是为了get_goods_id_from_url能筛选, id
+                # goods_url = 'https://detail.tmall.com/item.htm?spm=a220m.1000858.1000725.1.65a47fb1yR1OUp&id={}'.format(goods_id)
+                goods_url = 'https://detail.tmall.com/item.htm?id={}'.format(goods_id)
+                # 下面这个goods_id为类型加goods_id的list
+                goods_id = tmall.get_goods_id_from_url(goods_url)
+                if goods_id == []:
+                    self.lg.error('@@@ 原商品的地址为: {0}'.format(goods_url))
+                    continue
+                else:
+                    self.lg.info('------>>>| 正在更新的goods_id为(%s) | --------->>>@ 索引值为(%s)' % (
+                    goods_id[1], str(self.add_goods_index)))
+                    tt = tmall.get_goods_data(goods_id)
+                    data = tmall.deal_with_data()
+                    goods_id = goods_id[1]
+                    if data != {}:
+                        data['goods_id'] = goods_id
+                        data['username'] = '18698570079'
+                        data['main_goods_id'] = None
+                        data['goods_url'] = tmall._from_tmall_type_get_tmall_url(
+                            type=data['type'],
+                            goods_id=goods_id,)
+                        if data['goods_url'] == '':
+                            self.lg.error('该goods_url为空值! 此处跳过!')
+                            continue
+
+                        if len(data['all_img_url']) <= 1:
+                            self.lg.info('[goods_id: {}]主图个数<=1, pass'.format(goods_id))
+                            return False
+
+                        result = tmall.old_tmall_goods_insert_into_new_table(
+                            data=data,
+                            pipeline=self.sql_cli)
+                        if result:
+                            # 避免后续重复采集
+                            self.db_existed_goods_id_list.append(goods_id)
+                        else:
+                            pass
+                    else:
+                        pass
+
+            else:
+                self.lg.info('数据库连接失败，数据库可能关闭或者维护中')
+                pass
+            self.add_goods_index += 1
+            collect()
+            sleep(TAOBAO_REAL_TIMES_SLEEP_TIME)
+
+        self.lg.info('tmcs已经抓取完毕!')
+
+        return True
 
     def get_common_shop_sort_level_table_unique_id(self,
                                                    shop_id,
@@ -199,7 +336,7 @@ class GoodsSortByShopTypeSpider2(AsyncCrawler):
 
         return get_uuid3(target_str=target_str)
 
-    async def get_tm_sort_info(self):
+    async def get_tm_sort_info_and_2_db(self):
         """
         获取天猫的分类信息
         :return:
@@ -208,91 +345,123 @@ class GoodsSortByShopTypeSpider2(AsyncCrawler):
         # await self._tmcs_insert_into_sort_level1_2_db()
 
         # 获取第二分类的id信息
-        for item in self.tm_first_sort_list:
-            sort_level1_id = item.get('level1_id', 0)
-            sort_level1_name = item.get('name', '')
-            icon_type = item.get('icon_type', '')
-            is_success = False
-            target_data = {}
-            try:
-                self.lg.info('Get sort_level1_name: {}, sort_level1_id: {} ing ...'.format(
-                    sort_level1_name,
-                    sort_level1_id))
-                target_data = await self.get_tm_second_sort_info_by_first_sort_name(
-                    first_sort_name=sort_level1_name,
-                    icon_type=icon_type,
-                    level1_id=sort_level1_id,)
-                if target_data != {}:
-                    is_success = True
-                else:
-                    pass
-                assert target_data != {}
-                # 插入db
-                await self._tmcs_insert_into_sort_level2_2_db(data=target_data)
-            except Exception:
-                self.lg.error('遇到错误:', exc_info=True)
+        # for item in self.tm_first_sort_list:
+        #     sort_level1_id = item.get('level1_id', 0)
+        #     sort_level1_name = item.get('name', '')
+        #     icon_type = item.get('icon_type', '')
+        #     is_success = False
+        #     target_data = {}
+        #     try:
+        #         self.lg.info('Get sort_level1_name: {}, sort_level1_id: {} ing ...'.format(
+        #             sort_level1_name,
+        #             sort_level1_id))
+        #         target_data = await self.get_tm_second_sort_info_by_first_sort_name(
+        #             first_sort_name=sort_level1_name,
+        #             icon_type=icon_type,
+        #             level1_id=sort_level1_id,)
+        #         if target_data != {}:
+        #             is_success = True
+        #         else:
+        #             pass
+        #         assert target_data != {}
+        #         # 插入db
+        #         await self._tmcs_insert_into_sort_level2_2_db(data=target_data)
+        #     except Exception:
+        #         self.lg.error('遇到错误:', exc_info=True)
+        #
+        #     self.lg.info('[{}] sort_level1_name: {}, sort_level1_id: {}'.format(
+        #         '+' if is_success else '-',
+        #         sort_level1_name,
+        #         sort_level1_id,
+        #     ))
+        #
+        #     # 再获取其第三类的分类信息
+        #
+        #     # 测试
+        #     # 获取第三分类的信息
+        #     # 即上面的second_list中item的id
+        #     # second_id = 298
+        #     # icon_type = 'categoryxiuxianlingshi'
+        #     # business = 'B2C'
+        #     # await self.get_tm_third_sort_info_by_second_id(
+        #     #     second_id=second_id,
+        #     #     icon_type=icon_type,
+        #     #     business=business
+        #     # )
+        #
+        #     if target_data == {}:
+        #         continue
+        #
+        #     for i in target_data.get('second_list', []):
+        #         is_success2 = False
+        #         try:
+        #             sort_level2_id = i.get('id', -1)
+        #             assert sort_level2_id != -1
+        #             sort_level2_name = i.get('name', '')
+        #             assert sort_level2_name != ''
+        #             business = i.get('business', '')
+        #             assert business != ''
+        #
+        #             self.lg.info('Get sort_level1_name: {}, sort_level1_id: {}, sort_level2_name: {}, sort_level2_id: {} ing ...'.format(
+        #                 sort_level1_name,
+        #                 sort_level1_id,
+        #                 sort_level2_name,
+        #                 sort_level2_id))
+        #             target_data2 = await self.get_tm_third_sort_info_by_second_id(
+        #                 second_id=sort_level2_id,
+        #                 icon_type=icon_type,
+        #                 business=business,)
+        #             if target_data2 != {}:
+        #                 is_success2 = True
+        #             else:
+        #                 pass
+        #             assert target_data2 != {}
+        #             # 插入db
+        #             await self._tmcs_insert_into_sort_level3_2_db(
+        #                 sort_level1_id=sort_level1_id,
+        #                 sort_level1_name=sort_level1_name,
+        #                 sort_level2_name=sort_level2_name,
+        #                 data=target_data2)
+        #         except Exception:
+        #             self.lg.error('遇到错误:', exc_info=True)
+        #             continue
+        #
+        #         self.lg.info('[{}] sort_level2_name: {}, sort_level2_id: {}'.format(
+        #             '+' if is_success2 else '-',
+        #             sort_level2_name,
+        #             sort_level2_id,
+        #         ))
 
-            self.lg.info('[{}] sort_level1_name: {}, sort_level1_id: {}'.format(
-                '+' if is_success else '-',
-                sort_level1_name,
-                sort_level1_id,
-            ))
+        # 获取第三分类对应的goods_id信息并存入db
+        try:
+            ori_db_data = self.sql_cli._select_table(
+                sql_str=self.sql_str1,
+                logger=self.lg,)
+            assert ori_db_data is not None
+            # pprint(ori_db_data)
 
-            # 再获取其第三类的分类信息
+            # 获取common_shop_sort_and_goods_relation_table 中原先已存在的unique_id_list
+            self.db_goods_sort_relation_unique_id_list = self.sql_cli._select_table(
+                sql_str=self.sql_str3,
+                logger=self.lg,
+            )
+            assert self.db_goods_sort_relation_unique_id_list is not None
+            self.db_goods_sort_relation_unique_id_list = [i[0] for i in self.db_goods_sort_relation_unique_id_list]
+            # pprint(self.db_goods_sort_relation_unique_id_list)
+            assert self.db_goods_sort_relation_unique_id_list != []
 
-            # 测试
-            # 获取第三分类的信息
-            # 即上面的second_list中item的id
-            # second_id = 298
-            # icon_type = 'categoryxiuxianlingshi'
-            # business = 'B2C'
-            # await self.get_tm_third_sort_info_by_second_id(
-            #     second_id=second_id,
-            #     icon_type=icon_type,
-            #     business=business
-            # )
+            # 获取并存入对应分类的goods数据
+            await self._tmcs_insert_into_goods_info_2_db(ori_db_data=ori_db_data)
+        except Exception:
+            self.lg.error('遇到错误:', exc_info=True)
 
-            if target_data == {}:
-                continue
-
-            for i in target_data.get('second_list', []):
-                is_success2 = False
-                try:
-                    sort_level2_id = i.get('id', -1)
-                    assert sort_level2_id != -1
-                    sort_level2_name = i.get('name', '')
-                    assert sort_level2_name != ''
-                    business = i.get('business', '')
-                    assert business != ''
-
-                    self.lg.info('Get sort_level2_name: {}, sort_level2_id: {} ing ...'.format(
-                        sort_level2_name,
-                        sort_level2_id))
-                    target_data2 = await self.get_tm_third_sort_info_by_second_id(
-                        second_id=sort_level2_id,
-                        icon_type=icon_type,
-                        business=business,)
-                    if target_data2 != {}:
-                        is_success2 = True
-                    else:
-                        pass
-                    assert target_data2 != {}
-                    # 插入db
-                    await self._tmcs_insert_into_sort_level3_2_db(
-                        sort_level1_id=sort_level1_id,
-                        sort_level1_name=sort_level1_name,
-                        sort_level2_name=sort_level2_name,
-                        data=target_data2)
-                except Exception:
-                    self.lg.error('遇到错误:', exc_info=True)
-                    continue
-
-                self.lg.info('[{}] sort_level2_name: {}, sort_level2_id: {}'.format(
-                    '+' if is_success2 else '-',
-                    sort_level2_name,
-                    sort_level2_id,
-                ))
-
+    async def _tmcs_insert_into_goods_info_2_db(self,
+                                                ori_db_data: (tuple, list),):
+        """
+        把对应分类的商品数据插入到中间表common_shop_sort_and_goods_relation_table中
+        :param ori_db_data:
+        :return:
+        """
         # 测试
         # 获取第四分类, 即直接获取最后一级分类对应的goods_id_list
         # second_id = 298
@@ -305,6 +474,98 @@ class GoodsSortByShopTypeSpider2(AsyncCrawler):
         #     icon_type=icon_type,
         #     business=business
         # )
+
+        for item in ori_db_data:
+            is_success = False
+            try:
+                sort_unique_id, sort_level1_id = item[0], int(item[1].replace('tmcs', ''))
+                sort_level2_id, sort_level2_name = int(item[2].replace('tmcs', '')), item[3]
+                sort_level3_id, sort_level3_name = int(item[4].replace('tmcs', '')), item[5]
+                assert sort_level2_id != ''
+                assert sort_level3_id != ''
+                icon_type = self.get_tmcs_icon_type_by_sort_level1_id(
+                    sort_level1_id=sort_level1_id,)
+
+                self.lg.info('Get sort_level1_id: {}, sort_level2_name: {}, sort_level2_id: {}, sort_level3_name: {}, sort_level3_id: {} ing ...'.format(
+                    sort_level1_id,
+                    sort_level2_name,
+                    sort_level2_id,
+                    sort_level3_name,
+                    sort_level3_id,
+                ))
+                target_data = await self.get_tm_fourth_sort_info_by_second_id_and_third_id(
+                    second_id=sort_level2_id,
+                    third_id=sort_level3_id,
+                    icon_type=icon_type,
+                    business='B2C',
+                )
+                assert target_data != {}
+                is_success = True
+                now_time = get_shanghai_time()
+                # 插入db
+                for i in target_data.get('goods_list', []):
+                    try:
+                        goods_id = i.get('goods_id', '')
+                        assert goods_id != ''
+                        goods_relation_unique_id = self.get_tmcs_goods_relation_unique_id(
+                            sort_unique_id=sort_unique_id,
+                            goods_id=goods_id,
+                        )
+                        if goods_relation_unique_id in self.db_goods_sort_relation_unique_id_list:
+                            self.lg.info('db 已存在goods_relation_unique_id: {}, 跳过'.format(goods_relation_unique_id))
+                            continue
+
+                        res = self.sql_cli._insert_into_table_2(
+                            sql_str=self.sql_str2,
+                            params=(
+                                now_time,
+                                goods_relation_unique_id,
+                                sort_unique_id,
+                                goods_id,
+                                '',
+                            ),
+                            logger=self.lg,
+                        )
+                        if res:
+                            self.db_goods_sort_relation_unique_id_list.append(goods_relation_unique_id)
+                        else:
+                            pass
+                    except Exception:
+                        continue
+
+            except Exception:
+                self.lg.error('遇到错误:', exc_info=True)
+
+            self.lg.info('[{}] sort_level3_name: {}, sort_level3_id: {}'.format(
+                '+' if is_success else '-',
+                sort_level3_name,
+                sort_level3_id,
+            ))
+
+        return
+
+    def get_tmcs_goods_relation_unique_id(self, sort_unique_id: str, goods_id: str):
+        """
+        获取分类与商品id的唯一id, 以在db 中进行唯一去重
+        :param sort_unique_id:
+        :param goods_id:
+        :return:
+        """
+        return get_uuid3(target_str=sort_unique_id + goods_id)
+
+    def get_tmcs_icon_type_by_sort_level1_id(self, sort_level1_id: int) -> str:
+        """
+        根据sort_level1_id获取对应icon_type的值
+        :param sort_level1_id:
+        :return:
+        """
+        for item in self.tm_first_sort_list:
+            if item.get('level1_id', -1) == sort_level1_id:
+                return item.get('icon_type', '')
+            else:
+                continue
+
+        raise ValueError('获取sort_level1_id: {}, 对应的icon_type异常'.format(sort_level1_id))
 
     async def _tmcs_insert_into_sort_level3_2_db(self,
                                                  sort_level1_id,
@@ -359,6 +620,7 @@ class GoodsSortByShopTypeSpider2(AsyncCrawler):
                             sort_level2_name,
                             sort_level3_id,
                             sort_level3_name,
+                            'tmcs',
                         ),
                         logger=self.lg,)
                 except Exception:
@@ -411,6 +673,7 @@ class GoodsSortByShopTypeSpider2(AsyncCrawler):
                             sort_level2_name,
                             '',
                             '',
+                            'tmcs',
                         ),
                         logger=self.lg,)
                 except Exception:
@@ -450,6 +713,7 @@ class GoodsSortByShopTypeSpider2(AsyncCrawler):
                         '',
                         '',
                         '',
+                        'tmcs',
                     ),
                     logger=self.lg,)
             except Exception:
@@ -865,6 +1129,7 @@ class GoodsSortByShopTypeSpider2(AsyncCrawler):
         try:
             del self.lg
             del self.sql_cli
+            del self.db_existed_goods_id_list
         except:
             pass
         collect()

@@ -610,4 +610,15 @@ create table common_shop_sort_level_table(
   sort_level2_name nvarchar(200) null,
   sort_level3_id nvarchar(200) null,
   sort_level3_name nvarchar(200) null,
+  shop_id varchar(100) not null,              -- 对应的店铺id
+);
+
+-- 通用店铺分类对应的goods_id表
+create table common_shop_sort_and_goods_relation_table(
+  id int identity(1, 1) primary key,
+  create_time datetime,
+  unique_id nvarchar(200) not null unique,    -- 唯一约束该条关系记录, get_uuid3(sort_unique_id + goods_id)
+  sort_unique_id nvarchar(200) not null,      -- 分类的唯一id
+  goods_id varchar(200) not null,
+  goods_url nvarchar(4000) null,
 );
